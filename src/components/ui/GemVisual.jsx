@@ -1,8 +1,10 @@
+import { mediaUrl } from '../../api/client';
+
 export default function GemVisual({ color = '#6B3FA0', name = '', className = '', image }) {
   if (image) {
     return (
       <img
-        src={image}
+        src={mediaUrl(image)}
         alt={name}
         className={`bg-black object-cover ${className}`}
       />

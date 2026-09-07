@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../../api/client';
+import api, { mediaUrl } from '../../api/client';
 import Button from '../../components/ui/Button';
 import Price from '../../components/ui/Price';
 import AdminTable from '../../components/admin/AdminTable';
@@ -73,7 +73,7 @@ export default function AdminProducts() {
             label: 'Product',
             render: (p) => (
               <div className="flex items-center gap-3">
-                {p.images?.[0] ? <img src={p.images[0]} alt="" className="h-11 w-11 rounded-lg object-cover" /> : <span className="h-11 w-11 rounded-lg bg-raised" />}
+                {p.images?.[0] ? <img src={mediaUrl(p.images[0])} alt="" className="h-11 w-11 rounded-lg object-cover" /> : <span className="h-11 w-11 rounded-lg bg-raised" />}
                 <div>
                   <div className="font-medium text-ivory">{p.name}</div>
                   <div className="text-xs text-lilac">{p.shortDescription}</div>

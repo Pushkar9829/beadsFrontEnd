@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../../api/client';
+import api, { mediaUrl } from '../../api/client';
 import Button from '../../components/ui/Button';
 import Price from '../../components/ui/Price';
 import AdminTable from '../../components/admin/AdminTable';
@@ -55,7 +55,7 @@ export default function AdminBeads() {
             label: 'Bead',
             render: (b) => (
               <div className="flex items-center gap-3">
-                {b.image ? <img src={b.image} alt="" className="h-11 w-11 rounded-full object-cover" /> : <span className="h-11 w-11 rounded-full" style={{ background: b.colorHex }} />}
+                {b.image ? <img src={mediaUrl(b.image)} alt="" className="h-11 w-11 rounded-full object-cover" /> : <span className="h-11 w-11 rounded-full" style={{ background: b.colorHex }} />}
                 <div>
                   <div className="font-medium">{b.name}</div>
                   <div className="text-xs text-lilac">{b.shortDescriptor}</div>

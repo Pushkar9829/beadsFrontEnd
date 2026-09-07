@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import api from '../../api/client';
+import api, { mediaUrl } from '../../api/client';
 import AdminTable from '../../components/admin/AdminTable';
 import AdminHeader from '../../components/admin/AdminHeader';
 
@@ -34,7 +34,7 @@ export default function AdminMedia() {
           {
             key: 'preview',
             label: 'Preview',
-            render: (m) => <img src={m.url} alt="" className="h-12 w-12 rounded-lg object-cover" />,
+            render: (m) => <img src={mediaUrl(m.url)} alt="" className="h-12 w-12 rounded-lg object-cover" />,
           },
           { key: 'originalName', label: 'File' },
           { key: 'url', label: 'URL', render: (m) => <span className="break-all text-lilac">{m.url}</span> },
