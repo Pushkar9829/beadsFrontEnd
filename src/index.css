@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Cinzel", ui-serif, Georgia, serif;
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #0b0b0d;
+  --color-canvas: #000000;
+  --color-surface: #121214;
+  --color-raised: #1a1a1e;
+  --color-gold: #c6a75e;
+  --color-gold-light: #e8d5a3;
+  --color-gold-deep: #8c6a2f;
+  --color-amethyst: #6b3fa0;
+  --color-amethyst-deep: #4a1c7a;
+  --color-amethyst-light: #b48cff;
+  --color-ivory: #f6f1e8;
+  --color-lilac: #b7a9c4;
+  --color-line: rgba(198, 167, 94, 0.35);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #000;
+  color: #f6f1e8;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+::selection {
+  background: rgba(107, 63, 160, 0.45);
+  color: #f6f1e8;
+}
+
+.gold-text {
+  background: linear-gradient(180deg, #e8d5a3 0%, #c6a75e 48%, #8c6a2f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gold-border {
+  border: 1px solid rgba(198, 167, 94, 0.35);
+  box-shadow: 0 0 0 1px rgba(198, 167, 94, 0.08), 0 0 28px rgba(107, 63, 160, 0.12);
+}
+
+.gold-btn {
+  background: linear-gradient(180deg, #e8d5a3 0%, #c6a75e 42%, #8c6a2f 100%);
+  color: #0b0b0d;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.gold-btn:hover {
+  filter: brightness(1.08);
+}
+
+.lotus-corner {
+  pointer-events: none;
+  background-image: radial-gradient(ellipse at bottom left, rgba(107, 63, 160, 0.18), transparent 55%),
+    radial-gradient(ellipse at bottom right, rgba(198, 167, 94, 0.08), transparent 50%);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
