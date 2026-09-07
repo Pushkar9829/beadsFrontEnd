@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop';
 import { useAuthStore } from './store/authStore';
 import { useCartStore } from './store/cartStore';
 import StoreLayout from './components/layout/StoreLayout';
@@ -41,6 +42,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route element={<StoreLayout />}>
           <Route path="/" element={<HomePage />} />
