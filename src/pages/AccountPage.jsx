@@ -17,8 +17,16 @@ export default function AccountPage() {
   const placed = params.get('placed');
 
   useEffect(() => {
-    api.get('/orders/mine').then(({ data }) => setOrders(data.orders || [])).finally(() => setLoading(false));
-  }, []);
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    api
+      .get('/orders/mine')
+      .then(({ data }) => setOrders(data.orders || []))
+      .catch(() => setOrders([]))
+      .finally(() => setLoading(false));
+  }, [user]);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">

@@ -117,11 +117,15 @@ export const useCartStore = create(
       },
 
       async onLogin() {
-        const localItems = get().items.filter((i) => String(i._id).startsWith('local-'));
-        if (localItems.length) {
-          await api.post('/cart/merge', { items: localItems });
+        try {
+          const localItems = get().items.filter((i) => String(i._id).startsWith('local-'));
+          if (localItems.length) {
+            await api.post('/cart/merge', { items: localItems });
+          }
+          await get().fetchServer();
+        } catch {
+          /* guest bag stays local until a valid session exists */
         }
-        await get().fetchServer();
       },
 
       onLogout() {
