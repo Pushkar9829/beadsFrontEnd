@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { useCustomizerStore, useCustomizerQuote } from '../../store/customizerStore';
 import BraceletPreview from '../../preview/BraceletScene';
@@ -5,6 +6,7 @@ import Price from '../ui/Price';
 import Button from '../ui/Button';
 
 export default function PreviewPanel({ mobile }) {
+  const navigate = useNavigate();
   const purpose = useCustomizerStore((s) => s.purpose);
   const intention = useCustomizerStore((s) => s.intention);
   const quote = useCustomizerQuote();
@@ -16,13 +18,27 @@ export default function PreviewPanel({ mobile }) {
   const setStep = useCustomizerStore((s) => s.setStep);
   const previewOpen = useCustomizerStore((s) => s.previewOpen);
   const setPreviewOpen = useCustomizerStore((s) => s.setPreviewOpen);
+  const calibration = useCustomizerStore((s) => s.calibration);
+  const engravingName = useCustomizerStore((s) => s.engravingName);
 
   const body = (
     <>
-      <BraceletPreview lines={quote.lines} wristSize={wristSize} finish={finish} compact={mobile} />
+      <BraceletPreview
+        lines={quote.lines}
+        layout={calibration?.layout}
+        wristSize={wristSize}
+        finish={finish}
+        compact={mobile}
+      />
       <div className="mt-4 space-y-2 text-sm">
         <p className="text-xs uppercase tracking-widest text-gold">Selection</p>
         <p>{purpose?.name || 'Purpose pending'} {intention ? `· ${intention.name}` : ''}</p>
+        {engravingName && <p className="text-gold">{engravingName}</p>}
+        {calibration && (
+          <p className="text-lilac">
+            Mulank {calibration.mulank} · {calibration.zodiac?.sign || 'Zodiac pending'}
+          </p>
+        )}
         {quote.lines.map((l) => (
           <div key={l.beadId} className="flex justify-between text-lilac">
             <span>{l.name} × {l.quantity} · <Price value={l.pricePerBead} /> / bead</span>
@@ -41,10 +57,12 @@ export default function PreviewPanel({ mobile }) {
           <span>Live total</span>
           <Price value={quote.total} />
         </div>
-        {!quote.valid && <p className="text-xs text-red-300">{quote.errors.join(' ')}</p>}
+        {!quote.valid && quote.errors?.length > 0 && (
+          <p className="text-xs text-red-300">{quote.errors.join(' ')}</p>
+        )}
         <div className="flex gap-2 pt-2">
           <Button variant="ghost" className="flex-1" onClick={() => setStep(1)}>Edit</Button>
-          <Button variant="ghost" className="flex-1" onClick={clearBuild}>Clear</Button>
+          <Button variant="ghost" className="flex-1" onClick={() => { clearBuild(); navigate('/customize'); }}>Clear</Button>
         </div>
       </div>
     </>

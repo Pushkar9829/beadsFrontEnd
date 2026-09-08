@@ -35,7 +35,7 @@ export default function CategoryPage() {
       <p className="text-xs uppercase tracking-[0.25em] text-gold">{category.family}</p>
       <h1 className="mt-2 font-serif text-4xl gold-text">{category.name}</h1>
       <p className="mt-3 max-w-2xl text-lilac">{category.description}</p>
-      <Button to="/customize" className="mt-6">Customize Your Bracelet</Button>
+      <Button to="/customize" className="mt-6">Shop by Purpose</Button>
       {products.length === 0 ? (
         <EmptyState title="No pieces in this collection yet" body="The atelier will add them from admin — the menu stays expandable." />
       ) : (

@@ -85,9 +85,11 @@ export default function Header() {
           ))}
           <NavLink
             to="/customize"
-            className="text-xs uppercase tracking-[0.18em] text-gold hover:text-gold-light"
+            className={({ isActive }) =>
+              `text-xs uppercase tracking-[0.18em] ${isActive ? 'text-gold' : 'text-gold hover:text-gold-light'}`
+            }
           >
-            Customize Your Bracelet
+            Shop by Purpose
           </NavLink>
           <NavLink to="/shop" className={({ isActive }) => `text-xs uppercase tracking-[0.18em] ${isActive ? 'text-gold' : 'text-ivory/80 hover:text-gold'}`}>
             Shop All
@@ -138,10 +140,10 @@ export default function Header() {
               </div>
             </div>
           ))}
-          <Link to="/customize" className="block py-2 text-sm uppercase tracking-widest text-gold">Customize Your Bracelet</Link>
+          <Link to="/customize" className="block py-2 text-sm uppercase tracking-widest text-gold">Shop by Purpose</Link>
           <Link to="/shop" className="block py-2 text-sm uppercase tracking-widest">Shop All</Link>
           <Link to="/about" className="block py-2 text-sm uppercase tracking-widest">About</Link>
-          <Button to="/customize" className="mt-3 w-full">Customize Your Bracelet</Button>
+          <Button to="/customize" className="mt-3 w-full">Shop by Purpose</Button>
         </div>
       )}
     </header>

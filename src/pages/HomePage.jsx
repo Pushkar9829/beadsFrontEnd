@@ -12,11 +12,13 @@ export default function HomePage() {
   const [content, setContent] = useState(null);
   const [featured, setFeatured] = useState([]);
   const [tree, setTree] = useState([]);
+  const [purposes, setPurposes] = useState([]);
 
   useEffect(() => {
     api.get('/content').then(({ data }) => setContent(data.content)).catch(() => {});
     api.get('/products?featured=true').then(({ data }) => setFeatured(data.products || [])).catch(() => {});
     api.get('/categories').then(({ data }) => setTree(data.tree || [])).catch(() => {});
+    api.get('/customizer/purposes').then(({ data }) => setPurposes(data.purposes || [])).catch(() => {});
   }, []);
 
   const hero = content?.hero || {};
@@ -39,7 +41,7 @@ export default function HomePage() {
                 'Build a personal bracelet from purpose and intention — every crystal chosen with a reason.'}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button to="/customize">Customize Your Bracelet</Button>
+              <Button to="/customize">Shop by Purpose</Button>
               <Button to="/shop" variant="ghost">Shop All</Button>
             </div>
           </div>
@@ -67,6 +69,32 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      {purposes.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-12">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.25em] text-gold">Custom bracelet</p>
+              <h2 className="mt-2 font-serif text-2xl gold-text">Shop by purpose</h2>
+              <p className="mt-2 max-w-xl text-sm text-lilac">
+                Choose a purpose, then an intention. Crystals are selected for you, calibrated from your Mulank, and finished with zodiac beads and a name.
+              </p>
+            </div>
+            <Button to="/customize" variant="text">Customize</Button>
+          </div>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {purposes.map((p) => (
+              <Link key={p._id} to={`/customize?purpose=${p.slug}`}>
+                <Card className="h-full p-5 transition hover:bg-raised">
+                  <h3 className="font-serif text-xl">{p.name}</h3>
+                  <p className="mt-2 text-sm text-lilac">{p.description}</p>
+                  <p className="mt-3 text-xs uppercase tracking-widest text-gold">Select intention →</p>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {crystalKids.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-8">
@@ -125,7 +153,7 @@ export default function HomePage() {
         <p className="mx-auto mt-3 max-w-xl text-lilac">
           The strongest gesture on this site is the same in the header, the hero, and every collection: customize.
         </p>
-        <Button to="/customize" className="mt-6">Customize Your Bracelet</Button>
+        <Button to="/customize" className="mt-6">Shop by Purpose</Button>
       </section>
     </div>
   );

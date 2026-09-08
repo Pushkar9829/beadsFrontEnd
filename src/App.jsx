@@ -54,6 +54,7 @@ export default function App() {
           <Route path="/p/:slug" element={<ProductPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/customize" element={<CustomizePage />} />
+          <Route path="/shop-by-purpose" element={<Navigate to="/customize" replace />} />
           <Route path="/cart" element={<CartPage />} />
           <Route
             path="/checkout"

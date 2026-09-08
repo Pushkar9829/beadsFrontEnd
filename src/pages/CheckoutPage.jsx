@@ -84,7 +84,7 @@ export default function CheckoutPage() {
         <ul className="mt-4 space-y-2 text-sm text-lilac">
           {items.map((i) => (
             <li key={i._id} className="flex justify-between gap-3">
-              <span>{i.snapshot?.name || i.snapshot?.intention?.name || 'Custom bracelet'} × {i.quantity}</span>
+              <span>{i.snapshot?.name || i.snapshot?.engravingName || i.snapshot?.intention?.name || 'Custom bracelet'} × {i.quantity}</span>
               <Price value={i.lineTotal} />
             </li>
           ))}

@@ -27,7 +27,7 @@ export default function ShopPage() {
           <h1 className="font-serif text-4xl gold-text">Shop All</h1>
           <p className="mt-2 text-lilac">Ready-made pieces across crystals, rudraksha and gemstones.</p>
         </div>
-        <Button to="/customize">Customize Your Bracelet</Button>
+        <Button to="/customize">Shop by Purpose</Button>
       </div>
       <div className="mt-6 flex flex-wrap gap-2">
         <button

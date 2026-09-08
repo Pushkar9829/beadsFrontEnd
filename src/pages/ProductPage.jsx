@@ -51,7 +51,7 @@ export default function ProductPage() {
         {added && <p className="mt-3 text-sm text-gold">Added to bag.</p>}
         <div className="mt-10 rounded-2xl p-5 gold-border">
           <p className="text-sm text-lilac">Want this feeling in your own bead counts?</p>
-          <Button to="/customize" className="mt-3">Customize Your Bracelet</Button>
+          <Button to="/customize" className="mt-3">Shop by Purpose</Button>
         </div>
       </div>
     </div>

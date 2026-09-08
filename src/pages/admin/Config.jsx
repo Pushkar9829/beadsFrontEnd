@@ -27,6 +27,7 @@ export default function AdminConfig() {
   const rows = [
     { key: 'beadLimit', label: 'Bead limit', value: config.beadLimit },
     { key: 'minBeads', label: 'Minimum beads', value: config.minBeads },
+    { key: 'zodiacBeadCount', label: 'Default zodiac beads', value: config.zodiacBeadCount ?? 2 },
     { key: 'baseMakingPrice', label: 'Base making price', value: config.baseMakingPrice, money: true },
     { key: 'defaultWristSize', label: 'Default wrist size', value: config.defaultWristSize },
     { key: 'wristSizes', label: 'Wrist sizes', value: (config.wristSizes || []).join(', ') },
@@ -87,6 +88,7 @@ export default function AdminConfig() {
           >
             <label className={labelClass}>Bead limit<input type="number" className={`${fieldClass} mt-1`} value={draft.beadLimit} onChange={(e) => setDraft({ ...draft, beadLimit: Number(e.target.value) })} /></label>
             <label className={labelClass}>Min beads<input type="number" className={`${fieldClass} mt-1`} value={draft.minBeads} onChange={(e) => setDraft({ ...draft, minBeads: Number(e.target.value) })} /></label>
+            <label className={labelClass}>Default zodiac beads<input type="number" min="1" max="4" className={`${fieldClass} mt-1`} value={draft.zodiacBeadCount ?? 2} onChange={(e) => setDraft({ ...draft, zodiacBeadCount: Number(e.target.value) })} /></label>
             <label className={labelClass}>Base making price<input type="number" className={`${fieldClass} mt-1`} value={draft.baseMakingPrice} onChange={(e) => setDraft({ ...draft, baseMakingPrice: Number(e.target.value) })} /></label>
             <label className={labelClass}>Default wrist
               <select className={`${fieldClass} mt-1`} value={draft.defaultWristSize} onChange={(e) => setDraft({ ...draft, defaultWristSize: e.target.value })}>

@@ -16,7 +16,7 @@ export default function CartPage() {
   if (!items.length) {
     return (
       <EmptyState title="Your bag is empty" body="Begin a custom strand or browse the houses.">
-        <Button to="/customize">Customize Your Bracelet</Button>
+        <Button to="/customize">Shop by Purpose</Button>
       </EmptyState>
     );
   }
@@ -31,7 +31,7 @@ export default function CartPage() {
         {items.map((item) => {
           const snap = item.snapshot || {};
           const title = item.kind === 'custom_bracelet'
-            ? `Custom bracelet · ${snap.intention?.name || 'Intention'}`
+            ? (snap.name || `Custom bracelet · ${snap.intention?.name || 'Intention'}`)
             : snap.name;
           return (
             <li key={item._id} className="flex gap-4 rounded-2xl p-4 gold-border">
@@ -45,7 +45,12 @@ export default function CartPage() {
                 <h3 className="font-serif text-lg">{title}</h3>
                 {item.kind === 'custom_bracelet' && (
                   <p className="text-xs text-lilac">
-                    {snap.beads?.map((b) => `${b.name} × ${b.quantity}`).join(' · ')} · {snap.finish?.label} · {snap.wristSize}
+                    {snap.engravingName ? `${snap.engravingName} · ` : ''}
+                    {snap.mulank ? `Mulank ${snap.mulank} · ` : ''}
+                    {snap.zodiac?.sign ? `${snap.zodiac.sign} · ` : ''}
+                    {snap.beads?.map((b) => `${b.name} × ${b.quantity}`).join(' · ')}
+                    {snap.finish?.label ? ` · ${snap.finish.label}` : ''}
+                    {snap.wristSize ? ` · ${snap.wristSize}` : ''}
                   </p>
                 )}
                 <div className="mt-2 flex flex-wrap items-center justify-between gap-3">

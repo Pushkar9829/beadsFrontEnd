@@ -21,7 +21,7 @@ export default function Footer() {
         <div>
           <h4 className="text-xs uppercase tracking-[0.2em] text-gold">Atelier</h4>
           <div className="mt-3 flex flex-col gap-2 text-sm text-lilac">
-            <Link to="/customize">Customize Your Bracelet</Link>
+            <Link to="/customize">Shop by Purpose</Link>
             <Link to="/about">About</Link>
             <Link to="/account">Account</Link>
           </div>

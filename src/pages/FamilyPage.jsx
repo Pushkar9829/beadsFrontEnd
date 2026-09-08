@@ -38,7 +38,7 @@ export default function FamilyPage() {
       <h1 className="mt-2 font-serif text-4xl gold-text">{meta?.name || family}</h1>
       <p className="mt-3 max-w-2xl text-lilac">{meta?.blurb}</p>
       <div className="mt-6">
-        <Button to="/customize">Customize Your Bracelet</Button>
+        <Button to="/customize">Shop by Purpose</Button>
       </div>
 
       {children.length > 0 && (

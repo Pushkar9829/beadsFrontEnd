@@ -10,6 +10,8 @@ const TABS = [
   { id: 'purposes', label: 'Purposes' },
   { id: 'intentions', label: 'Intentions' },
   { id: 'mappings', label: 'Bead mappings' },
+  { id: 'mulank', label: 'Mulank crystals' },
+  { id: 'zodiac', label: 'Zodiac beads' },
 ];
 
 export default function AdminIntentions() {
@@ -18,24 +20,32 @@ export default function AdminIntentions() {
   const [intentions, setIntentions] = useState([]);
   const [beads, setBeads] = useState([]);
   const [mappings, setMappings] = useState([]);
+  const [mulank, setMulank] = useState([]);
+  const [zodiac, setZodiac] = useState([]);
   const [open, setOpen] = useState(false);
   const [remove, setRemove] = useState(null);
   const [pForm, setPForm] = useState({ name: '', description: '' });
   const [iForm, setIForm] = useState({ name: '', purposeId: '', description: '' });
   const [mForm, setMForm] = useState({ intentionId: '', beadId: '', reason: '' });
+  const [nForm, setNForm] = useState({ number: 1, beadId: '', reason: '' });
+  const [zForm, setZForm] = useState({ sign: '', fromMonth: 1, fromDay: 1, toMonth: 1, toDay: 1, beadId: '', reason: '' });
   const [editing, setEditing] = useState(null);
 
   async function load() {
-    const [p, i, b, m] = await Promise.all([
+    const [p, i, b, m, n, z] = await Promise.all([
       api.get('/customizer/admin/purposes'),
       api.get('/customizer/admin/intentions'),
       api.get('/customizer/admin/beads'),
       api.get('/customizer/admin/mappings'),
+      api.get('/customizer/admin/mulank').catch(() => ({ data: { mappings: [] } })),
+      api.get('/customizer/admin/zodiac').catch(() => ({ data: { mappings: [] } })),
     ]);
     setPurposes(p.data.purposes || []);
     setIntentions(i.data.intentions || []);
     setBeads(b.data.beads || []);
     setMappings(m.data.mappings || []);
+    setMulank(n.data.mappings || []);
+    setZodiac(z.data.mappings || []);
   }
   useEffect(() => { load(); }, []);
 
@@ -44,6 +54,8 @@ export default function AdminIntentions() {
     setPForm({ name: '', description: '' });
     setIForm({ name: '', purposeId: '', description: '' });
     setMForm({ intentionId: '', beadId: '', reason: '' });
+    setNForm({ number: 1, beadId: '', reason: '' });
+    setZForm({ sign: '', fromMonth: 1, fromDay: 1, toMonth: 1, toDay: 1, beadId: '', reason: '' });
     setOpen(true);
   }
 
@@ -55,6 +67,12 @@ export default function AdminIntentions() {
     } else if (tab === 'intentions') {
       if (editing) await api.put(`/customizer/admin/intentions/${editing}`, iForm);
       else await api.post('/customizer/admin/intentions', iForm);
+    } else if (tab === 'mulank') {
+      if (editing) await api.put(`/customizer/admin/mulank/${editing}`, nForm);
+      else await api.post('/customizer/admin/mulank', nForm);
+    } else if (tab === 'zodiac') {
+      if (editing) await api.put(`/customizer/admin/zodiac/${editing}`, zForm);
+      else await api.post('/customizer/admin/zodiac', zForm);
     } else {
       if (editing) await api.put(`/customizer/admin/mappings/${editing}`, mForm);
       else await api.post('/customizer/admin/mappings', mForm);
@@ -67,18 +85,26 @@ export default function AdminIntentions() {
   async function confirmRemove() {
     if (tab === 'purposes') await api.delete(`/customizer/admin/purposes/${remove._id}`);
     else if (tab === 'intentions') await api.delete(`/customizer/admin/intentions/${remove._id}`);
+    else if (tab === 'mulank') await api.delete(`/customizer/admin/mulank/${remove._id}`);
+    else if (tab === 'zodiac') await api.delete(`/customizer/admin/zodiac/${remove._id}`);
     else await api.delete(`/customizer/admin/mappings/${remove._id}`);
     setRemove(null);
     load();
   }
 
-  const createLabel = tab === 'purposes' ? 'Create purpose' : tab === 'intentions' ? 'Create intention' : 'Create mapping';
+  const createLabel = {
+    purposes: 'Create purpose',
+    intentions: 'Create intention',
+    mappings: 'Create mapping',
+    mulank: 'Create Mulank mapping',
+    zodiac: 'Create zodiac mapping',
+  }[tab];
 
   return (
     <div>
       <AdminHeader
         title="Purposes & mappings"
-        subtitle="Keep purpose → intention → bead as data. Recommendation copy is required."
+        subtitle="Purpose → intention crystals, then Mulank calibration and zodiac beads."
         onCreate={openCreate}
         createLabel={createLabel}
       />
@@ -174,6 +200,67 @@ export default function AdminIntentions() {
         />
       )}
 
+      {tab === 'mulank' && (
+        <AdminTable
+          rows={mulank}
+          columns={[
+            { key: 'number', label: 'Mulank' },
+            { key: 'bead', label: 'Crystal', render: (row) => row.beadId?.name || '—' },
+            { key: 'reason', label: 'Calibration note', render: (row) => <span className="line-clamp-2 text-lilac">{row.reason}</span> },
+            {
+              key: 'actions',
+              label: 'Actions',
+              align: 'right',
+              render: (row) => (
+                <RowActions
+                  onEdit={() => {
+                    setEditing(row._id);
+                    setNForm({ number: row.number, beadId: row.beadId?._id || row.beadId, reason: row.reason });
+                    setOpen(true);
+                  }}
+                  onDelete={() => setRemove(row)}
+                />
+              ),
+            },
+          ]}
+        />
+      )}
+
+      {tab === 'zodiac' && (
+        <AdminTable
+          rows={zodiac}
+          columns={[
+            { key: 'sign', label: 'Sign' },
+            { key: 'range', label: 'Dates', render: (row) => `${row.fromMonth}/${row.fromDay} – ${row.toMonth}/${row.toDay}` },
+            { key: 'bead', label: 'Bead', render: (row) => row.beadId?.name || '—' },
+            { key: 'reason', label: 'Why', render: (row) => <span className="line-clamp-2 text-lilac">{row.reason}</span> },
+            {
+              key: 'actions',
+              label: 'Actions',
+              align: 'right',
+              render: (row) => (
+                <RowActions
+                  onEdit={() => {
+                    setEditing(row._id);
+                    setZForm({
+                      sign: row.sign,
+                      fromMonth: row.fromMonth,
+                      fromDay: row.fromDay,
+                      toMonth: row.toMonth,
+                      toDay: row.toDay,
+                      beadId: row.beadId?._id || row.beadId,
+                      reason: row.reason,
+                    });
+                    setOpen(true);
+                  }}
+                  onDelete={() => setRemove(row)}
+                />
+              ),
+            },
+          ]}
+        />
+      )}
+
       <AdminDrawer open={open} title={editing ? `Edit ${tab.slice(0, -1)}` : createLabel} onClose={() => setOpen(false)}>
         <form onSubmit={save} className="space-y-3">
           {tab === 'purposes' && (
@@ -211,6 +298,40 @@ export default function AdminIntentions() {
               <label className={labelClass}>Why this bead<textarea required className={`${fieldClass} mt-1`} value={mForm.reason} onChange={(e) => setMForm({ ...mForm, reason: e.target.value })} /></label>
             </>
           )}
+          {tab === 'mulank' && (
+            <>
+              <label className={labelClass}>Mulank
+                <select required className={`${fieldClass} mt-1`} value={nForm.number} onChange={(e) => setNForm({ ...nForm, number: Number(e.target.value) })}>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </label>
+              <label className={labelClass}>Crystal
+                <select required className={`${fieldClass} mt-1`} value={nForm.beadId} onChange={(e) => setNForm({ ...nForm, beadId: e.target.value })}>
+                  <option value="">Select</option>
+                  {beads.map((b) => <option key={b._id} value={b._id}>{b.name}</option>)}
+                </select>
+              </label>
+              <label className={labelClass}>Reason<textarea required className={`${fieldClass} mt-1`} value={nForm.reason} onChange={(e) => setNForm({ ...nForm, reason: e.target.value })} /></label>
+            </>
+          )}
+          {tab === 'zodiac' && (
+            <>
+              <label className={labelClass}>Sign<input required className={`${fieldClass} mt-1`} value={zForm.sign} onChange={(e) => setZForm({ ...zForm, sign: e.target.value })} /></label>
+              <div className="grid grid-cols-2 gap-2">
+                <label className={labelClass}>From month<input type="number" min="1" max="12" required className={`${fieldClass} mt-1`} value={zForm.fromMonth} onChange={(e) => setZForm({ ...zForm, fromMonth: Number(e.target.value) })} /></label>
+                <label className={labelClass}>From day<input type="number" min="1" max="31" required className={`${fieldClass} mt-1`} value={zForm.fromDay} onChange={(e) => setZForm({ ...zForm, fromDay: Number(e.target.value) })} /></label>
+                <label className={labelClass}>To month<input type="number" min="1" max="12" required className={`${fieldClass} mt-1`} value={zForm.toMonth} onChange={(e) => setZForm({ ...zForm, toMonth: Number(e.target.value) })} /></label>
+                <label className={labelClass}>To day<input type="number" min="1" max="31" required className={`${fieldClass} mt-1`} value={zForm.toDay} onChange={(e) => setZForm({ ...zForm, toDay: Number(e.target.value) })} /></label>
+              </div>
+              <label className={labelClass}>Bead
+                <select required className={`${fieldClass} mt-1`} value={zForm.beadId} onChange={(e) => setZForm({ ...zForm, beadId: e.target.value })}>
+                  <option value="">Select</option>
+                  {beads.map((b) => <option key={b._id} value={b._id}>{b.name}</option>)}
+                </select>
+              </label>
+              <label className={labelClass}>Reason<textarea required className={`${fieldClass} mt-1`} value={zForm.reason} onChange={(e) => setZForm({ ...zForm, reason: e.target.value })} /></label>
+            </>
+          )}
           <div className="flex gap-2 pt-2">
             <Button type="submit">{editing ? 'Save' : 'Create'}</Button>
             <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
@@ -220,7 +341,7 @@ export default function AdminIntentions() {
       <ConfirmDelete
         open={!!remove}
         title="Delete record"
-        body={remove ? `Remove “${remove.name || remove.reason || 'this record'}”?` : ''}
+        body={remove ? `Remove “${remove.name || remove.sign || (remove.number != null ? `Mulank ${remove.number}` : remove.reason) || 'this record'}”?` : ''}
         onClose={() => setRemove(null)}
         onConfirm={confirmRemove}
       />

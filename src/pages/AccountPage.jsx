@@ -59,6 +59,15 @@ export default function AccountPage() {
                 <span className="text-xs uppercase tracking-widest text-gold">{o.status.replace('_', ' ')}</span>
               </div>
               <p className="text-sm text-lilac">{new Date(o.createdAt).toLocaleString('en-IN')} · <Price value={o.total} /></p>
+              <ul className="mt-2 space-y-1 text-xs text-lilac">
+                {(o.items || []).map((item, idx) => (
+                  <li key={item._id || idx}>
+                    {item.snapshot?.name || item.snapshot?.engravingName || item.snapshot?.intention?.name || item.snapshot?.name || 'Item'}
+                    {item.snapshot?.mulank ? ` · Mulank ${item.snapshot.mulank}` : ''}
+                    {item.snapshot?.zodiac?.sign ? ` · ${item.snapshot.zodiac.sign}` : ''}
+                  </li>
+                ))}
+              </ul>
             </li>
           ))}
         </ul>

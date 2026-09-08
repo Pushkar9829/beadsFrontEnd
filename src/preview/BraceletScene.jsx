@@ -29,6 +29,17 @@ function expandBeads(lines = []) {
   return out;
 }
 
+function beadsForPreview(layout, lines) {
+  if (Array.isArray(layout) && layout.length) {
+    return layout.map((slot) => ({
+      colorHex: slot.colorHex || '#c6a75e',
+      name: slot.name,
+      role: slot.role,
+    }));
+  }
+  return expandBeads(lines);
+}
+
 function OvalCharm({ color, radius }) {
   return (
     <mesh position={[radius + 0.16, 0, 0]} rotation={[0, 0, Math.PI / 2]} scale={[0.72, 1.15, 0.45]}>
@@ -52,8 +63,8 @@ function BeadMesh({ color, position }) {
   );
 }
 
-function BraceletModel({ lines, wristSize, metalColor, view }) {
-  const beads = expandBeads(lines);
+function BraceletModel({ lines, layout, wristSize, metalColor, view }) {
+  const beads = beadsForPreview(layout, lines);
   const inches = parseWristInches(wristSize);
   const radius = 0.82 + (inches - 6.5) * 0.1;
   const rot = view === 'wrist' ? [0.55, 0.95, 0.1] : [0.2, 0.15, 0];
@@ -91,8 +102,8 @@ function BraceletModel({ lines, wristSize, metalColor, view }) {
   );
 }
 
-function FallbackStrip({ lines, metalColor }) {
-  const beads = expandBeads(lines);
+function FallbackStrip({ lines, layout, metalColor }) {
+  const beads = beadsForPreview(layout, lines);
   return (
     <div className="flex h-56 items-center justify-center gap-1 overflow-hidden rounded-2xl bg-ink px-4">
       {beads.length === 0 && <p className="text-sm text-lilac">Add beads to see your strand.</p>}
@@ -109,7 +120,7 @@ function FallbackStrip({ lines, metalColor }) {
   );
 }
 
-export default function BraceletPreview({ lines, wristSize, finish, compact }) {
+export default function BraceletPreview({ lines, layout, wristSize, finish, compact }) {
   const [view, setView] = useState('front');
   const metal = finish?.metalColor || '#D4AF37';
 
@@ -129,7 +140,7 @@ export default function BraceletPreview({ lines, wristSize, finish, compact }) {
           </button>
         ))}
       </div>
-      <WebGLGuard fallback={<FallbackStrip lines={lines} metalColor={metal} />}>
+      <WebGLGuard fallback={<FallbackStrip lines={lines} layout={layout} metalColor={metal} />}>
         <div className={`overflow-hidden rounded-2xl bg-gradient-to-b from-[#16131c] to-black gold-border ${compact ? 'h-48' : 'h-72'}`}>
           <Canvas camera={{ position: [0, 0.6, 3.1], fov: 40 }} gl={{ antialias: true }}>
             <color attach="background" args={['#08070a']} />
@@ -139,7 +150,7 @@ export default function BraceletPreview({ lines, wristSize, finish, compact }) {
             <spotLight position={[-4, 2, -3]} intensity={12} color="#b48cff" />
             <pointLight position={[0, -2, 2]} intensity={6} color="#c6a75e" />
             <Suspense fallback={null}>
-              <BraceletModel lines={lines} wristSize={wristSize} metalColor={metal} view={view} />
+              <BraceletModel lines={lines} layout={layout} wristSize={wristSize} metalColor={metal} view={view} />
               <ContactShadows opacity={0.35} scale={8} blur={2.4} far={4} />
             </Suspense>
             <OrbitControls enablePan={false} minDistance={2.2} maxDistance={4.5} />

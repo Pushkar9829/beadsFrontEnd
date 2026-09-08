@@ -3,9 +3,10 @@ import { useCustomizerStore } from '../../store/customizerStore';
 const STEPS = [
   { n: 1, label: 'Purpose' },
   { n: 2, label: 'Intention' },
-  { n: 3, label: 'Crystals / Beads' },
-  { n: 4, label: 'Charm' },
-  { n: 5, label: 'Review & Order' },
+  { n: 3, label: 'Date of birth' },
+  { n: 4, label: 'Zodiac beads' },
+  { n: 5, label: 'Name' },
+  { n: 6, label: 'Review & Order' },
 ];
 
 export default function Stepper() {
@@ -13,11 +14,21 @@ export default function Stepper() {
   const setStep = useCustomizerStore((s) => s.setStep);
   const purpose = useCustomizerStore((s) => s.purpose);
   const intention = useCustomizerStore((s) => s.intention);
+  const recommended = useCustomizerStore((s) => s.recommended);
+  const quantities = useCustomizerStore((s) => s.quantities);
+  const dateOfBirth = useCustomizerStore((s) => s.dateOfBirth);
+  const calibration = useCustomizerStore((s) => s.calibration);
+  const zodiacAdded = useCustomizerStore((s) => s.zodiacAdded);
+  const engravingName = useCustomizerStore((s) => s.engravingName);
+  const picked = (recommended || []).some((b) => (quantities[b._id] || 0) > 0);
 
   const can = (n) => {
     if (n === 1) return true;
     if (n === 2) return !!purpose;
-    if (n >= 3) return !!intention;
+    if (n === 3) return !!intention && picked;
+    if (n === 4) return !!calibration;
+    if (n === 5) return !!zodiacAdded;
+    if (n === 6) return engravingName.trim().length >= 2;
     return false;
   };
 
