@@ -3,7 +3,6 @@ import { ChevronDown } from 'lucide-react';
 import { useCustomizerStore, useCustomizerQuote } from '../../store/customizerStore';
 import BraceletPreview from '../../preview/BraceletScene';
 import Price from '../ui/Price';
-import Button from '../ui/Button';
 
 export default function PreviewPanel({ mobile }) {
   const navigate = useNavigate();
@@ -30,58 +29,70 @@ export default function PreviewPanel({ mobile }) {
         finish={finish}
         compact={mobile}
       />
-      <div className="mt-4 space-y-2 text-sm">
-        <p className="text-xs uppercase tracking-widest text-gold">Selection</p>
-        <p>{purpose?.name || 'Purpose pending'} {intention ? `· ${intention.name}` : ''}</p>
-        {engravingName && <p className="text-gold">{engravingName}</p>}
-        {calibration && (
-          <p className="text-lilac">
-            Mulank {calibration.mulank} · {calibration.zodiac?.sign || 'Zodiac pending'}
-          </p>
-        )}
-        {quote.lines.map((l) => (
-          <div key={l.beadId} className="flex justify-between text-lilac">
-            <span>{l.name} × {l.quantity} · <Price value={l.pricePerBead} /> / bead</span>
-            <span className="text-ivory"><Price value={l.subtotal} /></span>
+      <p className="bag-summary-kicker mt-4">Live strand</p>
+      <h2 className="bag-summary-title gold-text">{engravingName || 'Untitled'}</h2>
+      <p className="mt-1 text-sm text-lilac">
+        {purpose?.name || 'Purpose pending'}
+        {intention ? ` · ${intention.name}` : ''}
+        {calibration ? ` · Mulank ${calibration.mulank}` : ''}
+        {calibration?.zodiac?.sign ? ` · ${calibration.zodiac.sign}` : ''}
+      </p>
+      <dl className="bag-summary-rows">
+        {(quote.lines || []).map((l) => (
+          <div key={l.beadId}>
+            <dt>{l.name} × {l.quantity}</dt>
+            <dd><Price value={l.subtotal} /></dd>
           </div>
         ))}
-        <div className="flex justify-between text-lilac">
-          <span>{charm?.name} · {finish?.label}</span>
-          <Price value={quote.charmPrice} />
+        <div>
+          <dt>{charm?.name} · {finish?.label}</dt>
+          <dd><Price value={quote.charmPrice} /></dd>
         </div>
-        <div className="flex justify-between text-lilac">
-          <span>Wrist {wristSize}</span>
-          <span>{quote.beadCount} / {config?.beadLimit} beads</span>
+        <div>
+          <dt>Wrist {wristSize}</dt>
+          <dd>{quote.beadCount} / {config?.beadLimit} beads</dd>
         </div>
-        <div className="flex justify-between border-t border-gold/20 pt-2 font-serif text-lg text-gold">
-          <span>Live total</span>
-          <Price value={quote.total} />
+        <div className="bag-summary-total">
+          <dt>Live total</dt>
+          <dd><Price value={quote.total} /></dd>
         </div>
-        {!quote.valid && quote.errors?.length > 0 && (
-          <p className="text-xs text-red-300">{quote.errors.join(' ')}</p>
-        )}
-        <div className="flex gap-2 pt-2">
-          <Button variant="ghost" className="flex-1" onClick={() => setStep(1)}>Edit</Button>
-          <Button variant="ghost" className="flex-1" onClick={() => { clearBuild(); navigate('/customize'); }}>Clear</Button>
-        </div>
+      </dl>
+      {!quote.valid && quote.errors?.length > 0 && (
+        <p className="mt-3 text-xs text-red-300">{quote.errors.join(' ')}</p>
+      )}
+      <div className="mt-4 flex justify-between gap-3">
+        <button type="button" className="bag-summary-clear" onClick={() => setStep(1)}>
+          Edit purpose
+        </button>
+        <button
+          type="button"
+          className="bag-summary-clear"
+          onClick={() => {
+            clearBuild();
+            navigate('/customize');
+          }}
+        >
+          Clear
+        </button>
       </div>
     </>
   );
 
   if (mobile) {
     return (
-      <div className="rounded-2xl bg-surface gold-border">
+      <div className="auth-card !p-0">
         <button
           type="button"
-          className="flex w-full items-center justify-between px-4 py-3 text-xs uppercase tracking-widest text-gold"
+          className="flex w-full items-center justify-between px-4 py-3.5 text-[11px] uppercase tracking-[0.2em] text-gold"
           onClick={() => setPreviewOpen(!previewOpen)}
         >
-          Bracelet preview <ChevronDown className={previewOpen ? 'rotate-180' : ''} size={16} />
+          Bracelet preview
+          <ChevronDown className={`transition ${previewOpen ? 'rotate-180' : ''}`} size={16} />
         </button>
         {previewOpen && <div className="px-4 pb-4">{body}</div>}
       </div>
     );
   }
 
-  return <aside className="sticky top-24 rounded-2xl bg-surface p-4 gold-border">{body}</aside>;
+  return <aside className="studio-preview bag-summary">{body}</aside>;
 }

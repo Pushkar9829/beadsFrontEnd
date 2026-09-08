@@ -22,7 +22,7 @@ export const useCustomizerStore = create((set, get) => ({
   calibration: null,
   zodiacAdded: false,
   detailBead: null,
-  previewOpen: true,
+  previewOpen: false,
   loading: false,
   ready: false,
   calibrating: false,
@@ -108,16 +108,16 @@ export const useCustomizerStore = create((set, get) => ({
         quantities,
         calibration: null,
         zodiacAdded: false,
-        selectingIntention: false,
         stepError: beads.length ? '' : 'No crystals are mapped to this intention yet.',
       });
     } catch (e) {
       set({
-        selectingIntention: false,
         recommended: [],
         quantities: {},
         stepError: e.message || 'Could not load crystals for this intention.',
       });
+    } finally {
+      set({ selectingIntention: false });
     }
   },
 
@@ -138,7 +138,8 @@ export const useCustomizerStore = create((set, get) => ({
     if (!dateOfBirth) throw new Error('Enter a date of birth.');
     const selectedBeads = (recommended || []).filter((b) => (quantities[b._id] || 0) > 0);
     const intentionBeads = selectedBeads.length ? selectedBeads : recommended;
-    const qty = zodiacQty || config?.zodiacBeadCount || 2;
+    const parsed = Number(zodiacQty);
+    const qty = Number.isFinite(parsed) && parsed > 0 ? parsed : (config?.zodiacBeadCount || 2);
     set({ calibrating: true, stepError: '' });
     try {
       try {
@@ -194,43 +195,51 @@ export const useCustomizerStore = create((set, get) => ({
   },
 
   async goNext() {
+    if (get().advancing) return;
     const state = get();
     set({ advancing: true, stepError: '' });
     try {
       if (state.step === 1) {
-        if (!state.purpose) throw new Error('Choose a purpose to continue.');
-        set({ step: 2, advancing: false });
+        if (!get().purpose) throw new Error('Choose a purpose to continue.');
+        set({ step: 2 });
         return;
       }
       if (state.step === 2) {
         const picked = get().selectedBeads();
-        if (!state.intention || !picked.length) {
+        if (!get().intention || !picked.length) {
           throw new Error('Select an intention so its crystals are chosen.');
         }
-        set({ step: 3, advancing: false });
+        set({ step: 3 });
         return;
       }
       if (state.step === 3) {
-        if (!state.dateOfBirth) throw new Error('Enter a date of birth.');
-        await get().runCalibration({ includeZodiac: false });
-        set({ step: 4, advancing: false });
+        const dob = get().dateOfBirth;
+        if (!dob) throw new Error('Choose day, month and year to continue.');
+        const cal = get().calibration;
+        if (!cal || cal.dateOfBirth !== dob) {
+          await get().runCalibration({ includeZodiac: false });
+        }
+        set({ step: 4 });
         return;
       }
       if (state.step === 4) {
-        if (!get().zodiacAdded) await get().runCalibration({ includeZodiac: true });
-        set({ step: 5, advancing: false });
+        if (!get().calibration) throw new Error('Calibrate from your date of birth first.');
+        if (!get().zodiacAdded) {
+          await get().runCalibration({ includeZodiac: true });
+        }
+        set({ step: 5 });
         return;
       }
       if (state.step === 5) {
         if (get().engravingName.trim().length < 2) {
           throw new Error('Enter a name of at least 2 characters.');
         }
-        set({ step: 6, advancing: false });
+        set({ step: 6 });
       }
     } catch (e) {
-      set({ advancing: false, stepError: e.message || 'Could not continue.' });
+      set({ stepError: e.message || 'Could not continue.' });
     } finally {
-      if (get().advancing) set({ advancing: false });
+      set({ advancing: false });
     }
   },
 
@@ -299,6 +308,10 @@ export const useCustomizerStore = create((set, get) => ({
       calibration,
       zodiacAdded,
     } = get();
+    if (!purpose || !intention) throw new Error('Choose a purpose and intention first.');
+    if (!charm || !finish) throw new Error('Choose a charm and finish first.');
+    if (!dateOfBirth) throw new Error('Enter a date of birth first.');
+    if (engravingName.trim().length < 2) throw new Error('Enter a name of at least 2 characters.');
     const quote = buildQuote(get());
     const beads = calibration?.beads
       || recommended

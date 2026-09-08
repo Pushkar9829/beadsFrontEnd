@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Heart, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
 import Button from '../components/ui/Button';
@@ -66,7 +67,9 @@ export default function WishlistPage() {
                         name={item.name}
                       />
                     </div>
-                    <div className="wish-card-body">
+                  </Link>
+                  <div className="flex flex-1 items-stretch gap-3 p-[1.1rem_1.15rem_1.15rem]">
+                    <Link to={`/p/${item.slug}`} className="min-w-0 flex-1">
                       {item.family && (
                         <p className="text-[10px] uppercase tracking-[0.2em] text-gold">{item.family}</p>
                       )}
@@ -77,15 +80,25 @@ export default function WishlistPage() {
                       <p className="mt-3 text-gold">
                         <Price value={item.price} />
                       </p>
+                    </Link>
+                    <div className="product-card-tools">
+                      <button
+                        type="button"
+                        aria-label="Add to bag"
+                        onClick={() => addProduct(item, 1)}
+                        className="product-tool"
+                      >
+                        <ShoppingBag size={15} />
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Remove from wishlist"
+                        onClick={() => remove(item._id)}
+                        className="product-tool is-on"
+                      >
+                        <Heart size={15} fill="currentColor" />
+                      </button>
                     </div>
-                  </Link>
-                  <div className="wish-card-actions">
-                    <Button className="w-full min-[420px]:flex-1" onClick={() => addProduct(item, 1)}>
-                      Add to bag
-                    </Button>
-                    <Button variant="ghost" className="w-full min-[420px]:w-auto" onClick={() => remove(item._id)}>
-                      Remove
-                    </Button>
                   </div>
                 </article>
               </div>

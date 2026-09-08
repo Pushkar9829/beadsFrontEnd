@@ -5,26 +5,36 @@ export function useInViewOnce(ref) {
     const el = ref.current;
     if (!el) return undefined;
 
+    const reveal = () => el.classList.add('is-in');
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) {
-      el.classList.add('is-in');
+      reveal();
+      return undefined;
+    }
+
+    const inRange = () => {
+      const vh = window.innerHeight || 1;
+      return el.getBoundingClientRect().top < vh * 0.98;
+    };
+    if (inRange()) {
+      reveal();
       return undefined;
     }
 
     const io = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
-        const vh = window.innerHeight || 1;
-        const top = entry.boundingClientRect.top;
-        if (top < vh * 0.88) {
-          el.classList.add('is-in');
-          io.disconnect();
-        }
+        reveal();
+        io.disconnect();
       },
-      { threshold: [0, 0.08, 0.2, 0.35], rootMargin: '0px 0px -8% 0px' }
+      { threshold: [0, 0.08, 0.2], rootMargin: '0px 0px 0px 0px' }
     );
 
     io.observe(el);
-    return () => io.disconnect();
+    const fallback = window.setTimeout(reveal, 350);
+    return () => {
+      io.disconnect();
+      window.clearTimeout(fallback);
+    };
   }, [ref]);
 }

@@ -14,6 +14,47 @@ import BeadDetailDrawer from '../components/customizer/BeadDetailDrawer';
 import Spinner from '../components/ui/Spinner';
 import Price from '../components/ui/Price';
 import Button from '../components/ui/Button';
+import PlaceOrderButton from '../components/customizer/PlaceOrderButton';
+import Breadcrumbs from '../components/ui/Breadcrumbs';
+import SectionHead from '../components/home/SectionHead';
+
+const CRUMBS = [
+  { label: 'Home', to: '/' },
+  { label: 'Customization' },
+];
+
+const STEP_COPY = {
+  1: {
+    eyebrow: 'The studio',
+    title: 'Choose a purpose',
+    body: 'Begin with why you wear it. One purpose opens its intentions — calm, abundance, protection, or love.',
+  },
+  2: {
+    eyebrow: 'Step 02 · Intention',
+    title: 'Choose an intention',
+    body: 'Click an intention. Its crystals open so you can keep or release them, then continue.',
+  },
+  3: {
+    eyebrow: 'Step 03 · Calibration',
+    title: 'Date of birth',
+    body: 'Mulank is taken from the day. Counts are composed to that number, then the strand is laid in order.',
+  },
+  4: {
+    eyebrow: 'Step 04 · Zodiac',
+    title: 'Zodiac beads',
+    body: 'Your sign’s stone is placed on the calibrated strand. Adjust the count if you wish, then name the piece.',
+  },
+  5: {
+    eyebrow: 'Step 05 · Name',
+    title: 'Name the piece',
+    body: 'This name is engraved on the oval charm and shown on the order. Choose a finish and wrist size.',
+  },
+  6: {
+    eyebrow: 'Step 06 · Review',
+    title: 'Review & order',
+    body: 'Confirm the composition. Place the piece in your bag, then continue to checkout.',
+  },
+};
 
 export default function CustomizePage() {
   const [params] = useSearchParams();
@@ -27,18 +68,11 @@ export default function CustomizePage() {
   const error = useCustomizerStore((s) => s.error);
   const step = useCustomizerStore((s) => s.step);
   const quote = useCustomizerQuote();
-  const config = useCustomizerStore((s) => s.config);
   const goNext = useCustomizerStore((s) => s.goNext);
   const goBack = useCustomizerStore((s) => s.goBack);
   const advancing = useCustomizerStore((s) => s.advancing);
-  const calibrating = useCustomizerStore((s) => s.calibrating);
-  const dateOfBirth = useCustomizerStore((s) => s.dateOfBirth);
-  const intention = useCustomizerStore((s) => s.intention);
-  const recommended = useCustomizerStore((s) => s.recommended);
-  const quantities = useCustomizerStore((s) => s.quantities);
-  const engravingName = useCustomizerStore((s) => s.engravingName);
-  const calibration = useCustomizerStore((s) => s.calibration);
-  const pickedCount = recommended.filter((b) => (quantities[b._id] || 0) > 0).length;
+  const stepError = useCustomizerStore((s) => s.stepError);
+  const copy = STEP_COPY[step] || STEP_COPY[1];
 
   useEffect(() => {
     init();
@@ -65,8 +99,27 @@ export default function CustomizePage() {
     navigate(`/customize?purpose=${purpose.slug}`, { replace: true });
   }, [purpose, params, navigate]);
 
-  if (loading) return <Spinner label="Opening the atelier" />;
-  if (error) return <p className="p-8 text-center text-red-300">{error}</p>;
+  if (loading) {
+    return (
+      <div className="relative">
+        <div className="pointer-events-none absolute inset-0 lotus-corner" />
+        <div className="relative shell py-16">
+          <Spinner label="Opening the atelier" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="relative">
+        <div className="pointer-events-none absolute inset-0 lotus-corner" />
+        <div className="relative shell py-16">
+          <p className="text-center text-sm text-red-300">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   const pane = {
     1: <PurposeGrid />,
@@ -77,57 +130,55 @@ export default function CustomizePage() {
     6: <ReviewStep />,
   }[step];
 
-  const mobileCanNext = {
-    1: !!purpose,
-    2: !!intention && pickedCount > 0,
-    3: Boolean(dateOfBirth),
-    4: !!calibration,
-    5: engravingName.trim().length >= 2,
-  }[step];
-
   return (
-    <div className="shell py-8 pb-28 lg:pb-8">
-      <p className="text-xs uppercase tracking-[0.25em] text-gold">Customization</p>
-      <h1 className="mt-2 font-serif text-3xl gold-text md:text-4xl">Customization</h1>
-      <p className="mt-2 max-w-2xl text-lilac">
-        Purpose, intention, date of birth, zodiac beads, then a name. Each step builds the bracelet you will order.
-      </p>
-      <div className="mt-6">
+    <div className="studio-page relative pb-28">
+      <div className="pointer-events-none absolute inset-0 lotus-corner" />
+      <div className="relative shell py-10 sm:py-12 md:py-16">
+        <Breadcrumbs items={CRUMBS} />
+
+        <div className="studio-head">
+          <SectionHead eyebrow={copy.eyebrow} title={copy.title} body={copy.body} />
+        </div>
+
         <Stepper />
-      </div>
 
-      <div className="mt-8 lg:hidden">
-        <PreviewPanel mobile />
-      </div>
-
-      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <div>
-          {pane}
-          <WizardNav />
+        <div className="mt-6 lg:hidden">
+          <PreviewPanel mobile />
         </div>
-        <div className="hidden lg:block">
-          <PreviewPanel />
+
+        <div className="studio-stage">
+          <div className="studio-pane">
+            {pane}
+            {stepError && <p className="mt-4 text-sm text-red-300 lg:hidden">{stepError}</p>}
+            <WizardNav />
+          </div>
+          <div className="hidden lg:block">
+            <PreviewPanel />
+          </div>
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gold/30 bg-black/90 px-4 py-3 backdrop-blur lg:hidden">
-        <div className="shell flex items-center justify-between gap-3 text-sm">
-          <button type="button" className="text-lilac" onClick={goBack} disabled={step === 1}>
+      <div className="studio-dock">
+        <div className="shell flex items-center justify-between gap-3">
+          <button
+            type="button"
+            className="text-xs uppercase tracking-[0.16em] text-lilac disabled:opacity-40"
+            onClick={goBack}
+            disabled={step === 1 || advancing}
+          >
             Back
           </button>
-          <span className="font-serif text-lg text-gold"><Price value={quote.total} /></span>
+          <span className="font-serif text-lg text-gold">
+            <Price value={quote.total} />
+          </span>
           {step < 6 ? (
-            <Button
-              onClick={goNext}
-              disabled={!mobileCanNext || advancing || calibrating}
-              className="!px-4 !py-2"
-            >
-              {advancing || calibrating ? '…' : 'Next'}
+            <Button onClick={goNext} disabled={advancing} className="px-4! py-2!">
+              {advancing ? '…' : 'Next'}
             </Button>
           ) : (
-            <span className="text-xs uppercase tracking-widest text-lilac">
-              {quote.beadCount}/{config?.beadLimit}
-            </span>
+            <div className="min-w-0 shrink-0">
+              <PlaceOrderButton className="px-4! py-2!" />
+            </div>
           )}
         </div>
       </div>

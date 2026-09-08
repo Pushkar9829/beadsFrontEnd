@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import { Heart, ShoppingBag } from 'lucide-react';
 import api from '../api/client';
 import Button from '../components/ui/Button';
+import Breadcrumbs from '../components/ui/Breadcrumbs';
 import GemVisual from '../components/ui/GemVisual';
 import Price from '../components/ui/Price';
 import QtyControl from '../components/ui/QtyControl';
 import Spinner from '../components/ui/Spinner';
-import EmptyState from '../components/ui/EmptyState';
+import InViewGroup from '../components/ui/InViewGroup';
 import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
+import { FAMILIES } from '../lib/format';
 
 export default function ProductPage() {
   const { slug } = useParams();
@@ -23,48 +25,116 @@ export default function ProductPage() {
 
   useEffect(() => {
     setLoading(true);
+    setAdded(false);
     api.get(`/products/${slug}`).then(({ data }) => setProduct(data.product)).catch(() => setProduct(null)).finally(() => setLoading(false));
   }, [slug]);
 
-  if (loading) return <Spinner />;
-  if (!product) return <EmptyState title="Piece not found" />;
+  const house = FAMILIES.find((f) => f.slug === product?.family);
+  const crumbs = [
+    { label: 'Home', to: '/' },
+    house ? { label: house.name, to: `/${house.slug}` } : { label: 'Shop All', to: '/shop' },
+    { label: product?.name || 'Piece' },
+  ];
 
   return (
-    <div className="shell grid gap-10 py-12 md:grid-cols-2">
-      <GemVisual color={product.colorHex} image={product.images?.[0]} name={product.name} className="h-[420px] w-full rounded-3xl gold-border" />
-      <div>
-        <p className="text-xs uppercase tracking-[0.25em] text-gold">{product.family}</p>
-        <h1 className="mt-2 font-serif text-4xl gold-text">{product.name}</h1>
-        <p className="mt-2 text-lilac">{product.shortDescription}</p>
-        <p className="mt-4 font-serif text-3xl text-gold"><Price value={product.price} /></p>
-        {product.compareAtPrice && (
-          <p className="text-sm text-lilac line-through"><Price value={product.compareAtPrice} /></p>
+    <div className="relative">
+      <div className="pointer-events-none absolute inset-0 lotus-corner" />
+      <div className="relative shell py-10 sm:py-12 md:py-16">
+        <Breadcrumbs items={crumbs} />
+
+        {loading ? (
+          <Spinner />
+        ) : !product ? (
+          <InViewGroup className="finale-stage mt-10">
+            <div className="finale px-5 py-14 text-center sm:px-8 sm:py-16">
+              <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">Missing</p>
+              <h2 className="finale-title mt-3 font-serif text-2xl gold-text sm:text-3xl">Piece not found.</h2>
+              <p className="finale-copy mx-auto mt-3 max-w-md text-sm text-lilac">
+                This work is no longer listed. Walk the houses, or begin in the studio.
+              </p>
+              <div className="finale-actions mt-8 flex flex-col justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
+                <Button to="/shop" className="w-full min-[420px]:w-auto">Shop All</Button>
+                <Button to="/customize" variant="ghost" className="w-full min-[420px]:w-auto">Customization</Button>
+              </div>
+            </div>
+          </InViewGroup>
+        ) : (
+          <div className="mt-8 grid items-start gap-8 lg:mt-10 lg:grid-cols-2 lg:gap-14">
+            <GemVisual
+              color={product.colorHex}
+              image={product.images?.[0]}
+              name={product.name}
+              className="h-72 w-full rounded-[1.25rem] sm:h-[28rem]"
+            />
+            <div>
+              <div className="flex items-start gap-4">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-gold sm:text-[11px] sm:tracking-[0.28em]">
+                    {house?.name || product.family}
+                  </p>
+                  <h1 className="mt-2 font-serif text-2xl gold-text sm:text-3xl md:text-4xl">{product.name}</h1>
+                  {product.shortDescription && (
+                    <p className="mt-3 text-sm leading-relaxed text-lilac md:text-base">{product.shortDescription}</p>
+                  )}
+                  <p className="mt-4 font-serif text-2xl text-gold sm:text-3xl">
+                    <Price value={product.price} />
+                  </p>
+                  {product.compareAtPrice && (
+                    <p className="mt-1 text-sm text-lilac line-through">
+                      <Price value={product.compareAtPrice} />
+                    </p>
+                  )}
+                </div>
+                <div className="product-card-tools">
+                  <button
+                    type="button"
+                    aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+                    onClick={() => toggleWish(product)}
+                    className={`product-tool ${wishlisted ? 'is-on' : ''}`}
+                  >
+                    <Heart size={15} fill={wishlisted ? 'currentColor' : 'none'} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Add to cart"
+                    onClick={async () => {
+                      await addProduct(product, qty);
+                      setAdded(true);
+                    }}
+                    className="product-tool"
+                  >
+                    <ShoppingBag size={15} />
+                  </button>
+                </div>
+              </div>
+
+              {product.description && (
+                <p className="mt-6 leading-relaxed text-ivory/80">{product.description}</p>
+              )}
+
+              <div className="mt-8 flex flex-col gap-3 min-[420px]:flex-row min-[420px]:flex-wrap min-[420px]:items-center">
+                <QtyControl value={qty} min={1} onChange={setQty} />
+                <Button
+                  className="w-full min-[420px]:w-auto"
+                  onClick={async () => {
+                    await addProduct(product, qty);
+                    setAdded(true);
+                  }}
+                >
+                  Add to bag
+                </Button>
+              </div>
+              {added && <p className="mt-3 text-sm text-gold">Added to bag.</p>}
+
+              <article className="auth-card mt-10">
+                <p className="text-[11px] uppercase tracking-[0.22em] text-gold">The studio</p>
+                <h2 className="mt-2 font-serif text-2xl gold-text">Want this feeling in your own counts?</h2>
+                <p className="mt-2 text-sm text-lilac">Compose a strand in the studio — Mulank, zodiac, and a name.</p>
+                <Button to="/customize" className="mt-5 w-full min-[420px]:w-auto">Customization</Button>
+              </article>
+            </div>
+          </div>
         )}
-        <p className="mt-6 leading-relaxed text-ivory/80">{product.description}</p>
-        <div className="mt-8 flex flex-wrap items-center gap-4">
-          <QtyControl value={qty} min={1} onChange={setQty} />
-          <Button
-            onClick={async () => {
-              await addProduct(product, qty);
-              setAdded(true);
-            }}
-          >
-            Add to cart
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => toggleWish(product)}
-            aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-          >
-            <Heart size={15} fill={wishlisted ? 'currentColor' : 'none'} />
-            {wishlisted ? 'Saved' : 'Wishlist'}
-          </Button>
-        </div>
-        {added && <p className="mt-3 text-sm text-gold">Added to bag.</p>}
-        <div className="mt-10 rounded-2xl p-5 gold-border">
-          <p className="text-sm text-lilac">Want this feeling in your own bead counts?</p>
-          <Button to="/customize" className="mt-3">Customization</Button>
-        </div>
       </div>
     </div>
   );

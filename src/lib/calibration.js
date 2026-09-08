@@ -209,7 +209,8 @@ export function calibrateLocal({
   const mulankCrystal = slimBead(findBeadByName(pool, mulankMeta?.beadName));
   const zodiacBead = slimBead(findBeadByName(pool, sign.beadName));
   const beadLimit = config?.beadLimit || 18;
-  const qtyZ = Number(zodiacQty || config?.zodiacBeadCount || 2);
+  const parsed = Number(zodiacQty);
+  const qtyZ = Number.isFinite(parsed) && parsed > 0 ? parsed : (config?.zodiacBeadCount || 2);
   const layout = buildLayout({
     intentionBeads,
     mulank,

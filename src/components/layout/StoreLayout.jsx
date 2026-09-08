@@ -9,10 +9,22 @@ export default function StoreLayout() {
   const { pathname } = useLocation();
   const showAtmosphere =
     pathname === '/' ||
+    pathname === '/shop' ||
     pathname === '/wishlist' ||
     pathname === '/cart' ||
     pathname === '/login' ||
-    pathname === '/register';
+    pathname === '/register' ||
+    pathname === '/crystals' ||
+    pathname === '/rudraksha' ||
+    pathname === '/gemstones' ||
+    pathname.startsWith('/c/') ||
+    pathname.startsWith('/p/') ||
+    pathname === '/about' ||
+    pathname === '/customize' ||
+    pathname === '/account' ||
+    pathname === '/returns' ||
+    pathname === '/privacy' ||
+    pathname === '/terms';
 
   useEffect(() => {
     paintGoldShine();

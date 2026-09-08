@@ -10,6 +10,14 @@ const NEXT_LABEL = {
   5: 'Review & order',
 };
 
+const HINT = {
+  1: 'Choose a purpose to continue.',
+  2: 'Choose an intention and keep at least one crystal.',
+  3: 'Choose day, month and year.',
+  4: 'Zodiac beads are added on this step.',
+  5: 'Enter a name of at least 2 letters.',
+};
+
 export default function WizardNav() {
   const step = useCustomizerStore((s) => s.step);
   const goBack = useCustomizerStore((s) => s.goBack);
@@ -28,7 +36,7 @@ export default function WizardNav() {
   const config = useCustomizerStore((s) => s.config);
   const pickedCount = recommended.filter((b) => (quantities[b._id] || 0) > 0).length;
 
-  const canNext = {
+  const ready = {
     1: !!purpose,
     2: !!intention && pickedCount > 0,
     3: Boolean(dateOfBirth),
@@ -38,23 +46,25 @@ export default function WizardNav() {
 
   if (step === 6) return null;
 
-  const busy = advancing || calibrating;
+  const busy = advancing;
 
   return (
-    <div className="mt-8 border-t border-gold/20 pt-4">
-      {stepError && <p className="mb-3 text-sm text-red-300">{stepError}</p>}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Button variant="ghost" onClick={goBack} disabled={step === 1 || busy}>
-          Back
+    <div className="studio-nav">
+      {(stepError || (!ready && HINT[step])) && (
+        <p className={`mb-3 w-full text-sm ${stepError ? 'text-red-300' : 'text-lilac'}`}>
+          {stepError || HINT[step]}
+        </p>
+      )}
+      <Button variant="ghost" onClick={goBack} disabled={step === 1 || busy}>
+        Back
+      </Button>
+      <div className="flex items-center gap-4">
+        <span className="text-sm text-lilac">
+          {quote.beadCount || 0} / {config?.beadLimit || 18} · <Price value={quote.total} />
+        </span>
+        <Button onClick={goNext} disabled={busy}>
+          {busy || (step === 3 && calibrating) ? 'Working…' : NEXT_LABEL[step]}
         </Button>
-        <div className="flex items-center gap-4">
-          <span className="hidden text-sm text-lilac sm:inline">
-            {quote.beadCount} / {config?.beadLimit || 18} · <Price value={quote.total} />
-          </span>
-          <Button onClick={goNext} disabled={!canNext || busy}>
-            {busy ? 'Working…' : NEXT_LABEL[step]}
-          </Button>
-        </div>
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ export default function ProductCard({ product, description }) {
   const toggleWish = useWishlistStore((s) => s.toggle);
 
   return (
-    <Card className="group relative overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(107,63,160,0.18)]">
+    <Card className="group flex h-full flex-col overflow-hidden transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(107,63,160,0.18)]">
       <Link to={`/p/${product.slug}`} className="block">
         <div className="relative overflow-hidden">
           <GemVisual
@@ -23,7 +23,9 @@ export default function ProductCard({ product, description }) {
           />
           <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/55 via-transparent to-transparent opacity-80" />
         </div>
-        <div className="p-4">
+      </Link>
+      <div className="flex flex-1 items-stretch gap-3 p-4">
+        <Link to={`/p/${product.slug}`} className="min-w-0 flex-1">
           {product.family && (
             <p className="text-[10px] uppercase tracking-[0.2em] text-gold">{product.family}</p>
           )}
@@ -32,37 +34,25 @@ export default function ProductCard({ product, description }) {
           <p className="mt-2 text-gold">
             <Price value={product.price} />
           </p>
+        </Link>
+        <div className="product-card-tools">
+          <button
+            type="button"
+            aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            onClick={() => toggleWish(product)}
+            className={`product-tool ${wishlisted ? 'is-on' : ''}`}
+          >
+            <Heart size={15} fill={wishlisted ? 'currentColor' : 'none'} />
+          </button>
+          <button
+            type="button"
+            aria-label="Add to cart"
+            onClick={() => addProduct(product, 1)}
+            className="product-tool"
+          >
+            <ShoppingBag size={15} />
+          </button>
         </div>
-      </Link>
-      <div className="absolute right-3 top-3 flex flex-col gap-2">
-        <button
-          type="button"
-          aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleWish(product);
-          }}
-          className={`grid h-9 w-9 place-items-center rounded-full border backdrop-blur-md transition duration-200 hover:scale-110 ${
-            wishlisted
-              ? 'border-gold bg-gold text-ink'
-              : 'border-gold/30 bg-black/70 text-ivory hover:border-gold hover:text-gold'
-          }`}
-        >
-          <Heart size={15} fill={wishlisted ? 'currentColor' : 'none'} />
-        </button>
-        <button
-          type="button"
-          aria-label="Add to cart"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            addProduct(product, 1);
-          }}
-          className="grid h-9 w-9 place-items-center rounded-full border border-gold/30 bg-black/70 text-ivory backdrop-blur-md transition duration-200 hover:scale-110 hover:border-gold hover:text-gold"
-        >
-          <ShoppingBag size={15} />
-        </button>
       </div>
     </Card>
   );
