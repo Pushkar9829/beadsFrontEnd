@@ -30,7 +30,7 @@ export default function ProductPage() {
   if (!product) return <EmptyState title="Piece not found" />;
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-2">
+    <div className="shell grid gap-10 py-12 md:grid-cols-2">
       <GemVisual color={product.colorHex} image={product.images?.[0]} name={product.name} className="h-[420px] w-full rounded-3xl gold-border" />
       <div>
         <p className="text-xs uppercase tracking-[0.25em] text-gold">{product.family}</p>

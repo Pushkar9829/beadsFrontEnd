@@ -32,7 +32,7 @@ export default function FamilyPage() {
   const children = tree[0]?.children || [];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12">
+    <div className="shell py-12">
       <p className="text-xs uppercase tracking-[0.25em] text-gold">House</p>
       <h1 className="mt-2 font-serif text-4xl gold-text">{meta?.name || family}</h1>
       <p className="mt-3 max-w-2xl text-lilac">{meta?.blurb}</p>
@@ -57,7 +57,7 @@ export default function FamilyPage() {
       {products.length === 0 ? (
         <EmptyState title="Nothing listed yet" body="Collections expand from the atelier — they are never hard-coded." />
       ) : (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {products.map((p) => (
             <ProductCard key={p._id} product={p} />
           ))}

@@ -86,7 +86,7 @@ export default function CustomizePage() {
   }[step];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 pb-28 lg:pb-8">
+    <div className="shell py-8 pb-28 lg:pb-8">
       <p className="text-xs uppercase tracking-[0.25em] text-gold">Customization</p>
       <h1 className="mt-2 font-serif text-3xl gold-text md:text-4xl">Customization</h1>
       <p className="mt-2 max-w-2xl text-lilac">
@@ -111,7 +111,7 @@ export default function CustomizePage() {
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gold/30 bg-black/90 px-4 py-3 backdrop-blur lg:hidden">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 text-sm">
+        <div className="shell flex items-center justify-between gap-3 text-sm">
           <button type="button" className="text-lilac" onClick={goBack} disabled={step === 1}>
             Back
           </button>

@@ -29,7 +29,7 @@ export default function AccountPage() {
   }, [user]);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12">
+    <div className="shell py-12">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-serif text-3xl gold-text">Account</h1>

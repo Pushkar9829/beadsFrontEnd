@@ -12,7 +12,7 @@ export default function AboutPage() {
   const about = content?.about || {};
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-16">
+    <div className="shell py-16">
       <img src={logo} alt="" className="mx-auto mb-10 h-40 w-40 rounded-full object-cover gold-border" />
       <p className="text-center text-xs uppercase tracking-[0.28em] text-gold">
         {about.tagline || 'Editorial luxury for modern seekers.'}

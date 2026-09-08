@@ -19,7 +19,7 @@ export default function ShopPage() {
   }, [family]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12">
+    <div className="shell py-12">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-serif text-4xl gold-text">Shop All</h1>
@@ -49,7 +49,7 @@ export default function ShopPage() {
       {loading ? (
         <Spinner />
       ) : (
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {products.map((p) => (
             <ProductCard key={p._id} product={p} />
           ))}

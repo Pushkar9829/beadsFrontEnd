@@ -59,7 +59,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 md:grid-cols-2">
+    <div className="shell grid gap-10 py-12 md:grid-cols-2">
       <form onSubmit={submit} className="space-y-3">
         <h1 className="font-serif text-3xl gold-text">Checkout</h1>
         <p className="text-sm text-lilac">

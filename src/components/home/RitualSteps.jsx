@@ -6,7 +6,7 @@ export default function RitualSteps({ steps }) {
   useInViewOnce(ref);
 
   return (
-    <ol ref={ref} className="ritual mt-12 grid gap-10 md:grid-cols-4 md:gap-8">
+    <ol ref={ref} className="ritual mt-10 grid gap-8 sm:grid-cols-2 sm:gap-8 lg:mt-12 lg:grid-cols-4">
       <span className="ritual-line" aria-hidden />
       {steps.map((step, i) => (
         <li key={step.n} className="ritual-step" style={{ '--i': i }}>

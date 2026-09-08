@@ -155,11 +155,15 @@ export default function HeroBrand({ onDone }) {
       aria-label="Kuberstones"
     >
       <defs>
-        <linearGradient id="heroGoldStroke" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#e8d5a3" />
-          <stop offset="50%" stopColor="#c6a75e" />
+        <radialGradient id="heroGoldStroke" gradientUnits="userSpaceOnUse" cx="380" cy="60" r="420">
+          <stop offset="0%" stopColor="#e4c98a" />
+          <stop offset="38%" stopColor="#c6a75e" />
+          <stop offset="72%" stopColor="#a67c3a" />
           <stop offset="100%" stopColor="#8c6a2f" />
-        </linearGradient>
+          <animate attributeName="cx" values="120;640;120" dur="9s" repeatCount="indefinite" />
+          <animate attributeName="cy" values="28;90;28" dur="11s" repeatCount="indefinite" />
+          <animate attributeName="r" values="360;480;360" dur="8s" repeatCount="indefinite" />
+        </radialGradient>
         <filter id="heroPenGlow" x="-80%" y="-80%" width="260%" height="260%">
           <feGaussianBlur stdDeviation="1.8" result="blur" />
           <feMerge>

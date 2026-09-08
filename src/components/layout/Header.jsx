@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown, Heart, ShoppingBag, User } from 'lucide-react';
 import logo from '../../assets/brand/logo.jpg';
@@ -25,7 +25,9 @@ export default function Header() {
   const [tree, setTree] = useState([]);
   const [mega, setMega] = useState(null);
   const [scrolled, setScrolled] = useState(false);
+  const [headerH, setHeaderH] = useState(0);
   const megaTimer = useRef(null);
+  const headerRef = useRef(null);
 
   useEffect(() => {
     setMega(null);
@@ -34,6 +36,23 @@ export default function Header() {
 
   useEffect(() => {
     api.get('/categories').then(({ data }) => setTree(data.tree || [])).catch(() => {});
+  }, []);
+
+  useLayoutEffect(() => {
+    const el = headerRef.current;
+    if (!el) return undefined;
+    const apply = () => {
+      const h = Math.ceil(el.getBoundingClientRect().height);
+      setHeaderH(h);
+      document.documentElement.style.setProperty('--header-h', `${h}px`);
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      document.documentElement.style.removeProperty('--header-h');
+    };
   }, []);
 
   useEffect(() => {
@@ -78,21 +97,24 @@ export default function Header() {
   return (
     <>
       <header
-        className={`sticky top-0 z-40 border-b transition-[background,box-shadow,border-color] duration-300 ${
+        ref={headerRef}
+        className={`fixed inset-x-0 top-0 z-40 border-b transition-[background,box-shadow,border-color] duration-300 ${
           scrolled
             ? 'border-[rgba(198,167,94,0.32)] bg-black/92 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl'
             : 'border-[rgba(198,167,94,0.18)] bg-black/78 backdrop-blur-md'
         }`}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
-          <Link to="/" className="group flex items-center gap-3">
+        <div className="shell flex items-center justify-between gap-2 py-2.5 sm:gap-4 sm:py-3">
+          <Link to="/" className="group flex min-w-0 items-center gap-2 sm:gap-3">
             <img
               src={logo}
               alt="Kuberstones"
-              className="h-12 w-12 rounded-full object-cover ring-1 ring-gold/40 transition duration-300 group-hover:ring-gold group-hover:shadow-[0_0_18px_rgba(198,167,94,0.35)]"
+              className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-gold/40 transition duration-300 group-hover:ring-gold group-hover:shadow-[0_0_18px_rgba(198,167,94,0.35)] sm:h-12 sm:w-12"
             />
-            <div className="leading-tight">
-              <div className="font-serif text-sm tracking-[0.28em] gold-text">KUBERSTONES</div>
+            <div className="min-w-0 leading-tight">
+              <div className="whitespace-nowrap font-serif text-[11px] tracking-[0.14em] gold-text sm:text-sm sm:tracking-[0.28em]">
+                KUBERSTONES
+              </div>
               <div className="hidden text-[10px] uppercase tracking-[0.22em] text-lilac sm:block">
                 Energy · Abundance · Wellness
               </div>
@@ -155,11 +177,11 @@ export default function Header() {
                 `ml-1 rounded-full px-3.5 py-1.5 text-xs uppercase tracking-[0.16em] transition duration-200 ${
                   isActive
                     ? 'gold-btn'
-                    : 'border border-gold/40 text-gold hover:border-gold hover:bg-gold/10'
+                    : 'border border-gold/40 hover:border-gold hover:bg-gold/10'
                 }`
               }
             >
-              Customization
+              <span className="gold-cloud">Customization</span>
             </NavLink>
             <NavLink
               to="/shop"
@@ -179,7 +201,7 @@ export default function Header() {
             </NavLink>
           </nav>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1.5">
             {user?.role === 'admin' && (
               <Link
                 to="/admin"
@@ -215,7 +237,7 @@ export default function Header() {
           </div>
         </div>
 
-        <nav className="no-scrollbar flex gap-1 overflow-x-auto px-4 pb-2.5 lg:hidden">
+        <nav className="shell no-scrollbar flex gap-1 overflow-x-auto pb-2.5 lg:hidden">
           {families.map((f) => (
             <NavLink
               key={f.slug}
@@ -233,11 +255,11 @@ export default function Header() {
             to="/customize"
             className={({ isActive }) =>
               `shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
-                isActive ? 'gold-btn' : 'border border-gold/40 text-gold'
+                isActive ? 'gold-btn' : 'border border-gold/40'
               }`
             }
           >
-            Customization
+            <span className="gold-cloud">Customization</span>
           </NavLink>
           <NavLink
             to="/shop"
@@ -261,6 +283,7 @@ export default function Header() {
           </NavLink>
         </nav>
       </header>
+      <div className="shrink-0" style={{ height: headerH }} aria-hidden />
 
       <AccountDrawer open={accountOpen && !!user} onClose={() => setAccountOpen(false)} />
     </>

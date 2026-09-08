@@ -3,7 +3,20 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import Button from '../components/ui/Button';
-import Card from '../components/ui/Card';
+import Breadcrumbs from '../components/ui/Breadcrumbs';
+import SectionHead from '../components/home/SectionHead';
+
+const CRUMBS = [
+  { label: 'Home', to: '/' },
+  { label: 'Create account' },
+];
+
+const FIELDS = [
+  { key: 'name', label: 'Name', type: 'text', autoComplete: 'name', required: true },
+  { key: 'email', label: 'Email', type: 'email', autoComplete: 'email', required: true },
+  { key: 'phone', label: 'Phone', type: 'tel', autoComplete: 'tel', required: false },
+  { key: 'password', label: 'Password', type: 'password', autoComplete: 'new-password', required: true },
+];
 
 export default function RegisterPage() {
   const register = useAuthStore((s) => s.register);
@@ -30,29 +43,51 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="text-center font-serif text-3xl gold-text">Create account</h1>
-      <Card className="mt-8 p-6">
-        <form onSubmit={submit} className="space-y-4">
-          {['name', 'email', 'phone', 'password'].map((k) => (
-            <label key={k} className="block text-xs uppercase tracking-widest text-gold">
-              {k}
-              <input
-                value={form[k]}
-                onChange={(e) => set(k, e.target.value)}
-                type={k === 'password' ? 'password' : k === 'email' ? 'email' : 'text'}
-                required={k !== 'phone'}
-                className="mt-1 w-full rounded-xl border border-gold/30 bg-ink px-3 py-2 text-ivory"
-              />
-            </label>
-          ))}
-          {error && <p className="text-sm text-red-300">{error}</p>}
-          <Button type="submit" disabled={busy} className="w-full">{busy ? 'Creating…' : 'Create account'}</Button>
-        </form>
-        <p className="mt-4 text-center text-sm text-lilac">
-          Already with us? <Link to="/login" className="text-gold">Sign in</Link>
-        </p>
-      </Card>
+    <div className="relative">
+      <div className="pointer-events-none absolute inset-0 lotus-corner" />
+      <div className="relative shell py-10 sm:py-12 md:py-16">
+        <Breadcrumbs items={CRUMBS} />
+
+        <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] lg:gap-16 xl:grid-cols-[minmax(0,1fr)_minmax(0,32rem)]">
+          <SectionHead
+            eyebrow="The atelier"
+            title="Create account"
+            body="Join the house. A custom strand, a saved piece, and the atelier list — kept under one name."
+            to="/login"
+            action="Sign in →"
+          />
+
+          <article className="auth-card">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-gold">Begin</p>
+            <h2 className="mt-2 font-serif text-2xl gold-text">A place in the house.</h2>
+            <form onSubmit={submit} className="mt-6 space-y-4">
+              {FIELDS.map((field) => (
+                <label key={field.key} className="block text-[11px] uppercase tracking-[0.18em] text-gold">
+                  {field.label}
+                  <input
+                    value={form[field.key]}
+                    onChange={(e) => set(field.key, e.target.value)}
+                    type={field.type}
+                    required={field.required}
+                    autoComplete={field.autoComplete}
+                    className="contact-input mt-2"
+                  />
+                </label>
+              ))}
+              {error && <p className="text-sm text-red-300">{error}</p>}
+              <Button type="submit" disabled={busy} className="w-full">
+                {busy ? 'Creating…' : 'Create account'}
+              </Button>
+            </form>
+            <p className="mt-5 text-sm text-lilac">
+              Already with us?{' '}
+              <Link to="/login" className="text-gold">
+                Sign in
+              </Link>
+            </p>
+          </article>
+        </div>
+      </div>
     </div>
   );
 }

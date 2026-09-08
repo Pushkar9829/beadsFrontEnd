@@ -18,7 +18,7 @@ export default function ProductCard({ product, description }) {
           <GemVisual
             color={product.colorHex}
             image={product.images?.[0]}
-            className="h-48 w-full transition duration-500 group-hover:scale-[1.04]"
+            className="h-40 w-full transition duration-500 group-hover:scale-[1.04] sm:h-48"
             name={product.name}
           />
           <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/55 via-transparent to-transparent opacity-80" />

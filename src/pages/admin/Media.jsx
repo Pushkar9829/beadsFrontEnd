@@ -23,7 +23,9 @@ export default function AdminMedia() {
       <AdminHeader title="Media" subtitle="Local uploads for product and bead imagery." />
       <div className="mb-4">
         <label className="inline-block">
-          <span className="gold-btn inline-flex cursor-pointer rounded-full px-5 py-2.5 text-xs uppercase tracking-widest">Upload image</span>
+          <span className="gold-btn inline-flex cursor-pointer rounded-full px-5 py-2.5 text-xs uppercase tracking-widest">
+            <span className="gold-cloud">Upload image</span>
+          </span>
           <input type="file" accept="image/*" className="hidden" onChange={onFile} />
         </label>
       </div>

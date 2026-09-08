@@ -29,7 +29,7 @@ export default function CategoryPage() {
   if (missing) return <EmptyState title="Collection not found" body="This category is not published yet." />;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12">
+    <div className="shell py-12">
       <p className="text-xs uppercase tracking-[0.25em] text-gold">{category.family}</p>
       <h1 className="mt-2 font-serif text-4xl gold-text">{category.name}</h1>
       <p className="mt-3 max-w-2xl text-lilac">{category.description}</p>
@@ -37,7 +37,7 @@ export default function CategoryPage() {
       {products.length === 0 ? (
         <EmptyState title="No pieces in this collection yet" body="The atelier will add them from admin — the menu stays expandable." />
       ) : (
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {products.map((p) => (
             <ProductCard key={p._id} product={p} />
           ))}

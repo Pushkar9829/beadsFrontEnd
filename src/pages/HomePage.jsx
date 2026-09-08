@@ -11,6 +11,7 @@ import ProductCard from '../components/ui/ProductCard';
 import Reveal from '../components/ui/Reveal';
 import InViewGroup from '../components/ui/InViewGroup';
 import { FAMILIES } from '../lib/format';
+import finaleBanner from '../assets/home/finale-banner.jpg';
 
 const RITUAL = [
   { n: '01', title: 'Purpose', body: 'Begin with why you wear it — calm, abundance, protection, or love.' },
@@ -54,7 +55,7 @@ export default function HomePage() {
   const studioPurposes = purposes.slice(0, 6);
 
   return (
-    <div>
+    <div className="home-page">
       <Hero hero={hero} />
 
       <div className="marquee" aria-hidden>
@@ -68,7 +69,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 md:py-20">
+      <section className="shell py-12 sm:py-16 md:py-20">
         <Reveal variant="head">
           <SectionHead
             eyebrow="The atelier"
@@ -80,9 +81,9 @@ export default function HomePage() {
       </section>
 
       {studioPurposes.length > 0 && (
-        <section className="relative py-16 md:py-20">
+        <section className="relative py-12 sm:py-16 md:py-20">
           <div className="pointer-events-none absolute inset-0 lotus-corner" />
-          <div className="relative mx-auto max-w-7xl px-4">
+          <div className="relative shell">
             <Reveal variant="head">
               <SectionHead
                 eyebrow="The studio"
@@ -92,7 +93,7 @@ export default function HomePage() {
                 action="Open the studio →"
               />
             </Reveal>
-            <InViewGroup className="studio-grid mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <InViewGroup className="studio-grid mt-8 grid gap-3 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
               {studioPurposes.map((p, i) => (
                 <div key={p._id} className="purpose-item" style={{ '--i': i }}>
                   <Link to={`/customize?purpose=${p.slug}`} className="purpose-card group block h-full">
@@ -112,7 +113,7 @@ export default function HomePage() {
         </section>
       )}
 
-      <section className="mx-auto max-w-7xl px-4 py-16 md:py-20">
+      <section className="shell py-12 sm:py-16 md:py-20">
         <Reveal variant="head">
           <SectionHead
             eyebrow="The ritual"
@@ -124,7 +125,7 @@ export default function HomePage() {
       </section>
 
       {featured.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-16 md:py-20">
+        <section className="shell py-12 sm:py-16 md:py-20">
           <Reveal variant="head">
             <SectionHead
               eyebrow="The collection"
@@ -134,7 +135,7 @@ export default function HomePage() {
               action="Shop all →"
             />
           </Reveal>
-          <InViewGroup className="feature-grid mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <InViewGroup className="feature-grid mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {featured.map((p, i) => (
               <div key={p._id} className="feature-item" style={{ '--i': i }}>
                 <ProductCard product={p} description={p.shortDescription} />
@@ -145,7 +146,7 @@ export default function HomePage() {
       )}
 
       {claims.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-16 md:py-20">
+        <section className="shell py-12 sm:py-16 md:py-20">
           <Reveal variant="head">
             <SectionHead
               eyebrow="The house"
@@ -153,7 +154,7 @@ export default function HomePage() {
               body="Crystal associations are traditional and spiritual. They are not medical claims. The making, however, is exact."
             />
           </Reveal>
-          <InViewGroup className="trust-grid mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <InViewGroup className="trust-grid mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {claims.map((c, i) => {
               const Icon = CLAIM_ICONS[c.title] || Lock;
               return (
@@ -170,17 +171,22 @@ export default function HomePage() {
         </section>
       )}
 
-      <section className="px-4 pb-8 pt-8 md:py-12">
+      <section className="shell pb-8 pt-6 md:py-12">
         <InViewGroup className="finale-stage">
-          <div className="finale mx-auto max-w-7xl px-6 py-16 text-center md:px-16 md:py-20">
-            <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">Begin</p>
-            <h2 className="finale-title mt-3 font-serif text-3xl gold-text md:text-5xl">A bracelet with a reason.</h2>
-            <p className="finale-copy mx-auto mt-4 max-w-xl text-lilac">
-              Start with a purpose in the studio, or walk the three houses until a piece finds you.
-            </p>
-            <div className="finale-actions mt-8 flex flex-wrap justify-center gap-3">
-              <Button to="/customize">Customization</Button>
-              <Button to="/shop" variant="ghost">Shop All</Button>
+          <div className="finale text-center">
+            <div className="finale-media" aria-hidden>
+              <img src={finaleBanner} alt="" />
+            </div>
+            <div className="relative z-10 px-5 py-16 sm:px-8 sm:py-20 md:px-16 md:py-24">
+              <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">Begin</p>
+              <h2 className="finale-title mt-3 font-serif text-2xl gold-text sm:text-3xl md:text-5xl">A bracelet with a reason.</h2>
+              <p className="finale-copy mx-auto mt-4 max-w-xl text-sm text-lilac sm:text-base">
+                Start with a purpose in the studio, or walk the three houses until a piece finds you.
+              </p>
+              <div className="finale-actions mt-7 flex flex-col justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap sm:mt-8">
+                <Button to="/customize" className="w-full min-[420px]:w-auto">Customization</Button>
+                <Button to="/shop" variant="ghost" className="w-full min-[420px]:w-auto">Shop All</Button>
+              </div>
             </div>
           </div>
         </InViewGroup>

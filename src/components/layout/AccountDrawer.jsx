@@ -107,7 +107,7 @@ export default function AccountDrawer({ open, onClose }) {
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-5">
           <div className="flex items-center gap-4">
             <div className="grid h-14 w-14 place-items-center rounded-full bg-linear-to-br from-gold-light to-gold-deep font-serif text-lg text-ink ring-2 ring-gold/40">
               {initials(user.name)}
