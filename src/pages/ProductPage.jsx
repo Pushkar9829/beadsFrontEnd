@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Heart } from 'lucide-react';
 import api from '../api/client';
 import Button from '../components/ui/Button';
 import GemVisual from '../components/ui/GemVisual';
@@ -8,6 +9,7 @@ import QtyControl from '../components/ui/QtyControl';
 import Spinner from '../components/ui/Spinner';
 import EmptyState from '../components/ui/EmptyState';
 import { useCartStore } from '../store/cartStore';
+import { useWishlistStore } from '../store/wishlistStore';
 
 export default function ProductPage() {
   const { slug } = useParams();
@@ -16,6 +18,8 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
   const addProduct = useCartStore((s) => s.addProduct);
+  const wishlisted = useWishlistStore((s) => (product ? s.has(product._id) : false));
+  const toggleWish = useWishlistStore((s) => s.toggle);
 
   useEffect(() => {
     setLoading(true);
@@ -47,11 +51,19 @@ export default function ProductPage() {
           >
             Add to cart
           </Button>
+          <Button
+            variant="ghost"
+            onClick={() => toggleWish(product)}
+            aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+          >
+            <Heart size={15} fill={wishlisted ? 'currentColor' : 'none'} />
+            {wishlisted ? 'Saved' : 'Wishlist'}
+          </Button>
         </div>
         {added && <p className="mt-3 text-sm text-gold">Added to bag.</p>}
         <div className="mt-10 rounded-2xl p-5 gold-border">
           <p className="text-sm text-lilac">Want this feeling in your own bead counts?</p>
-          <Button to="/customize" className="mt-3">Shop by Purpose</Button>
+          <Button to="/customize" className="mt-3">Customization</Button>
         </div>
       </div>
     </div>

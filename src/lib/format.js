@@ -12,7 +12,22 @@ export function parseWristInches(size = '6.5"') {
 }
 
 export const FAMILIES = [
-  { slug: 'crystals', name: 'Crystals', blurb: 'Bracelet collections and crystal-based pieces.' },
-  { slug: 'rudraksha', name: 'Rudraksha', blurb: 'Sacred seed jewellery, composed with restraint.' },
-  { slug: 'gemstones', name: 'Gemstones', blurb: 'Cut stones and bracelet collections.' },
+  {
+    slug: 'crystals',
+    name: 'Crystals',
+    roman: 'I',
+    blurb: 'Strands composed for intention — colour, count, and character held with restraint.',
+  },
+  {
+    slug: 'rudraksha',
+    name: 'Rudraksha',
+    roman: 'II',
+    blurb: 'Sacred seed jewellery, quiet in silhouette and exact in its making.',
+  },
+  {
+    slug: 'gemstones',
+    name: 'Gemstones',
+    roman: 'III',
+    blurb: 'Cut stones and bracelet collections, set for light rather than noise.',
+  },
 ];

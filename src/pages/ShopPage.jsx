@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import api from '../api/client';
-import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import GemVisual from '../components/ui/GemVisual';
-import Price from '../components/ui/Price';
+import ProductCard from '../components/ui/ProductCard';
 import Spinner from '../components/ui/Spinner';
 import { FAMILIES } from '../lib/format';
 
@@ -27,7 +25,7 @@ export default function ShopPage() {
           <h1 className="font-serif text-4xl gold-text">Shop All</h1>
           <p className="mt-2 text-lilac">Ready-made pieces across crystals, rudraksha and gemstones.</p>
         </div>
-        <Button to="/customize">Shop by Purpose</Button>
+        <Button to="/customize">Customization</Button>
       </div>
       <div className="mt-6 flex flex-wrap gap-2">
         <button
@@ -53,16 +51,7 @@ export default function ShopPage() {
       ) : (
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((p) => (
-            <Link key={p._id} to={`/p/${p.slug}`}>
-              <Card className="overflow-hidden">
-                <GemVisual color={p.colorHex} image={p.images?.[0]} className="h-48 w-full" name={p.name} />
-                <div className="p-4">
-                  <p className="text-[10px] uppercase tracking-widest text-gold">{p.family}</p>
-                  <h3 className="font-serif text-xl">{p.name}</h3>
-                  <p className="text-gold"><Price value={p.price} /></p>
-                </div>
-              </Card>
-            </Link>
+            <ProductCard key={p._id} product={p} />
           ))}
         </div>
       )}

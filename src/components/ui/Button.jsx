@@ -21,7 +21,7 @@ export default function Button({
     text: 'text-lilac hover:text-ivory px-2',
   };
   const cls = `${base} ${styles[variant] || styles.gold} ${className}`;
-  if (to) return <Link to={to} className={cls}>{children}</Link>;
+  if (to) return <Link to={to} onClick={onClick} className={cls}>{children}</Link>;
   if (href) return <a href={href} className={cls}>{children}</a>;
   return (
     <button type={type} onClick={onClick} disabled={disabled} className={cls}>

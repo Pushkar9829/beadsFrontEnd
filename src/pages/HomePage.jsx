@@ -1,159 +1,189 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import logo from '../assets/brand/logo.jpg';
+import { Gem, Hand, Lock, Shield, Sparkles } from 'lucide-react';
 import api from '../api/client';
+import Hero from '../components/home/Hero';
+import SectionHead from '../components/home/SectionHead';
+import RitualSteps from '../components/home/RitualSteps';
+import HousesRow from '../components/home/HousesRow';
 import Button from '../components/ui/Button';
-import Card from '../components/ui/Card';
-import GemVisual from '../components/ui/GemVisual';
-import Price from '../components/ui/Price';
+import ProductCard from '../components/ui/ProductCard';
+import Reveal from '../components/ui/Reveal';
+import InViewGroup from '../components/ui/InViewGroup';
 import { FAMILIES } from '../lib/format';
+
+const RITUAL = [
+  { n: '01', title: 'Purpose', body: 'Begin with why you wear it — calm, abundance, protection, or love.' },
+  { n: '02', title: 'Intention', body: 'Choose the feeling. Its crystals are selected for you, not guessed at checkout.' },
+  { n: '03', title: 'Calibration', body: 'Your date of birth sets the Mulank. Counts are composed to that number.' },
+  { n: '04', title: 'Name', body: 'Zodiac beads and an engraving close the strand. The piece is then yours.' },
+];
+
+const CLAIM_ICONS = {
+  'Natural & Authentic': Gem,
+  'Designed for Intentions': Sparkles,
+  Handmade: Hand,
+  'Energized / Cleansed': Sparkles,
+  'Secure Payments': Shield,
+};
+
+const MARQUEE = [
+  'Energy',
+  'Abundance',
+  'Wellness',
+  'Crystals',
+  'Rudraksha',
+  'Gemstones',
+  'Customization',
+  'Handmade',
+];
 
 export default function HomePage() {
   const [content, setContent] = useState(null);
   const [featured, setFeatured] = useState([]);
-  const [tree, setTree] = useState([]);
   const [purposes, setPurposes] = useState([]);
 
   useEffect(() => {
     api.get('/content').then(({ data }) => setContent(data.content)).catch(() => {});
     api.get('/products?featured=true').then(({ data }) => setFeatured(data.products || [])).catch(() => {});
-    api.get('/categories').then(({ data }) => setTree(data.tree || [])).catch(() => {});
     api.get('/customizer/purposes').then(({ data }) => setPurposes(data.purposes || [])).catch(() => {});
   }, []);
 
   const hero = content?.hero || {};
   const claims = content?.trustClaims || [];
-  const crystalKids = tree.find((t) => t.slug === 'crystals')?.children || [];
+  const studioPurposes = purposes.slice(0, 6);
 
   return (
     <div>
-      <section className="relative overflow-hidden lotus-corner">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 md:grid-cols-2 md:py-24">
-          <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-gold">
-              {hero.eyebrow || 'Energy · Abundance · Wellness'}
+      <Hero hero={hero} />
+
+      <div className="marquee" aria-hidden>
+        <div className="marquee-track">
+          {[...MARQUEE, ...MARQUEE].map((item, i) => (
+            <span key={`${item}-${i}`} className="marquee-item">
+              {item}
+              <span className="marquee-dot" />
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <section className="mx-auto max-w-7xl px-4 py-16 md:py-20">
+        <Reveal variant="head">
+          <SectionHead
+            eyebrow="The atelier"
+            title="Three houses"
+            body="Every collection lives in one of three houses. Enter any of them — or begin in the studio and compose a strand of your own."
+          />
+        </Reveal>
+        <HousesRow houses={FAMILIES} />
+      </section>
+
+      {studioPurposes.length > 0 && (
+        <section className="relative py-16 md:py-20">
+          <div className="pointer-events-none absolute inset-0 lotus-corner" />
+          <div className="relative mx-auto max-w-7xl px-4">
+            <Reveal variant="head">
+              <SectionHead
+                eyebrow="The studio"
+                title="Customization"
+                body="Choose a purpose, then an intention. Crystals are placed from your Mulank, finished with zodiac beads, and named."
+                to="/customize"
+                action="Open the studio →"
+              />
+            </Reveal>
+            <InViewGroup className="studio-grid mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {studioPurposes.map((p, i) => (
+                <div key={p._id} className="purpose-item" style={{ '--i': i }}>
+                  <Link to={`/customize?purpose=${p.slug}`} className="purpose-card group block h-full">
+                    <span className="text-[10px] uppercase tracking-[0.22em] text-gold/80">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <h3 className="mt-3 font-serif text-xl">{p.name}</h3>
+                    <p className="mt-2 line-clamp-2 text-sm text-lilac">{p.description}</p>
+                    <p className="mt-5 text-[11px] uppercase tracking-[0.18em] text-gold opacity-80 transition group-hover:opacity-100">
+                      Begin →
+                    </p>
+                  </Link>
+                </div>
+              ))}
+            </InViewGroup>
+          </div>
+        </section>
+      )}
+
+      <section className="mx-auto max-w-7xl px-4 py-16 md:py-20">
+        <Reveal variant="head">
+          <SectionHead
+            eyebrow="The ritual"
+            title="How a strand is made"
+            body="Four steps. No catalogue guesswork — the bracelet is composed in sequence, then made by hand."
+          />
+        </Reveal>
+        <RitualSteps steps={RITUAL} />
+      </section>
+
+      {featured.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-16 md:py-20">
+          <Reveal variant="head">
+            <SectionHead
+              eyebrow="The collection"
+              title="Featured pieces"
+              body="Ready-made works from the three houses — for those who wish to choose rather than compose."
+              to="/shop"
+              action="Shop all →"
+            />
+          </Reveal>
+          <InViewGroup className="feature-grid mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {featured.map((p, i) => (
+              <div key={p._id} className="feature-item" style={{ '--i': i }}>
+                <ProductCard product={p} description={p.shortDescription} />
+              </div>
+            ))}
+          </InViewGroup>
+        </section>
+      )}
+
+      {claims.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-16 md:py-20">
+          <Reveal variant="head">
+            <SectionHead
+              eyebrow="The house"
+              title="Why Kuberstones"
+              body="Crystal associations are traditional and spiritual. They are not medical claims. The making, however, is exact."
+            />
+          </Reveal>
+          <InViewGroup className="trust-grid mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {claims.map((c, i) => {
+              const Icon = CLAIM_ICONS[c.title] || Lock;
+              return (
+                <div key={c.title} className="trust-item" style={{ '--i': i }}>
+                  <article className="trust-card h-full p-6">
+                    <Icon size={16} className="text-gold" />
+                    <h3 className="mt-4 font-serif text-lg text-gold-light">{c.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-lilac">{c.body}</p>
+                  </article>
+                </div>
+              );
+            })}
+          </InViewGroup>
+        </section>
+      )}
+
+      <section className="px-4 pb-8 pt-8 md:py-12">
+        <InViewGroup className="finale-stage">
+          <div className="finale mx-auto max-w-7xl px-6 py-16 text-center md:px-16 md:py-20">
+            <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">Begin</p>
+            <h2 className="finale-title mt-3 font-serif text-3xl gold-text md:text-5xl">A bracelet with a reason.</h2>
+            <p className="finale-copy mx-auto mt-4 max-w-xl text-lilac">
+              Start with a purpose in the studio, or walk the three houses until a piece finds you.
             </p>
-            <h1 className="mt-4 font-serif text-4xl leading-tight gold-text md:text-6xl">
-              {hero.title || 'Heal. Align. Attract abundance.'}
-            </h1>
-            <p className="mt-5 max-w-lg text-lg text-lilac">
-              {hero.subtitle ||
-                'Build a personal bracelet from purpose and intention — every crystal chosen with a reason.'}
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button to="/customize">Shop by Purpose</Button>
+            <div className="finale-actions mt-8 flex flex-wrap justify-center gap-3">
+              <Button to="/customize">Customization</Button>
               <Button to="/shop" variant="ghost">Shop All</Button>
             </div>
           </div>
-          <div className="relative">
-            <div className="absolute inset-6 rounded-full bg-amethyst/20 blur-3xl" />
-            <img
-              src={logo}
-              alt="Kuberstones emblem"
-              className="relative mx-auto w-full max-w-md rounded-[2rem] object-cover gold-border"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <h2 className="font-serif text-2xl gold-text">Three houses</h2>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          {FAMILIES.map((f) => (
-            <Link key={f.slug} to={`/${f.slug}`}>
-              <Card className="h-full p-6 transition hover:bg-raised">
-                <h3 className="font-serif text-2xl">{f.name}</h3>
-                <p className="mt-2 text-sm text-lilac">{f.blurb}</p>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {purposes.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-12">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-gold">Custom bracelet</p>
-              <h2 className="mt-2 font-serif text-2xl gold-text">Shop by purpose</h2>
-              <p className="mt-2 max-w-xl text-sm text-lilac">
-                Choose a purpose, then an intention. Crystals are selected for you, calibrated from your Mulank, and finished with zodiac beads and a name.
-              </p>
-            </div>
-            <Button to="/customize" variant="text">Customize</Button>
-          </div>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {purposes.map((p) => (
-              <Link key={p._id} to={`/customize?purpose=${p.slug}`}>
-                <Card className="h-full p-5 transition hover:bg-raised">
-                  <h3 className="font-serif text-xl">{p.name}</h3>
-                  <p className="mt-2 text-sm text-lilac">{p.description}</p>
-                  <p className="mt-3 text-xs uppercase tracking-widest text-gold">Select intention →</p>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {crystalKids.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-8">
-          <div className="flex items-end justify-between">
-            <h2 className="font-serif text-2xl gold-text">Crystal collections</h2>
-            <Button to="/crystals" variant="text">View all</Button>
-          </div>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {crystalKids.map((c) => (
-              <Link key={c._id} to={c.slug === 'customize-your-bracelet' ? '/customize' : `/c/${c.slug}`}>
-                <Card className="p-5">
-                  <h3 className="font-serif text-xl">{c.name}</h3>
-                  <p className="mt-2 text-sm text-lilac">{c.description}</p>
-                  {c.slug === 'customize-your-bracelet' && (
-                    <p className="mt-3 text-xs uppercase tracking-widest text-gold">Primary studio</p>
-                  )}
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <h2 className="font-serif text-2xl gold-text">Featured pieces</h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((p) => (
-            <Link key={p._id} to={`/p/${p.slug}`}>
-              <Card className="overflow-hidden">
-                <GemVisual color={p.colorHex} image={p.images?.[0]} name={p.name} className="h-48 w-full" />
-                <div className="p-4">
-                  <h3 className="font-serif text-xl">{p.name}</h3>
-                  <p className="text-sm text-lilac">{p.shortDescription}</p>
-                  <p className="mt-2 text-gold"><Price value={p.price} /></p>
-                </div>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <h2 className="font-serif text-2xl gold-text">Why Kuberstones</h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {claims.map((c) => (
-            <Card key={c.title} className="p-5">
-              <h3 className="font-serif text-lg text-gold">{c.title}</h3>
-              <p className="mt-2 text-sm text-lilac">{c.body}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-16 text-center">
-        <h2 className="font-serif text-3xl gold-text">Begin with intention</h2>
-        <p className="mx-auto mt-3 max-w-xl text-lilac">
-          The strongest gesture on this site is the same in the header, the hero, and every collection: customize.
-        </p>
-        <Button to="/customize" className="mt-6">Shop by Purpose</Button>
+        </InViewGroup>
       </section>
     </div>
   );

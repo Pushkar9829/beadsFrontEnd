@@ -14,10 +14,12 @@ import ProductPage from './pages/ProductPage';
 import AboutPage from './pages/AboutPage';
 import CustomizePage from './pages/CustomizePage';
 import CartPage from './pages/CartPage';
+import WishlistPage from './pages/WishlistPage';
 import CheckoutPage from './pages/CheckoutPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AccountPage from './pages/AccountPage';
+import LegalPage from './pages/LegalPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminCategories from './pages/admin/Categories';
@@ -56,6 +58,7 @@ export default function App() {
           <Route path="/customize" element={<CustomizePage />} />
           <Route path="/shop-by-purpose" element={<Navigate to="/customize" replace />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/wishlist" element={<WishlistPage />} />
           <Route
             path="/checkout"
             element={
@@ -66,6 +69,9 @@ export default function App() {
           />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/returns" element={<LegalPage kind="returns" />} />
+          <Route path="/privacy" element={<LegalPage kind="privacy" />} />
+          <Route path="/terms" element={<LegalPage kind="terms" />} />
           <Route
             path="/account"
             element={

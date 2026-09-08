@@ -30,7 +30,7 @@ export default function AboutPage() {
         ))}
       </div>
       <div className="mt-12 text-center">
-        <Button to="/customize">Shop by Purpose</Button>
+        <Button to="/customize">Customization</Button>
       </div>
     </div>
   );

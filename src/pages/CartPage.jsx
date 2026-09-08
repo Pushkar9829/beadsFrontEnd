@@ -16,7 +16,7 @@ export default function CartPage() {
   if (!items.length) {
     return (
       <EmptyState title="Your bag is empty" body="Begin a custom strand or browse the houses.">
-        <Button to="/customize">Shop by Purpose</Button>
+        <Button to="/customize">Customization</Button>
       </EmptyState>
     );
   }

@@ -87,8 +87,8 @@ export default function CustomizePage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 pb-28 lg:pb-8">
-      <p className="text-xs uppercase tracking-[0.25em] text-gold">Customize · Shop by Purpose</p>
-      <h1 className="mt-2 font-serif text-3xl gold-text md:text-4xl">Shop by purpose</h1>
+      <p className="text-xs uppercase tracking-[0.25em] text-gold">Customization</p>
+      <h1 className="mt-2 font-serif text-3xl gold-text md:text-4xl">Customization</h1>
       <p className="mt-2 max-w-2xl text-lilac">
         Purpose, intention, date of birth, zodiac beads, then a name. Each step builds the bracelet you will order.
       </p>
