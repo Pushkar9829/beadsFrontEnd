@@ -100,8 +100,8 @@ export default function Header() {
         ref={headerRef}
         className={`fixed inset-x-0 top-0 z-40 border-b transition-[background,box-shadow,border-color] duration-300 ${
           scrolled
-            ? 'border-[rgba(198,167,94,0.32)] bg-black/92 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl'
-            : 'border-[rgba(198,167,94,0.18)] bg-black/78 backdrop-blur-md'
+            ? 'border-[rgba(198,167,94,0.32)] bg-[#FCF8F4]/95 shadow-[0_12px_40px_rgba(62,51,61,0.08)] backdrop-blur-xl'
+            : 'border-[rgba(198,167,94,0.18)] bg-[#FCF8F4]/88 backdrop-blur-md'
         }`}
       >
         <div className="shell flex items-center justify-between gap-2 py-2 sm:gap-3 sm:py-2.5">

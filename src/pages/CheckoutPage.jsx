@@ -72,7 +72,7 @@ export default function CheckoutPage() {
               required={k !== 'line2'}
               value={form[k]}
               onChange={(e) => set(k, e.target.value)}
-              className="mt-1 w-full rounded-xl border border-gold/30 bg-ink px-3 py-2 text-ivory"
+              className="mt-1 w-full rounded-xl border border-gold/30 bg-surface px-3 py-2 text-ivory"
             />
           </label>
         ))}

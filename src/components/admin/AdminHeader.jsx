@@ -29,5 +29,5 @@ export function RowActions({ onEdit, onDelete }) {
   );
 }
 
-export const fieldClass = 'w-full rounded-xl border border-gold/30 bg-ink px-3 py-2 text-ivory';
+export const fieldClass = 'w-full rounded-xl border border-gold/30 bg-surface px-3 py-2 text-ivory';
 export const labelClass = 'block text-xs uppercase tracking-widest text-gold';

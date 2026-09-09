@@ -72,14 +72,14 @@ export default function AdminLayout() {
 
   return (
     <div className="h-screen overflow-hidden bg-canvas text-ivory">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-[rgba(198,167,94,0.2)] bg-ink md:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-[rgba(198,167,94,0.2)] bg-surface md:flex">
         <Sidebar />
       </aside>
 
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
           <button type="button" className="absolute inset-0 bg-black/70" aria-label="Close menu" onClick={() => setMobileOpen(false)} />
-          <aside className="relative flex h-full w-64 flex-col border-r border-[rgba(198,167,94,0.2)] bg-ink">
+          <aside className="relative flex h-full w-64 flex-col border-r border-[rgba(198,167,94,0.2)] bg-surface">
             <button type="button" className="absolute right-3 top-4 text-lilac" onClick={() => setMobileOpen(false)}>
               <X size={18} />
             </button>
@@ -89,7 +89,7 @@ export default function AdminLayout() {
       )}
 
       <div className="flex h-screen flex-col md:ml-64">
-        <header className="flex shrink-0 items-center justify-between border-b border-[rgba(198,167,94,0.2)] bg-black/90 px-4 py-3 backdrop-blur md:px-8">
+        <header className="flex shrink-0 items-center justify-between border-b border-[rgba(198,167,94,0.2)] bg-[#FCF8F4]/90 px-4 py-3 backdrop-blur md:px-8">
           <div className="flex items-center gap-3">
             <button type="button" className="text-ivory md:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu">
               <Menu size={18} />

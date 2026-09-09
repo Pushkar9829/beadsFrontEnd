@@ -38,7 +38,7 @@ export default function CharmStep() {
                     setFinish(f);
                   }}
                   className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs uppercase tracking-widest ${
-                    finish?.key === f.key ? 'border-gold bg-gold/10 text-gold' : 'border-white/15 text-lilac'
+                    finish?.key === f.key ? 'border-gold bg-gold/10 text-gold' : 'border-gold/25 text-lilac'
                   }`}
                 >
                   <span className="h-3 w-3 rounded-full" style={{ background: f.metalColor }} />
@@ -53,7 +53,7 @@ export default function CharmStep() {
       <select
         value={wristSize}
         onChange={(e) => setWristSize(e.target.value)}
-        className="mt-2 w-full rounded-xl border border-gold/30 bg-ink px-3 py-2 text-ivory"
+        className="mt-2 w-full rounded-xl border border-gold/30 bg-surface px-3 py-2 text-ivory"
       >
         {(config?.wristSizes || []).map((s) => (
           <option key={s}>{s}</option>

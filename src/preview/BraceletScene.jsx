@@ -105,7 +105,7 @@ function BraceletModel({ lines, layout, wristSize, metalColor, view }) {
 function FallbackStrip({ lines, layout, metalColor }) {
   const beads = beadsForPreview(layout, lines);
   return (
-    <div className="flex h-56 items-center justify-center gap-1 overflow-hidden rounded-2xl bg-ink px-4">
+    <div className="flex h-56 items-center justify-center gap-1 overflow-hidden rounded-2xl bg-raised px-4">
       {beads.length === 0 && <p className="text-sm text-lilac">Add beads to see your strand.</p>}
       {beads.map((b, i) => (
         <div key={i} className="h-8 w-8 overflow-hidden rounded-full ring-1 ring-gold/30">
@@ -133,7 +133,7 @@ export default function BraceletPreview({ lines, layout, wristSize, finish, comp
             type="button"
             onClick={() => setView(v)}
             className={`rounded-full px-3 py-1 text-[10px] uppercase tracking-widest ${
-              view === v ? 'bg-amethyst text-ivory' : 'border border-gold/30 text-lilac'
+              view === v ? 'bg-amethyst text-[#FCF8F4]' : 'border border-gold/30 text-lilac'
             }`}
           >
             {v === 'front' ? 'Front view' : 'Wrist view'}
@@ -147,7 +147,7 @@ export default function BraceletPreview({ lines, layout, wristSize, finish, comp
             <ambientLight intensity={0.45} />
             <directionalLight position={[3, 5, 4]} intensity={1.6} color="#f6f1e8" />
             <spotLight position={[4, 6, 4]} intensity={18} angle={0.4} color="#e8d5a3" />
-            <spotLight position={[-4, 2, -3]} intensity={12} color="#b48cff" />
+            <spotLight position={[-4, 2, -3]} intensity={12} color="#F0C0CF" />
             <pointLight position={[0, -2, 2]} intensity={6} color="#c6a75e" />
             <Suspense fallback={null}>
               <BraceletModel lines={lines} layout={layout} wristSize={wristSize} metalColor={metal} view={view} />

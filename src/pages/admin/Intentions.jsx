@@ -114,7 +114,7 @@ export default function AdminIntentions() {
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
-            className={`rounded-full px-4 py-1.5 text-xs uppercase tracking-widest ${tab === t.id ? 'bg-amethyst text-ivory' : 'border border-gold/30 text-lilac'}`}
+            className={`rounded-full px-4 py-1.5 text-xs uppercase tracking-widest ${tab === t.id ? 'bg-amethyst text-[#FCF8F4]' : 'border border-gold/30 text-lilac'}`}
           >
             {t.label}
           </button>

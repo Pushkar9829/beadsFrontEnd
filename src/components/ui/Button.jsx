@@ -17,7 +17,7 @@ export default function Button({
     ghost:
       'border border-[rgba(198,167,94,0.4)] text-gold-light hover:bg-[rgba(198,167,94,0.08)] hover:border-amethyst-light',
     violet:
-      'bg-amethyst text-ivory hover:bg-amethyst-deep border border-amethyst-light/30',
+      'bg-amethyst text-[#FCF8F4] hover:bg-amethyst-deep border border-amethyst-light/40',
     text: 'text-lilac hover:text-ivory px-2',
   };
   const cls = `${base} ${styles[variant] || styles.gold} ${className}`;
