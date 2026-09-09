@@ -35,19 +35,19 @@ const STEP_COPY = {
     body: 'Click an intention. Its crystals open so you can keep or release them, then continue.',
   },
   3: {
-    eyebrow: 'Step 03 · Calibration',
+    eyebrow: 'Step 03 · Birth',
     title: 'Date of birth',
-    body: 'Mulank is taken from the day. Counts are composed to that number, then the strand is laid in order.',
+    body: 'Mulank is taken from the day. The strand is composed to that number.',
   },
   4: {
     eyebrow: 'Step 04 · Zodiac',
     title: 'Zodiac beads',
-    body: 'Your sign’s stone is placed on the calibrated strand. Adjust the count if you wish, then name the piece.',
+    body: 'Your sign’s stone is added. Set the count, then drag beads to rearrange.',
   },
   5: {
     eyebrow: 'Step 05 · Name',
     title: 'Name the piece',
-    body: 'This name is engraved on the oval charm and shown on the order. Choose a finish and wrist size.',
+    body: 'This name is engraved on the charm. Choose a finish and wrist size.',
   },
   6: {
     eyebrow: 'Step 06 · Review',
@@ -103,7 +103,7 @@ export default function CustomizePage() {
     return (
       <div className="relative">
         <div className="pointer-events-none absolute inset-0 lotus-corner" />
-        <div className="relative shell py-16">
+        <div className="relative shell py-10">
           <Spinner label="Opening the atelier" />
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function CustomizePage() {
     return (
       <div className="relative">
         <div className="pointer-events-none absolute inset-0 lotus-corner" />
-        <div className="relative shell py-16">
+        <div className="relative shell py-10">
           <p className="text-center text-sm text-red-300">{error}</p>
         </div>
       </div>
@@ -133,7 +133,7 @@ export default function CustomizePage() {
   return (
     <div className="studio-page relative pb-28">
       <div className="pointer-events-none absolute inset-0 lotus-corner" />
-      <div className="relative shell py-10 sm:py-12 md:py-16">
+      <div className="relative shell py-8 sm:py-10 md:py-12">
         <Breadcrumbs items={CRUMBS} />
 
         <div className="studio-head">

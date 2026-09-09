@@ -104,15 +104,15 @@ export default function Header() {
             : 'border-[rgba(198,167,94,0.18)] bg-black/78 backdrop-blur-md'
         }`}
       >
-        <div className="shell flex items-center justify-between gap-2 py-2.5 sm:gap-4 sm:py-3">
-          <Link to="/" className="group flex min-w-0 items-center gap-2 sm:gap-3">
+        <div className="shell flex items-center justify-between gap-2 py-2 sm:gap-3 sm:py-2.5">
+          <Link to="/" className="group flex min-w-0 items-center gap-2 sm:gap-2.5">
             <img
               src={logo}
               alt="Kuberstones"
-              className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-gold/40 transition duration-300 group-hover:ring-gold group-hover:shadow-[0_0_18px_rgba(198,167,94,0.35)] sm:h-12 sm:w-12"
+              className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-gold/40 transition duration-300 group-hover:ring-gold group-hover:shadow-[0_0_18px_rgba(198,167,94,0.35)] sm:h-10 sm:w-10"
             />
             <div className="min-w-0 leading-tight">
-              <div className="whitespace-nowrap font-serif text-[11px] tracking-[0.14em] gold-text sm:text-sm sm:tracking-[0.28em]">
+              <div className="whitespace-nowrap font-serif text-[10px] tracking-[0.14em] gold-text sm:text-xs sm:tracking-[0.22em]">
                 KUBERSTONES
               </div>
               <div className="hidden text-[10px] uppercase tracking-[0.22em] text-lilac sm:block">

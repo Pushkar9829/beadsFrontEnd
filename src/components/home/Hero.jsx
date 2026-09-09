@@ -10,21 +10,21 @@ export default function Hero({ hero = {} }) {
         ))}
       </div>
 
-      <div className="shell relative grid items-center gap-8 pt-3 pb-10 sm:gap-10 sm:pt-4 sm:pb-12 md:grid-cols-2 md:pt-6 md:pb-16 lg:gap-16 lg:pt-8 lg:pb-20">
+      <div className="shell relative grid items-center gap-6 pt-2 pb-8 sm:gap-8 sm:pt-3 sm:pb-10 md:grid-cols-2 md:pt-5 md:pb-12 lg:gap-12 lg:pt-6 lg:pb-14">
         <div className="min-w-0">
-          <p className="hero-fade hero-delay-1 hero-italic text-[11px] uppercase tracking-[0.22em] text-gold sm:text-sm sm:tracking-[0.28em]">
+          <p className="hero-fade hero-delay-1 hero-italic text-[10px] uppercase tracking-[0.2em] text-gold sm:text-xs sm:tracking-[0.24em]">
             {hero.eyebrow || 'Energy · Abundance · Wellness'}
           </p>
 
-          <h1 className="hero-fade hero-delay-1 hero-brand hero-italic mt-4 gold-text text-5xl tracking-wide sm:mt-5 sm:text-6xl md:text-7xl">
+          <h1 className="hero-fade hero-delay-1 hero-brand hero-italic mt-3 gold-text text-4xl tracking-wide sm:mt-4 sm:text-5xl md:text-6xl">
             Kuberstones
           </h1>
 
-          <h2 className="hero-fade hero-delay-copy hero-italic mt-5 text-[1.7rem] leading-[1.15] break-words gold-text sm:mt-6 sm:text-3xl md:text-5xl">
+          <h2 className="hero-fade hero-delay-copy hero-italic mt-3 text-[1.35rem] leading-[1.15] break-words gold-text sm:mt-4 sm:text-2xl md:text-4xl">
             {hero.title || 'Heal. Align. Attract abundance.'}
           </h2>
           <p
-            className="hero-fade hero-delay-copy mt-4 max-w-lg text-base leading-relaxed text-lilac sm:mt-5 sm:text-lg"
+            className="hero-fade hero-delay-copy mt-3 max-w-lg text-sm leading-relaxed text-lilac sm:mt-4 sm:text-base"
             style={{ animationDelay: '280ms' }}
           >
             {hero.subtitle ||

@@ -59,9 +59,9 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="shell grid gap-10 py-12 md:grid-cols-2">
+    <div className="shell grid gap-8 py-8 md:grid-cols-2">
       <form onSubmit={submit} className="space-y-3">
-        <h1 className="font-serif text-3xl gold-text">Checkout</h1>
+        <h1 className="font-serif text-2xl gold-text">Checkout</h1>
         <p className="text-sm text-lilac">
           Payment will open in the next step — coming soon. This places a pending-payment order so fulfilment can be prepared.
         </p>

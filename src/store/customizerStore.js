@@ -1,7 +1,20 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
 import api from '../api/client';
-import { calibrateLocal, quoteFromBeads } from '../lib/calibration';
+import { calibrateLocal, quoteFromBeads, quantitiesFromLayout } from '../lib/calibration';
+
+function distributeQty(ids, total) {
+  const keys = (ids || []).filter(Boolean);
+  if (!keys.length || total <= 0) return {};
+  const base = Math.floor(total / keys.length);
+  let rem = total % keys.length;
+  const next = {};
+  keys.forEach((id) => {
+    next[id] = base + (rem > 0 ? 1 : 0);
+    if (rem > 0) rem -= 1;
+  });
+  return next;
+}
 
 export const useCustomizerStore = create((set, get) => ({
   step: 1,
@@ -123,8 +136,62 @@ export const useCustomizerStore = create((set, get) => ({
 
   toggleBead(beadId) {
     const { quantities } = get();
-    const next = { ...quantities, [beadId]: quantities[beadId] ? 0 : 1 };
-    set({ quantities: next });
+    const on = (quantities[beadId] || 0) > 0;
+    set({ quantities: { ...quantities, [beadId]: on ? 0 : 1 } });
+  },
+
+  setBeadQty(beadId, qty) {
+    const n = Math.max(0, Math.round(Number(qty) || 0));
+    const { quantities, config } = get();
+    const limit = config?.beadLimit || 18;
+    const others = Object.entries(quantities).reduce(
+      (sum, [id, value]) => (String(id) === String(beadId) ? sum : sum + (Number(value) || 0)),
+      0
+    );
+    set({ quantities: { ...quantities, [beadId]: Math.min(n, Math.max(0, limit - others)) } });
+  },
+
+  applyBeadCount(count) {
+    const { recommended, quantities } = get();
+    const selected = recommended.filter((b) => (quantities[b._id] || 0) > 0);
+    const ids = (selected.length ? selected : recommended).map((b) => b._id);
+    const next = {};
+    recommended.forEach((b) => {
+      next[b._id] = 0;
+    });
+    set({ quantities: { ...next, ...distributeQty(ids, count) } });
+  },
+
+  addCatalogBead(bead) {
+    const { recommended, quantities } = get();
+    if (!bead?._id || recommended.some((b) => String(b._id) === String(bead._id))) return;
+    set({
+      recommended: [...recommended, bead],
+      quantities: { ...quantities, [bead._id]: 1 },
+    });
+  },
+
+  reorderLayout(from, to) {
+    const { calibration, config, finish } = get();
+    const layout = calibration?.layout;
+    if (!layout?.length) return;
+    const start = Number(from);
+    const end = Number(to);
+    if (!Number.isInteger(start) || !Number.isInteger(end)) return;
+    if (start === end || start < 0 || end < 0 || start >= layout.length || end >= layout.length) return;
+    const next = [...layout];
+    const [item] = next.splice(start, 1);
+    next.splice(end, 0, item);
+    const ordered = next.map((slot, i) => ({ ...slot, position: i + 1 }));
+    const beads = quantitiesFromLayout(ordered);
+    set({
+      calibration: {
+        ...calibration,
+        layout: ordered,
+        beads,
+        quote: quoteFromBeads(config, beads, finish),
+      },
+    });
   },
 
   selectedBeads() {

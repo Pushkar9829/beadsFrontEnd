@@ -6,13 +6,13 @@ export default function RitualSteps({ steps }) {
   useInViewOnce(ref);
 
   return (
-    <ol ref={ref} className="ritual mt-10 grid gap-8 sm:grid-cols-2 sm:gap-8 lg:mt-12 lg:grid-cols-4">
+    <ol ref={ref} className="ritual mt-8 grid gap-6 sm:grid-cols-2 sm:gap-6 lg:mt-10 lg:grid-cols-4">
       <span className="ritual-line" aria-hidden />
       {steps.map((step, i) => (
         <li key={step.n} className="ritual-step" style={{ '--i': i }}>
-          <p className="ritual-num font-serif text-2xl text-gold">{step.n}</p>
-          <h3 className="ritual-title mt-5 font-serif text-xl">{step.title}</h3>
-          <p className="ritual-body mt-3 text-sm leading-relaxed text-lilac">{step.body}</p>
+          <p className="ritual-num font-serif text-xl text-gold">{step.n}</p>
+          <h3 className="ritual-title mt-3 font-serif text-lg">{step.title}</h3>
+          <p className="ritual-body mt-2 text-xs leading-relaxed text-lilac">{step.body}</p>
         </li>
       ))}
     </ol>

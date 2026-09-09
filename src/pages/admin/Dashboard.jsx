@@ -17,14 +17,14 @@ export default function AdminDashboard() {
   ];
   return (
     <div>
-      <h1 className="font-serif text-3xl gold-text">Dashboard</h1>
-      <p className="mt-1 text-sm text-lilac">Atelier snapshot. Open a module from the sidebar or a tile.</p>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <h1 className="font-serif text-2xl gold-text">Dashboard</h1>
+      <p className="mt-1 text-xs text-lilac">Atelier snapshot. Open a module from the sidebar or a tile.</p>
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {tiles.map(([label, value, to]) => (
           <Link key={label} to={to}>
-            <Card className="p-5">
-              <p className="text-xs uppercase tracking-widest text-lilac">{label}</p>
-              <p className="mt-2 font-serif text-4xl text-gold">{value ?? '—'}</p>
+            <Card className="p-4">
+              <p className="text-[10px] uppercase tracking-widest text-lilac">{label}</p>
+              <p className="mt-1.5 font-serif text-2xl text-gold">{value ?? '—'}</p>
             </Card>
           </Link>
         ))}

@@ -29,9 +29,9 @@ export default function HousesRow({ houses }) {
             )}
             <div className="house-card-body">
               <p className="font-serif text-sm tracking-[0.28em] text-gold/70">{f.roman}</p>
-              <h3 className="mt-4 font-serif text-2xl sm:mt-5 sm:text-3xl">{f.name}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-lilac">{f.blurb}</p>
-              <p className="mt-7 text-[11px] uppercase tracking-[0.2em] text-gold transition group-hover:translate-x-1">
+              <h3 className="mt-2.5 font-serif text-xl sm:mt-3 sm:text-2xl">{f.name}</h3>
+              <p className="mt-2 text-xs leading-relaxed text-lilac sm:text-sm">{f.blurb}</p>
+              <p className="mt-4 text-[10px] uppercase tracking-[0.18em] text-gold transition group-hover:translate-x-1">
                 Enter the house →
               </p>
             </div>

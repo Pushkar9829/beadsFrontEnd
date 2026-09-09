@@ -45,7 +45,7 @@ export default function RegisterPage() {
   return (
     <div className="relative">
       <div className="pointer-events-none absolute inset-0 lotus-corner" />
-      <div className="relative shell py-10 sm:py-12 md:py-16">
+      <div className="relative shell py-8 sm:py-10 md:py-12">
         <Breadcrumbs items={CRUMBS} />
 
         <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] lg:gap-16 xl:grid-cols-[minmax(0,1fr)_minmax(0,32rem)]">

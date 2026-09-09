@@ -4,8 +4,8 @@ export default function AdminHeader({ title, subtitle, onCreate, createLabel = '
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="font-serif text-3xl gold-text">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-lilac">{subtitle}</p>}
+        <h1 className="font-serif text-2xl gold-text">{title}</h1>
+        {subtitle && <p className="mt-1 text-xs text-lilac">{subtitle}</p>}
       </div>
       {onCreate && <Button onClick={onCreate}>{createLabel}</Button>}
     </div>

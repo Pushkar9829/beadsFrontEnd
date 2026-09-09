@@ -31,7 +31,7 @@ export default function ShopPage() {
   return (
     <div className="relative">
       <div className="pointer-events-none absolute inset-0 lotus-corner" />
-      <div className="relative shell py-10 sm:py-12 md:py-16">
+      <div className="relative shell py-8 sm:py-10 md:py-12">
         <Breadcrumbs items={CRUMBS} />
 
         <div className="mt-8">

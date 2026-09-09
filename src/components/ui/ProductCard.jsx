@@ -18,19 +18,19 @@ export default function ProductCard({ product, description }) {
           <GemVisual
             color={product.colorHex}
             image={product.images?.[0]}
-            className="h-40 w-full transition duration-500 group-hover:scale-[1.04] sm:h-48"
+            className="h-32 w-full transition duration-500 group-hover:scale-[1.04] sm:h-40"
             name={product.name}
           />
           <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/55 via-transparent to-transparent opacity-80" />
         </div>
       </Link>
-      <div className="flex flex-1 items-stretch gap-3 p-4">
+      <div className="flex flex-1 items-stretch gap-2.5 p-3">
         <Link to={`/p/${product.slug}`} className="min-w-0 flex-1">
           {product.family && (
-            <p className="text-[10px] uppercase tracking-[0.2em] text-gold">{product.family}</p>
+            <p className="text-[9px] uppercase tracking-[0.18em] text-gold">{product.family}</p>
           )}
-          <h3 className="mt-1 font-serif text-xl leading-snug">{product.name}</h3>
-          {description && <p className="mt-1 line-clamp-2 text-sm text-lilac">{description}</p>}
+          <h3 className="mt-1 font-serif text-base leading-snug sm:text-lg">{product.name}</h3>
+          {description && <p className="mt-1 line-clamp-2 text-xs text-lilac">{description}</p>}
           <p className="mt-2 text-gold">
             <Price value={product.price} />
           </p>

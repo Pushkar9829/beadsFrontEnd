@@ -69,7 +69,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <section className="shell py-12 sm:py-16 md:py-20">
+      <section className="shell py-8 sm:py-10 md:py-14">
         <Reveal variant="head">
           <SectionHead
             eyebrow="The atelier"
@@ -81,7 +81,7 @@ export default function HomePage() {
       </section>
 
       {studioPurposes.length > 0 && (
-        <section className="relative py-12 sm:py-16 md:py-20">
+        <section className="relative py-8 sm:py-10 md:py-14">
           <div className="pointer-events-none absolute inset-0 lotus-corner" />
           <div className="relative shell">
             <Reveal variant="head">
@@ -113,7 +113,7 @@ export default function HomePage() {
         </section>
       )}
 
-      <section className="shell py-12 sm:py-16 md:py-20">
+      <section className="shell py-8 sm:py-10 md:py-14">
         <Reveal variant="head">
           <SectionHead
             eyebrow="The ritual"
@@ -125,7 +125,7 @@ export default function HomePage() {
       </section>
 
       {featured.length > 0 && (
-        <section className="shell py-12 sm:py-16 md:py-20">
+        <section className="shell py-8 sm:py-10 md:py-14">
           <Reveal variant="head">
             <SectionHead
               eyebrow="The collection"
@@ -146,7 +146,7 @@ export default function HomePage() {
       )}
 
       {claims.length > 0 && (
-        <section className="shell py-12 sm:py-16 md:py-20">
+        <section className="shell py-8 sm:py-10 md:py-14">
           <Reveal variant="head">
             <SectionHead
               eyebrow="The house"
@@ -159,7 +159,7 @@ export default function HomePage() {
               const Icon = CLAIM_ICONS[c.title] || Lock;
               return (
                 <div key={c.title} className="trust-item" style={{ '--i': i }}>
-                  <article className="trust-card h-full p-6">
+                  <article className="trust-card h-full p-4">
                     <Icon size={16} className="text-gold" />
                     <h3 className="mt-4 font-serif text-lg text-gold-light">{c.title}</h3>
                     <p className="mt-2 text-sm leading-relaxed text-lilac">{c.body}</p>
@@ -177,9 +177,9 @@ export default function HomePage() {
             <div className="finale-media" aria-hidden>
               <img src={finaleBanner} alt="" />
             </div>
-            <div className="relative z-10 px-5 py-16 sm:px-8 sm:py-20 md:px-16 md:py-24">
+            <div className="relative z-10 px-4 py-10 sm:px-6 sm:py-14 md:px-10 md:py-16">
               <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">Begin</p>
-              <h2 className="finale-title mt-3 font-serif text-2xl gold-text sm:text-3xl md:text-5xl">A bracelet with a reason.</h2>
+              <h2 className="finale-title mt-3 font-serif text-xl gold-text sm:text-2xl md:text-3xl">A bracelet with a reason.</h2>
               <p className="finale-copy mx-auto mt-4 max-w-xl text-sm text-lilac sm:text-base">
                 Start with a purpose in the studio, or walk the three houses until a piece finds you.
               </p>

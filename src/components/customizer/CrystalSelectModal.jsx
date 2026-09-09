@@ -1,21 +1,58 @@
-import { useEffect } from 'react';
-import { X } from 'lucide-react';
-import { useCustomizerStore } from '../../store/customizerStore';
+import { useEffect, useState } from 'react';
+import { Check, Plus, X } from 'lucide-react';
+import { useCustomizerStore, useCustomizerQuote } from '../../store/customizerStore';
 import GemVisual from '../ui/GemVisual';
 import Price from '../ui/Price';
 import Button from '../ui/Button';
+import QtyControl from '../ui/QtyControl';
+
+function beadCountOptions(config) {
+  const max = Number(config?.beadLimit) || 18;
+  const min = Math.max(Number(config?.minBeads) || 1, Math.min(12, max));
+  const a = Math.max(min, max - 4);
+  const b = Math.max(min, max - 2);
+  return [...new Set([a, b, max])];
+}
+
+function estimateForCount(count, beads, quantities, config, finish) {
+  const selected = beads.filter((b) => (quantities[b._id] || 0) > 0);
+  const pool = selected.length ? selected : beads;
+  const making = (config?.baseMakingPrice || 0) + (finish?.price || 0);
+  if (!pool.length) return making;
+  const avg = pool.reduce((sum, b) => sum + (b.pricePerBead || 0), 0) / pool.length;
+  return making + Math.round(avg * count);
+}
 
 export default function CrystalSelectModal({ open, onClose, onComplete }) {
   const intention = useCustomizerStore((s) => s.intention);
   const recommended = useCustomizerStore((s) => s.recommended);
+  const catalogBeads = useCustomizerStore((s) => s.catalogBeads);
   const quantities = useCustomizerStore((s) => s.quantities);
   const toggleBead = useCustomizerStore((s) => s.toggleBead);
+  const setBeadQty = useCustomizerStore((s) => s.setBeadQty);
+  const applyBeadCount = useCustomizerStore((s) => s.applyBeadCount);
+  const addCatalogBead = useCustomizerStore((s) => s.addCatalogBead);
   const selectingIntention = useCustomizerStore((s) => s.selectingIntention);
   const stepError = useCustomizerStore((s) => s.stepError);
-  const pickedCount = recommended.filter((b) => (quantities[b._id] || 0) > 0).length;
+  const config = useCustomizerStore((s) => s.config);
+  const finish = useCustomizerStore((s) => s.finish);
+  const quote = useCustomizerQuote();
+  const [view, setView] = useState('pick');
+  const [adding, setAdding] = useState(false);
+  const picked = recommended.filter((b) => (quantities[b._id] || 0) > 0);
+  const remaining = Math.max(0, (config?.beadLimit || 18) - (quote.beadCount || 0));
+  const sizes = beadCountOptions(config);
+  const extras = (catalogBeads || []).filter(
+    (bead) => !recommended.some((r) => String(r._id) === String(bead._id))
+  );
+  const building = view === 'build';
 
   useEffect(() => {
-    if (!open) return undefined;
+    if (!open) {
+      setAdding(false);
+      setView('pick');
+      return undefined;
+    }
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const onKey = (e) => {
@@ -27,6 +64,12 @@ export default function CrystalSelectModal({ open, onClose, onComplete }) {
       window.removeEventListener('keydown', onKey);
     };
   }, [open, onClose]);
+
+  function goBuild() {
+    applyBeadCount(config?.beadLimit || 18);
+    setAdding(false);
+    setView('build');
+  }
 
   if (!open) return null;
 
@@ -41,12 +84,16 @@ export default function CrystalSelectModal({ open, onClose, onComplete }) {
       <div className="studio-modal animate-overlay" role="dialog" aria-modal="true" aria-labelledby="crystal-modal-title">
         <div className="flex shrink-0 items-start justify-between gap-4 border-b border-[rgba(198,167,94,0.2)] px-5 py-4">
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-[0.22em] text-gold">Crystals</p>
-            <h2 id="crystal-modal-title" className="font-serif text-xl gold-text">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-gold">
               {intention?.name || 'Intention'}
+            </p>
+            <h2 id="crystal-modal-title" className="font-serif text-xl gold-text">
+              {building ? 'Build your bracelet' : 'Recommended crystals'}
             </h2>
             <p className="mt-1 text-sm text-lilac">
-              All of these start selected. Tap a stone to keep or release it.
+              {building
+                ? 'Select your crystals and the number of beads for each.'
+                : 'Select or unselect the recommended crystals.'}
             </p>
           </div>
           <button
@@ -70,8 +117,8 @@ export default function CrystalSelectModal({ open, onClose, onComplete }) {
             <p className="py-8 text-center text-sm text-lilac">No crystals are mapped to this intention yet.</p>
           )}
 
-          {!selectingIntention && recommended.length > 0 && (
-            <div className="grid gap-3">
+          {!selectingIntention && recommended.length > 0 && !building && (
+            <div className="studio-crystal-grid">
               {recommended.map((bead) => {
                 const on = (quantities[bead._id] || 0) > 0;
                 return (
@@ -79,40 +126,154 @@ export default function CrystalSelectModal({ open, onClose, onComplete }) {
                     key={bead._id}
                     type="button"
                     onClick={() => toggleBead(bead._id)}
-                    className={`studio-bead ${on ? 'is-on' : 'is-off'}`}
+                    className={`studio-crystal-tile ${on ? 'is-on' : ''}`}
                   >
+                    <span className="studio-crystal-tile-top">
+                      <span className="studio-bead-box" aria-hidden>
+                        {on ? <Check size={11} strokeWidth={3.5} color="#0b0b0d" /> : null}
+                      </span>
+                      <span className="studio-bead-label">{on ? 'Unselect' : 'Select'}</span>
+                    </span>
                     <GemVisual
                       color={bead.colorHex}
                       image={bead.image}
                       name={bead.name}
-                      className="h-16 w-16 shrink-0 rounded-xl"
+                      className="studio-crystal-tile-gem"
                     />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="font-serif text-lg leading-tight">{bead.name}</p>
-                        <span className={`mt-1 text-[10px] uppercase tracking-widest ${on ? 'text-gold' : 'text-lilac'}`}>
-                          {on ? 'On' : 'Off'}
-                        </span>
-                      </div>
-                      <p className="mt-1 line-clamp-2 text-xs text-lilac">{bead.shortDescriptor}</p>
-                      <p className="mt-1.5 text-xs text-gold">
+                    <span className="studio-crystal-copy">
+                      <span className="studio-bead-name">{bead.name}</span>
+                      <span className="studio-bead-price">
                         <Price value={bead.pricePerBead} /> / bead
-                      </p>
-                    </div>
+                      </span>
+                    </span>
                   </button>
                 );
               })}
             </div>
           )}
+
+          {!selectingIntention && recommended.length > 0 && building && (
+            <>
+              <div className="studio-size-row">
+                {sizes.map((count) => {
+                  const on = quote.beadCount === count;
+                  return (
+                    <button
+                      key={count}
+                      type="button"
+                      onClick={() => applyBeadCount(count)}
+                      className={`studio-size-card ${on ? 'is-on' : ''}`}
+                    >
+                      <span className="studio-size-count">{count} beads</span>
+                      <span className="studio-size-price">
+                        <Price value={estimateForCount(count, recommended, quantities, config, finish)} />
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <p className="studio-crystal-head">
+                <span className="studio-crystal-head-mark" aria-hidden>
+                  <Check size={12} strokeWidth={3} />
+                </span>
+                Select crystals (Recommended)
+              </p>
+
+              <div className="studio-crystal-list">
+                {picked.map((bead) => {
+                  const qty = quantities[bead._id] || 0;
+                  return (
+                    <div key={bead._id} className="studio-crystal is-on">
+                      <GemVisual
+                        color={bead.colorHex}
+                        image={bead.image}
+                        name={bead.name}
+                        className="studio-crystal-gem"
+                      />
+                      <div className="studio-crystal-copy">
+                        <p className="studio-bead-name">{bead.name}</p>
+                        <p className="studio-bead-price">
+                          <Price value={bead.pricePerBead} /> / bead
+                        </p>
+                      </div>
+                      <QtyControl
+                        value={qty}
+                        min={1}
+                        max={qty + remaining}
+                        onChange={(n) => setBeadQty(bead._id, n)}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                className="studio-crystal-add"
+                onClick={() => setAdding((v) => !v)}
+                disabled={!extras.length}
+              >
+                <Plus size={16} strokeWidth={2.2} />
+                {extras.length ? 'Add more crystals' : 'No more crystals'}
+              </button>
+
+              {adding && extras.length > 0 && (
+                <div className="studio-crystal-list mt-3">
+                  {extras.map((bead) => (
+                    <button
+                      key={bead._id}
+                      type="button"
+                      className="studio-crystal"
+                      onClick={() => addCatalogBead(bead)}
+                    >
+                      <span className="studio-bead-box" aria-hidden>
+                        <Plus size={12} strokeWidth={3} />
+                      </span>
+                      <GemVisual
+                        color={bead.colorHex}
+                        image={bead.image}
+                        name={bead.name}
+                        className="studio-crystal-gem"
+                      />
+                      <span className="studio-crystal-copy">
+                        <span className="studio-bead-name">{bead.name}</span>
+                        <span className="studio-bead-price">
+                          <Price value={bead.pricePerBead} /> / bead
+                        </span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </div>
 
         <div className="flex shrink-0 items-center justify-between gap-3 border-t border-[rgba(198,167,94,0.2)] px-5 py-4">
-          <p className="text-xs uppercase tracking-[0.16em] text-lilac">
-            {pickedCount} selected
-          </p>
-          <Button onClick={onComplete || onClose} disabled={selectingIntention || pickedCount < 1}>
-            {pickedCount < 1 ? 'Keep one crystal' : 'Use these crystals'}
-          </Button>
+          {building ? (
+            <>
+              <button
+                type="button"
+                className="text-xs uppercase tracking-[0.16em] text-lilac"
+                onClick={() => setView('pick')}
+              >
+                Back
+              </button>
+              <Button onClick={onComplete || onClose} disabled={picked.length < 1}>
+                Use these crystals
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="text-xs uppercase tracking-[0.16em] text-lilac">
+                {picked.length} selected
+              </p>
+              <Button onClick={goBuild} disabled={selectingIntention || picked.length < 1}>
+                {picked.length < 1 ? 'Select a crystal' : 'Build your bracelet'}
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>
