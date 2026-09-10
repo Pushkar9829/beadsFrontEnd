@@ -42,12 +42,12 @@ const STEP_COPY = {
   4: {
     eyebrow: 'Step 04 · Zodiac',
     title: 'Zodiac beads',
-    body: 'Your sign’s stone is added. Set the count, then drag beads to rearrange.',
+    body: 'Your sign’s stone is added beside the charm. The repeating pattern stays fixed.',
   },
   5: {
     eyebrow: 'Step 05 · Name',
-    title: 'Name the piece',
-    body: 'This name is engraved on the charm. Choose a finish and wrist size.',
+    title: 'Charm & thread',
+    body: 'Sriyantra or Om at the clasp. Korean elastic is free size; steel core is sized to the wrist.',
   },
   6: {
     eyebrow: 'Step 06 · Review',

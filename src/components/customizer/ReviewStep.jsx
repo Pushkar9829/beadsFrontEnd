@@ -1,15 +1,15 @@
 import { useCustomizerStore, useCustomizerQuote } from '../../store/customizerStore';
 import PlaceOrderButton from './PlaceOrderButton';
 import Price from '../ui/Price';
+import { formatWristChoice } from '../../lib/format';
 
 export default function ReviewStep() {
   const purpose = useCustomizerStore((s) => s.purpose);
   const intention = useCustomizerStore((s) => s.intention);
   const charm = useCustomizerStore((s) => s.charm);
-  const finish = useCustomizerStore((s) => s.finish);
   const wristSize = useCustomizerStore((s) => s.wristSize);
+  const threadType = useCustomizerStore((s) => s.threadType);
   const dateOfBirth = useCustomizerStore((s) => s.dateOfBirth);
-  const engravingName = useCustomizerStore((s) => s.engravingName);
   const calibration = useCustomizerStore((s) => s.calibration);
   const quote = useCustomizerQuote();
   const goBack = useCustomizerStore((s) => s.goBack);
@@ -19,7 +19,7 @@ export default function ReviewStep() {
   return (
     <article className="auth-card">
       <p className="bag-summary-kicker">The composition</p>
-      <h2 className="bag-summary-title gold-text">{engravingName || 'Untitled strand'}</h2>
+      <h2 className="bag-summary-title gold-text">{intention?.name || 'Custom strand'}</h2>
 
       <dl className="bag-summary-rows">
         <div>
@@ -49,12 +49,12 @@ export default function ReviewStep() {
           <dd><Price value={quote.baseMakingPrice} /></dd>
         </div>
         <div>
-          <dt>{charm?.name} · {finish?.label}</dt>
+          <dt>Charm · {charm?.name}</dt>
           <dd><Price value={quote.charmPrice} /></dd>
         </div>
         <div>
-          <dt>Wrist size</dt>
-          <dd>{wristSize}</dd>
+          <dt>Wrist</dt>
+          <dd>{formatWristChoice(threadType, wristSize)}</dd>
         </div>
         <div className="bag-summary-total">
           <dt>Total</dt>
@@ -70,7 +70,7 @@ export default function ReviewStep() {
         <PlaceOrderButton />
         <div className="flex flex-wrap justify-between gap-3">
           <button type="button" className="bag-summary-clear" onClick={goBack}>
-            ← Name
+            ← Charm
           </button>
           <button type="button" className="bag-summary-clear" onClick={() => setStep(3)}>
             Edit calibration

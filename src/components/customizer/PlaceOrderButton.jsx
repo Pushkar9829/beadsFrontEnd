@@ -9,8 +9,8 @@ export default function PlaceOrderButton({ className = 'w-full' }) {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const quote = useCustomizerQuote();
-  const engravingName = useCustomizerStore((s) => s.engravingName);
   const calibration = useCustomizerStore((s) => s.calibration);
+  const charm = useCustomizerStore((s) => s.charm);
   const toCartPayload = useCustomizerStore((s) => s.toCartPayload);
   const clearBuild = useCustomizerStore((s) => s.clearBuild);
   const addCustom = useCartStore((s) => s.addCustom);
@@ -19,8 +19,8 @@ export default function PlaceOrderButton({ className = 'w-full' }) {
 
   async function place() {
     setErr('');
-    if (engravingName.trim().length < 2) {
-      setErr('Enter the final name before placing the order.');
+    if (!charm) {
+      setErr('Choose Sriyantra or Om before placing the order.');
       return;
     }
     if (!calibration) {

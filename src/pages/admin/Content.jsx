@@ -1,9 +1,17 @@
 import { useEffect, useState } from 'react';
-import api from '../../api/client';
+import api, { mediaUrl } from '../../api/client';
 import Button from '../../components/ui/Button';
 import AdminTable from '../../components/admin/AdminTable';
 import AdminDrawer from '../../components/admin/AdminDrawer';
 import AdminHeader, { RowActions, fieldClass, labelClass } from '../../components/admin/AdminHeader';
+import { DEFAULT_TESTIMONIALS } from '../../components/home/Testimonials';
+
+const TITLES = {
+  hero: 'Edit hero',
+  about: 'Edit about',
+  trust: 'Edit trust claims',
+  testimonials: 'Edit testimonials',
+};
 
 export default function AdminContent() {
   const [content, setContent] = useState(null);
@@ -11,7 +19,7 @@ export default function AdminContent() {
   const [draft, setDraft] = useState(null);
 
   useEffect(() => {
-    api.get('/admin/content').then(({ data }) => setContent(data.content || { hero: {}, about: {}, trustClaims: [] }));
+    api.get('/admin/content').then(({ data }) => setContent(data.content || { hero: {}, about: {}, trustClaims: [], testimonials: [] }));
   }, []);
 
   if (!content) return null;
@@ -20,6 +28,7 @@ export default function AdminContent() {
     { key: 'hero', label: 'Hero', preview: content.hero?.title || '—' },
     { key: 'about', label: 'About', preview: content.about?.headline || '—' },
     { key: 'trust', label: 'Trust claims', preview: `${(content.trustClaims || []).length} claims` },
+    { key: 'testimonials', label: 'Testimonials', preview: `${(content.testimonials || []).length} notes` },
   ];
 
   function open(key) {
@@ -27,6 +36,9 @@ export default function AdminContent() {
     if (key === 'hero') setDraft({ ...content.hero });
     if (key === 'about') setDraft({ ...content.about });
     if (key === 'trust') setDraft([...(content.trustClaims || [])]);
+    if (key === 'testimonials') {
+      setDraft([...(content.testimonials?.length ? content.testimonials : DEFAULT_TESTIMONIALS)]);
+    }
   }
 
   async function save(e) {
@@ -35,6 +47,7 @@ export default function AdminContent() {
     if (section === 'hero') next.hero = draft;
     if (section === 'about') next.about = draft;
     if (section === 'trust') next.trustClaims = draft;
+    if (section === 'testimonials') next.testimonials = draft;
     const { data } = await api.put('/admin/content', next);
     setContent(data.content);
     setSection(null);
@@ -54,7 +67,7 @@ export default function AdminContent() {
       />
       <AdminDrawer
         open={!!section}
-        title={section === 'hero' ? 'Edit hero' : section === 'about' ? 'Edit about' : 'Edit trust claims'}
+        title={TITLES[section] || 'Edit'}
         onClose={() => setSection(null)}
       >
         <form onSubmit={save} className="space-y-3">
@@ -88,6 +101,96 @@ export default function AdminContent() {
                 </div>
               ))}
               <Button type="button" variant="ghost" onClick={() => setDraft([...draft, { title: '', body: '' }])}>Add claim</Button>
+            </>
+          )}
+          {section === 'testimonials' && Array.isArray(draft) && (
+            <>
+              {draft.map((t, i) => (
+                <div key={i} className="space-y-2 rounded-xl p-3 gold-border">
+                  <textarea
+                    className={fieldClass}
+                    rows={3}
+                    placeholder="Quote"
+                    value={t.quote || ''}
+                    onChange={(e) => {
+                      const next = [...draft];
+                      next[i] = { ...t, quote: e.target.value };
+                      setDraft(next);
+                    }}
+                  />
+                  <input
+                    className={fieldClass}
+                    placeholder="Name"
+                    value={t.name || ''}
+                    onChange={(e) => {
+                      const next = [...draft];
+                      next[i] = { ...t, name: e.target.value };
+                      setDraft(next);
+                    }}
+                  />
+                  <input
+                    className={fieldClass}
+                    placeholder="City"
+                    value={t.place || ''}
+                    onChange={(e) => {
+                      const next = [...draft];
+                      next[i] = { ...t, place: e.target.value };
+                      setDraft(next);
+                    }}
+                  />
+                  <input
+                    className={fieldClass}
+                    placeholder="Piece, e.g. Customization · Love"
+                    value={t.piece || ''}
+                    onChange={(e) => {
+                      const next = [...draft];
+                      next[i] = { ...t, piece: e.target.value };
+                      setDraft(next);
+                    }}
+                  />
+                  <label className={labelClass}>
+                    Photo or video
+                    <input
+                      className={`${fieldClass} mt-1`}
+                      placeholder="URL, YouTube, Vimeo, or /uploads/…"
+                      value={typeof t.media === 'string' ? t.media : ''}
+                      onChange={(e) => {
+                        const next = [...draft];
+                        next[i] = { ...t, media: e.target.value };
+                        setDraft(next);
+                      }}
+                    />
+                  </label>
+                  {t.media ? (
+                    /\.(mp4|webm|ogg|mov)(\?|$)/i.test(t.media) || /youtube|youtu\.be|vimeo/.test(t.media) ? (
+                      <p className="text-xs text-lilac">Video attached.</p>
+                    ) : (
+                      <img src={mediaUrl(typeof t.media === 'string' ? t.media : '')} alt="" className="h-20 w-full rounded-lg object-cover" />
+                    )
+                  ) : null}
+                  <label className="inline-block">
+                    <span className="cursor-pointer text-xs uppercase tracking-widest text-gold">Upload image or video</span>
+                    <input
+                      type="file"
+                      accept="image/*,video/mp4,video/webm,video/quicktime"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        e.target.value = '';
+                        if (!file) return;
+                        const fd = new FormData();
+                        fd.append('file', file);
+                        const { data } = await api.post('/admin/media', fd);
+                        const next = [...draft];
+                        next[i] = { ...t, media: data.media.url };
+                        setDraft(next);
+                      }}
+                    />
+                  </label>
+                  <button type="button" className="text-xs text-red-300" onClick={() => setDraft(draft.filter((_, idx) => idx !== i))}>Remove</button>
+                </div>
+              ))}
+              <Button type="button" variant="ghost" onClick={() => setDraft([...draft, { quote: '', name: '', place: '', piece: '', media: '' }])}>Add note</Button>
             </>
           )}
           <div className="flex gap-2 pt-2">

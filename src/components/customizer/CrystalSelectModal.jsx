@@ -5,6 +5,7 @@ import GemVisual from '../ui/GemVisual';
 import Price from '../ui/Price';
 import Button from '../ui/Button';
 import QtyControl from '../ui/QtyControl';
+import { purposeToneStyle } from './PurposeGrid';
 
 function beadCountOptions(config) {
   const max = Number(config?.beadLimit) || 18;
@@ -36,6 +37,8 @@ export default function CrystalSelectModal({ open, onClose, onComplete }) {
   const stepError = useCustomizerStore((s) => s.stepError);
   const config = useCustomizerStore((s) => s.config);
   const finish = useCustomizerStore((s) => s.finish);
+  const purpose = useCustomizerStore((s) => s.purpose);
+  const purposeTone = purpose ? purposeToneStyle(purpose) : undefined;
   const quote = useCustomizerQuote();
   const [view, setView] = useState('pick');
   const [adding, setAdding] = useState(false);
@@ -74,15 +77,18 @@ export default function CrystalSelectModal({ open, onClose, onComplete }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[55] grid place-items-end p-0 sm:place-items-center sm:p-6">
+    <div
+      className={`fixed inset-0 z-[55] grid place-items-end p-0 sm:place-items-center sm:p-6${purposeTone ? ' has-purpose-tone studio-modal-layer' : ''}`}
+      style={purposeTone}
+    >
       <button
         type="button"
         aria-label="Close crystal selection"
-        className="absolute inset-0 bg-black/65 backdrop-blur-[2px] animate-overlay"
+        className="studio-modal-scrim absolute inset-0 bg-black/65 backdrop-blur-[2px] animate-overlay"
         onClick={onClose}
       />
       <div className="studio-modal animate-overlay" role="dialog" aria-modal="true" aria-labelledby="crystal-modal-title">
-        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-[rgba(198,167,94,0.2)] px-5 py-4">
+        <div className="studio-modal-bar flex shrink-0 items-start justify-between gap-4 border-b border-[rgba(198,167,94,0.2)] px-5 py-4">
           <div className="min-w-0">
             <p className="text-[10px] uppercase tracking-[0.22em] text-gold">
               {intention?.name || 'Intention'}
@@ -250,7 +256,7 @@ export default function CrystalSelectModal({ open, onClose, onComplete }) {
           )}
         </div>
 
-        <div className="flex shrink-0 items-center justify-between gap-3 border-t border-[rgba(198,167,94,0.2)] px-5 py-4">
+        <div className="studio-modal-bar flex shrink-0 items-center justify-between gap-3 border-t border-[rgba(198,167,94,0.2)] px-5 py-4">
           {building ? (
             <>
               <button

@@ -20,13 +20,13 @@ export default function AdminMedia() {
 
   return (
     <div>
-      <AdminHeader title="Media" subtitle="Local uploads for product and bead imagery." />
+      <AdminHeader title="Media" subtitle="Images and short videos for products, beads, and testimonials." />
       <div className="mb-4">
         <label className="inline-block">
           <span className="gold-btn inline-flex cursor-pointer rounded-full px-5 py-2.5 text-xs uppercase tracking-widest">
-            <span className="gold-cloud">Upload image</span>
+            <span className="gold-cloud">Upload file</span>
           </span>
-          <input type="file" accept="image/*" className="hidden" onChange={onFile} />
+          <input type="file" accept="image/*,video/mp4,video/webm,video/quicktime" className="hidden" onChange={onFile} />
         </label>
       </div>
       <AdminTable
@@ -36,7 +36,12 @@ export default function AdminMedia() {
           {
             key: 'preview',
             label: 'Preview',
-            render: (m) => <img src={mediaUrl(m.url)} alt="" className="h-12 w-12 rounded-lg object-cover" />,
+            render: (m) =>
+              m.mimeType?.startsWith('video/') ? (
+                <video src={mediaUrl(m.url)} className="h-12 w-12 rounded-lg object-cover" muted />
+              ) : (
+                <img src={mediaUrl(m.url)} alt="" className="h-12 w-12 rounded-lg object-cover" />
+              ),
           },
           { key: 'originalName', label: 'File' },
           { key: 'url', label: 'URL', render: (m) => <span className="break-all text-lilac">{m.url}</span> },

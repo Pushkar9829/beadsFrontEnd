@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCustomizerStore } from '../../store/customizerStore';
 import CrystalSelectModal from './CrystalSelectModal';
+import { purposeToneStyle } from './PurposeGrid';
 
 const BY_NAME = {
   'attract wealth': '💎',
@@ -140,8 +141,9 @@ export default function IntentionGrid() {
               disabled={selectingIntention}
               onClick={() => onPick(it)}
               className={`purpose-pick-card disabled:opacity-60 ${on ? 'is-on' : ''}`}
+              style={purposeToneStyle(it)}
             >
-              <span className="purpose-pick-emoji" aria-hidden>
+              <span className="purpose-pick-emoji is-plain" aria-hidden>
                 {emojiFor(it)}
               </span>
               <span className="purpose-pick-copy">

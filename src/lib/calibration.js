@@ -99,6 +99,38 @@ export function findBeadByName(beads, name) {
   return (beads || []).find((b) => String(b.name).toLowerCase() === target) || null;
 }
 
+function claspIndices(limit, want) {
+  const out = [];
+  let left = 0;
+  let right = limit - 1;
+  for (let k = 0; k < want; k += 1) {
+    if (k % 2 === 0) out.push(left++);
+    else out.push(right--);
+  }
+  return out;
+}
+
+function weaveRepeating(groups, limit) {
+  const queues = groups
+    .map((group) => group.filter(Boolean))
+    .filter((group) => group.length);
+  const layout = new Array(limit).fill(null);
+  let cursor = 0;
+  let guard = 0;
+  while (cursor < limit && guard < limit * 8) {
+    guard += 1;
+    let placed = false;
+    for (const queue of queues) {
+      if (!queue.length || cursor >= limit) continue;
+      layout[cursor] = queue.shift();
+      cursor += 1;
+      placed = true;
+    }
+    if (!placed) break;
+  }
+  return layout;
+}
+
 export function buildLayout({ intentionBeads, mulank, beadLimit, zodiacBead, includeZodiac, zodiacQty }) {
   const limit = Math.max(1, Number(beadLimit) || 18);
   const crystals = (intentionBeads || []).filter(Boolean);
@@ -107,36 +139,33 @@ export function buildLayout({ intentionBeads, mulank, beadLimit, zodiacBead, inc
   const primary = crystals[0];
   const others = crystals.slice(1);
   const qtyPrimary = Math.min(Math.max(1, Number(mulank) || 1), limit);
-  const layout = new Array(limit).fill(null);
-  const gap = Math.max(1, Math.floor(limit / qtyPrimary));
-  const start = (qtyPrimary - 1) % limit;
+  const remaining = Math.max(0, limit - qtyPrimary);
 
-  for (let k = 0; k < qtyPrimary; k += 1) {
-    const index = (start + k * gap) % limit;
-    if (!layout[index]) {
-      layout[index] = { ...slimBead(primary), role: 'intention-primary', position: index + 1 };
-    } else {
-      const empty = layout.findIndex((slot) => !slot);
-      if (empty >= 0) layout[empty] = { ...slimBead(primary), role: 'intention-primary', position: empty + 1 };
+  const primaryQueue = Array.from({ length: qtyPrimary }, () => ({
+    ...slimBead(primary),
+    role: 'intention-primary',
+  }));
+
+  const otherQueues = [];
+  if (others.length) {
+    others.forEach((bead) => otherQueues.push([]));
+    for (let i = 0; i < remaining; i += 1) {
+      const bead = others[i % others.length];
+      otherQueues[i % others.length].push({ ...slimBead(bead), role: 'intention' });
+    }
+  } else {
+    for (let i = 0; i < remaining; i += 1) {
+      primaryQueue.push({ ...slimBead(primary), role: 'intention' });
     }
   }
 
-  let cursor = 0;
-  const fillers = others.length ? others : crystals;
-  for (let i = 0; i < limit; i += 1) {
-    if (layout[i]) continue;
-    layout[i] = { ...slimBead(fillers[cursor % fillers.length]), role: 'intention', position: i + 1 };
-    cursor += 1;
-  }
+  const layout = weaveRepeating([primaryQueue, ...otherQueues], limit);
 
   if (includeZodiac && zodiacBead) {
     const want = Math.min(Math.max(1, Number(zodiacQty) || 2), limit - 1);
-    let placed = 0;
-    for (let i = limit - 1; i >= 0 && placed < want; i -= 1) {
-      if (layout[i]?.role === 'intention-primary') continue;
-      layout[i] = { ...slimBead(zodiacBead), role: 'zodiac', position: i + 1 };
-      placed += 1;
-    }
+    claspIndices(limit, want).forEach((index) => {
+      layout[index] = { ...slimBead(zodiacBead), role: 'zodiac' };
+    });
   }
 
   return layout.map((slot, i) => ({ ...slot, position: i + 1 }));
@@ -223,9 +252,9 @@ export function calibrateLocal({
   const qtyPrimary = layout.filter((s) => s.role === 'intention-primary').length;
   const explanation = [
     `Mulank ${mulank} sets the primary crystal count at ${qtyPrimary} on a ${beadLimit}-bead strand.`,
-    `Those stones start at position ${((mulank - 1) % beadLimit) + 1} and are spaced evenly around the bracelet.`,
-    'Remaining positions are filled with the other crystals chosen for this intention.',
-    includeZodiac && sign.sign ? `${sign.sign} beads (${qtyZ}) are then added in the remaining calibrated slots.` : '',
+    `Those stones follow a fixed repeating pattern around the bracelet, starting at the charm.`,
+    'The other crystals chosen for this intention fill the remaining positions in the same sequence.',
+    includeZodiac && sign.sign ? `${sign.sign} beads (${qtyZ}) sit either side of the charm.` : '',
   ].filter(Boolean).join(' ');
 
   return {

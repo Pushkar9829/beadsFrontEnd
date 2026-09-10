@@ -6,18 +6,30 @@ import Hero from '../components/home/Hero';
 import SectionHead from '../components/home/SectionHead';
 import RitualSteps from '../components/home/RitualSteps';
 import HousesRow from '../components/home/HousesRow';
+import Testimonials from '../components/home/Testimonials';
 import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
 import Reveal from '../components/ui/Reveal';
 import InViewGroup from '../components/ui/InViewGroup';
 import { FAMILIES } from '../lib/format';
+import { PurposeIcon, purposeHasImage, purposeToneStyle } from '../components/customizer/PurposeGrid';
 import finaleBanner from '../assets/home/finale-banner.jpg';
+import studioBanner from '../assets/home/hero-bracelet.jpg';
+
+const FALLBACK_PURPOSES = [
+  { slug: 'love-relationships', name: 'Love & Relationships', description: 'Invite tenderness, partnership and self-worth.' },
+  { slug: 'money-abundance', name: 'Money & Abundance', description: 'Align with wealth, flow and material ease.' },
+  { slug: 'career-success', name: 'Career & Success', description: 'Support ambition, recognition and skilled work.' },
+  { slug: 'confidence-power', name: 'Confidence & Power', description: 'Stand in your voice, will and presence.' },
+  { slug: 'protection-grounding', name: 'Protection & Grounding', description: 'Feel held, bounded and rooted.' },
+  { slug: 'calm-emotional-balance', name: 'Calm & Emotional Balance', description: 'Soften intensity and restore evenness.' },
+];
 
 const RITUAL = [
   { n: '01', title: 'Purpose', body: 'Begin with why you wear it — calm, abundance, protection, or love.' },
   { n: '02', title: 'Intention', body: 'Choose the feeling. Its crystals are selected for you, not guessed at checkout.' },
   { n: '03', title: 'Calibration', body: 'Your date of birth sets the Mulank. Counts are composed to that number.' },
-  { n: '04', title: 'Name', body: 'Zodiac beads and an engraving close the strand. The piece is then yours.' },
+  { n: '04', title: 'Charm', body: 'Sriyantra or Om at the clasp, on Korean elastic or sized steel core.' },
 ];
 
 const CLAIM_ICONS = {
@@ -52,7 +64,7 @@ export default function HomePage() {
 
   const hero = content?.hero || {};
   const claims = content?.trustClaims || [];
-  const studioPurposes = purposes.slice(0, 6);
+  const studioPurposes = (purposes.length ? purposes : FALLBACK_PURPOSES).slice(0, 6);
 
   return (
     <div className="home-page">
@@ -80,38 +92,55 @@ export default function HomePage() {
         <HousesRow houses={FAMILIES} />
       </section>
 
-      {studioPurposes.length > 0 && (
-        <section className="relative py-8 sm:py-10 md:py-14">
-          <div className="pointer-events-none absolute inset-0 lotus-corner" />
-          <div className="relative shell">
-            <Reveal variant="head">
-              <SectionHead
-                eyebrow="The studio"
-                title="Customization"
-                body="Choose a purpose, then an intention. Crystals are placed from your Mulank, finished with zodiac beads, and named."
-                to="/customize"
-                action="Open the studio →"
-              />
-            </Reveal>
-            <InViewGroup className="studio-grid mt-8 grid gap-3 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-              {studioPurposes.map((p, i) => (
-                <div key={p._id} className="purpose-item" style={{ '--i': i }}>
-                  <Link to={`/customize?purpose=${p.slug}`} className="purpose-card group block h-full">
-                    <span className="text-[10px] uppercase tracking-[0.22em] text-gold/80">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <h3 className="mt-3 font-serif text-xl">{p.name}</h3>
-                    <p className="mt-2 line-clamp-2 text-sm text-lilac">{p.description}</p>
-                    <p className="mt-5 text-[11px] uppercase tracking-[0.18em] text-gold opacity-80 transition group-hover:opacity-100">
-                      Begin →
-                    </p>
-                  </Link>
-                </div>
-              ))}
-            </InViewGroup>
+      <section className="relative py-8 sm:py-10 md:py-14">
+        <div className="pointer-events-none absolute inset-0 lotus-corner" />
+        <div className="relative shell">
+          <Reveal variant="head">
+            <SectionHead
+              eyebrow="The studio"
+              title="Customization"
+              body="Choose a purpose, then an intention. Crystals are placed from your Mulank, then closed with a Sriyantra or Om charm."
+              to="/customize"
+              action="Open the studio →"
+            />
+          </Reveal>
+
+          <Link to="/customize" className="studio-invite mt-8 group block overflow-hidden sm:mt-10">
+            <div className="studio-invite-media" aria-hidden>
+              <img src={studioBanner} alt="" />
+            </div>
+            <div className="studio-invite-copy">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-gold">Begin a strand</p>
+              <h3 className="mt-2 font-serif text-xl gold-text sm:text-2xl">Compose your bracelet</h3>
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-lilac">
+                Purpose, intention, Mulank, zodiac, and a name — made to your wrist, not picked from a tray.
+              </p>
+              <span className="mt-4 inline-block text-[11px] uppercase tracking-[0.18em] text-gold transition group-hover:translate-x-1">
+                Open the studio →
+              </span>
+            </div>
+          </Link>
+
+          <div className="purpose-pick mt-6 sm:mt-8">
+            {studioPurposes.map((p) => (
+              <Link
+                key={p._id || p.slug}
+                to={`/customize?purpose=${p.slug}`}
+                className="purpose-pick-card"
+                style={purposeToneStyle(p)}
+              >
+                <span className={`purpose-pick-emoji ${purposeHasImage(p) ? 'is-image' : ''}`} aria-hidden>
+                  <PurposeIcon purpose={p} />
+                </span>
+                <span className="purpose-pick-copy">
+                  <h3>{p.name}</h3>
+                  <p>{p.description}</p>
+                </span>
+              </Link>
+            ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       <section className="shell py-8 sm:py-10 md:py-14">
         <Reveal variant="head">
@@ -144,6 +173,20 @@ export default function HomePage() {
           </InViewGroup>
         </section>
       )}
+
+      <section className="relative py-8 sm:py-10 md:py-14">
+        <div className="pointer-events-none absolute inset-0 lotus-corner" />
+        <div className="relative shell">
+          <Reveal variant="head">
+            <SectionHead
+              eyebrow="Voices"
+              title="From those who wear it"
+              body="Quiet notes from custom strands and the three houses — written without medical claims."
+            />
+          </Reveal>
+          <Testimonials items={content?.testimonials} />
+        </div>
+      </section>
 
       {claims.length > 0 && (
         <section className="shell py-8 sm:py-10 md:py-14">

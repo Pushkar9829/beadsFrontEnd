@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { create } from 'zustand';
 import api from '../api/client';
 import { calibrateLocal, quoteFromBeads, quantitiesFromLayout } from '../lib/calibration';
+import { formatWristChoice } from '../lib/format';
 
 function distributeQty(ids, total) {
   const keys = (ids || []).filter(Boolean);
@@ -29,7 +30,8 @@ export const useCustomizerStore = create((set, get) => ({
   quantities: {},
   charm: null,
   finish: null,
-  wristSize: '6.5"',
+  wristSize: 'Free size',
+  threadType: 'korean-elastic',
   dateOfBirth: '',
   engravingName: '',
   calibration: null,
@@ -63,7 +65,8 @@ export const useCustomizerStore = create((set, get) => ({
         catalogBeads: beads.data.beads || [],
         charm,
         finish,
-        wristSize: get().wristSize || cfg.data.config?.defaultWristSize || '6.5"',
+        wristSize: get().wristSize || 'Free size',
+        threadType: get().threadType || 'korean-elastic',
         loading: false,
         ready: true,
       });
@@ -171,29 +174,6 @@ export const useCustomizerStore = create((set, get) => ({
     });
   },
 
-  reorderLayout(from, to) {
-    const { calibration, config, finish } = get();
-    const layout = calibration?.layout;
-    if (!layout?.length) return;
-    const start = Number(from);
-    const end = Number(to);
-    if (!Number.isInteger(start) || !Number.isInteger(end)) return;
-    if (start === end || start < 0 || end < 0 || start >= layout.length || end >= layout.length) return;
-    const next = [...layout];
-    const [item] = next.splice(start, 1);
-    next.splice(end, 0, item);
-    const ordered = next.map((slot, i) => ({ ...slot, position: i + 1 }));
-    const beads = quantitiesFromLayout(ordered);
-    set({
-      calibration: {
-        ...calibration,
-        layout: ordered,
-        beads,
-        quote: quoteFromBeads(config, beads, finish),
-      },
-    });
-  },
-
   selectedBeads() {
     const { recommended, quantities } = get();
     return (recommended || []).filter((b) => (quantities[b._id] || 0) > 0);
@@ -298,8 +278,9 @@ export const useCustomizerStore = create((set, get) => ({
         return;
       }
       if (state.step === 5) {
-        if (get().engravingName.trim().length < 2) {
-          throw new Error('Enter a name of at least 2 characters.');
+        if (!get().charm) throw new Error('Choose a charm to continue.');
+        if (get().threadType === 'steel-core' && !get().wristSize) {
+          throw new Error('Choose a wrist size for steel core thread.');
         }
         set({ step: 6 });
       }
@@ -316,7 +297,9 @@ export const useCustomizerStore = create((set, get) => ({
     if (s.step === 2) return !!s.intention && get().selectedBeads().length > 0;
     if (s.step === 3) return Boolean(s.dateOfBirth);
     if (s.step === 4) return !!s.calibration;
-    if (s.step === 5) return s.engravingName.trim().length >= 2;
+    if (s.step === 5) {
+      return !!s.charm && (s.threadType !== 'steel-core' || Boolean(s.wristSize));
+    }
     return false;
   },
 
@@ -332,8 +315,16 @@ export const useCustomizerStore = create((set, get) => ({
     set({ wristSize });
   },
 
-  setEngravingName(engravingName) {
-    set({ engravingName });
+  setThreadType(threadType) {
+    const config = get().config;
+    if (threadType === 'korean-elastic') {
+      set({ threadType, wristSize: 'Free size' });
+      return;
+    }
+    const sizes = config?.wristSizes || ['5.5"', '6"', '6.5"', '7"', '7.5"', '8"'];
+    const current = get().wristSize;
+    const next = sizes.includes(current) ? current : (config?.defaultWristSize || '6.5"');
+    set({ threadType: 'steel-core', wristSize: next });
   },
 
   setDetailBead(bead) {
@@ -353,7 +344,6 @@ export const useCustomizerStore = create((set, get) => ({
       recommended: [],
       quantities: {},
       dateOfBirth: '',
-      engravingName: '',
       calibration: null,
       zodiacAdded: false,
       detailBead: null,
@@ -370,20 +360,20 @@ export const useCustomizerStore = create((set, get) => ({
       charm,
       finish,
       wristSize,
+      threadType,
       dateOfBirth,
-      engravingName,
       calibration,
       zodiacAdded,
     } = get();
     if (!purpose || !intention) throw new Error('Choose a purpose and intention first.');
-    if (!charm || !finish) throw new Error('Choose a charm and finish first.');
+    if (!charm || !finish) throw new Error('Choose a charm first.');
     if (!dateOfBirth) throw new Error('Enter a date of birth first.');
-    if (engravingName.trim().length < 2) throw new Error('Enter a name of at least 2 characters.');
     const quote = buildQuote(get());
     const beads = calibration?.beads
       || recommended
         .filter((b) => (quantities[b._id] || 0) > 0)
         .map((b) => ({ beadId: b._id, quantity: quantities[b._id] }));
+    const wristLabel = formatWristChoice(threadType, wristSize);
     return {
       purpose: { id: purpose._id, name: purpose.name, slug: purpose.slug },
       intention: { id: intention._id, name: intention.name, slug: intention.slug },
@@ -394,13 +384,13 @@ export const useCustomizerStore = create((set, get) => ({
       })),
       charmId: charm._id,
       finishKey: finish.key,
-      wristSize,
+      wristSize: wristLabel,
+      threadType,
       dateOfBirth,
       includeZodiac: zodiacAdded,
       zodiacQty: calibration?.zodiacQty,
-      engravingName: engravingName.trim(),
       snapshot: {
-        name: `${engravingName.trim()} · ${intention.name}`,
+        name: `${intention.name} · ${charm.name}`,
         purpose: { id: purpose._id, name: purpose.name },
         intention: { id: intention._id, name: intention.name },
         beads: quote.lines,
@@ -409,11 +399,11 @@ export const useCustomizerStore = create((set, get) => ({
         bhagyank: calibration?.bhagyank,
         zodiac: calibration?.zodiac,
         dateOfBirth,
-        engravingName: engravingName.trim(),
         explanation: calibration?.explanation,
-        charm: { id: charm._id, name: charm.name },
+        charm: { id: charm._id, name: charm.name, slug: charm.slug },
         finish,
-        wristSize,
+        threadType,
+        wristSize: wristLabel,
         pricing: quote,
       },
     };

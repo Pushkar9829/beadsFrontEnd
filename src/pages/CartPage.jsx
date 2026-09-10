@@ -29,10 +29,10 @@ function itemMeta(item) {
   if (snap.intention?.name && snap.intention.name !== snap.purpose?.name) {
     parts.push(snap.intention.name);
   }
-  if (snap.engravingName) parts.push(snap.engravingName);
+  if (snap.charm?.name) parts.push(snap.charm.name);
   if (snap.mulank) parts.push(`Mulank ${snap.mulank}`);
   if (snap.zodiac?.sign) parts.push(snap.zodiac.sign);
-  if (snap.finish?.label) parts.push(snap.finish.label);
+  if (snap.finish?.label && snap.finish.label !== 'Gold') parts.push(snap.finish.label);
   if (snap.wristSize) parts.push(snap.wristSize);
   const beads = snap.beads
     ?.map((b) => (b.name ? `${b.name} × ${b.quantity}` : ''))

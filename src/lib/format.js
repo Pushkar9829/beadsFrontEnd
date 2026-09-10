@@ -11,6 +11,18 @@ export function parseWristInches(size = '6.5"') {
   return Number.isFinite(n) ? n : 6.5;
 }
 
+export const THREAD_TYPES = [
+  { key: 'korean-elastic', label: 'Korean elastic thread', detail: 'Free size' },
+  { key: 'steel-core', label: 'Steel core thread', detail: 'Choose a wrist size' },
+];
+
+export function formatWristChoice(threadType, wristSize) {
+  if (threadType === 'steel-core') {
+    return `Steel core thread · ${wristSize || '6.5"'}`;
+  }
+  return 'Korean elastic thread · Free size';
+}
+
 export const FAMILIES = [
   {
     slug: 'crystals',

@@ -4,9 +4,17 @@ import Header from './Header';
 import Footer from './Footer';
 import Atmosphere from './Atmosphere';
 import { paintGoldShine } from '../../lib/paintGoldShine';
+import { useCustomizerStore } from '../../store/customizerStore';
+import { purposeToneStyle } from '../customizer/PurposeGrid';
 
 export default function StoreLayout() {
   const { pathname } = useLocation();
+  const purpose = useCustomizerStore((s) => s.purpose);
+  const step = useCustomizerStore((s) => s.step);
+  const purposeTone =
+    pathname === '/customize' && purpose && step > 1
+      ? purposeToneStyle(purpose)
+      : undefined;
   const showAtmosphere =
     pathname === '/' ||
     pathname === '/shop' ||
@@ -34,11 +42,14 @@ export default function StoreLayout() {
   }, [pathname]);
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-canvas text-ivory">
+    <div className="store-canvas relative flex min-h-screen flex-col text-ivory">
       {showAtmosphere && <Atmosphere />}
       <div className="relative z-[1] flex min-h-screen flex-col">
         <Header />
-        <main className="flex-1">
+        <main
+          className={`flex-1${purposeTone ? ' has-purpose-tone' : ''}`}
+          style={purposeTone}
+        >
           <Outlet />
         </main>
         <Footer />

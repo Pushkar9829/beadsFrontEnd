@@ -89,7 +89,6 @@ export default function BirthDateStep() {
   const calibrating = useCustomizerStore((s) => s.calibrating);
   const recommended = useCustomizerStore((s) => s.recommended);
   const quantities = useCustomizerStore((s) => s.quantities);
-  const reorderLayout = useCustomizerStore((s) => s.reorderLayout);
   const picked = recommended.filter((b) => (quantities[b._id] || 0) > 0);
 
   const preview = useMemo(() => {
@@ -138,8 +137,7 @@ export default function BirthDateStep() {
       {showLayout && (
         <StrandReorder
           layout={layout}
-          onMove={reorderLayout}
-          hint={`Mulank ${calibration.mulank} · ${layout.length} beads. Drag to rearrange.`}
+          hint={`Mulank ${calibration.mulank} · ${layout.length} beads in a fixed repeating pattern.`}
         />
       )}
     </div>

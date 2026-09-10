@@ -5,7 +5,7 @@ const STEPS = [
   { n: 2, label: 'Intention' },
   { n: 3, label: 'Birth' },
   { n: 4, label: 'Zodiac' },
-  { n: 5, label: 'Name' },
+  { n: 5, label: 'Charm' },
   { n: 6, label: 'Review' },
 ];
 
@@ -17,7 +17,7 @@ export default function Stepper() {
   const recommended = useCustomizerStore((s) => s.recommended);
   const quantities = useCustomizerStore((s) => s.quantities);
   const calibration = useCustomizerStore((s) => s.calibration);
-  const engravingName = useCustomizerStore((s) => s.engravingName);
+  const charm = useCustomizerStore((s) => s.charm);
   const picked = (recommended || []).some((b) => (quantities[b._id] || 0) > 0);
 
   const can = (n) => {
@@ -26,7 +26,7 @@ export default function Stepper() {
     if (n === 3) return !!intention && picked;
     if (n === 4) return !!calibration;
     if (n === 5) return !!calibration;
-    if (n === 6) return engravingName.trim().length >= 2 && !!calibration;
+    if (n === 6) return !!charm && !!calibration;
     return false;
   };
 

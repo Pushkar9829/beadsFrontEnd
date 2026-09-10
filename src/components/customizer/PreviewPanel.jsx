@@ -3,6 +3,7 @@ import { ChevronDown } from 'lucide-react';
 import { useCustomizerStore, useCustomizerQuote } from '../../store/customizerStore';
 import BraceletPreview from '../../preview/BraceletScene';
 import Price from '../ui/Price';
+import { formatWristChoice } from '../../lib/format';
 
 export default function PreviewPanel({ mobile }) {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ export default function PreviewPanel({ mobile }) {
   const previewOpen = useCustomizerStore((s) => s.previewOpen);
   const setPreviewOpen = useCustomizerStore((s) => s.setPreviewOpen);
   const calibration = useCustomizerStore((s) => s.calibration);
-  const engravingName = useCustomizerStore((s) => s.engravingName);
+  const threadType = useCustomizerStore((s) => s.threadType);
 
   const body = (
     <>
@@ -27,10 +28,11 @@ export default function PreviewPanel({ mobile }) {
         layout={calibration?.layout}
         wristSize={wristSize}
         finish={finish}
+        charm={charm}
         compact={mobile}
       />
       <p className="bag-summary-kicker mt-4">Live strand</p>
-      <h2 className="bag-summary-title gold-text">{engravingName || 'Untitled'}</h2>
+      <h2 className="bag-summary-title gold-text">{intention?.name || purpose?.name || 'Custom strand'}</h2>
       <p className="mt-1 text-sm text-lilac">
         {purpose?.name || 'Purpose pending'}
         {intention ? ` · ${intention.name}` : ''}
@@ -45,11 +47,11 @@ export default function PreviewPanel({ mobile }) {
           </div>
         ))}
         <div>
-          <dt>{charm?.name} · {finish?.label}</dt>
+          <dt>{charm?.name}</dt>
           <dd><Price value={quote.charmPrice} /></dd>
         </div>
         <div>
-          <dt>Wrist {wristSize}</dt>
+          <dt>{formatWristChoice(threadType, wristSize)}</dt>
           <dd>{quote.beadCount} / {config?.beadLimit} beads</dd>
         </div>
         <div className="bag-summary-total">

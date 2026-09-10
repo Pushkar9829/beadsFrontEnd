@@ -20,12 +20,23 @@ class WebGLGuard extends Component {
 }
 
 function expandBeads(lines = []) {
+  const queues = (lines || []).map((l) =>
+    Array.from({ length: l.quantity || 0 }, () => ({
+      colorHex: l.colorHex || '#c6a75e',
+      name: l.name,
+    })),
+  );
   const out = [];
-  lines.forEach((l) => {
-    for (let i = 0; i < (l.quantity || 0); i += 1) {
-      out.push({ colorHex: l.colorHex || '#c6a75e', name: l.name });
+  let added = true;
+  while (added) {
+    added = false;
+    for (const queue of queues) {
+      if (queue.length) {
+        out.push(queue.shift());
+        added = true;
+      }
     }
-  });
+  }
   return out;
 }
 
@@ -40,12 +51,33 @@ function beadsForPreview(layout, lines) {
   return expandBeads(lines);
 }
 
-function OvalCharm({ color, radius }) {
+function OvalCharm({ color, radius, kind }) {
+  const x = radius + 0.18;
+  if (kind === 'om') {
+    return (
+      <group position={[x, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <mesh>
+          <torusGeometry args={[0.11, 0.032, 14, 28]} />
+          <meshStandardMaterial color={color} metalness={0.92} roughness={0.18} envMapIntensity={1.2} />
+        </mesh>
+        <mesh position={[0.02, 0.12, 0]} rotation={[0, 0, 0.4]}>
+          <torusGeometry args={[0.045, 0.018, 10, 18]} />
+          <meshStandardMaterial color={color} metalness={0.92} roughness={0.18} envMapIntensity={1.2} />
+        </mesh>
+      </group>
+    );
+  }
   return (
-    <mesh position={[radius + 0.16, 0, 0]} rotation={[0, 0, Math.PI / 2]} scale={[0.72, 1.15, 0.45]}>
-      <sphereGeometry args={[0.16, 24, 16]} />
-      <meshStandardMaterial color={color} metalness={0.92} roughness={0.18} envMapIntensity={1.2} />
-    </mesh>
+    <group position={[x, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+      <mesh>
+        <coneGeometry args={[0.15, 0.22, 3]} />
+        <meshStandardMaterial color={color} metalness={0.92} roughness={0.2} envMapIntensity={1.2} />
+      </mesh>
+      <mesh rotation={[Math.PI, 0, 0]} position={[0, -0.04, 0]}>
+        <coneGeometry args={[0.1, 0.14, 3]} />
+        <meshStandardMaterial color={color} metalness={0.9} roughness={0.22} envMapIntensity={1.1} />
+      </mesh>
+    </group>
   );
 }
 
@@ -63,15 +95,16 @@ function BeadMesh({ color, position }) {
   );
 }
 
-function BraceletModel({ lines, layout, wristSize, metalColor, view }) {
+function BraceletModel({ lines, layout, wristSize, metalColor, view, charmKind }) {
   const beads = beadsForPreview(layout, lines);
   const inches = parseWristInches(wristSize);
   const radius = 0.82 + (inches - 6.5) * 0.1;
   const rot = view === 'wrist' ? [0.55, 0.95, 0.1] : [0.2, 0.15, 0];
 
   const positions = useMemo(() => {
+    const n = Math.max(beads.length, 1);
     return Array.from({ length: beads.length }, (_, i) => {
-      const t = (i / Math.max(beads.length, 1)) * Math.PI * 2 - Math.PI / 2;
+      const t = ((i + 0.5) / n) * Math.PI * 2;
       return [Math.cos(t) * radius, Math.sin(t) * 0.04, Math.sin(t) * radius];
     });
   }, [beads.length, radius]);
@@ -97,7 +130,7 @@ function BraceletModel({ lines, layout, wristSize, metalColor, view }) {
       {beads.map((b, i) => (
         <BeadMesh key={`${b.name}-${i}`} color={b.colorHex} position={positions[i]} />
       ))}
-      <OvalCharm color={metalColor || '#D4AF37'} radius={radius} />
+      <OvalCharm color={metalColor || '#D4AF37'} radius={radius} kind={charmKind} />
     </group>
   );
 }
@@ -120,9 +153,10 @@ function FallbackStrip({ lines, layout, metalColor }) {
   );
 }
 
-export default function BraceletPreview({ lines, layout, wristSize, finish, compact }) {
+export default function BraceletPreview({ lines, layout, wristSize, finish, charm, compact }) {
   const [view, setView] = useState('front');
   const metal = finish?.metalColor || '#D4AF37';
+  const charmKind = String(charm?.slug || charm?.name || '').toLowerCase().includes('om') ? 'om' : 'sriyantra';
 
   return (
     <div>
@@ -133,7 +167,7 @@ export default function BraceletPreview({ lines, layout, wristSize, finish, comp
             type="button"
             onClick={() => setView(v)}
             className={`rounded-full px-3 py-1 text-[10px] uppercase tracking-widest ${
-              view === v ? 'bg-amethyst text-[#FCF8F4]' : 'border border-gold/30 text-lilac'
+              view === v ? 'bg-amethyst text-ivory' : 'border border-gold/30 text-lilac'
             }`}
           >
             {v === 'front' ? 'Front view' : 'Wrist view'}
@@ -147,10 +181,10 @@ export default function BraceletPreview({ lines, layout, wristSize, finish, comp
             <ambientLight intensity={0.45} />
             <directionalLight position={[3, 5, 4]} intensity={1.6} color="#f6f1e8" />
             <spotLight position={[4, 6, 4]} intensity={18} angle={0.4} color="#e8d5a3" />
-            <spotLight position={[-4, 2, -3]} intensity={12} color="#F0C0CF" />
+            <spotLight position={[-4, 2, -3]} intensity={12} color="#b48cff" />
             <pointLight position={[0, -2, 2]} intensity={6} color="#c6a75e" />
             <Suspense fallback={null}>
-              <BraceletModel lines={lines} layout={layout} wristSize={wristSize} metalColor={metal} view={view} />
+              <BraceletModel lines={lines} layout={layout} wristSize={wristSize} metalColor={metal} view={view} charmKind={charmKind} />
               <ContactShadows opacity={0.35} scale={8} blur={2.4} far={4} />
             </Suspense>
             <OrbitControls enablePan={false} minDistance={2.2} maxDistance={4.5} />

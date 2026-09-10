@@ -2,25 +2,31 @@ import { X } from 'lucide-react';
 import { useCustomizerStore } from '../../store/customizerStore';
 import GemVisual from '../ui/GemVisual';
 import Price from '../ui/Price';
+import { purposeToneStyle } from './PurposeGrid';
 
 export default function BeadDetailDrawer() {
   const bead = useCustomizerStore((s) => s.detailBead);
   const close = useCustomizerStore((s) => s.setDetailBead);
+  const purpose = useCustomizerStore((s) => s.purpose);
+  const purposeTone = purpose ? purposeToneStyle(purpose) : undefined;
   if (!bead) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <div
+      className={`fixed inset-0 z-50 flex justify-end${purposeTone ? ' has-purpose-tone studio-drawer-layer' : ''}`}
+      style={purposeTone}
+    >
       <button
         type="button"
         aria-label="Close crystal details"
-        className="absolute inset-0 bg-black/65 backdrop-blur-[2px]"
+        className="studio-modal-scrim absolute inset-0 bg-black/65 backdrop-blur-[2px]"
         onClick={() => close(null)}
       />
       <aside
-        className="relative z-10 flex h-dvh w-full max-w-md flex-col border-l border-[rgba(198,167,94,0.32)] bg-[#FCF8F4] shadow-[-24px_0_60px_rgba(62,51,61,0.12)]"
+        className="studio-drawer relative z-10 flex h-dvh w-full max-w-md flex-col border-l border-[rgba(198,167,94,0.32)] bg-[#0d0d10] shadow-[-24px_0_60px_rgba(0,0,0,0.55)]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-[rgba(198,167,94,0.2)] px-5 py-4">
+        <div className="studio-modal-bar flex shrink-0 items-center justify-between border-b border-[rgba(198,167,94,0.2)] px-5 py-4">
           <div>
             <p className="text-[10px] uppercase tracking-[0.22em] text-gold">Crystal</p>
             <h2 className="font-serif text-xl gold-text">{bead.name}</h2>

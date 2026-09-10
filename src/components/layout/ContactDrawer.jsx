@@ -49,7 +49,7 @@ export default function ContactDrawer({ open, onClose, defaultEmail = '' }) {
         className="absolute inset-0 bg-black/65 backdrop-blur-[2px] animate-overlay"
         onClick={onClose}
       />
-      <aside className="relative z-10 flex h-dvh w-full max-w-md flex-col border-l border-[rgba(198,167,94,0.32)] bg-[#FCF8F4] shadow-[-24px_0_60px_rgba(62,51,61,0.12)] animate-drawer-right">
+      <aside className="relative z-10 flex h-dvh w-full max-w-md flex-col border-l border-[rgba(198,167,94,0.32)] bg-[#0d0d10] shadow-[-24px_0_60px_rgba(0,0,0,0.55)] animate-drawer-right">
         <div className="flex shrink-0 items-center justify-between border-b border-[rgba(198,167,94,0.2)] px-5 py-4">
           <div>
             <p className="text-[10px] uppercase tracking-[0.22em] text-gold">The atelier</p>

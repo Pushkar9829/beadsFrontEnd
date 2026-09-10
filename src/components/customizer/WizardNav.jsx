@@ -6,7 +6,7 @@ const NEXT_LABEL = {
   1: 'Next · intention',
   2: 'Next · date of birth',
   3: 'Calibrate & continue',
-  4: 'Next · name',
+  4: 'Next · charm',
   5: 'Review & order',
 };
 
@@ -15,7 +15,7 @@ const HINT = {
   2: 'Choose an intention and keep at least one crystal.',
   3: 'Choose day, month and year.',
   4: 'Zodiac beads are added on this step.',
-  5: 'Enter a name of at least 2 letters.',
+  5: 'Choose Sriyantra or Om, then a thread.',
 };
 
 export default function WizardNav() {
@@ -31,7 +31,7 @@ export default function WizardNav() {
   const quantities = useCustomizerStore((s) => s.quantities);
   const dateOfBirth = useCustomizerStore((s) => s.dateOfBirth);
   const calibration = useCustomizerStore((s) => s.calibration);
-  const engravingName = useCustomizerStore((s) => s.engravingName);
+  const charm = useCustomizerStore((s) => s.charm);
   const quote = useCustomizerQuote();
   const config = useCustomizerStore((s) => s.config);
   const pickedCount = recommended.filter((b) => (quantities[b._id] || 0) > 0).length;
@@ -41,7 +41,7 @@ export default function WizardNav() {
     2: !!intention && pickedCount > 0,
     3: Boolean(dateOfBirth),
     4: !!calibration,
-    5: engravingName.trim().length >= 2,
+    5: !!charm,
   }[step];
 
   if (step === 6) return null;

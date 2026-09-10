@@ -14,7 +14,6 @@ export default function ZodiacStep() {
   const calibration = useCustomizerStore((s) => s.calibration);
   const config = useCustomizerStore((s) => s.config);
   const addZodiacBeads = useCustomizerStore((s) => s.addZodiacBeads);
-  const reorderLayout = useCustomizerStore((s) => s.reorderLayout);
   const zodiacAdded = useCustomizerStore((s) => s.zodiacAdded);
   const [qty, setQty] = useState(
     clampQty(calibration?.zodiacQty || config?.zodiacBeadCount || 2)
@@ -96,7 +95,10 @@ export default function ZodiacStep() {
       {busy && <p className="studio-birth-note">Updating…</p>}
 
       {layout.length > 0 && (
-        <StrandReorder layout={layout} onMove={reorderLayout} />
+        <StrandReorder
+          layout={layout}
+          hint="Zodiac beads sit either side of the charm. The repeating pattern stays fixed."
+        />
       )}
     </div>
   );

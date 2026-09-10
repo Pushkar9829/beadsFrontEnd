@@ -89,7 +89,7 @@ export default function AdminLayout() {
       )}
 
       <div className="flex h-screen flex-col md:ml-64">
-        <header className="flex shrink-0 items-center justify-between border-b border-[rgba(198,167,94,0.2)] bg-[#FCF8F4]/90 px-4 py-3 backdrop-blur md:px-8">
+        <header className="flex shrink-0 items-center justify-between border-b border-[rgba(198,167,94,0.2)] bg-black/90 px-4 py-3 backdrop-blur md:px-8">
           <div className="flex items-center gap-3">
             <button type="button" className="text-ivory md:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu">
               <Menu size={18} />

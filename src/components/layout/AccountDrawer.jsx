@@ -91,7 +91,7 @@ export default function AccountDrawer({ open, onClose }) {
         className="absolute inset-0 bg-black/65 backdrop-blur-[2px] animate-overlay"
         onClick={onClose}
       />
-      <aside className="relative z-10 flex h-dvh w-full max-w-md flex-col border-l border-[rgba(198,167,94,0.32)] bg-[#FCF8F4] shadow-[-24px_0_60px_rgba(62,51,61,0.12)] animate-drawer-right">
+      <aside className="account-panel relative z-10 flex h-dvh w-full max-w-md flex-col border-l border-[rgba(198,167,94,0.32)] bg-[#0d0d10] shadow-[-24px_0_60px_rgba(0,0,0,0.55)] animate-drawer-right">
         <div className="flex shrink-0 items-center justify-between border-b border-[rgba(198,167,94,0.2)] px-5 py-4">
           <div>
             <p className="text-[10px] uppercase tracking-[0.22em] text-gold">Account</p>
@@ -109,7 +109,7 @@ export default function AccountDrawer({ open, onClose }) {
 
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-5">
           <div className="flex items-center gap-4">
-            <div className="grid h-14 w-14 place-items-center rounded-full bg-linear-to-br from-gold-light to-gold-deep font-serif text-lg text-ink ring-2 ring-gold/40">
+            <div className="grid h-14 w-14 place-items-center rounded-full bg-linear-to-br from-gold-light to-gold-deep font-serif text-lg text-ink ring-2 ring-gold/50 shadow-[0_0_22px_rgba(107,63,160,0.4)]">
               {initials(user.name)}
             </div>
             <div className="min-w-0">
@@ -165,7 +165,7 @@ function TabLink({ to, label, icon: Icon, count, onClose }) {
     <Link
       to={to}
       onClick={onClose}
-      className="flex items-center gap-3 rounded-xl border border-gold/15 px-3 py-3 text-sm text-ivory/90 transition hover:border-gold/45 hover:bg-gold/5"
+      className="flex items-center gap-3 rounded-xl border border-gold/20 bg-surface/80 px-3 py-3 text-sm text-ivory/90 transition hover:border-gold/50 hover:bg-amethyst/15"
     >
       <Icon size={16} className="text-gold" />
       <span className="flex-1">{label}</span>

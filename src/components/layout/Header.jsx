@@ -100,8 +100,8 @@ export default function Header() {
         ref={headerRef}
         className={`fixed inset-x-0 top-0 z-40 border-b transition-[background,box-shadow,border-color] duration-300 ${
           scrolled
-            ? 'border-[rgba(198,167,94,0.32)] bg-[#FCF8F4]/95 shadow-[0_12px_40px_rgba(62,51,61,0.08)] backdrop-blur-xl'
-            : 'border-[rgba(198,167,94,0.18)] bg-[#FCF8F4]/88 backdrop-blur-md'
+            ? 'border-[rgba(198,167,94,0.32)] bg-black/92 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl'
+            : 'border-[rgba(198,167,94,0.18)] bg-black/78 backdrop-blur-md'
         }`}
       >
         <div className="shell flex items-center justify-between gap-2 py-2 sm:gap-3 sm:py-2.5">
@@ -132,7 +132,7 @@ export default function Header() {
                 <NavLink
                   to={`/${f.slug}`}
                   className={({ isActive }) =>
-                    `header-nav-link flex items-center gap-1 px-3 py-2 ${isActive ? 'is-active text-gold' : 'text-ivory/80'}`
+                    `header-nav-link flex items-center gap-1 px-3 py-2 ${isActive ? 'is-active' : ''}`
                   }
                 >
                   {f.name}
@@ -160,7 +160,7 @@ export default function Header() {
                           <Link
                             key={c._id}
                             to={`/c/${c.slug}`}
-                            className="block rounded-xl px-3 py-2.5 text-sm text-ivory/80 transition hover:bg-gold/10 hover:text-gold"
+                            className="header-cat-link block rounded-xl px-3 py-2.5 text-sm transition hover:bg-gold/10"
                           >
                             {c.name}
                           </Link>
@@ -186,7 +186,7 @@ export default function Header() {
             <NavLink
               to="/shop"
               className={({ isActive }) =>
-                `header-nav-link px-3 py-2 ${isActive ? 'is-active text-gold' : 'text-ivory/80'}`
+                `header-nav-link px-3 py-2 ${isActive ? 'is-active' : ''}`
               }
             >
               Shop All
@@ -194,7 +194,7 @@ export default function Header() {
             <NavLink
               to="/about"
               className={({ isActive }) =>
-                `header-nav-link px-3 py-2 ${isActive ? 'is-active text-gold' : 'text-ivory/80'}`
+                `header-nav-link px-3 py-2 ${isActive ? 'is-active' : ''}`
               }
             >
               About
@@ -243,8 +243,8 @@ export default function Header() {
               key={f.slug}
               to={`/${f.slug}`}
               className={({ isActive }) =>
-                `shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
-                  isActive ? 'bg-gold/15 text-gold' : 'text-ivory/75'
+                `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
+                  isActive ? 'is-active bg-gold/15' : ''
                 }`
               }
             >
@@ -264,8 +264,8 @@ export default function Header() {
           <NavLink
             to="/shop"
             className={({ isActive }) =>
-              `shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
-                isActive ? 'bg-gold/15 text-gold' : 'text-ivory/75'
+              `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
+                isActive ? 'is-active bg-gold/15' : ''
               }`
             }
           >
@@ -274,8 +274,8 @@ export default function Header() {
           <NavLink
             to="/about"
             className={({ isActive }) =>
-              `shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
-                isActive ? 'bg-gold/15 text-gold' : 'text-ivory/75'
+              `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
+                isActive ? 'is-active bg-gold/15' : ''
               }`
             }
           >

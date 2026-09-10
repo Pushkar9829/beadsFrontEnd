@@ -46,7 +46,7 @@ api.interceptors.response.use(
 export function mediaUrl(path) {
   if (!path) return '';
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  if (path.startsWith('/catalog')) return path;
+  if (path.startsWith('/catalog') || path.startsWith('/assets') || path.startsWith('/src')) return path;
   if (API_ORIGIN) return `${API_ORIGIN}${path.startsWith('/') ? path : `/${path}`}`;
   return path;
 }
