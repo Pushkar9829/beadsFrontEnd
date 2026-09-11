@@ -13,20 +13,91 @@ import {
   ArrowLeft,
   Menu,
   X,
+  Package,
+  Warehouse,
+  Ticket,
+  Percent,
+  BarChart3,
+  Star,
+  ShoppingCart,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import AdminToast from '../admin/AdminToast';
 
-const links = [
-  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/admin/categories', label: 'Categories', icon: Layers },
-  { to: '/admin/products', label: 'Products', icon: ShoppingBag },
-  { to: '/admin/beads', label: 'Beads', icon: Gem },
-  { to: '/admin/intentions', label: 'Purposes & mappings', icon: Sparkles },
-  { to: '/admin/config', label: 'Bracelet config', icon: Settings },
-  { to: '/admin/orders', label: 'Orders', icon: ShoppingBag },
-  { to: '/admin/users', label: 'Users', icon: Users },
-  { to: '/admin/content', label: 'Site CMS', icon: FileText },
-  { to: '/admin/media', label: 'Media', icon: Image },
+const groups = [
+  {
+    label: 'Overview',
+    items: [
+      { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
+      { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+    ],
+  },
+  {
+    label: 'Catalog',
+    items: [
+      { to: '/admin/categories', label: 'Categories', icon: Layers },
+      { to: '/admin/products', label: 'Products', icon: ShoppingBag },
+      { to: '/admin/beads', label: 'Beads', icon: Gem },
+      { to: '/admin/collections', label: 'Collections', icon: Package },
+    ],
+  },
+  {
+    label: 'Inventory',
+    items: [
+      { to: '/admin/inventory', label: 'Stock', icon: Warehouse, end: true },
+      { to: '/admin/inventory/low', label: 'Low stock', icon: Warehouse },
+      { to: '/admin/inventory/history', label: 'History', icon: Warehouse },
+    ],
+  },
+  {
+    label: 'Orders',
+    items: [
+      { to: '/admin/orders', label: 'All orders', icon: ShoppingBag, end: true },
+      { to: '/admin/orders/pending_payment', label: 'Pending' },
+      { to: '/admin/orders/processing', label: 'Processing' },
+      { to: '/admin/orders/shipped', label: 'Shipped' },
+      { to: '/admin/orders/delivered', label: 'Delivered' },
+      { to: '/admin/orders/cancelled', label: 'Cancelled' },
+      { to: '/admin/orders/returned', label: 'Returns' },
+    ],
+  },
+  {
+    label: 'Marketing',
+    items: [
+      { to: '/admin/coupons', label: 'Coupons', icon: Ticket },
+      { to: '/admin/offers', label: 'Offers', icon: Percent },
+      { to: '/admin/featured', label: 'Featured', icon: Star },
+      { to: '/admin/abandoned-carts', label: 'Abandoned carts', icon: ShoppingCart },
+    ],
+  },
+  {
+    label: 'Customers',
+    items: [
+      { to: '/admin/customers', label: 'All customers', icon: Users },
+    ],
+  },
+  {
+    label: 'Bracelet builder',
+    items: [
+      { to: '/admin/config', label: 'Config', icon: SlidersHorizontal },
+      { to: '/admin/intentions', label: 'Bead rules & purposes', icon: Sparkles },
+    ],
+  },
+  {
+    label: 'Content',
+    items: [
+      { to: '/admin/content', label: 'Site CMS', icon: FileText },
+      { to: '/admin/media', label: 'Media', icon: Image },
+    ],
+  },
+  {
+    label: 'Settings',
+    items: [
+      { to: '/admin/settings', label: 'General', icon: Settings },
+      { to: '/admin/users', label: 'Admin users', icon: Users },
+    ],
+  },
 ];
 
 function Sidebar({ onNavigate }) {
@@ -36,19 +107,26 @@ function Sidebar({ onNavigate }) {
         <div className="font-serif tracking-[0.2em] gold-text">KUBERSTONES</div>
         <div className="mt-1 text-[10px] uppercase tracking-widest text-lilac">Atelier admin</div>
       </div>
-      <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3">
-        {links.map((l) => (
-          <NavLink
-            key={l.to}
-            to={l.to}
-            end={l.end}
-            onClick={onNavigate}
-            className={({ isActive }) =>
-              `flex items-center gap-2 rounded-xl px-3 py-2 text-sm ${isActive ? 'bg-amethyst/30 text-gold' : 'text-lilac hover:bg-raised hover:text-ivory'}`
-            }
-          >
-            <l.icon size={16} /> {l.label}
-          </NavLink>
+      <nav className="min-h-0 flex-1 space-y-4 overflow-y-auto p-3">
+        {groups.map((g) => (
+          <div key={g.label}>
+            <div className="px-3 pb-1 text-[10px] uppercase tracking-[0.18em] text-gold/70">{g.label}</div>
+            <div className="space-y-0.5">
+              {g.items.map((l) => (
+                <NavLink
+                  key={l.to}
+                  to={l.to}
+                  end={l.end}
+                  onClick={onNavigate}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm ${isActive ? 'bg-amethyst/30 text-gold' : 'text-lilac hover:bg-raised hover:text-ivory'}`
+                  }
+                >
+                  {l.icon ? <l.icon size={14} /> : <span className="w-3.5" />} {l.label}
+                </NavLink>
+              ))}
+            </div>
+          </div>
         ))}
       </nav>
       <Link to="/" className="flex items-center gap-2 border-t border-[rgba(198,167,94,0.2)] px-5 py-4 text-sm text-lilac hover:text-gold">
@@ -104,6 +182,7 @@ export default function AdminLayout() {
           <Outlet />
         </main>
       </div>
+      <AdminToast />
     </div>
   );
 }

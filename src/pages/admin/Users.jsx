@@ -1,22 +1,47 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import api from '../../api/client';
 import Button from '../../components/ui/Button';
 import AdminTable from '../../components/admin/AdminTable';
 import AdminDrawer from '../../components/admin/AdminDrawer';
 import AdminHeader, { RowActions, fieldClass, labelClass } from '../../components/admin/AdminHeader';
+import AdminToolbar, { FilterSelect, paginate, Pagination } from '../../components/admin/AdminToolbar';
+import { toast } from '../../lib/adminToast';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [editing, setEditing] = useState(null);
   const [role, setRole] = useState('customer');
+  const [q, setQ] = useState('');
+  const [roleFilter, setRoleFilter] = useState('admin');
+  const [page, setPage] = useState(1);
   const load = () => api.get('/admin/users').then(({ data }) => setUsers(data.users || []));
   useEffect(() => { load(); }, []);
 
+  const filtered = useMemo(() => users.filter((u) => {
+    if (roleFilter !== 'all' && u.role !== roleFilter) return false;
+    const hay = `${u.name} ${u.email}`.toLowerCase();
+    return hay.includes(q.toLowerCase());
+  }), [users, q, roleFilter]);
+  const { slice, total, pages, page: p } = paginate(filtered, page);
+
   return (
     <div>
-      <AdminHeader title="Users" subtitle="Same login as the website. Promote carefully." />
+      <AdminHeader title="Admin users" subtitle="Promote carefully. Storefront logins use the same accounts." />
+      <AdminToolbar
+        search={q}
+        onSearch={setQ}
+        searchPlaceholder="Name or email"
+        filters={
+          <FilterSelect
+            value={roleFilter}
+            onChange={setRoleFilter}
+            options={[{ value: 'admin', label: 'Admins' }, { value: 'customer', label: 'Customers' }, { value: 'all', label: 'Everyone' }]}
+          />
+        }
+      />
       <AdminTable
-        rows={users}
+        rows={slice}
+        empty="No users in this filter."
         columns={[
           { key: 'name', label: 'Name', render: (u) => <span className="font-medium">{u.name}</span> },
           { key: 'email', label: 'Email' },
@@ -31,15 +56,21 @@ export default function AdminUsers() {
           },
         ]}
       />
+      <Pagination page={p} pages={pages} onPage={setPage} total={total} pageSize={20} />
       <AdminDrawer open={!!editing} title={editing ? `Edit ${editing.name}` : 'User'} onClose={() => setEditing(null)}>
         {editing && (
           <form
             className="space-y-3"
             onSubmit={async (e) => {
               e.preventDefault();
-              await api.put(`/admin/users/${editing._id}`, { role });
-              setEditing(null);
-              load();
+              try {
+                await api.put(`/admin/users/${editing._id}`, { role });
+                toast('User saved.');
+                setEditing(null);
+                load();
+              } catch (err) {
+                toast(err.message || 'Could not save user.', 'error');
+              }
             }}
           >
             <p className="text-sm text-lilac">{editing.email}</p>
@@ -59,3 +90,4 @@ export default function AdminUsers() {
     </div>
   );
 }
+

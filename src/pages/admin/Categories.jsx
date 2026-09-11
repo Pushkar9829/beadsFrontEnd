@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import api from '../../api/client';
 import Button from '../../components/ui/Button';
 import AdminTable from '../../components/admin/AdminTable';
 import AdminDrawer from '../../components/admin/AdminDrawer';
 import ConfirmDelete from '../../components/admin/ConfirmDelete';
 import AdminHeader, { RowActions, fieldClass, labelClass } from '../../components/admin/AdminHeader';
+import AdminToolbar, { paginate, Pagination } from '../../components/admin/AdminToolbar';
 
 const empty = { name: '', family: 'crystals', parentId: '', description: '', sortOrder: 0, isActive: true };
 
@@ -14,11 +15,15 @@ export default function AdminCategories() {
   const [editing, setEditing] = useState(null);
   const [open, setOpen] = useState(false);
   const [remove, setRemove] = useState(null);
+  const [q, setQ] = useState('');
+  const [page, setPage] = useState(1);
 
   const load = () => api.get('/categories/admin/all').then(({ data }) => setCategories(data.categories || []));
   useEffect(() => { load(); }, []);
 
   const parentName = (id) => categories.find((c) => String(c._id) === String(id))?.name || '—';
+  const filtered = useMemo(() => categories.filter((c) => c.name.toLowerCase().includes(q.toLowerCase())), [categories, q]);
+  const { slice, total, pages, page: p } = paginate(filtered, page);
 
   function openCreate() {
     setEditing(null);
@@ -50,8 +55,9 @@ export default function AdminCategories() {
         onCreate={openCreate}
         createLabel="Create category"
       />
+      <AdminToolbar search={q} onSearch={setQ} searchPlaceholder="Search categories" />
       <AdminTable
-        rows={categories}
+        rows={slice}
         columns={[
           { key: 'name', label: 'Name', render: (c) => <span className="font-medium text-ivory">{c.name}</span> },
           { key: 'family', label: 'Family' },
@@ -66,6 +72,7 @@ export default function AdminCategories() {
           },
         ]}
       />
+      <Pagination page={p} pages={pages} onPage={setPage} total={total} pageSize={20} />
       <AdminDrawer open={open} title={editing ? 'Edit category' : 'Create category'} onClose={() => setOpen(false)}>
         <form onSubmit={save} className="space-y-3">
           <label className={labelClass}>Name<input required className={`${fieldClass} mt-1`} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>

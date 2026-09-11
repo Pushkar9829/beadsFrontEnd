@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
 import api from '../api/client';
-import { calibrateLocal, quoteFromBeads, quantitiesFromLayout } from '../lib/calibration';
+import { calibrateLocal, quoteFromBeads } from '../lib/calibration';
 import { formatWristChoice } from '../lib/format';
 
 function distributeQty(ids, total) {

@@ -23,15 +23,24 @@ import AccountPage from './pages/AccountPage';
 import LegalPage from './pages/LegalPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminDashboard from './pages/admin/Dashboard';
+import AdminAnalytics from './pages/admin/Analytics';
 import AdminCategories from './pages/admin/Categories';
 import AdminProducts from './pages/admin/Products';
 import AdminBeads from './pages/admin/Beads';
+import AdminCollections from './pages/admin/Collections';
+import AdminInventory from './pages/admin/Inventory';
 import AdminIntentions from './pages/admin/Intentions';
 import AdminConfig from './pages/admin/Config';
 import AdminOrders from './pages/admin/Orders';
+import AdminCustomers from './pages/admin/Customers';
 import AdminUsers from './pages/admin/Users';
+import AdminCoupons from './pages/admin/Coupons';
+import AdminOffers from './pages/admin/Offers';
+import AdminFeatured from './pages/admin/Featured';
+import AdminAbandonedCarts from './pages/admin/AbandonedCarts';
 import AdminContent from './pages/admin/Content';
 import AdminMedia from './pages/admin/Media';
+import AdminSettings from './pages/admin/Settings';
 
 export default function App() {
   const hydrate = useAuthStore((s) => s.hydrate);
@@ -94,15 +103,27 @@ export default function App() {
           }
         >
           <Route index element={<AdminDashboard />} />
+          <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="categories" element={<AdminCategories />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="beads" element={<AdminBeads />} />
+          <Route path="collections" element={<AdminCollections />} />
+          <Route path="inventory" element={<AdminInventory />} />
+          <Route path="inventory/low" element={<AdminInventory />} />
+          <Route path="inventory/history" element={<AdminInventory />} />
           <Route path="intentions" element={<AdminIntentions />} />
           <Route path="config" element={<AdminConfig />} />
           <Route path="orders" element={<AdminOrders />} />
+          <Route path="orders/:tab" element={<AdminOrders />} />
+          <Route path="customers" element={<AdminCustomers />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="coupons" element={<AdminCoupons />} />
+          <Route path="offers" element={<AdminOffers />} />
+          <Route path="featured" element={<AdminFeatured />} />
+          <Route path="abandoned-carts" element={<AdminAbandonedCarts />} />
           <Route path="content" element={<AdminContent />} />
           <Route path="media" element={<AdminMedia />} />
+          <Route path="settings" element={<AdminSettings />} />
         </Route>
         <Route path="/family/:family" element={<Navigate to="/" />} />
       </Routes>

@@ -148,7 +148,7 @@ export function buildLayout({ intentionBeads, mulank, beadLimit, zodiacBead, inc
 
   const otherQueues = [];
   if (others.length) {
-    others.forEach((bead) => otherQueues.push([]));
+    others.forEach(() => otherQueues.push([]));
     for (let i = 0; i < remaining; i += 1) {
       const bead = others[i % others.length];
       otherQueues[i % others.length].push({ ...slimBead(bead), role: 'intention' });
