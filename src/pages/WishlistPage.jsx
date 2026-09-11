@@ -2,12 +2,14 @@ import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
-import Button from '../components/ui/Button';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
 import GemVisual from '../components/ui/GemVisual';
 import Price from '../components/ui/Price';
 import InViewGroup from '../components/ui/InViewGroup';
 import SectionHead from '../components/home/SectionHead';
+import CmsFinale from '../components/ui/CmsFinale';
+import { fillCopy } from '../lib/homeContent';
+import { useSite } from '../store/contentStore';
 
 const CRUMBS = [
   { label: 'Home', to: '/' },
@@ -15,6 +17,7 @@ const CRUMBS = [
 ];
 
 export default function WishlistPage() {
+  const page = useSite().pages.wishlist;
   const items = useWishlistStore((s) => s.items);
   const remove = useWishlistStore((s) => s.remove);
   const addProduct = useCartStore((s) => s.addProduct);
@@ -27,32 +30,23 @@ export default function WishlistPage() {
 
         <div className="mt-8">
           <SectionHead
-            eyebrow="The atelier"
-            title="Wishlist"
+            eyebrow={page.eyebrow}
+            title={page.title}
             body={
               items.length
-                ? `${items.length} saved ${items.length === 1 ? 'piece' : 'pieces'} — held here until you are ready.`
-                : 'Save pieces you love. They wait here until you are ready.'
+                ? fillCopy(page.filledBody, {
+                    count: items.length,
+                    pieces: items.length === 1 ? 'piece' : 'pieces',
+                  })
+                : page.emptyBody
             }
-            to="/shop"
-            action="Shop all →"
+            to={page.to}
+            action={page.action}
           />
         </div>
 
         {items.length === 0 ? (
-          <InViewGroup className="finale-stage mt-10">
-            <div className="finale px-5 py-14 text-center sm:px-8 sm:py-16">
-            <p className="text-[11px] uppercase tracking-[0.28em] text-gold">Empty</p>
-            <h2 className="mt-3 font-serif text-2xl gold-text sm:text-3xl">Nothing saved yet.</h2>
-            <p className="mx-auto mt-3 max-w-md text-sm text-lilac">
-              Begin in the houses, or compose a strand in the studio.
-            </p>
-            <div className="mt-8 flex flex-col justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
-              <Button to="/shop" className="w-full min-[420px]:w-auto">Shop All</Button>
-              <Button to="/customize" variant="ghost" className="w-full min-[420px]:w-auto">Customization</Button>
-            </div>
-            </div>
-          </InViewGroup>
+          <CmsFinale block={page.empty} />
         ) : (
           <InViewGroup className="feature-grid mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {items.map((item, i) => (

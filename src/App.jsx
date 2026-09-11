@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import { useAuthStore } from './store/authStore';
 import { useCartStore } from './store/cartStore';
+import { useContentStore } from './store/contentStore';
 import StoreLayout from './components/layout/StoreLayout';
 import AdminLayout from './components/layout/AdminLayout';
 import { RequireAdmin, RequireAuth } from './components/gates';
@@ -35,12 +36,14 @@ import AdminMedia from './pages/admin/Media';
 export default function App() {
   const hydrate = useAuthStore((s) => s.hydrate);
   const onLogin = useCartStore((s) => s.onLogin);
+  const loadContent = useContentStore((s) => s.load);
 
   useEffect(() => {
+    loadContent();
     hydrate().then((user) => {
       if (user) onLogin();
     });
-  }, [hydrate, onLogin]);
+  }, [hydrate, onLogin, loadContent]);
 
   return (
     <BrowserRouter>

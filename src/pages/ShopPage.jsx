@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../api/client';
-import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
 import Spinner from '../components/ui/Spinner';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
 import InViewGroup from '../components/ui/InViewGroup';
 import SectionHead from '../components/home/SectionHead';
-import { FAMILIES } from '../lib/format';
+import CmsFinale from '../components/ui/CmsFinale';
+import { fillCopy, houseMeta } from '../lib/homeContent';
+import { useSite } from '../store/contentStore';
 
 const CRUMBS = [
   { label: 'Home', to: '/' },
@@ -15,6 +16,9 @@ const CRUMBS = [
 ];
 
 export default function ShopPage() {
+  const site = useSite();
+  const page = site.pages.shop;
+  const houses = site.houses?.items || [];
   const [params, setParams] = useSearchParams();
   const family = params.get('family') || '';
   const [products, setProducts] = useState([]);
@@ -26,7 +30,7 @@ export default function ShopPage() {
     api.get(`/products${q}`).then(({ data }) => setProducts(data.products || [])).finally(() => setLoading(false));
   }, [family]);
 
-  const house = FAMILIES.find((f) => f.slug === family);
+  const house = houseMeta(site, family);
 
   return (
     <div className="relative">
@@ -36,15 +40,15 @@ export default function ShopPage() {
 
         <div className="mt-8">
           <SectionHead
-            eyebrow="The collection"
-            title="Shop All"
+            eyebrow={page.eyebrow}
+            title={page.title}
             body={
               house
-                ? `Ready-made pieces from the house of ${house.name.toLowerCase()}.`
-                : 'Ready-made pieces across crystals, rudraksha and gemstones.'
+                ? fillCopy(page.familyBody, { house: house.name.toLowerCase() })
+                : page.body
             }
-            to="/customize"
-            action="Customization →"
+            to={page.to}
+            action={page.action}
           />
         </div>
 
@@ -56,7 +60,7 @@ export default function ShopPage() {
           >
             All
           </button>
-          {FAMILIES.map((f) => (
+          {houses.map((f) => (
             <button
               key={f.slug}
               type="button"
@@ -71,19 +75,7 @@ export default function ShopPage() {
         {loading ? (
           <Spinner />
         ) : products.length === 0 ? (
-          <InViewGroup className="finale-stage mt-10">
-            <div className="finale px-5 py-14 text-center sm:px-8 sm:py-16">
-              <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">Empty</p>
-              <h2 className="finale-title mt-3 font-serif text-2xl gold-text sm:text-3xl">No pieces listed yet.</h2>
-              <p className="finale-copy mx-auto mt-3 max-w-md text-sm text-lilac">
-                Begin a custom strand, or enter one of the three houses.
-              </p>
-              <div className="finale-actions mt-8 flex flex-col justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
-                <Button to="/customize" className="w-full min-[420px]:w-auto">Customization</Button>
-                <Button to="/crystals" variant="ghost" className="w-full min-[420px]:w-auto">The houses</Button>
-              </div>
-            </div>
-          </InViewGroup>
+          <CmsFinale block={page.empty} />
         ) : (
           <InViewGroup className="feature-grid mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {products.map((p, i) => (

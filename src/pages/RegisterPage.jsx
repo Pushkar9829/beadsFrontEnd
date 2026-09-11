@@ -5,6 +5,7 @@ import { useCartStore } from '../store/cartStore';
 import Button from '../components/ui/Button';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
 import SectionHead from '../components/home/SectionHead';
+import { useSite } from '../store/contentStore';
 
 const CRUMBS = [
   { label: 'Home', to: '/' },
@@ -19,6 +20,7 @@ const FIELDS = [
 ];
 
 export default function RegisterPage() {
+  const page = useSite().pages.register;
   const register = useAuthStore((s) => s.register);
   const onLogin = useCartStore((s) => s.onLogin);
   const navigate = useNavigate();
@@ -50,16 +52,16 @@ export default function RegisterPage() {
 
         <div className="mt-8 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] lg:gap-16 xl:grid-cols-[minmax(0,1fr)_minmax(0,32rem)]">
           <SectionHead
-            eyebrow="The atelier"
-            title="Create account"
-            body="Join the house. A custom strand, a saved piece, and the atelier list — kept under one name."
-            to="/login"
-            action="Sign in →"
+            eyebrow={page.eyebrow}
+            title={page.title}
+            body={page.body}
+            to={page.to}
+            action={page.action}
           />
 
           <article className="auth-card">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-gold">Begin</p>
-            <h2 className="mt-2 font-serif text-2xl gold-text">A place in the house.</h2>
+            <p className="text-[11px] uppercase tracking-[0.22em] text-gold">{page.cardKicker}</p>
+            <h2 className="mt-2 font-serif text-2xl gold-text">{page.cardTitle}</h2>
             <form onSubmit={submit} className="mt-6 space-y-4">
               {FIELDS.map((field) => (
                 <label key={field.key} className="block text-[11px] uppercase tracking-[0.18em] text-gold">
@@ -76,13 +78,13 @@ export default function RegisterPage() {
               ))}
               {error && <p className="text-sm text-red-300">{error}</p>}
               <Button type="submit" disabled={busy} className="w-full">
-                {busy ? 'Creating…' : 'Create account'}
+                {busy ? page.submitBusy : page.submitLabel}
               </Button>
             </form>
             <p className="mt-5 text-sm text-lilac">
-              Already with us?{' '}
+              {page.footer}{' '}
               <Link to="/login" className="text-gold">
-                Sign in
+                {page.footerLink}
               </Link>
             </p>
           </article>

@@ -5,10 +5,12 @@ import Footer from './Footer';
 import Atmosphere from './Atmosphere';
 import { paintGoldShine } from '../../lib/paintGoldShine';
 import { useCustomizerStore } from '../../store/customizerStore';
+import { useContentStore } from '../../store/contentStore';
 import { purposeToneStyle } from '../customizer/PurposeGrid';
 
 export default function StoreLayout() {
   const { pathname } = useLocation();
+  const loadContent = useContentStore((s) => s.load);
   const purpose = useCustomizerStore((s) => s.purpose);
   const step = useCustomizerStore((s) => s.step);
   const purposeTone =
@@ -33,6 +35,10 @@ export default function StoreLayout() {
     pathname === '/returns' ||
     pathname === '/privacy' ||
     pathname === '/terms';
+
+  useEffect(() => {
+    loadContent();
+  }, [loadContent]);
 
   useEffect(() => {
     paintGoldShine();

@@ -142,6 +142,36 @@ h4 {
 .text-gold\/80:not(svg) { opacity: 0.8; }
 .text-gold\/40:not(svg) { opacity: 0.4; }
 
+input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='color']),
+textarea,
+select {
+  color: #f6f1e8;
+  -webkit-text-fill-color: #f6f1e8;
+  caret-color: #f6f1e8;
+  background-clip: border-box;
+  -webkit-background-clip: padding-box;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #b7a9c4;
+  -webkit-text-fill-color: #b7a9c4;
+  opacity: 1;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #f6f1e8 !important;
+  caret-color: #f6f1e8;
+  box-shadow: 0 0 0 1000px #121214 inset;
+  transition: background-color 99999s ease-out;
+}
+
 .gold-border {
   border: 1px solid rgba(198, 167, 94, 0.35);
   box-shadow: 0 0 0 1px rgba(198, 167, 94, 0.08), 0 0 28px rgba(107, 63, 160, 0.12);
@@ -1415,6 +1445,8 @@ main.has-purpose-tone .studio-nav {
   border: 1px solid rgba(198, 167, 94, 0.32);
   background: #121214;
   color: #f6f1e8;
+  -webkit-text-fill-color: #f6f1e8;
+  caret-color: #f6f1e8;
   font-size: 0.9rem;
   outline: none;
 }
@@ -2907,6 +2939,8 @@ html:has(.cart-page.is-filled) {
   border: 1px solid rgba(198, 167, 94, 0.32);
   background: #121214;
   color: #f6f1e8;
+  -webkit-text-fill-color: #f6f1e8;
+  caret-color: #f6f1e8;
   padding: 0.7rem 1.1rem;
   font-size: 0.875rem;
   outline: none;

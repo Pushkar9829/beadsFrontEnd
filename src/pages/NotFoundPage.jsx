@@ -1,10 +1,12 @@
 import Button from '../components/ui/Button';
 import EmptyState from '../components/ui/EmptyState';
+import { useSite } from '../store/contentStore';
 
 export default function NotFoundPage() {
+  const page = useSite().pages.notFound;
   return (
-    <EmptyState title="Page not found" body="This path is not part of the Kuberstones house.">
-      <Button to="/">Return home</Button>
+    <EmptyState title={page.title} body={page.body}>
+      <Button to={page.to || '/'}>{page.cta}</Button>
     </EmptyState>
   );
 }

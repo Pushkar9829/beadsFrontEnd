@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Gem, Hand, Lock, Shield, Sparkles } from 'lucide-react';
-import api from '../api/client';
+import api, { mediaUrl } from '../api/client';
 import Hero from '../components/home/Hero';
 import SectionHead from '../components/home/SectionHead';
 import RitualSteps from '../components/home/RitualSteps';
@@ -11,7 +10,8 @@ import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
 import Reveal from '../components/ui/Reveal';
 import InViewGroup from '../components/ui/InViewGroup';
-import { FAMILIES } from '../lib/format';
+import { claimIcon } from '../lib/claimIcons';
+import { useSite } from '../store/contentStore';
 import { PurposeIcon, purposeHasImage, purposeToneStyle } from '../components/customizer/PurposeGrid';
 import finaleBanner from '../assets/home/finale-banner.jpg';
 import studioBanner from '../assets/home/hero-bracelet.jpg';
@@ -25,71 +25,43 @@ const FALLBACK_PURPOSES = [
   { slug: 'calm-emotional-balance', name: 'Calm & Emotional Balance', description: 'Soften intensity and restore evenness.' },
 ];
 
-const RITUAL = [
-  { n: '01', title: 'Purpose', body: 'Begin with why you wear it — calm, abundance, protection, or love.' },
-  { n: '02', title: 'Intention', body: 'Choose the feeling. Its crystals are selected for you, not guessed at checkout.' },
-  { n: '03', title: 'Calibration', body: 'Your date of birth sets the Mulank. Counts are composed to that number.' },
-  { n: '04', title: 'Charm', body: 'Sriyantra or Om at the clasp, on Korean elastic or sized steel core.' },
-];
-
-const CLAIM_ICONS = {
-  'Natural & Authentic': Gem,
-  'Designed for Intentions': Sparkles,
-  Handmade: Hand,
-  'Energized / Cleansed': Sparkles,
-  'Secure Payments': Shield,
-};
-
-const MARQUEE = [
-  'Energy',
-  'Abundance',
-  'Wellness',
-  'Crystals',
-  'Rudraksha',
-  'Gemstones',
-  'Customization',
-  'Handmade',
-];
-
 export default function HomePage() {
-  const [content, setContent] = useState(null);
+  const home = useSite();
   const [featured, setFeatured] = useState([]);
   const [purposes, setPurposes] = useState([]);
 
   useEffect(() => {
-    api.get('/content').then(({ data }) => setContent(data.content)).catch(() => {});
     api.get('/products?featured=true').then(({ data }) => setFeatured(data.products || [])).catch(() => {});
     api.get('/customizer/purposes').then(({ data }) => setPurposes(data.purposes || [])).catch(() => {});
   }, []);
-
-  const hero = content?.hero || {};
-  const claims = content?.trustClaims || [];
   const studioPurposes = (purposes.length ? purposes : FALLBACK_PURPOSES).slice(0, 6);
+  const marquee = home.marquee;
+  const claims = home.trustClaims;
+  const studioImage = home.studio.bannerImage ? mediaUrl(home.studio.bannerImage) : studioBanner;
+  const finaleImage = home.finale.image ? mediaUrl(home.finale.image) : finaleBanner;
 
   return (
     <div className="home-page">
-      <Hero hero={hero} />
+      <Hero hero={home.hero} />
 
-      <div className="marquee" aria-hidden>
-        <div className="marquee-track">
-          {[...MARQUEE, ...MARQUEE].map((item, i) => (
-            <span key={`${item}-${i}`} className="marquee-item">
-              {item}
-              <span className="marquee-dot" />
-            </span>
-          ))}
+      {marquee.length > 0 && (
+        <div className="marquee" aria-hidden>
+          <div className="marquee-track">
+            {[...marquee, ...marquee].map((item, i) => (
+              <span key={`${item}-${i}`} className="marquee-item">
+                {item}
+                <span className="marquee-dot" />
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <section className="shell py-8 sm:py-10 md:py-14">
         <Reveal variant="head">
-          <SectionHead
-            eyebrow="The atelier"
-            title="Three houses"
-            body="Every collection lives in one of three houses. Enter any of them — or begin in the studio and compose a strand of your own."
-          />
+          <SectionHead eyebrow={home.houses.eyebrow} title={home.houses.title} body={home.houses.body} />
         </Reveal>
-        <HousesRow houses={FAMILIES} />
+        <HousesRow houses={home.houses.items} />
       </section>
 
       <section className="relative py-8 sm:py-10 md:py-14">
@@ -97,26 +69,26 @@ export default function HomePage() {
         <div className="relative shell">
           <Reveal variant="head">
             <SectionHead
-              eyebrow="The studio"
-              title="Customization"
-              body="Choose a purpose, then an intention. Crystals are placed from your Mulank, then closed with a Sriyantra or Om charm."
-              to="/customize"
-              action="Open the studio →"
+              eyebrow={home.studio.eyebrow}
+              title={home.studio.title}
+              body={home.studio.body}
+              to={home.studio.to}
+              action={home.studio.action}
             />
           </Reveal>
 
-          <Link to="/customize" className="studio-invite mt-8 group block overflow-hidden sm:mt-10">
+          <Link to={home.studio.to || '/customize'} className="studio-invite mt-8 group block overflow-hidden sm:mt-10">
             <div className="studio-invite-media" aria-hidden>
-              <img src={studioBanner} alt="" />
+              <img src={studioImage} alt="" />
             </div>
             <div className="studio-invite-copy">
-              <p className="text-[10px] uppercase tracking-[0.22em] text-gold">Begin a strand</p>
-              <h3 className="mt-2 font-serif text-xl gold-text sm:text-2xl">Compose your bracelet</h3>
+              <p className="text-[10px] uppercase tracking-[0.22em] text-gold">{home.studio.kicker}</p>
+              <h3 className="mt-2 font-serif text-xl gold-text sm:text-2xl">{home.studio.heading}</h3>
               <p className="mt-2 max-w-md text-sm leading-relaxed text-lilac">
-                Purpose, intention, Mulank, zodiac, and a name — made to your wrist, not picked from a tray.
+                {home.studio.copy}
               </p>
               <span className="mt-4 inline-block text-[11px] uppercase tracking-[0.18em] text-gold transition group-hover:translate-x-1">
-                Open the studio →
+                {home.studio.cta}
               </span>
             </div>
           </Link>
@@ -144,24 +116,20 @@ export default function HomePage() {
 
       <section className="shell py-8 sm:py-10 md:py-14">
         <Reveal variant="head">
-          <SectionHead
-            eyebrow="The ritual"
-            title="How a strand is made"
-            body="Four steps. No catalogue guesswork — the bracelet is composed in sequence, then made by hand."
-          />
+          <SectionHead eyebrow={home.ritual.eyebrow} title={home.ritual.title} body={home.ritual.body} />
         </Reveal>
-        <RitualSteps steps={RITUAL} />
+        <RitualSteps steps={home.ritual.steps} />
       </section>
 
       {featured.length > 0 && (
         <section className="shell py-8 sm:py-10 md:py-14">
           <Reveal variant="head">
             <SectionHead
-              eyebrow="The collection"
-              title="Featured pieces"
-              body="Ready-made works from the three houses — for those who wish to choose rather than compose."
-              to="/shop"
-              action="Shop all →"
+              eyebrow={home.featured.eyebrow}
+              title={home.featured.title}
+              body={home.featured.body}
+              to={home.featured.to}
+              action={home.featured.action}
             />
           </Reveal>
           <InViewGroup className="feature-grid mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
@@ -178,30 +146,22 @@ export default function HomePage() {
         <div className="pointer-events-none absolute inset-0 lotus-corner" />
         <div className="relative shell">
           <Reveal variant="head">
-            <SectionHead
-              eyebrow="Voices"
-              title="From those who wear it"
-              body="Quiet notes from custom strands and the three houses — written without medical claims."
-            />
+            <SectionHead eyebrow={home.voices.eyebrow} title={home.voices.title} body={home.voices.body} />
           </Reveal>
-          <Testimonials items={content?.testimonials} />
+          <Testimonials items={home.testimonials} />
         </div>
       </section>
 
       {claims.length > 0 && (
         <section className="shell py-8 sm:py-10 md:py-14">
           <Reveal variant="head">
-            <SectionHead
-              eyebrow="The house"
-              title="Why Kuberstones"
-              body="Crystal associations are traditional and spiritual. They are not medical claims. The making, however, is exact."
-            />
+            <SectionHead eyebrow={home.trust.eyebrow} title={home.trust.title} body={home.trust.body} />
           </Reveal>
           <InViewGroup className="trust-grid mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {claims.map((c, i) => {
-              const Icon = CLAIM_ICONS[c.title] || Lock;
+              const Icon = claimIcon(c);
               return (
-                <div key={c.title} className="trust-item" style={{ '--i': i }}>
+                <div key={`${c.title}-${i}`} className="trust-item" style={{ '--i': i }}>
                   <article className="trust-card h-full p-4">
                     <Icon size={16} className="text-gold" />
                     <h3 className="mt-4 font-serif text-lg text-gold-light">{c.title}</h3>
@@ -218,17 +178,29 @@ export default function HomePage() {
         <InViewGroup className="finale-stage">
           <div className="finale text-center">
             <div className="finale-media" aria-hidden>
-              <img src={finaleBanner} alt="" />
+              <img src={finaleImage} alt="" />
             </div>
             <div className="relative z-10 px-4 py-10 sm:px-6 sm:py-14 md:px-10 md:py-16">
-              <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">Begin</p>
-              <h2 className="finale-title mt-3 font-serif text-xl gold-text sm:text-2xl md:text-3xl">A bracelet with a reason.</h2>
-              <p className="finale-copy mx-auto mt-4 max-w-xl text-sm text-lilac sm:text-base">
-                Start with a purpose in the studio, or walk the three houses until a piece finds you.
-              </p>
+              {home.finale.kicker && (
+                <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">{home.finale.kicker}</p>
+              )}
+              <h2 className="finale-title mt-3 font-serif text-xl gold-text sm:text-2xl md:text-3xl">{home.finale.title}</h2>
+              {home.finale.copy && (
+                <p className="finale-copy mx-auto mt-4 max-w-xl text-sm text-lilac sm:text-base">
+                  {home.finale.copy}
+                </p>
+              )}
               <div className="finale-actions mt-7 flex flex-col justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap sm:mt-8">
-                <Button to="/customize" className="w-full min-[420px]:w-auto">Customization</Button>
-                <Button to="/shop" variant="ghost" className="w-full min-[420px]:w-auto">Shop All</Button>
+                {home.finale.primaryCta?.label && (
+                  <Button to={home.finale.primaryCta.to || '/customize'} className="w-full min-[420px]:w-auto">
+                    {home.finale.primaryCta.label}
+                  </Button>
+                )}
+                {home.finale.secondaryCta?.label && (
+                  <Button to={home.finale.secondaryCta.to || '/shop'} variant="ghost" className="w-full min-[420px]:w-auto">
+                    {home.finale.secondaryCta.label}
+                  </Button>
+                )}
               </div>
             </div>
           </div>

@@ -7,6 +7,9 @@ import GemVisual from '../components/ui/GemVisual';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
 import InViewGroup from '../components/ui/InViewGroup';
 import SectionHead from '../components/home/SectionHead';
+import CmsFinale from '../components/ui/CmsFinale';
+import { fillCopy } from '../lib/homeContent';
+import { useSite } from '../store/contentStore';
 
 const CRUMBS = [
   { label: 'Home', to: '/' },
@@ -42,6 +45,7 @@ function itemMeta(item) {
 }
 
 export default function CartPage() {
+  const page = useSite().pages.cart;
   const items = useCartStore((s) => s.items);
   const updateQty = useCartStore((s) => s.updateQty);
   const remove = useCartStore((s) => s.remove);
@@ -57,32 +61,23 @@ export default function CartPage() {
 
         <div className="cart-head">
           <SectionHead
-            eyebrow="The atelier"
-            title="Bag"
+            eyebrow={page.eyebrow}
+            title={page.title}
             body={
               items.length
-                ? `${count} ${count === 1 ? 'piece' : 'pieces'} held for checkout — ready-made or composed in the studio.`
-                : 'Your bag is empty. Begin a custom strand, or walk the three houses until a piece finds you.'
+                ? fillCopy(page.filledBody, {
+                    count,
+                    pieces: count === 1 ? 'piece' : 'pieces',
+                  })
+                : page.emptyBody
             }
-            to="/shop"
-            action="Shop all →"
+            to={page.to}
+            action={page.action}
           />
         </div>
 
         {items.length === 0 ? (
-          <InViewGroup className="finale-stage mt-8 sm:mt-10">
-            <div className="finale px-5 py-12 text-center sm:px-8 sm:py-16">
-              <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">Empty</p>
-              <h2 className="finale-title mt-3 font-serif text-2xl gold-text sm:text-3xl">Your bag is empty.</h2>
-              <p className="finale-copy mx-auto mt-3 max-w-md text-sm text-lilac">
-                Begin a custom strand or browse the houses.
-              </p>
-              <div className="finale-actions mt-7 flex flex-col justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap sm:mt-8">
-                <Button to="/customize" className="w-full min-[420px]:w-auto">Customization</Button>
-                <Button to="/shop" variant="ghost" className="w-full min-[420px]:w-auto">Shop All</Button>
-              </div>
-            </div>
-          </InViewGroup>
+          <CmsFinale block={page.empty} className="mt-8 sm:mt-10" />
         ) : (
           <div className="bag-stage">
             <InViewGroup className="bag-list">

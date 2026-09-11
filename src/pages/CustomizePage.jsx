@@ -17,46 +17,15 @@ import Button from '../components/ui/Button';
 import PlaceOrderButton from '../components/customizer/PlaceOrderButton';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
 import SectionHead from '../components/home/SectionHead';
+import { useSite } from '../store/contentStore';
 
 const CRUMBS = [
   { label: 'Home', to: '/' },
   { label: 'Customization' },
 ];
 
-const STEP_COPY = {
-  1: {
-    eyebrow: 'The studio',
-    title: 'Choose a purpose',
-    body: 'Begin with why you wear it. One purpose opens its intentions — calm, abundance, protection, or love.',
-  },
-  2: {
-    eyebrow: 'Step 02 · Intention',
-    title: 'Choose an intention',
-    body: 'Click an intention. Its crystals open so you can keep or release them, then continue.',
-  },
-  3: {
-    eyebrow: 'Step 03 · Birth',
-    title: 'Date of birth',
-    body: 'Mulank is taken from the day. The strand is composed to that number.',
-  },
-  4: {
-    eyebrow: 'Step 04 · Zodiac',
-    title: 'Zodiac beads',
-    body: 'Your sign’s stone is added beside the charm. The repeating pattern stays fixed.',
-  },
-  5: {
-    eyebrow: 'Step 05 · Name',
-    title: 'Charm & thread',
-    body: 'Sriyantra or Om at the clasp. Korean elastic is free size; steel core is sized to the wrist.',
-  },
-  6: {
-    eyebrow: 'Step 06 · Review',
-    title: 'Review & order',
-    body: 'Confirm the composition. Place the piece in your bag, then continue to checkout.',
-  },
-};
-
 export default function CustomizePage() {
+  const steps = useSite().pages.customize.steps || [];
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const appliedSlug = useRef('');
@@ -72,7 +41,7 @@ export default function CustomizePage() {
   const goBack = useCustomizerStore((s) => s.goBack);
   const advancing = useCustomizerStore((s) => s.advancing);
   const stepError = useCustomizerStore((s) => s.stepError);
-  const copy = STEP_COPY[step] || STEP_COPY[1];
+  const copy = steps[step - 1] || steps[0] || {};
 
   useEffect(() => {
     init();

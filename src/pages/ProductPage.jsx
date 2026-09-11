@@ -8,12 +8,14 @@ import GemVisual from '../components/ui/GemVisual';
 import Price from '../components/ui/Price';
 import QtyControl from '../components/ui/QtyControl';
 import Spinner from '../components/ui/Spinner';
-import InViewGroup from '../components/ui/InViewGroup';
 import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
-import { FAMILIES } from '../lib/format';
+import { houseMeta } from '../lib/homeContent';
+import { useSite } from '../store/contentStore';
+import CmsFinale from '../components/ui/CmsFinale';
 
 export default function ProductPage() {
+  const site = useSite();
   const { slug } = useParams();
   const [product, setProduct] = useState(null);
   const [qty, setQty] = useState(1);
@@ -29,7 +31,7 @@ export default function ProductPage() {
     api.get(`/products/${slug}`).then(({ data }) => setProduct(data.product)).catch(() => setProduct(null)).finally(() => setLoading(false));
   }, [slug]);
 
-  const house = FAMILIES.find((f) => f.slug === product?.family);
+  const house = houseMeta(site, product?.family);
   const crumbs = [
     { label: 'Home', to: '/' },
     house ? { label: house.name, to: `/${house.slug}` } : { label: 'Shop All', to: '/shop' },
@@ -45,19 +47,7 @@ export default function ProductPage() {
         {loading ? (
           <Spinner />
         ) : !product ? (
-          <InViewGroup className="finale-stage mt-10">
-            <div className="finale px-5 py-14 text-center sm:px-8 sm:py-16">
-              <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">Missing</p>
-              <h2 className="finale-title mt-3 font-serif text-2xl gold-text sm:text-3xl">Piece not found.</h2>
-              <p className="finale-copy mx-auto mt-3 max-w-md text-sm text-lilac">
-                This work is no longer listed. Walk the houses, or begin in the studio.
-              </p>
-              <div className="finale-actions mt-8 flex flex-col justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
-                <Button to="/shop" className="w-full min-[420px]:w-auto">Shop All</Button>
-                <Button to="/customize" variant="ghost" className="w-full min-[420px]:w-auto">Customization</Button>
-              </div>
-            </div>
-          </InViewGroup>
+          <CmsFinale block={site.pages.product.missing} />
         ) : (
           <div className="mt-8 grid items-start gap-8 lg:mt-10 lg:grid-cols-2 lg:gap-14">
             <GemVisual

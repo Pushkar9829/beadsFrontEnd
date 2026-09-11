@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import Button from '../ui/Button';
+import { useSite } from '../../store/contentStore';
+import { fillCopy } from '../../lib/homeContent';
 
 const empty = { name: '', email: '', phone: '', message: '' };
 
 export default function ContactDrawer({ open, onClose, defaultEmail = '' }) {
+  const copy = useSite().contact;
   const [form, setForm] = useState(empty);
   const [sent, setSent] = useState(false);
 
@@ -52,8 +55,8 @@ export default function ContactDrawer({ open, onClose, defaultEmail = '' }) {
       <aside className="relative z-10 flex h-dvh w-full max-w-md flex-col border-l border-[rgba(198,167,94,0.32)] bg-[#0d0d10] shadow-[-24px_0_60px_rgba(0,0,0,0.55)] animate-drawer-right">
         <div className="flex shrink-0 items-center justify-between border-b border-[rgba(198,167,94,0.2)] px-5 py-4">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.22em] text-gold">The atelier</p>
-            <h2 className="font-serif text-xl gold-text">Contact us</h2>
+            <p className="text-[10px] uppercase tracking-[0.22em] text-gold">{copy.eyebrow}</p>
+            <h2 className="font-serif text-xl gold-text">{copy.title}</h2>
           </div>
           <button
             type="button"
@@ -68,10 +71,10 @@ export default function ContactDrawer({ open, onClose, defaultEmail = '' }) {
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
           {sent ? (
             <div className="pt-6">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-gold">Received</p>
-              <h3 className="mt-3 font-serif text-2xl gold-text">We have your note.</h3>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-gold">{copy.sentKicker}</p>
+              <h3 className="mt-3 font-serif text-2xl gold-text">{copy.sentTitle}</h3>
               <p className="mt-3 text-sm leading-relaxed text-lilac">
-                Thank you, {form.name || 'friend'}. The house will write back to {form.email}.
+                {fillCopy(copy.sentBody, { name: form.name || 'friend', email: form.email })}
               </p>
               <Button className="mt-8 w-full" onClick={onClose}>
                 Close
@@ -79,9 +82,7 @@ export default function ContactDrawer({ open, onClose, defaultEmail = '' }) {
             </div>
           ) : (
             <form onSubmit={submit} className="space-y-4">
-              <p className="text-sm leading-relaxed text-lilac">
-                Tell us how we may help — a piece, a custom strand, or a quiet question.
-              </p>
+              <p className="text-sm leading-relaxed text-lilac">{copy.body}</p>
               <label className="block text-[11px] uppercase tracking-[0.18em] text-gold">
                 Name
                 <input
@@ -124,7 +125,7 @@ export default function ContactDrawer({ open, onClose, defaultEmail = '' }) {
                 />
               </label>
               <Button type="submit" className="w-full">
-                Send the note
+                {copy.submitLabel}
               </Button>
             </form>
           )}

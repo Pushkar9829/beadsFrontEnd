@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import api from '../api/client';
-import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
 import Spinner from '../components/ui/Spinner';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
 import InViewGroup from '../components/ui/InViewGroup';
 import SectionHead from '../components/home/SectionHead';
-import { FAMILIES } from '../lib/format';
+import CmsFinale from '../components/ui/CmsFinale';
+import { fillCopy, houseMeta } from '../lib/homeContent';
+import { useSite } from '../store/contentStore';
 
 export default function FamilyPage() {
+  const site = useSite();
+  const page = site.pages.family;
   const family = useLocation().pathname.replace(/^\//, '');
-  const meta = FAMILIES.find((f) => f.slug === family);
+  const meta = houseMeta(site, family);
   const [tree, setTree] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,8 +50,8 @@ export default function FamilyPage() {
             eyebrow={meta ? `House ${meta.roman}` : 'The house'}
             title={title}
             body={meta?.blurb}
-            to="/shop"
-            action="Shop all →"
+            to={page.shopTo}
+            action={page.shopAction}
           />
         </div>
 
@@ -82,28 +85,19 @@ export default function FamilyPage() {
 
             <div className="mt-12 sm:mt-16">
               <SectionHead
-                eyebrow="The collection"
-                title="Pieces"
-                body={`${products.length} ${products.length === 1 ? 'piece' : 'pieces'} from this house.`}
-                to="/customize"
-                action="Customization →"
+                eyebrow={page.piecesEyebrow}
+                title={page.piecesTitle}
+                body={fillCopy(page.piecesBody, {
+                  count: products.length,
+                  pieces: products.length === 1 ? 'piece' : 'pieces',
+                })}
+                to={page.piecesTo}
+                action={page.piecesAction}
               />
             </div>
 
             {products.length === 0 ? (
-              <InViewGroup className="finale-stage mt-10">
-                <div className="finale px-5 py-14 text-center sm:px-8 sm:py-16">
-                  <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">Empty</p>
-                  <h2 className="finale-title mt-3 font-serif text-2xl gold-text sm:text-3xl">Nothing listed yet.</h2>
-                  <p className="finale-copy mx-auto mt-3 max-w-md text-sm text-lilac">
-                    Collections expand from the atelier — or begin a strand in the studio.
-                  </p>
-                  <div className="finale-actions mt-8 flex flex-col justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
-                    <Button to="/customize" className="w-full min-[420px]:w-auto">Customization</Button>
-                    <Button to="/shop" variant="ghost" className="w-full min-[420px]:w-auto">Shop All</Button>
-                  </div>
-                </div>
-              </InViewGroup>
+              <CmsFinale block={page.empty} />
             ) : (
               <InViewGroup className="feature-grid mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                 {products.map((p, i) => (

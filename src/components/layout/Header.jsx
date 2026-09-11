@@ -7,8 +7,9 @@ import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import { useWishlistStore } from '../../store/wishlistStore';
 import AccountDrawer from './AccountDrawer';
+import { useSite } from '../../store/contentStore';
 
-const families = [
+const fallbackFamilies = [
   { slug: 'crystals', name: 'Crystals' },
   { slug: 'rudraksha', name: 'Rudraksha' },
   { slug: 'gemstones', name: 'Gemstones' },
@@ -17,6 +18,10 @@ const families = [
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
+  const houseItems = useSite().houses?.items || [];
+  const families = houseItems.length
+    ? houseItems.map((h) => ({ slug: h.slug, name: h.name }))
+    : fallbackFamilies;
   const user = useAuthStore((s) => s.user);
   const authLoading = useAuthStore((s) => s.loading);
   const cartCount = useCartStore((s) => s.items.reduce((n, i) => n + i.quantity, 0));

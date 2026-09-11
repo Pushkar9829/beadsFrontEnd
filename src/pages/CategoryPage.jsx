@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/client';
-import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
 import Spinner from '../components/ui/Spinner';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
 import InViewGroup from '../components/ui/InViewGroup';
 import SectionHead from '../components/home/SectionHead';
-import { FAMILIES } from '../lib/format';
+import CmsFinale from '../components/ui/CmsFinale';
+import { houseMeta } from '../lib/homeContent';
+import { useSite } from '../store/contentStore';
 
 export default function CategoryPage() {
+  const site = useSite();
+  const page = site.pages.category;
   const { slug } = useParams();
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
@@ -28,7 +31,7 @@ export default function CategoryPage() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  const house = FAMILIES.find((f) => f.slug === category?.family);
+  const house = houseMeta(site, category?.family);
 
   const crumbs = [
     { label: 'Home', to: '/' },
@@ -45,19 +48,7 @@ export default function CategoryPage() {
         {loading ? (
           <Spinner />
         ) : missing ? (
-          <InViewGroup className="finale-stage mt-10">
-            <div className="finale px-5 py-14 text-center sm:px-8 sm:py-16">
-              <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">Missing</p>
-              <h2 className="finale-title mt-3 font-serif text-2xl gold-text sm:text-3xl">Collection not found.</h2>
-              <p className="finale-copy mx-auto mt-3 max-w-md text-sm text-lilac">
-                This category is not published yet.
-              </p>
-              <div className="finale-actions mt-8 flex flex-col justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
-                <Button to="/shop" className="w-full min-[420px]:w-auto">Shop All</Button>
-                <Button to="/customize" variant="ghost" className="w-full min-[420px]:w-auto">Customization</Button>
-              </div>
-            </div>
-          </InViewGroup>
+          <CmsFinale block={page.missing} />
         ) : (
           <>
             <div className="mt-8">
@@ -65,25 +56,13 @@ export default function CategoryPage() {
                 eyebrow={house?.name || category.family}
                 title={category.name}
                 body={category.description}
-                to="/customize"
-                action="Customization →"
+                to={page.to}
+                action={page.action}
               />
             </div>
 
             {products.length === 0 ? (
-              <InViewGroup className="finale-stage mt-10">
-                <div className="finale px-5 py-14 text-center sm:px-8 sm:py-16">
-                  <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">Empty</p>
-                  <h2 className="finale-title mt-3 font-serif text-2xl gold-text sm:text-3xl">No pieces here yet.</h2>
-                  <p className="finale-copy mx-auto mt-3 max-w-md text-sm text-lilac">
-                    The atelier will add them — or compose a strand in the studio.
-                  </p>
-                  <div className="finale-actions mt-8 flex flex-col justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
-                    <Button to="/customize" className="w-full min-[420px]:w-auto">Customization</Button>
-                    <Button to="/shop" variant="ghost" className="w-full min-[420px]:w-auto">Shop All</Button>
-                  </div>
-                </div>
-              </InViewGroup>
+              <CmsFinale block={page.empty} />
             ) : (
               <InViewGroup className="feature-grid mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                 {products.map((p, i) => (

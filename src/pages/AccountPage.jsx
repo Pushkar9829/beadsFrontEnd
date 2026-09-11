@@ -9,6 +9,9 @@ import Price from '../components/ui/Price';
 import Spinner from '../components/ui/Spinner';
 import InViewGroup from '../components/ui/InViewGroup';
 import SectionHead from '../components/home/SectionHead';
+import CmsFinale from '../components/ui/CmsFinale';
+import { fillCopy } from '../lib/homeContent';
+import { useSite } from '../store/contentStore';
 
 const CRUMBS = [
   { label: 'Home', to: '/' },
@@ -16,6 +19,7 @@ const CRUMBS = [
 ];
 
 export default function AccountPage() {
+  const page = useSite().pages.account;
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const onLogout = useCartStore((s) => s.onLogout);
@@ -44,15 +48,15 @@ export default function AccountPage() {
 
         <div className="mt-8 grid items-start gap-8 lg:mt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-12">
           <SectionHead
-            eyebrow="The atelier"
-            title="Account"
-            body={user ? `${user.name} · ${user.email}` : 'Your orders and atelier stay under one name.'}
-            to="/shop"
-            action="Shop all →"
+            eyebrow={page.eyebrow}
+            title={page.title}
+            body={user ? `${user.name} · ${user.email}` : page.guestBody}
+            to={page.to}
+            action={page.action}
           />
           <article className="auth-card">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-gold">Session</p>
-            <h2 className="mt-2 font-serif text-2xl gold-text">Your house.</h2>
+            <p className="text-[11px] uppercase tracking-[0.22em] text-gold">{page.cardKicker}</p>
+            <h2 className="mt-2 font-serif text-2xl gold-text">{page.cardTitle}</h2>
             <div className="mt-6 flex flex-col gap-3">
               {user?.role === 'admin' && (
                 <Button to="/admin" variant="ghost" className="w-full">Admin</Button>
@@ -73,45 +77,36 @@ export default function AccountPage() {
 
         {placed && (
           <article className="auth-card mt-8">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-gold">Placed</p>
+            <p className="text-[11px] uppercase tracking-[0.22em] text-gold">{page.placedKicker}</p>
             <p className="mt-2 text-sm leading-relaxed text-lilac">
-              Order {placed} is held as pending payment. Gateway checkout arrives in the next release.
+              {fillCopy(page.placedBody, { number: placed })}
             </p>
           </article>
         )}
 
         <div className="mt-12 sm:mt-16">
           <SectionHead
-            eyebrow="The collection"
-            title="Orders"
+            eyebrow={page.ordersEyebrow}
+            title={page.ordersTitle}
             body={
               loading
-                ? 'Fetching your orders.'
+                ? page.ordersLoading
                 : orders.length
-                  ? `${orders.length} ${orders.length === 1 ? 'order' : 'orders'} held in the atelier.`
-                  : 'No orders yet. Begin a custom strand or walk the houses.'
+                  ? fillCopy(page.ordersFilledBody, {
+                      count: orders.length,
+                      orders: orders.length === 1 ? 'order' : 'orders',
+                    })
+                  : page.ordersEmptyBody
             }
             to="/customize"
-            action="Customization →"
+            action={page.ordersAction}
           />
         </div>
 
         {loading ? (
           <Spinner />
         ) : orders.length === 0 ? (
-          <InViewGroup className="finale-stage mt-10">
-            <div className="finale px-5 py-14 text-center sm:px-8 sm:py-16">
-              <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">Empty</p>
-              <h2 className="finale-title mt-3 font-serif text-2xl gold-text sm:text-3xl">No orders yet.</h2>
-              <p className="finale-copy mx-auto mt-3 max-w-md text-sm text-lilac">
-                Begin a custom strand, or choose a ready-made piece from the houses.
-              </p>
-              <div className="finale-actions mt-8 flex flex-col justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
-                <Button to="/customize" className="w-full min-[420px]:w-auto">Customization</Button>
-                <Button to="/shop" variant="ghost" className="w-full min-[420px]:w-auto">Shop All</Button>
-              </div>
-            </div>
-          </InViewGroup>
+          <CmsFinale block={page.empty} />
         ) : (
           <InViewGroup className="bag-list mt-8 space-y-4 sm:mt-10">
             {orders.map((o, i) => (

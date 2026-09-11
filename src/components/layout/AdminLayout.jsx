@@ -25,7 +25,7 @@ const links = [
   { to: '/admin/config', label: 'Bracelet config', icon: Settings },
   { to: '/admin/orders', label: 'Orders', icon: ShoppingBag },
   { to: '/admin/users', label: 'Users', icon: Users },
-  { to: '/admin/content', label: 'Site content', icon: FileText },
+  { to: '/admin/content', label: 'Site CMS', icon: FileText },
   { to: '/admin/media', label: 'Media', icon: Image },
 ];
 

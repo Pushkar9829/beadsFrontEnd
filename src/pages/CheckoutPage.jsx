@@ -6,8 +6,10 @@ import { useCartStore } from '../store/cartStore';
 import Button from '../components/ui/Button';
 import Price from '../components/ui/Price';
 import EmptyState from '../components/ui/EmptyState';
+import { useSite } from '../store/contentStore';
 
 export default function CheckoutPage() {
+  const page = useSite().pages.checkout;
   const user = useAuthStore((s) => s.user);
   const items = useCartStore((s) => s.items);
   const fetchServer = useCartStore((s) => s.fetchServer);
@@ -29,7 +31,7 @@ export default function CheckoutPage() {
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   if (!items.length) {
-    return <EmptyState title="Nothing to check out" body="Add a piece first." />;
+    return <EmptyState title={page.emptyTitle} body={page.emptyBody} />;
   }
 
   async function submit(e) {
@@ -61,10 +63,8 @@ export default function CheckoutPage() {
   return (
     <div className="shell grid gap-8 py-8 md:grid-cols-2">
       <form onSubmit={submit} className="space-y-3">
-        <h1 className="font-serif text-2xl gold-text">Checkout</h1>
-        <p className="text-sm text-lilac">
-          Payment will open in the next step — coming soon. This places a pending-payment order so fulfilment can be prepared.
-        </p>
+        <h1 className="font-serif text-2xl gold-text">{page.title}</h1>
+        <p className="text-sm text-lilac">{page.body}</p>
         {['contactName', 'phone', 'line1', 'line2', 'city', 'state', 'pincode', 'country'].map((k) => (
           <label key={k} className="block text-xs uppercase tracking-widest text-gold">
             {k}
@@ -77,10 +77,10 @@ export default function CheckoutPage() {
           </label>
         ))}
         {error && <p className="text-sm text-red-300">{error}</p>}
-        <Button type="submit" disabled={busy}>{busy ? 'Placing…' : 'Place pending order'}</Button>
+        <Button type="submit" disabled={busy}>{busy ? page.submitBusy : page.submitLabel}</Button>
       </form>
       <aside className="h-fit rounded-2xl p-5 gold-border">
-        <h2 className="font-serif text-xl">Summary</h2>
+        <h2 className="font-serif text-xl">{page.summaryTitle}</h2>
         <ul className="mt-4 space-y-2 text-sm text-lilac">
           {items.map((i) => (
             <li key={i._id} className="flex justify-between gap-3">
