@@ -14,6 +14,8 @@ const empty = {
   name: '', family: 'crystals', categoryId: '', sku: '', description: '', shortDescription: '',
   price: 0, compareAtPrice: '', stock: 0, lowStockLimit: 5, featured: false, isActive: true,
   colorHex: '#6B3FA0', imagesText: '', collectionIds: [],
+  seo: { title: '', description: '', keywords: '', ogImage: '', noIndex: false },
+  attributes: {},
 };
 
 function stockStatus(p) {
@@ -33,11 +35,13 @@ export default function AdminProducts() {
   const [q, setQ] = useState('');
   const [family, setFamily] = useState('all');
   const [page, setPage] = useState(1);
+  const [attributeDefs, setAttributeDefs] = useState([]);
 
   const load = () => {
     api.get('/products/admin/all').then(({ data }) => setProducts(data.products || []));
     api.get('/categories/admin/all').then(({ data }) => setCategories(data.categories || []));
     api.get('/admin/collections').then(({ data }) => setCollections(data.collections || []));
+    api.get('/admin/attributes').then(({ data }) => setAttributeDefs((data.items || []).filter((a) => a.isActive !== false && a.appliesTo !== 'bead'))).catch(() => {});
   };
   useEffect(() => { load(); }, []);
 
@@ -65,6 +69,10 @@ export default function AdminProducts() {
       imagesText: (prod.images || []).join(', '),
       sku: prod.sku || '',
       lowStockLimit: prod.lowStockLimit ?? 5,
+      seo: { title: '', description: '', keywords: '', ogImage: '', noIndex: false, ...prod.seo },
+      attributes: prod.attributes && typeof prod.attributes === 'object' && !Array.isArray(prod.attributes)
+        ? { ...prod.attributes }
+        : {},
     });
     setOpen(true);
   }
@@ -81,6 +89,7 @@ export default function AdminProducts() {
       collectionIds: form.collectionIds,
       sku: form.sku || undefined,
       images: form.imagesText ? form.imagesText.split(',').map((s) => s.trim()).filter(Boolean) : form.images,
+      attributes: Object.fromEntries(Object.entries(form.attributes || {}).filter(([, v]) => String(v || '').trim() !== '')),
     };
     delete payload.imagesText;
     try {
@@ -171,6 +180,37 @@ export default function AdminProducts() {
           <label className={labelClass}>Image URLs<input className={`${fieldClass} mt-1`} value={form.imagesText || ''} onChange={(e) => setForm({ ...form, imagesText: e.target.value })} /></label>
           <label className={labelClass}>Short description<input className={`${fieldClass} mt-1`} value={form.shortDescription} onChange={(e) => setForm({ ...form, shortDescription: e.target.value })} /></label>
           <label className={labelClass}>Description<textarea className={`${fieldClass} mt-1`} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>
+          <label className={labelClass}>SEO title<input className={`${fieldClass} mt-1`} value={form.seo?.title || ''} onChange={(e) => setForm({ ...form, seo: { ...form.seo, title: e.target.value } })} /></label>
+          <label className={labelClass}>Meta description<textarea className={`${fieldClass} mt-1`} value={form.seo?.description || ''} onChange={(e) => setForm({ ...form, seo: { ...form.seo, description: e.target.value } })} /></label>
+          <label className={labelClass}>Keywords<input className={`${fieldClass} mt-1`} value={form.seo?.keywords || ''} onChange={(e) => setForm({ ...form, seo: { ...form.seo, keywords: e.target.value } })} /></label>
+          <label className={labelClass}>OG image<input className={`${fieldClass} mt-1`} value={form.seo?.ogImage || ''} onChange={(e) => setForm({ ...form, seo: { ...form.seo, ogImage: e.target.value } })} /></label>
+          <label className="flex items-center gap-2 text-sm text-lilac"><input type="checkbox" checked={form.seo?.noIndex || false} onChange={(e) => setForm({ ...form, seo: { ...form.seo, noIndex: e.target.checked } })} /> No-index this product</label>
+          {attributeDefs.length > 0 && (
+            <div className="space-y-2 rounded-2xl border border-gold/15 p-3">
+              <p className={labelClass}>Attributes</p>
+              {attributeDefs.map((def) => (
+                <label key={def._id} className={labelClass}>
+                  {def.name}
+                  {def.type === 'select' ? (
+                    <select
+                      className={`${fieldClass} mt-1`}
+                      value={form.attributes?.[def.slug] || ''}
+                      onChange={(e) => setForm({ ...form, attributes: { ...form.attributes, [def.slug]: e.target.value } })}
+                    >
+                      <option value="">—</option>
+                      {(def.options || []).map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                    </select>
+                  ) : (
+                    <input
+                      className={`${fieldClass} mt-1`}
+                      value={form.attributes?.[def.slug] || ''}
+                      onChange={(e) => setForm({ ...form, attributes: { ...form.attributes, [def.slug]: e.target.value } })}
+                    />
+                  )}
+                </label>
+              ))}
+            </div>
+          )}
           <label className="flex items-center gap-2 text-sm text-lilac"><input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} /> Featured</label>
           <label className="flex items-center gap-2 text-sm text-lilac"><input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} /> Active</label>
           <div className="flex gap-2 pt-2">

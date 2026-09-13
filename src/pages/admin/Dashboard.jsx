@@ -10,7 +10,9 @@ const RANGES = [
   { value: 'today', label: 'Today' },
   { value: '7d', label: '7 days' },
   { value: '30d', label: '30 days' },
-  { value: '90d', label: '90 days' },
+  { value: '90d', label: '3 months' },
+  { value: '1y', label: '1 year' },
+  { value: 'custom', label: 'Custom' },
 ];
 
 function Tile({ label, value, to, money }) {
@@ -42,13 +44,21 @@ function SparkBars({ series }) {
   );
 }
 
-export default function AdminDashboard({ analytics = false }) {
+export default function AdminDashboard() {
   const [range, setRange] = useState('30d');
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    api.get(`/admin/dashboard?range=${range}`).then(({ data: d }) => setData(d)).catch(() => {});
-  }, [range]);
+    const qs = new URLSearchParams();
+    if (range === 'custom' && from && to) {
+      qs.set('from', from);
+      qs.set('to', to);
+    } else if (range !== 'custom') qs.set('range', range);
+    else return;
+    api.get(`/admin/dashboard?${qs}`).then(({ data: d }) => setData(d)).catch(() => {});
+  }, [range, from, to]);
 
   const k = data?.kpis || {};
   const actions = data?.actions || {};
@@ -57,12 +67,18 @@ export default function AdminDashboard({ analytics = false }) {
     <div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl gold-text">{analytics ? 'Analytics' : 'Dashboard'}</h1>
-          <p className="mt-1 text-xs text-lilac">
-            {analytics ? 'Sales, AOV, and what needs attention.' : 'Today’s pulse and items that need a decision.'}
-          </p>
+          <h1 className="font-serif text-2xl gold-text">Dashboard</h1>
+          <p className="mt-1 text-xs text-lilac">Today’s pulse and items that need a decision.</p>
         </div>
-        <FilterSelect value={range} onChange={setRange} options={RANGES} />
+        <div className="flex flex-wrap items-center gap-2">
+          <FilterSelect value={range} onChange={setRange} options={RANGES} />
+          {range === 'custom' && (
+            <>
+              <input type="date" className="rounded-xl border border-gold/30 bg-ink px-3 py-2 text-ivory" value={from} onChange={(e) => setFrom(e.target.value)} />
+              <input type="date" className="rounded-xl border border-gold/30 bg-ink px-3 py-2 text-ivory" value={to} onChange={(e) => setTo(e.target.value)} />
+            </>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

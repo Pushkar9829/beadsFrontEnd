@@ -1,5 +1,8 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../api/client';
 import { useCartStore } from '../store/cartStore';
+import { useAuthStore } from '../store/authStore';
 import Button from '../components/ui/Button';
 import QtyControl from '../components/ui/QtyControl';
 import Price from '../components/ui/Price';
@@ -51,7 +54,19 @@ export default function CartPage() {
   const remove = useCartStore((s) => s.remove);
   const clear = useCartStore((s) => s.clear);
   const amount = useCartStore((s) => s.items.reduce((n, i) => n + i.lineTotal, 0));
+  const user = useAuthStore((s) => s.user);
   const count = items.reduce((n, i) => n + i.quantity, 0);
+  const [quote, setQuote] = useState(null);
+  const [coupon, setCoupon] = useState('');
+  const [couponMsg, setCouponMsg] = useState('');
+
+  useEffect(() => {
+    if (!user || !items.length) return;
+    api.get('/checkout/quote').then(({ data }) => {
+      setQuote(data.quote);
+      if (data.quote?.coupon?.code) setCoupon(data.quote.coupon.code);
+    }).catch(() => {});
+  }, [user, items.length, amount]);
 
   return (
     <div className={`cart-page relative ${items.length ? 'is-filled' : 'is-empty'}`}>
@@ -141,6 +156,26 @@ export default function CartPage() {
             <aside className="bag-summary">
               <p className="bag-summary-kicker">To pay</p>
               <h2 className="bag-summary-title gold-text">Checkout.</h2>
+              {user && (
+                <form
+                  className="mb-4 flex gap-2"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    setCouponMsg('');
+                    try {
+                      const { data } = await api.post('/cart/coupon', { code: coupon });
+                      setQuote(data.quote);
+                      setCouponMsg(data.quote?.coupon ? 'Applied.' : data.quote?.couponError || '');
+                    } catch (err) {
+                      setCouponMsg(err.message);
+                    }
+                  }}
+                >
+                  <input className="flex-1 rounded-xl border border-gold/30 bg-ink px-3 py-2 text-sm text-ivory" placeholder="Coupon" value={coupon} onChange={(e) => setCoupon(e.target.value)} />
+                  <button type="submit" className="text-xs uppercase tracking-widest text-gold">Apply</button>
+                </form>
+              )}
+              {couponMsg && <p className="mb-2 text-xs text-lilac">{couponMsg}</p>}
               <dl className="bag-summary-rows">
                 <div>
                   <dt>Pieces</dt>
@@ -148,8 +183,28 @@ export default function CartPage() {
                 </div>
                 <div>
                   <dt>Subtotal</dt>
+                  <dd><Price value={quote?.subtotal ?? amount} /></dd>
+                </div>
+                {quote?.discount ? (
+                  <div>
+                    <dt>Discount</dt>
+                    <dd>-<Price value={quote.discount} /></dd>
+                  </div>
+                ) : null}
+                <div>
+                  <dt>Shipping</dt>
+                  <dd>{quote ? (quote.shippingFee ? <Price value={quote.shippingFee} /> : 'Calculated at checkout') : 'At checkout'}</dd>
+                </div>
+                {quote?.tax ? (
+                  <div>
+                    <dt>GST</dt>
+                    <dd><Price value={quote.tax} /></dd>
+                  </div>
+                ) : null}
+                <div>
+                  <dt>To pay</dt>
                   <dd className="bag-summary-total">
-                    <Price value={amount} />
+                    <Price value={quote?.total ?? amount} />
                   </dd>
                 </div>
               </dl>

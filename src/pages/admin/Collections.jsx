@@ -9,7 +9,7 @@ import AdminToolbar, { paginate, Pagination } from '../../components/admin/Admin
 import StatusBadge from '../../components/admin/StatusBadge';
 import { toast } from '../../lib/adminToast';
 
-const empty = { name: '', slug: '', description: '', image: '', sortOrder: 0, isActive: true };
+const empty = { name: '', slug: '', description: '', image: '', sortOrder: 0, isActive: true, ruleType: 'manual', ruleConfig: { maxPrice: 999, days: 30, limit: 24 } };
 
 export default function AdminCollections() {
   const [collections, setCollections] = useState([]);
@@ -66,6 +66,7 @@ export default function AdminCollections() {
               </div>
             ),
           },
+          { key: 'ruleType', label: 'Rule', render: (c) => c.ruleType || 'manual' },
           { key: 'sortOrder', label: 'Sort' },
           { key: 'isActive', label: 'Status', render: (c) => c.isActive ? <StatusBadge kind="coupon" value="active" /> : <StatusBadge kind="coupon" value="inactive" /> },
           { key: 'actions', label: 'Actions', align: 'right', render: (c) => <RowActions onEdit={() => { setEditing(c._id); setForm({ ...empty, ...c }); setOpen(true); }} onDelete={() => setRemove(c)} /> },
@@ -77,6 +78,19 @@ export default function AdminCollections() {
           <label className={labelClass}>Name<input required className={`${fieldClass} mt-1`} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
           <label className={labelClass}>Slug<input className={`${fieldClass} mt-1`} value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="auto from name" /></label>
           <label className={labelClass}>Image URL<input className={`${fieldClass} mt-1`} value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} /></label>
+          <label className={labelClass}>Rule
+            <select className={`${fieldClass} mt-1`} value={form.ruleType || 'manual'} onChange={(e) => setForm({ ...form, ruleType: e.target.value })}>
+              <option value="manual">Manual products</option>
+              <option value="bestsellers">Best sellers</option>
+              <option value="new_arrivals">New arrivals</option>
+              <option value="trending">Trending</option>
+              <option value="under_price">Under price</option>
+              <option value="featured">Featured</option>
+            </select>
+          </label>
+          {form.ruleType === 'under_price' && (
+            <label className={labelClass}>Max price<input type="number" className={`${fieldClass} mt-1`} value={form.ruleConfig?.maxPrice || 999} onChange={(e) => setForm({ ...form, ruleConfig: { ...form.ruleConfig, maxPrice: Number(e.target.value) } })} /></label>
+          )}
           <label className={labelClass}>Sort<input type="number" className={`${fieldClass} mt-1`} value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: Number(e.target.value) })} /></label>
           <label className={labelClass}>Description<textarea className={`${fieldClass} mt-1`} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>
           <label className="flex items-center gap-2 text-sm text-lilac"><input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} /> Active</label>

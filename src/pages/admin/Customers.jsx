@@ -24,9 +24,12 @@ export default function AdminCustomers() {
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [groups, setGroups] = useState([]);
   const [role, setRole] = useState('customer');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [groupIds, setGroupIds] = useState([]);
 
   const load = () => {
     const qs = new URLSearchParams({ group });
@@ -34,6 +37,7 @@ export default function AdminCustomers() {
     api.get(`/admin/customers?${qs}`).then(({ data }) => setCustomers(data.customers || []));
   };
   useEffect(() => { load(); }, [group, q]);
+  useEffect(() => { api.get('/admin/groups').then(({ data }) => setGroups(data.items || [])); }, []);
   useEffect(() => { setPage(1); }, [group, q]);
 
   const { slice, total, pages, page: p } = paginate(customers, page);
@@ -69,6 +73,7 @@ export default function AdminCustomers() {
           { key: 'phone', label: 'Phone', render: (u) => u.phone || '—' },
           { key: 'orders', label: 'Orders' },
           { key: 'spent', label: 'Spent', render: (u) => <Price value={u.spent} /> },
+          { key: 'aov', label: 'AOV', render: (u) => <Price value={u.aov} /> },
           { key: 'segment', label: 'Group', render: (u) => <span className="text-[10px] uppercase tracking-widest text-gold">{u.segment}</span> },
           { key: 'createdAt', label: 'Joined', render: (u) => new Date(u.createdAt).toLocaleDateString('en-IN') },
           {
@@ -76,7 +81,19 @@ export default function AdminCustomers() {
             label: 'Actions',
             align: 'right',
             render: (u) => (
-              <RowActions onEdit={() => { setEditing(u); setRole(u.role); setName(u.name); setPhone(u.phone || ''); }} />
+              <RowActions onEdit={async () => {
+                setEditing(u);
+                setRole(u.role);
+                setName(u.name);
+                setPhone(u.phone || '');
+                setGroupIds((u.groupIds || []).map((g) => g._id || g));
+                try {
+                  const { data } = await api.get(`/admin/customers/${u._id}`);
+                  setProfile(data);
+                } catch {
+                  setProfile(null);
+                }
+              }} />
             ),
           },
         ]}
@@ -90,6 +107,7 @@ export default function AdminCustomers() {
               e.preventDefault();
               try {
                 await api.put(`/admin/users/${editing._id}`, { role, name, phone });
+                await api.put(`/admin/customers/${editing._id}/groups`, { groupIds });
                 toast('Customer saved.');
                 setEditing(null);
                 load();
@@ -99,12 +117,32 @@ export default function AdminCustomers() {
             }}
           >
             <p className="text-sm text-lilac">{editing.email}</p>
-            <p className="text-sm text-lilac">{editing.orders} orders · <Price value={editing.spent} /></p>
+            <p className="text-sm text-lilac">{profile?.customer?.orders ?? editing.orders} orders · <Price value={profile?.customer?.spent ?? editing.spent} /> · AOV <Price value={profile?.customer?.aov ?? editing.aov} /></p>
+            {!!profile?.topProducts?.length && (
+              <p className="text-xs text-lilac">Most purchased: {profile.topProducts.map((p) => `${p.name} ×${p.qty}`).join(', ')}</p>
+            )}
+            {!!profile?.couponsUsed?.length && (
+              <p className="text-xs text-lilac">Coupons: {profile.couponsUsed.map((c) => c.code).join(', ')}</p>
+            )}
+            {(profile?.customer?.addresses || editing.addresses || []).length > 0 && (
+              <p className="text-xs text-lilac">
+                Addresses: {(profile?.customer?.addresses || editing.addresses).map((a) => `${a.line1}, ${a.city}`).join(' · ')}
+              </p>
+            )}
+            {!!groups.length && (
+              <label className={labelClass}>Groups
+                <select multiple className={`${fieldClass} mt-1 h-24`} value={groupIds} onChange={(e) => setGroupIds([...e.target.selectedOptions].map((o) => o.value))}>
+                  {groups.map((g) => <option key={g._id} value={g._id}>{g.name}</option>)}
+                </select>
+              </label>
+            )}
             <label className={labelClass}>Name<input className={`${fieldClass} mt-1`} value={name} onChange={(e) => setName(e.target.value)} /></label>
             <label className={labelClass}>Phone<input className={`${fieldClass} mt-1`} value={phone} onChange={(e) => setPhone(e.target.value)} /></label>
             <label className={labelClass}>Role
               <select className={`${fieldClass} mt-1`} value={role} onChange={(e) => setRole(e.target.value)}>
                 <option value="customer">customer</option>
+                <option value="staff">staff</option>
+                <option value="manager">manager</option>
                 <option value="admin">admin</option>
               </select>
             </label>

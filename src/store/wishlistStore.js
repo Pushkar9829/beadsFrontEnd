@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import api from '../api/client';
+import { useAuthStore } from './authStore';
 
 function toItem(product) {
   return {
@@ -25,10 +27,27 @@ export const useWishlistStore = create(
       add(product) {
         if (!product?._id || get().has(product._id)) return;
         set({ items: [toItem(product), ...get().items] });
+        const user = useAuthStore.getState().user;
+        if (user) api.post('/wishlist', { productId: product._id }).catch(() => {});
       },
 
       remove(id) {
         set({ items: get().items.filter((i) => i._id !== id) });
+        const user = useAuthStore.getState().user;
+        if (user) api.delete(`/wishlist/${id}`).catch(() => {});
+      },
+
+      async sync() {
+        const user = useAuthStore.getState().user;
+        if (!user) return;
+        try {
+          const localIds = get().items.map((i) => i._id);
+          await api.post('/wishlist/merge', { productIds: localIds });
+          const { data } = await api.get('/wishlist');
+          set({ items: (data.items || []).map(toItem) });
+        } catch {
+          /* keep local */
+        }
       },
 
       toggle(product) {

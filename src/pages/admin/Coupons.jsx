@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import api from '../../api/client';
 import Button from '../../components/ui/Button';
+import Price from '../../components/ui/Price';
 import AdminTable from '../../components/admin/AdminTable';
 import AdminDrawer from '../../components/admin/AdminDrawer';
 import ConfirmDelete from '../../components/admin/ConfirmDelete';
@@ -24,6 +25,7 @@ export default function AdminCoupons() {
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('all');
   const [page, setPage] = useState(1);
+  const [usage, setUsage] = useState(null);
 
   const load = () => api.get('/admin/coupons').then(({ data }) => setCoupons(data.coupons || []));
   useEffect(() => { load(); }, []);
@@ -80,23 +82,38 @@ export default function AdminCoupons() {
           { key: 'type', label: 'Type', render: (c) => c.type === 'percent' ? `${c.value}%` : `₹${c.value}` },
           { key: 'minOrder', label: 'Min order' },
           { key: 'usedCount', label: 'Used', render: (c) => `${c.usedCount || 0}${c.usageLimit ? ` / ${c.usageLimit}` : ''}` },
+          { key: 'revenueGenerated', label: 'Revenue', render: (c) => <Price value={c.revenueGenerated} /> },
+          { key: 'discountCost', label: 'Discount cost', render: (c) => <Price value={c.discountCost} /> },
           { key: 'status', label: 'Status', render: (c) => <StatusBadge kind="coupon" value={c.status} /> },
           { key: 'actions', label: 'Actions', align: 'right', render: (c) => (
-            <RowActions
-              onEdit={() => {
-                setEditing(c._id);
-                setForm({
-                  ...empty,
-                  ...c,
-                  maxDiscount: c.maxDiscount ?? '',
-                  usageLimit: c.usageLimit ?? '',
-                  startsAt: c.startsAt ? c.startsAt.slice(0, 16) : '',
-                  endsAt: c.endsAt ? c.endsAt.slice(0, 16) : '',
-                });
-                setOpen(true);
-              }}
-              onDelete={() => setRemove(c)}
-            />
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                className="rounded-full border border-gold/40 px-3 py-1 text-[11px] uppercase tracking-widest text-gold"
+                onClick={async () => {
+                  const { data } = await api.get(`/admin/coupons/${c._id}/usage`);
+                  setUsage({ code: c.code, history: data.history || [] });
+                }}
+              >
+                History
+              </button>
+              <RowActions
+                onEdit={() => {
+                  setEditing(c._id);
+                  setForm({
+                    ...empty,
+                    ...c,
+                    maxDiscount: c.maxDiscount ?? '',
+                    usageLimit: c.usageLimit ?? '',
+                    perCustomerLimit: c.perCustomerLimit ?? 1,
+                    startsAt: c.startsAt ? c.startsAt.slice(0, 16) : '',
+                    endsAt: c.endsAt ? c.endsAt.slice(0, 16) : '',
+                  });
+                  setOpen(true);
+                }}
+                onDelete={() => setRemove(c)}
+              />
+            </div>
           ) },
         ]}
       />
@@ -121,6 +138,7 @@ export default function AdminCoupons() {
             </select>
           </label>
           <label className={labelClass}>Usage limit<input type="number" className={`${fieldClass} mt-1`} value={form.usageLimit} onChange={(e) => setForm({ ...form, usageLimit: e.target.value })} /></label>
+          <label className={labelClass}>Per-customer limit<input type="number" className={`${fieldClass} mt-1`} value={form.perCustomerLimit} onChange={(e) => setForm({ ...form, perCustomerLimit: e.target.value })} /></label>
           <label className={labelClass}>Starts<input type="datetime-local" className={`${fieldClass} mt-1`} value={form.startsAt} onChange={(e) => setForm({ ...form, startsAt: e.target.value })} /></label>
           <label className={labelClass}>Ends<input type="datetime-local" className={`${fieldClass} mt-1`} value={form.endsAt} onChange={(e) => setForm({ ...form, endsAt: e.target.value })} /></label>
           <label className="flex items-center gap-2 text-sm text-lilac"><input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} /> Active</label>
@@ -129,6 +147,22 @@ export default function AdminCoupons() {
             <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
           </div>
         </form>
+      </AdminDrawer>
+      <AdminDrawer open={!!usage} title={usage ? `Usage · ${usage.code}` : 'Usage'} onClose={() => setUsage(null)}>
+        {usage && (
+          <ul className="space-y-2 text-sm text-lilac">
+            {usage.history.map((h) => (
+              <li key={h._id} className="flex justify-between gap-3 border-b border-gold/10 py-2">
+                <span>
+                  {h.userId?.name || h.userId?.email || 'Customer'}
+                  {h.orderId?.orderNumber ? ` · ${h.orderId.orderNumber}` : ''}
+                </span>
+                <span>{new Date(h.createdAt).toLocaleString('en-IN')}</span>
+              </li>
+            ))}
+            {!usage.history.length && <li>No uses recorded yet.</li>}
+          </ul>
+        )}
       </AdminDrawer>
       <ConfirmDelete
         open={!!remove}

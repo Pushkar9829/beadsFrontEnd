@@ -6,15 +6,40 @@ import footerBanner from '../../assets/home/footer-banner.jpg';
 import { mediaUrl } from '../../api/client';
 import Button from '../ui/Button';
 import ContactDrawer from './ContactDrawer';
+import NewsletterBox from '../NewsletterBox';
 import { useSite } from '../../store/contentStore';
 
 const linkClass = 'footer-link';
+
+const SHOP_LINKS = [
+  { to: '/about', label: 'About Kuberstones' },
+  { to: '/crystals', label: 'Crystal Beads' },
+  { to: '/customize', label: 'Spiritual Bracelets' },
+  { to: '/gemstones', label: 'Gemstones' },
+  { to: '/rudraksha', label: 'Rudraksha' },
+  { to: '/shop-by-purpose', label: 'Shop by Purpose' },
+];
+
+const CARE_LINKS = [
+  { to: '/shipping', label: 'Shipping & Delivery' },
+  { to: '/returns', label: 'Returns' },
+  { to: '/exchanges', label: 'Exchanges' },
+  { to: '/refunds', label: 'Refunds & Cancellations' },
+  { to: '/faq', label: 'FAQs' },
+  { to: '/account', label: 'Track Order' },
+];
+
+const LEGAL_LINKS = [
+  { to: '/privacy', label: 'Privacy Policy' },
+  { to: '/terms', label: 'Terms & Conditions' },
+  { to: '/maintenance', label: 'Website Maintenance' },
+  { to: '/grievance', label: 'Contact & Grievance Redressal' },
+];
 
 export default function Footer() {
   const [contactOpen, setContactOpen] = useState(false);
   const site = useSite();
   const footer = site.footer;
-  const houses = site.houses?.items || [];
   const banner = footer.bannerImage ? mediaUrl(footer.bannerImage) : footerBanner;
 
   return (
@@ -46,6 +71,9 @@ export default function Footer() {
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-lilac">{footer.blurb}</p>
             <p className="mt-4 text-[10px] uppercase tracking-[0.22em] text-ivory/45">{footer.tagline}</p>
+            <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-gold/80">
+              {footer.legalEntity ? `A brand by ${footer.legalEntity}` : 'A brand by Nexxgenn Technology'}
+            </p>
             <div className="mt-6 flex gap-3">
               <a href={footer.email} className="footer-icon" aria-label="Email">
                 <Mail size={15} />
@@ -58,38 +86,38 @@ export default function Footer() {
                 </svg>
               </a>
             </div>
+            <div className="mt-6">
+              <NewsletterBox compact title="The list." />
+            </div>
           </div>
 
           <div>
-            <h3 className="text-[11px] uppercase tracking-[0.22em] text-gold">Houses</h3>
+            <h3 className="text-[11px] uppercase tracking-[0.22em] text-gold">Shop</h3>
             <nav className="mt-5 flex flex-col gap-2.5 text-sm">
-              {houses.map((house) => (
-                <Link key={house.slug} to={`/${house.slug}`} className={linkClass}>{house.name}</Link>
+              {SHOP_LINKS.map((item) => (
+                <Link key={item.to} to={item.to} className={linkClass}>{item.label}</Link>
               ))}
-              <Link to="/shop" className={linkClass}>Shop All</Link>
-            </nav>
-          </div>
-
-          <div>
-            <h3 className="text-[11px] uppercase tracking-[0.22em] text-gold">Studio</h3>
-            <nav className="mt-5 flex flex-col gap-2.5 text-sm">
-              <Link to="/customize" className={linkClass}>Customization</Link>
-              <Link to="/about" className={linkClass}>About</Link>
-              <Link to="/wishlist" className={linkClass}>Wishlist</Link>
-              <Link to="/account" className={linkClass}>Account</Link>
-              <Link to="/cart" className={linkClass}>Bag</Link>
-            </nav>
-          </div>
-
-          <div>
-            <h3 className="text-[11px] uppercase tracking-[0.22em] text-gold">Care</h3>
-            <nav className="mt-5 flex flex-col gap-2.5 text-sm">
               <button type="button" className={`${linkClass} text-left`} onClick={() => setContactOpen(true)}>
-                Contact us
+                Contact Us
               </button>
-              <Link to="/returns" className={linkClass}>Return & Exchange</Link>
-              <Link to="/privacy" className={linkClass}>Privacy Policy</Link>
-              <Link to="/terms" className={linkClass}>Terms & Conditions</Link>
+            </nav>
+          </div>
+
+          <div>
+            <h3 className="text-[11px] uppercase tracking-[0.22em] text-gold">Customer Care</h3>
+            <nav className="mt-5 flex flex-col gap-2.5 text-sm">
+              {CARE_LINKS.map((item) => (
+                <Link key={item.to} to={item.to} className={linkClass}>{item.label}</Link>
+              ))}
+            </nav>
+          </div>
+
+          <div>
+            <h3 className="text-[11px] uppercase tracking-[0.22em] text-gold">Legal</h3>
+            <nav className="mt-5 flex flex-col gap-2.5 text-sm">
+              {LEGAL_LINKS.map((item) => (
+                <Link key={item.to} to={item.to} className={linkClass}>{item.label}</Link>
+              ))}
             </nav>
             <div className="mt-6 flex items-start gap-2 text-sm text-lilac">
               <MapPin size={14} className="mt-0.5 shrink-0 text-gold" />

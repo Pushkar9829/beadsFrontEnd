@@ -9,6 +9,7 @@ import SectionHead from '../components/home/SectionHead';
 import CmsFinale from '../components/ui/CmsFinale';
 import { houseMeta } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
+import SeoHead from '../components/SeoHead';
 
 export default function CategoryPage() {
   const site = useSite();
@@ -51,6 +52,13 @@ export default function CategoryPage() {
           <CmsFinale block={page.missing} />
         ) : (
           <>
+            <SeoHead
+              title={category.seo?.title || `${category.name} · Kuberstones`}
+              description={category.seo?.description || category.description}
+              keywords={category.seo?.keywords}
+              image={category.seo?.ogImage || category.image}
+              noIndex={category.seo?.noIndex}
+            />
             <div className="mt-8">
               <SectionHead
                 eyebrow={house?.name || category.family}

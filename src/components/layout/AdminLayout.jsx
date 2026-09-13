@@ -21,9 +21,12 @@ import {
   Star,
   ShoppingCart,
   SlidersHorizontal,
+  Bell,
+  Zap,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import AdminToast from '../admin/AdminToast';
+import api from '../../api/client';
 
 const groups = [
   {
@@ -31,6 +34,7 @@ const groups = [
     items: [
       { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
       { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+      { to: '/admin/notifications', label: 'Notifications', icon: Bell },
     ],
   },
   {
@@ -40,6 +44,7 @@ const groups = [
       { to: '/admin/products', label: 'Products', icon: ShoppingBag },
       { to: '/admin/beads', label: 'Beads', icon: Gem },
       { to: '/admin/collections', label: 'Collections', icon: Package },
+      { to: '/admin/attributes', label: 'Attributes', icon: SlidersHorizontal },
     ],
   },
   {
@@ -59,7 +64,7 @@ const groups = [
       { to: '/admin/orders/shipped', label: 'Shipped' },
       { to: '/admin/orders/delivered', label: 'Delivered' },
       { to: '/admin/orders/cancelled', label: 'Cancelled' },
-      { to: '/admin/orders/returned', label: 'Returns' },
+      { to: '/admin/returns', label: 'Returns / refunds' },
     ],
   },
   {
@@ -67,6 +72,8 @@ const groups = [
     items: [
       { to: '/admin/coupons', label: 'Coupons', icon: Ticket },
       { to: '/admin/offers', label: 'Offers', icon: Percent },
+      { to: '/admin/flash-sales', label: 'Flash sale', icon: Zap },
+      { to: '/admin/banners', label: 'Banners', icon: Image },
       { to: '/admin/featured', label: 'Featured', icon: Star },
       { to: '/admin/abandoned-carts', label: 'Abandoned carts', icon: ShoppingCart },
     ],
@@ -75,6 +82,7 @@ const groups = [
     label: 'Customers',
     items: [
       { to: '/admin/customers', label: 'All customers', icon: Users },
+      { to: '/admin/groups', label: 'Customer groups' },
     ],
   },
   {
@@ -87,7 +95,12 @@ const groups = [
   {
     label: 'Content',
     items: [
+      { to: '/admin/home-layout', label: 'Homepage', icon: FileText },
       { to: '/admin/content', label: 'Site CMS', icon: FileText },
+      { to: '/admin/faqs', label: 'FAQs' },
+      { to: '/admin/blog', label: 'Journal' },
+      { to: '/admin/newsletter', label: 'Newsletter' },
+      { to: '/admin/contacts', label: 'Contact inbox' },
       { to: '/admin/media', label: 'Media', icon: Image },
     ],
   },
@@ -95,6 +108,7 @@ const groups = [
     label: 'Settings',
     items: [
       { to: '/admin/settings', label: 'General', icon: Settings },
+      { to: '/admin/shipping', label: 'Shipping' },
       { to: '/admin/users', label: 'Admin users', icon: Users },
     ],
   },
@@ -139,6 +153,11 @@ function Sidebar({ onNavigate }) {
 export default function AdminLayout() {
   const user = useAuthStore((s) => s.user);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    api.get('/admin/notifications?unread=true&limit=1').then(({ data }) => setUnread(data.unread || 0)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -174,9 +193,17 @@ export default function AdminLayout() {
             </button>
             <div className="text-sm text-lilac">Signed in as {user?.email}</div>
           </div>
-          <Link to="/" className="text-xs uppercase tracking-widest text-gold">
-            Store
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/admin/notifications" className="relative text-gold">
+              <Bell size={16} />
+              {unread > 0 && (
+                <span className="absolute -right-2 -top-2 grid h-4 min-w-4 place-items-center rounded-full bg-gold px-1 text-[9px] text-black">{unread}</span>
+              )}
+            </Link>
+            <Link to="/" className="text-xs uppercase tracking-widest text-gold">
+              Store
+            </Link>
+          </div>
         </header>
         <main className="min-h-0 flex-1 overflow-y-auto p-4 md:p-8">
           <Outlet />

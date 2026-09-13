@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
+import api from '../../api/client';
 import Button from '../ui/Button';
 import { useSite } from '../../store/contentStore';
 import { fillCopy } from '../../lib/homeContent';
@@ -10,6 +11,8 @@ export default function ContactDrawer({ open, onClose, defaultEmail = '' }) {
   const copy = useSite().contact;
   const [form, setForm] = useState(empty);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -37,9 +40,18 @@ export default function ContactDrawer({ open, onClose, defaultEmail = '' }) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  function submit(e) {
+  async function submit(e) {
     e.preventDefault();
-    setSent(true);
+    setBusy(true);
+    setError('');
+    try {
+      await api.post('/contact', form);
+      setSent(true);
+    } catch (err) {
+      setError(err.message || 'Could not send.');
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (!open) return null;
@@ -124,7 +136,8 @@ export default function ContactDrawer({ open, onClose, defaultEmail = '' }) {
                   className="contact-input mt-2 min-h-[8rem] resize-y rounded-2xl"
                 />
               </label>
-              <Button type="submit" className="w-full">
+              {error && <p className="text-sm text-red-300">{error}</p>}
+              <Button type="submit" className="w-full" disabled={busy}>
                 {copy.submitLabel}
               </Button>
             </form>

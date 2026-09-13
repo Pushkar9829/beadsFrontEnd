@@ -7,7 +7,7 @@ import ConfirmDelete from '../../components/admin/ConfirmDelete';
 import AdminHeader, { RowActions, fieldClass, labelClass } from '../../components/admin/AdminHeader';
 import AdminToolbar, { paginate, Pagination } from '../../components/admin/AdminToolbar';
 
-const empty = { name: '', family: 'crystals', parentId: '', description: '', sortOrder: 0, isActive: true };
+const empty = { name: '', family: 'crystals', parentId: '', description: '', sortOrder: 0, isActive: true, seo: { title: '', description: '', keywords: '', ogImage: '', noIndex: false } };
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
@@ -32,7 +32,7 @@ export default function AdminCategories() {
   }
   function openEdit(c) {
     setEditing(c._id);
-    setForm({ ...empty, ...c, parentId: c.parentId || '' });
+    setForm({ ...empty, ...c, parentId: c.parentId || '', seo: { ...empty.seo, ...c.seo } });
     setOpen(true);
   }
 
@@ -93,6 +93,11 @@ export default function AdminCategories() {
           </label>
           <label className={labelClass}>Sort<input type="number" className={`${fieldClass} mt-1`} value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: e.target.value })} /></label>
           <label className={labelClass}>Description<textarea className={`${fieldClass} mt-1`} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>
+          <label className={labelClass}>SEO title<input className={`${fieldClass} mt-1`} value={form.seo?.title || ''} onChange={(e) => setForm({ ...form, seo: { ...form.seo, title: e.target.value } })} /></label>
+          <label className={labelClass}>Meta description<textarea className={`${fieldClass} mt-1`} value={form.seo?.description || ''} onChange={(e) => setForm({ ...form, seo: { ...form.seo, description: e.target.value } })} /></label>
+          <label className="flex items-center gap-2 text-sm text-lilac">
+            <input type="checkbox" checked={form.seo?.noIndex || false} onChange={(e) => setForm({ ...form, seo: { ...form.seo, noIndex: e.target.checked } })} /> No-index
+          </label>
           <label className="flex items-center gap-2 text-sm text-lilac">
             <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} /> Active
           </label>

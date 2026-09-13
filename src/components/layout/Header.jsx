@@ -8,6 +8,7 @@ import { useCartStore } from '../../store/cartStore';
 import { useWishlistStore } from '../../store/wishlistStore';
 import AccountDrawer from './AccountDrawer';
 import { useSite } from '../../store/contentStore';
+import { isStaff } from '../../lib/staff';
 
 const fallbackFamilies = [
   { slug: 'crystals', name: 'Crystals' },
@@ -28,6 +29,8 @@ export default function Header() {
   const wishCount = useWishlistStore((s) => s.items.length);
   const [accountOpen, setAccountOpen] = useState(false);
   const [tree, setTree] = useState([]);
+  const [collections, setCollections] = useState([]);
+  const [flash, setFlash] = useState(null);
   const [mega, setMega] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const [headerH, setHeaderH] = useState(0);
@@ -41,6 +44,8 @@ export default function Header() {
 
   useEffect(() => {
     api.get('/categories').then(({ data }) => setTree(data.tree || [])).catch(() => {});
+    api.get('/collections').then(({ data }) => setCollections(data.collections || [])).catch(() => {});
+    api.get('/flash-sales/active').then(({ data }) => setFlash(data.sale || null)).catch(() => {});
   }, []);
 
   useLayoutEffect(() => {
@@ -121,7 +126,7 @@ export default function Header() {
                 KUBERSTONES
               </div>
               <div className="hidden text-[10px] uppercase tracking-[0.22em] text-lilac sm:block">
-                Energy · Abundance · Wellness
+                Personalized With Purpose
               </div>
             </div>
           </Link>
@@ -188,6 +193,42 @@ export default function Header() {
             >
               <span className="gold-cloud">Customization</span>
             </NavLink>
+            <div
+              className="relative"
+              onMouseEnter={() => openMega('collections')}
+              onMouseLeave={closeMega}
+            >
+              <NavLink
+                to="/collections"
+                className={({ isActive }) =>
+                  `header-nav-link flex items-center gap-1 px-3 py-2 ${isActive ? 'is-active' : ''}`
+                }
+              >
+                Collections
+                <ChevronDown
+                  size={12}
+                  className={`transition duration-200 ${mega === 'collections' ? 'rotate-180 text-gold' : ''}`}
+                />
+              </NavLink>
+              {mega === 'collections' && (
+                <div className="absolute left-0 top-full w-72 pt-3">
+                  <div className="animate-mega overflow-hidden rounded-2xl bg-surface/95 p-2 gold-border backdrop-blur-md">
+                    <Link to="/collections" className="header-cat-link block rounded-xl px-3 py-2.5 text-sm transition hover:bg-gold/10">
+                      All collections
+                    </Link>
+                    {collections.map((c) => (
+                      <Link
+                        key={c._id}
+                        to={`/collection/${c.slug}`}
+                        className="header-cat-link block rounded-xl px-3 py-2.5 text-sm transition hover:bg-gold/10"
+                      >
+                        {c.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             <NavLink
               to="/shop"
               className={({ isActive }) =>
@@ -197,6 +238,30 @@ export default function Header() {
               Shop All
             </NavLink>
             <NavLink
+              to="/shop-by-purpose"
+              className={({ isActive }) =>
+                `header-nav-link px-3 py-2 ${isActive ? 'is-active' : ''}`
+              }
+            >
+              Shop by Purpose
+            </NavLink>
+            <NavLink
+              to="/journal"
+              className={({ isActive }) =>
+                `header-nav-link px-3 py-2 ${isActive ? 'is-active' : ''}`
+              }
+            >
+              Journal
+            </NavLink>
+            <NavLink
+              to="/faq"
+              className={({ isActive }) =>
+                `header-nav-link px-3 py-2 ${isActive ? 'is-active' : ''}`
+              }
+            >
+              FAQ
+            </NavLink>
+            <NavLink
               to="/about"
               className={({ isActive }) =>
                 `header-nav-link px-3 py-2 ${isActive ? 'is-active' : ''}`
@@ -204,10 +269,18 @@ export default function Header() {
             >
               About
             </NavLink>
+            {flash && (
+              <NavLink
+                to="/sale"
+                className="ml-1 rounded-full border border-gold/50 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-gold hover:bg-gold/10"
+              >
+                Sale
+              </NavLink>
+            )}
           </nav>
 
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1.5">
-            {user?.role === 'admin' && (
+            {isStaff(user) && (
               <Link
                 to="/admin"
                 className="hidden rounded-full px-3 py-1.5 text-[10px] uppercase tracking-widest text-amethyst-light transition hover:bg-amethyst/20 sm:inline"
@@ -267,6 +340,16 @@ export default function Header() {
             <span className="gold-cloud">Customization</span>
           </NavLink>
           <NavLink
+            to="/collections"
+            className={({ isActive }) =>
+              `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
+                isActive ? 'is-active bg-gold/15' : ''
+              }`
+            }
+          >
+            Collections
+          </NavLink>
+          <NavLink
             to="/shop"
             className={({ isActive }) =>
               `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
@@ -275,6 +358,36 @@ export default function Header() {
             }
           >
             Shop All
+          </NavLink>
+          <NavLink
+            to="/shop-by-purpose"
+            className={({ isActive }) =>
+              `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
+                isActive ? 'is-active bg-gold/15' : ''
+              }`
+            }
+          >
+            Shop by Purpose
+          </NavLink>
+          <NavLink
+            to="/journal"
+            className={({ isActive }) =>
+              `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
+                isActive ? 'is-active bg-gold/15' : ''
+              }`
+            }
+          >
+            Journal
+          </NavLink>
+          <NavLink
+            to="/faq"
+            className={({ isActive }) =>
+              `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
+                isActive ? 'is-active bg-gold/15' : ''
+              }`
+            }
+          >
+            FAQ
           </NavLink>
           <NavLink
             to="/about"
@@ -286,6 +399,14 @@ export default function Header() {
           >
             About
           </NavLink>
+          {flash && (
+            <NavLink
+              to="/sale"
+              className="shrink-0 rounded-full border border-gold/50 px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] text-gold"
+            >
+              Sale
+            </NavLink>
+          )}
         </nav>
       </header>
       <div className="shrink-0" style={{ height: headerH }} aria-hidden />

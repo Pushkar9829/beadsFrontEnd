@@ -547,6 +547,11 @@ export default function AdminContent() {
               <Field label="Email link" value={draft.email} onChange={(email) => setDraft({ ...draft, email })} />
               <Field label="Instagram URL" value={draft.instagram} onChange={(instagram) => setDraft({ ...draft, instagram })} />
               <Field label="Location" value={draft.location} onChange={(location) => setDraft({ ...draft, location })} />
+              <Field label="Legal entity" value={draft.legalEntity} onChange={(legalEntity) => setDraft({ ...draft, legalEntity })} />
+              <Field label="Support phone" value={draft.supportPhone} onChange={(supportPhone) => setDraft({ ...draft, supportPhone })} placeholder="Shown on Contact & Grievance" />
+              <Field label="Business address" value={draft.address} onChange={(address) => setDraft({ ...draft, address })} />
+              <Field label="Grievance officer" value={draft.grievanceOfficer} onChange={(grievanceOfficer) => setDraft({ ...draft, grievanceOfficer })} />
+              <Field label="Grievance email" value={draft.grievanceEmail} onChange={(grievanceEmail) => setDraft({ ...draft, grievanceEmail })} />
               <Field label="Copyright line" value={draft.copyright} onChange={(copyright) => setDraft({ ...draft, copyright })} />
               <Field label="Disclaimer" textarea value={draft.disclaimer} onChange={(disclaimer) => setDraft({ ...draft, disclaimer })} />
             </>

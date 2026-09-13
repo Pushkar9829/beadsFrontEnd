@@ -5,12 +5,14 @@ import {
   FileText,
   Heart,
   LogOut,
+  Mail,
   Package,
   RefreshCw,
   Settings,
   Shield,
   ShoppingBag,
   Sparkles,
+  Truck,
   X,
 } from 'lucide-react';
 import api from '../../api/client';
@@ -18,6 +20,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import { useWishlistStore } from '../../store/wishlistStore';
 import Button from '../ui/Button';
+import { isStaff } from '../../lib/staff';
 
 function initials(name = '') {
   return name
@@ -78,9 +81,13 @@ export default function AccountDrawer({ open, onClose }) {
   ];
 
   const helpTabs = [
-    { to: '/returns', label: 'Return & Exchange', icon: RefreshCw },
+    { to: '/shipping', label: 'Shipping & Delivery', icon: Truck },
+    { to: '/returns', label: 'Returns', icon: RefreshCw },
+    { to: '/exchanges', label: 'Exchanges', icon: RefreshCw },
+    { to: '/refunds', label: 'Refunds & Cancellations', icon: FileText },
     { to: '/privacy', label: 'Privacy Policy', icon: Shield },
     { to: '/terms', label: 'Terms & Conditions', icon: FileText },
+    { to: '/grievance', label: 'Contact & Grievance', icon: Mail },
   ];
 
   return (
@@ -135,7 +142,9 @@ export default function AccountDrawer({ open, onClose }) {
           <p className="mt-7 text-[10px] uppercase tracking-[0.2em] text-gold">More</p>
           <nav className="mt-2 grid gap-1.5">
             <TabLink to="/customize" label="Customization" icon={Sparkles} onClose={onClose} />
-            {user.role === 'admin' && (
+            <TabLink to="/journal" label="Journal" icon={FileText} onClose={onClose} />
+            <TabLink to="/faq" label="FAQ" icon={FileText} onClose={onClose} />
+            {isStaff(user) && (
               <TabLink to="/admin" label="Admin atelier" icon={Settings} onClose={onClose} />
             )}
           </nav>

@@ -50,5 +50,5 @@ export const useAuthStore = create((set, get) => ({
     return data.user;
   },
 
-  isAdmin: () => get().user?.role === 'admin',
+  isAdmin: () => ['admin', 'manager', 'staff'].includes(get().user?.role),
 }));

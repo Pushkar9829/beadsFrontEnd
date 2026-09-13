@@ -21,15 +21,16 @@ export default function AdminInventory() {
   const [delta, setDelta] = useState('');
   const [reason, setReason] = useState('restock');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [kind, setKind] = useState('product');
 
   function load() {
     if (isHistory) {
       api.get('/admin/inventory/history').then(({ data }) => setHistory(data.history || []));
     } else {
-      api.get(`/admin/inventory?view=${view}&q=${encodeURIComponent(q)}`).then(({ data }) => setProducts(data.products || []));
+      api.get(`/admin/inventory?view=${view}&kind=${kind}&q=${encodeURIComponent(q)}`).then(({ data }) => setProducts(data.products || []));
     }
   }
-  useEffect(() => { load(); }, [view, isHistory, q]);
+  useEffect(() => { load(); }, [view, isHistory, q, kind]);
   useEffect(() => { setPage(1); }, [q, view, isHistory, statusFilter]);
 
   const shown = view === 'low' || statusFilter === 'all' ? products : products.filter((p) => p.stockStatus === statusFilter);
@@ -39,7 +40,8 @@ export default function AdminInventory() {
     e.preventDefault();
     try {
       await api.post('/admin/inventory/adjust', {
-        productId: adjust._id,
+        productId: kind === 'product' ? adjust._id : undefined,
+        beadId: kind === 'bead' ? adjust._id : undefined,
         delta: Number(delta),
         reason,
       });
@@ -60,7 +62,7 @@ export default function AdminInventory() {
           rows={slice}
           empty="No adjustments yet."
           columns={[
-            { key: 'product', label: 'Product', render: (h) => h.productId?.name || '—' },
+            { key: 'product', label: 'Item', render: (h) => h.productId?.name || h.beadId?.name || '—' },
             { key: 'delta', label: 'Change', render: (h) => <span className={h.delta > 0 ? 'text-emerald-300' : 'text-red-300'}>{h.delta > 0 ? `+${h.delta}` : h.delta}</span> },
             { key: 'previousStock', label: 'From' },
             { key: 'nextStock', label: 'To' },
@@ -84,17 +86,26 @@ export default function AdminInventory() {
         search={q}
         onSearch={setQ}
         searchPlaceholder="Search name or SKU"
-        filters={view === 'low' ? null : (
-          <FilterSelect
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={[
-              { value: 'all', label: 'All stock' },
-              { value: 'ok', label: 'In stock' },
-              { value: 'low', label: 'Low' },
-              { value: 'out', label: 'Out of stock' },
-            ]}
-          />
+        filters={(
+          <>
+            <FilterSelect
+              value={kind}
+              onChange={setKind}
+              options={[{ value: 'product', label: 'Products' }, { value: 'bead', label: 'Beads / stones' }]}
+            />
+            {view === 'low' ? null : (
+              <FilterSelect
+                value={statusFilter}
+                onChange={setStatusFilter}
+                options={[
+                  { value: 'all', label: 'All stock' },
+                  { value: 'ok', label: 'In stock' },
+                  { value: 'low', label: 'Low' },
+                  { value: 'out', label: 'Out of stock' },
+                ]}
+              />
+            )}
+          </>
         )}
       />
       <AdminTable

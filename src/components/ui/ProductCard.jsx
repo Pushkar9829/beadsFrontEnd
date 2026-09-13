@@ -33,7 +33,13 @@ export default function ProductCard({ product, description }) {
           {description && <p className="mt-1 line-clamp-2 text-xs text-lilac">{description}</p>}
           <p className="mt-2 text-gold">
             <Price value={product.price} />
+            {(product.originalPrice || product.compareAtPrice) > product.price && (
+              <span className="ml-2 text-xs text-lilac line-through">
+                <Price value={product.originalPrice || product.compareAtPrice} />
+              </span>
+            )}
           </p>
+          {product.flashSale && <p className="mt-1 text-[10px] uppercase tracking-widest text-gold">Flash sale</p>}
         </Link>
         <div className="product-card-tools">
           <button

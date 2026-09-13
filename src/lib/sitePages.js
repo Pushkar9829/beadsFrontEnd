@@ -94,7 +94,7 @@ const PAGES_DEFAULTS = {
     ],
   },
   aboutPage: {
-    eyebrow: 'The house',
+    eyebrow: 'Kuberstones',
     action: 'Customization →',
     to: '/customize',
     image: '',
@@ -196,59 +196,59 @@ const PAGES_DEFAULTS = {
   },
   legal: {
     returns: {
-      title: 'Return & Exchange',
-      eyebrow: 'Care',
-      body: 'Ready-made pieces have a short window. Custom strands, made to your purpose, are made to order.',
+      title: 'Return Policy',
+      eyebrow: 'Customer care',
+      body: 'Return eligibility depends on the nature and condition of the product. Personalized pieces may not be returnable once preparation has started.',
       sections: [
         {
-          heading: 'Window',
-          body: 'Ready-made pieces may be returned or exchanged within 7 days of delivery, unused, with original packaging. Custom bracelets made to your purpose, intention, date of birth, and name are made to order and are not eligible for return, except for manufacturing defects.',
+          heading: 'Personalized and customized pieces',
+          body: 'Change-of-mind returns may not be available for products that are personalized, customized, prepared or energized specifically for a customer once preparation has started.',
+        },
+        {
+          heading: 'When a return may be requested',
+          body: 'Wrong product, transit damage, missing parts, material difference from the description, or other eligible defects covered by applicable law may be reviewed after verification.',
         },
         {
           heading: 'How to request',
-          body: 'Write to us from the email on your account with the order number and whether you want a return or an exchange. We will share a pickup or drop-off instruction. Refunds, when approved, are issued to the original payment method after the piece is inspected.',
-        },
-        {
-          heading: 'What we cannot accept',
-          body: 'Worn, altered, or engraved pieces, items without tags or boxes, and custom studio strands cannot be exchanged for a different design. Crystal meaning is spiritual tradition, not a basis for return.',
+          body: 'Contact support as soon as reasonably possible after delivery with the order number, photographs or video where relevant, and a clear description of the issue.',
         },
       ],
     },
     privacy: {
       title: 'Privacy Policy',
-      eyebrow: 'Trust',
-      body: 'We keep only what the atelier needs — to make the piece, fulfil the order, and hold your account.',
+      eyebrow: 'Legal',
+      body: 'Kuberstones uses personal information for order processing, customization, support, delivery, payments, fraud prevention and legally required compliance.',
       sections: [
         {
-          heading: 'What we collect',
-          body: 'We collect the name, email, phone, and addresses you give us, along with order history, wishlist, and customization details such as date of birth used for Mulank. If you browse while signed in, we keep a session so your bag and account stay with you.',
+          heading: 'Information we may hold',
+          body: 'Name, contact details, delivery address, order details, payment-related information handled by payment providers, and voluntarily provided customization details such as date of birth, zodiac sign, moon sign, purpose or intention.',
         },
         {
-          heading: 'How we use it',
-          body: 'We use this information to fulfil orders, support your account, improve the atelier, and send order updates. We do not sell your personal data. Date of birth is used only to calibrate your bracelet and is not shared for marketing lists.',
+          heading: 'Service providers',
+          body: 'Payment processors, logistics partners, technology providers and communication providers may process information only for relevant services and subject to their own terms.',
         },
         {
-          heading: 'Your choices',
-          body: 'You may update your profile, request a copy of your data, or ask us to delete your account. Some records of completed orders are kept where the law requires. Contact us from the email on your account to make a request.',
+          heading: 'Your questions',
+          body: 'Customers may contact Kuberstones regarding questions about their personal information, subject to applicable law and verification requirements.',
         },
       ],
     },
     terms: {
       title: 'Terms & Conditions',
-      eyebrow: 'The atelier',
-      body: 'Kuberstones sells jewellery and custom bracelets for personal use. Prices are in Indian Rupees.',
+      eyebrow: 'Legal',
+      body: 'By using the Kuberstones website or placing an order, customers agree to use the website lawfully and provide accurate information.',
       sections: [
         {
-          heading: 'The store',
-          body: 'Kuberstones sells jewellery and custom bracelets for personal use. Prices are in Indian Rupees. Product photos and 3D previews are a close guide; natural stones and handmade strands can vary slightly in tone and size.',
+          heading: 'Spiritual and traditional information',
+          body: 'Information on the website is for informational and belief-based purposes. Kuberstones does not represent that any product will guarantee a particular financial, medical, relationship, career, personal or spiritual result.',
         },
         {
-          heading: 'Orders & customization',
-          body: 'Placing an order is an offer to buy. Custom pieces begin once you confirm the studio steps. Crystal associations are traditional and spiritual; they are not medical claims and do not replace professional care.',
+          heading: 'Catalogue and natural products',
+          body: 'Natural products may differ slightly from photographs because of natural variation, lighting, screen settings and individual characteristics.',
         },
         {
-          heading: 'Accounts',
-          body: 'You are responsible for the details on your account and for keeping your password private. We may refuse or cancel an order in case of pricing error, stock limits, or suspected misuse.',
+          heading: 'Governing law',
+          body: 'These terms are subject to applicable laws of India. Nothing here is intended to exclude consumer rights that cannot lawfully be excluded.',
         },
       ],
     },
@@ -262,13 +262,18 @@ const FOOTER_DEFAULTS = {
   copy: 'Collections, studio notes, and the occasional ritual. No noise.',
   cta: 'Contact us',
   brandName: 'KUBERSTONES',
-  blurb: 'Heal. Align. Attract abundance. Jewellery composed for intention — crystals, rudraksha, and gemstones, made by hand.',
-  tagline: 'Energy · Abundance · Wellness',
+  legalEntity: 'Nexxgenn Technology',
+  blurb: 'A modern D2C spiritual lifestyle brand offering Crystal Beads, Spiritual Bracelets, Gemstones and Rudraksha — personalized around purpose and intention.',
+  tagline: 'Crystals. Gemstones. Rudraksha. Personalized With Purpose.',
   email: 'mailto:hello@kuberstones.com',
   instagram: 'https://instagram.com',
   location: 'India · Made to order',
-  copyright: 'Kuberstones. All rights reserved.',
-  disclaimer: 'Crystal associations are traditional and spiritual. They are not medical claims.',
+  address: '',
+  supportPhone: '',
+  grievanceOfficer: '',
+  grievanceEmail: '',
+  copyright: 'Kuberstones. A brand by Nexxgenn Technology. All rights reserved.',
+  disclaimer: 'Spiritual and astrological information is for informational and belief-based purposes. Kuberstones does not promise guaranteed life outcomes.',
 };
 
 const CONTACT_DEFAULTS = {

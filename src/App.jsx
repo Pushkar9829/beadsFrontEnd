@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import { useAuthStore } from './store/authStore';
 import { useCartStore } from './store/cartStore';
+import { useWishlistStore } from './store/wishlistStore';
 import { useContentStore } from './store/contentStore';
 import StoreLayout from './components/layout/StoreLayout';
 import AdminLayout from './components/layout/AdminLayout';
@@ -41,18 +42,41 @@ import AdminAbandonedCarts from './pages/admin/AbandonedCarts';
 import AdminContent from './pages/admin/Content';
 import AdminMedia from './pages/admin/Media';
 import AdminSettings from './pages/admin/Settings';
+import AdminAttributes from './pages/admin/Attributes';
+import AdminBanners from './pages/admin/Banners';
+import AdminFlashSales from './pages/admin/FlashSales';
+import AdminFaqs from './pages/admin/Faqs';
+import AdminBlog from './pages/admin/Blog';
+import AdminNewsletter from './pages/admin/Newsletter';
+import AdminNotifications from './pages/admin/Notifications';
+import AdminReturns from './pages/admin/Returns';
+import AdminShipping from './pages/admin/Shipping';
+import AdminGroups from './pages/admin/Groups';
+import AdminContacts from './pages/admin/Contacts';
+import AdminHomeLayout from './pages/admin/HomeLayout';
+import CollectionPage from './pages/CollectionPage';
+import CollectionsIndexPage from './pages/CollectionsIndexPage';
+import BlogListPage from './pages/BlogListPage';
+import BlogPostPage from './pages/BlogPostPage';
+import FaqPage from './pages/FaqPage';
+import FlashSalePage from './pages/FlashSalePage';
+import ShopByPurposePage from './pages/ShopByPurposePage';
 
 export default function App() {
   const hydrate = useAuthStore((s) => s.hydrate);
   const onLogin = useCartStore((s) => s.onLogin);
+  const syncWish = useWishlistStore((s) => s.sync);
   const loadContent = useContentStore((s) => s.load);
 
   useEffect(() => {
     loadContent();
     hydrate().then((user) => {
-      if (user) onLogin();
+      if (user) {
+        onLogin();
+        syncWish();
+      }
     });
-  }, [hydrate, onLogin, loadContent]);
+  }, [hydrate, onLogin, syncWish, loadContent]);
 
   return (
     <BrowserRouter>
@@ -64,11 +88,17 @@ export default function App() {
           <Route path="/rudraksha" element={<FamilyPage />} />
           <Route path="/gemstones" element={<FamilyPage />} />
           <Route path="/shop" element={<ShopPage />} />
+          <Route path="/collections" element={<CollectionsIndexPage />} />
+          <Route path="/collection/:slug" element={<CollectionPage />} />
+          <Route path="/journal" element={<BlogListPage />} />
+          <Route path="/journal/:slug" element={<BlogPostPage />} />
+          <Route path="/faq" element={<FaqPage />} />
+          <Route path="/sale" element={<FlashSalePage />} />
+          <Route path="/shop-by-purpose" element={<ShopByPurposePage />} />
           <Route path="/c/:slug" element={<CategoryPage />} />
           <Route path="/p/:slug" element={<ProductPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/customize" element={<CustomizePage />} />
-          <Route path="/shop-by-purpose" element={<Navigate to="/customize" replace />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route
@@ -82,8 +112,14 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/returns" element={<LegalPage kind="returns" />} />
+          <Route path="/exchanges" element={<LegalPage kind="exchanges" />} />
+          <Route path="/refunds" element={<LegalPage kind="refunds" />} />
+          <Route path="/shipping" element={<LegalPage kind="shipping" />} />
           <Route path="/privacy" element={<LegalPage kind="privacy" />} />
           <Route path="/terms" element={<LegalPage kind="terms" />} />
+          <Route path="/maintenance" element={<LegalPage kind="maintenance" />} />
+          <Route path="/grievance" element={<LegalPage kind="grievance" />} />
+          <Route path="/contact" element={<Navigate to="/grievance" replace />} />
           <Route
             path="/account"
             element={
@@ -124,6 +160,18 @@ export default function App() {
           <Route path="content" element={<AdminContent />} />
           <Route path="media" element={<AdminMedia />} />
           <Route path="settings" element={<AdminSettings />} />
+          <Route path="attributes" element={<AdminAttributes />} />
+          <Route path="banners" element={<AdminBanners />} />
+          <Route path="flash-sales" element={<AdminFlashSales />} />
+          <Route path="faqs" element={<AdminFaqs />} />
+          <Route path="blog" element={<AdminBlog />} />
+          <Route path="newsletter" element={<AdminNewsletter />} />
+          <Route path="notifications" element={<AdminNotifications />} />
+          <Route path="returns" element={<AdminReturns />} />
+          <Route path="shipping" element={<AdminShipping />} />
+          <Route path="groups" element={<AdminGroups />} />
+          <Route path="contacts" element={<AdminContacts />} />
+          <Route path="home-layout" element={<AdminHomeLayout />} />
         </Route>
         <Route path="/family/:family" element={<Navigate to="/" />} />
       </Routes>

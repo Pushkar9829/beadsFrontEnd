@@ -33,6 +33,8 @@ export default function AdminOrders() {
   const [notes, setNotes] = useState('');
   const [carrier, setCarrier] = useState('');
   const [waybill, setWaybill] = useState('');
+  const [paymentStatus, setPaymentStatus] = useState('pending');
+  const [shipBusy, setShipBusy] = useState('');
 
   const load = () => {
     const params = new URLSearchParams();
@@ -56,7 +58,7 @@ export default function AdminOrders() {
   return (
     <div>
       <AdminHeader title={meta[0]} subtitle={`${meta[1]} ${statusCounts.all != null ? `${statusCounts.all} total.` : ''}`} />
-      <AdminToolbar search={q} onSearch={setQ} searchPlaceholder="Order no., name, email, phone" />
+      <AdminToolbar search={q} onSearch={setQ} searchPlaceholder="Order no., name, email, phone, product" />
       <AdminTable
         rows={slice}
         empty="No orders in this view."
@@ -66,6 +68,7 @@ export default function AdminOrders() {
           { key: 'items', label: 'Items', render: (o) => o.items?.length || 0 },
           { key: 'total', label: 'Total', render: (o) => <Price value={o.total} /> },
           { key: 'status', label: 'Status', render: (o) => <StatusBadge kind="order" value={o.status} /> },
+          { key: 'payment', label: 'Payment', render: (o) => o.payment?.status || '—' },
           { key: 'createdAt', label: 'Placed', render: (o) => new Date(o.createdAt).toLocaleString('en-IN') },
           {
             key: 'actions',
@@ -78,6 +81,7 @@ export default function AdminOrders() {
                 setNotes(o.notes || '');
                 setCarrier(o.shipment?.carrier || '');
                 setWaybill(o.shipment?.waybill || '');
+                setPaymentStatus(o.payment?.status || 'pending');
               }} />
             ),
           },
@@ -91,7 +95,7 @@ export default function AdminOrders() {
             onSubmit={async (e) => {
               e.preventDefault();
               try {
-                await api.put(`/orders/admin/${editing._id}`, { status, notes, carrier, waybill });
+                await api.put(`/orders/admin/${editing._id}`, { status, notes, carrier, waybill, paymentStatus });
                 toast('Order updated.');
                 setEditing(null);
                 load();
@@ -105,6 +109,13 @@ export default function AdminOrders() {
               {editing.shippingAddress?.line1}, {editing.shippingAddress?.city} {editing.shippingAddress?.pincode}
             </p>
             <p className="text-gold"><Price value={editing.total} /></p>
+            <p className="text-xs text-lilac">
+              Subtotal <Price value={editing.subtotal} />
+              {editing.discount ? <> · Discount <Price value={editing.discount} /></> : null}
+              {editing.tax ? <> · GST <Price value={editing.tax} /></> : null}
+              {editing.shippingFee != null ? <> · Ship <Price value={editing.shippingFee} /></> : null}
+              {editing.couponCode ? <> · {editing.couponCode}</> : null}
+            </p>
             <ul className="space-y-1 text-sm text-lilac">
               {(editing.items || []).map((item, i) => (
                 <li key={i}>{(item.snapshot?.name || item.name || item.kind)} × {item.quantity}</li>
@@ -115,8 +126,86 @@ export default function AdminOrders() {
                 {STATUSES.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
               </select>
             </label>
+            <label className={labelClass}>Payment
+              <select className={`${fieldClass} mt-1`} value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
+                {['pending', 'paid', 'failed', 'refunded'].map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </label>
             <label className={labelClass}>Carrier<input className={`${fieldClass} mt-1`} value={carrier} onChange={(e) => setCarrier(e.target.value)} /></label>
             <label className={labelClass}>Waybill / tracking<input className={`${fieldClass} mt-1`} value={waybill} onChange={(e) => setWaybill(e.target.value)} /></label>
+            {editing.shipment?.trackingUrl && (
+              <a href={editing.shipment.trackingUrl} target="_blank" rel="noreferrer" className="block text-xs text-gold">Open tracking</a>
+            )}
+            {editing.shipment?.lastStatus && (
+              <p className="text-xs text-lilac">iThink: {editing.shipment.lastStatus}{editing.shipment.expectedDelivery ? ` · ETA ${editing.shipment.expectedDelivery}` : ''}</p>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                disabled={!!shipBusy || editing.status === 'pending_payment'}
+                onClick={async () => {
+                  setShipBusy('ship');
+                  try {
+                    const { data } = await api.post(`/orders/admin/${editing._id}/ship`);
+                    setEditing(data.order);
+                    setCarrier(data.order.shipment?.carrier || '');
+                    setWaybill(data.order.shipment?.waybill || '');
+                    setStatus(data.order.status);
+                    toast('iThink shipment booked.');
+                    load();
+                  } catch (err) {
+                    toast(err.message || 'Could not book shipment.', 'error');
+                  } finally {
+                    setShipBusy('');
+                  }
+                }}
+              >
+                {shipBusy === 'ship' ? 'Booking…' : 'Book iThink shipment'}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={!!shipBusy || !editing.shipment?.waybill}
+                onClick={async () => {
+                  setShipBusy('track');
+                  try {
+                    const { data } = await api.post(`/orders/admin/${editing._id}/track`);
+                    setEditing(data.order);
+                    setStatus(data.order.status);
+                    toast(data.tracking?.forward?.currentStatus || 'Tracking refreshed.');
+                    load();
+                  } catch (err) {
+                    toast(err.message || 'Could not track.', 'error');
+                  } finally {
+                    setShipBusy('');
+                  }
+                }}
+              >
+                {shipBusy === 'track' ? 'Tracking…' : 'Refresh tracking'}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={!!shipBusy || !editing.shipment?.waybill}
+                onClick={async () => {
+                  setShipBusy('cancel');
+                  try {
+                    const { data } = await api.post(`/orders/admin/${editing._id}/cancel-shipment`);
+                    setEditing(data.order);
+                    setWaybill('');
+                    setStatus(data.order.status);
+                    toast('iThink shipment cancelled.');
+                    load();
+                  } catch (err) {
+                    toast(err.message || 'Could not cancel shipment.', 'error');
+                  } finally {
+                    setShipBusy('');
+                  }
+                }}
+              >
+                {shipBusy === 'cancel' ? 'Cancelling…' : 'Cancel shipment'}
+              </Button>
+            </div>
             <label className={labelClass}>Internal notes<textarea className={`${fieldClass} mt-1`} value={notes} onChange={(e) => setNotes(e.target.value)} /></label>
             {(editing.timeline || []).length > 0 && (
               <div>

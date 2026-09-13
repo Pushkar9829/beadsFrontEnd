@@ -32,9 +32,21 @@ export default function StoreLayout() {
     pathname === '/about' ||
     pathname === '/customize' ||
     pathname === '/account' ||
+    pathname === '/journal' ||
+    pathname.startsWith('/journal/') ||
+    pathname === '/faq' ||
+    pathname === '/collections' ||
+    pathname.startsWith('/collection/') ||
+    pathname === '/sale' ||
+    pathname === '/shop-by-purpose' ||
     pathname === '/returns' ||
+    pathname === '/exchanges' ||
+    pathname === '/refunds' ||
+    pathname === '/shipping' ||
     pathname === '/privacy' ||
-    pathname === '/terms';
+    pathname === '/terms' ||
+    pathname === '/maintenance' ||
+    pathname === '/grievance';
 
   useEffect(() => {
     loadContent();

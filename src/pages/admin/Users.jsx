@@ -11,6 +11,7 @@ export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [editing, setEditing] = useState(null);
   const [role, setRole] = useState('customer');
+  const [permissions, setPermissions] = useState([]);
   const [q, setQ] = useState('');
   const [roleFilter, setRoleFilter] = useState('admin');
   const [page, setPage] = useState(1);
@@ -35,7 +36,7 @@ export default function AdminUsers() {
           <FilterSelect
             value={roleFilter}
             onChange={setRoleFilter}
-            options={[{ value: 'admin', label: 'Admins' }, { value: 'customer', label: 'Customers' }, { value: 'all', label: 'Everyone' }]}
+            options={[{ value: 'admin', label: 'Admins' }, { value: 'manager', label: 'Managers' }, { value: 'staff', label: 'Staff' }, { value: 'customer', label: 'Customers' }, { value: 'all', label: 'Everyone' }]}
           />
         }
       />
@@ -52,7 +53,7 @@ export default function AdminUsers() {
             key: 'actions',
             label: 'Actions',
             align: 'right',
-            render: (u) => <RowActions onEdit={() => { setEditing(u); setRole(u.role); }} />,
+            render: (u) => <RowActions onEdit={() => { setEditing(u); setRole(u.role); setPermissions(u.permissions || []); }} />,
           },
         ]}
       />
@@ -64,7 +65,7 @@ export default function AdminUsers() {
             onSubmit={async (e) => {
               e.preventDefault();
               try {
-                await api.put(`/admin/users/${editing._id}`, { role });
+                await api.put(`/admin/users/${editing._id}`, { role, permissions });
                 toast('User saved.');
                 setEditing(null);
                 load();
@@ -77,9 +78,26 @@ export default function AdminUsers() {
             <label className={labelClass}>Role
               <select className={`${fieldClass} mt-1`} value={role} onChange={(e) => setRole(e.target.value)}>
                 <option value="customer">customer</option>
+                <option value="staff">staff</option>
+                <option value="manager">manager</option>
                 <option value="admin">admin</option>
               </select>
             </label>
+            {role !== 'admin' && role !== 'customer' && (
+              <fieldset className="space-y-1">
+                <legend className={labelClass}>Permissions</legend>
+                {['catalog', 'inventory', 'orders', 'customers', 'marketing', 'content', 'analytics', 'settings'].map((perm) => (
+                  <label key={perm} className="flex items-center gap-2 text-sm text-lilac">
+                    <input
+                      type="checkbox"
+                      checked={permissions.includes(perm)}
+                      onChange={(e) => setPermissions(e.target.checked ? [...permissions, perm] : permissions.filter((p) => p !== perm))}
+                    />
+                    {perm}
+                  </label>
+                ))}
+              </fieldset>
+            )}
             <div className="flex gap-2 pt-2">
               <Button type="submit">Save</Button>
               <Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button>
