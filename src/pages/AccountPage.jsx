@@ -15,6 +15,7 @@ import { useSite } from '../store/contentStore';
 import { isStaff } from '../lib/staff';
 import { startCashfreeCheckout } from '../lib/cashfree';
 import { RETURN_REASONS } from '../lib/returnReasons';
+import AddressBook from '../components/account/AddressBook';
 
 const CRUMBS = [
   { label: 'Home', to: '/' },
@@ -64,6 +65,11 @@ export default function AccountPage() {
       .finally(() => setLoading(false));
   }, [user, fromCashfree, placed]);
 
+  useEffect(() => {
+    if (!user || window.location.hash !== '#addresses') return;
+    document.getElementById('addresses')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [user]);
+
   return (
     <div className="relative">
       <div className="pointer-events-none absolute inset-0 lotus-corner" />
@@ -107,6 +113,8 @@ export default function AccountPage() {
             </p>
           </article>
         )}
+
+        {user && <AddressBook />}
 
         <div className="mt-12 sm:mt-16">
           <SectionHead

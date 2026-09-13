@@ -6,6 +6,7 @@ import {
   Heart,
   LogOut,
   Mail,
+  MapPin,
   Package,
   RefreshCw,
   Settings,
@@ -78,6 +79,7 @@ export default function AccountDrawer({ open, onClose }) {
     { to: '/cart', label: 'Cart', icon: ShoppingBag, count: cartCount },
     { to: '/wishlist', label: 'Wishlist', icon: Heart, count: wishCount },
     { to: '/account', label: 'Orders', icon: Package, count: orderCount },
+    { to: '/account#addresses', label: 'Addresses', icon: MapPin, count: user.addresses?.length || 0 },
   ];
 
   const helpTabs = [

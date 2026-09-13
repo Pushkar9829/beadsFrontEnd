@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { NavLink, Outlet, Link } from 'react-router-dom';
+import { NavLink, Outlet, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Layers,
@@ -23,6 +23,10 @@ import {
   SlidersHorizontal,
   Bell,
   Zap,
+  ChevronDown,
+  CreditCard,
+  Truck,
+  Webhook,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import AdminToast from '../admin/AdminToast';
@@ -107,41 +111,95 @@ const groups = [
   {
     label: 'Settings',
     items: [
-      { to: '/admin/settings', label: 'General', icon: Settings },
-      { to: '/admin/shipping', label: 'Shipping' },
+      { to: '/admin/settings', label: 'General', icon: Settings, settingsTab: 'general' },
+      { to: '/admin/settings?tab=payment', label: 'Payment', icon: CreditCard, settingsTab: 'payment' },
+      { to: '/admin/settings?tab=shipping', label: 'Shipping / iThink', icon: Truck, settingsTab: 'shipping' },
+      { to: '/admin/shipping', label: 'Pincodes', icon: Truck },
+      { to: '/admin/settings?tab=webhooks', label: 'Webhooks', icon: Webhook, settingsTab: 'webhooks' },
       { to: '/admin/users', label: 'Admin users', icon: Users },
     ],
   },
 ];
 
+function settingsTabFrom(search) {
+  return new URLSearchParams(search).get('tab') || 'general';
+}
+
+function itemActive(item, location) {
+  if (item.settingsTab) {
+    return location.pathname === '/admin/settings' && settingsTabFrom(location.search) === item.settingsTab;
+  }
+  if (item.end) return location.pathname === item.to;
+  return location.pathname === item.to || location.pathname.startsWith(`${item.to}/`);
+}
+
+function groupActive(group, location) {
+  return group.items.some((item) => itemActive(item, location));
+}
+
 function Sidebar({ onNavigate }) {
+  const location = useLocation();
+  const [open, setOpen] = useState(() => {
+    const initial = {};
+    for (const g of groups) initial[g.label] = groupActive(g, location);
+    return initial;
+  });
+
+  useEffect(() => {
+    setOpen((prev) => {
+      const next = { ...prev };
+      for (const g of groups) {
+        if (groupActive(g, location)) next[g.label] = true;
+      }
+      return next;
+    });
+  }, [location.pathname, location.search]);
+
   return (
     <>
       <div className="border-b border-[rgba(198,167,94,0.2)] px-5 py-5">
         <div className="font-serif tracking-[0.2em] gold-text">KUBERSTONES</div>
         <div className="mt-1 text-[10px] uppercase tracking-widest text-lilac">Atelier admin</div>
       </div>
-      <nav className="min-h-0 flex-1 space-y-4 overflow-y-auto p-3">
-        {groups.map((g) => (
-          <div key={g.label}>
-            <div className="px-3 pb-1 text-[10px] uppercase tracking-[0.18em] text-gold/70">{g.label}</div>
-            <div className="space-y-0.5">
-              {g.items.map((l) => (
-                <NavLink
-                  key={l.to}
-                  to={l.to}
-                  end={l.end}
-                  onClick={onNavigate}
-                  className={({ isActive }) =>
-                    `flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm ${isActive ? 'bg-amethyst/30 text-gold' : 'text-lilac hover:bg-raised hover:text-ivory'}`
-                  }
-                >
-                  {l.icon ? <l.icon size={14} /> : <span className="w-3.5" />} {l.label}
-                </NavLink>
-              ))}
+      <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto p-3">
+        {groups.map((g) => {
+          const expanded = Boolean(open[g.label]);
+          const current = groupActive(g, location);
+          return (
+            <div key={g.label}>
+              <button
+                type="button"
+                aria-expanded={expanded}
+                onClick={() => setOpen((prev) => ({ ...prev, [g.label]: !prev[g.label] }))}
+                className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-[10px] uppercase tracking-[0.18em] ${
+                  current ? 'text-gold' : 'text-gold/70 hover:bg-raised hover:text-gold'
+                }`}
+              >
+                {g.label}
+                <ChevronDown size={12} className={`transition ${expanded ? 'rotate-180' : ''}`} />
+              </button>
+              {expanded && (
+                <div className="mt-0.5 space-y-0.5">
+                  {g.items.map((l) => (
+                    <NavLink
+                      key={l.to}
+                      to={l.to}
+                      end={l.end}
+                      onClick={onNavigate}
+                      className={() =>
+                        `flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm ${
+                          itemActive(l, location) ? 'bg-amethyst/30 text-gold' : 'text-lilac hover:bg-raised hover:text-ivory'
+                        }`
+                      }
+                    >
+                      {l.icon ? <l.icon size={14} /> : <span className="w-3.5" />} {l.label}
+                    </NavLink>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </nav>
       <Link to="/" className="flex items-center gap-2 border-t border-[rgba(198,167,94,0.2)] px-5 py-4 text-sm text-lilac hover:text-gold">
         <ArrowLeft size={14} /> Storefront

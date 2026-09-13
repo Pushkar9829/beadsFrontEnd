@@ -8,24 +8,24 @@ import Price from '../components/ui/Price';
 import EmptyState from '../components/ui/EmptyState';
 import { useSite } from '../store/contentStore';
 import { startCashfreeCheckout } from '../lib/cashfree';
+import AddressPicker from '../components/checkout/AddressPicker';
+import { detectCurrentAddress } from '../lib/location';
+import { addressId, checkoutFromAddress, defaultAddress, emptyAddress, setDefaultAddress, upsertAddress } from '../lib/addresses';
 
 export default function CheckoutPage() {
   const page = useSite().pages.checkout;
   const user = useAuthStore((s) => s.user);
+  const updateProfile = useAuthStore((s) => s.updateProfile);
   const items = useCartStore((s) => s.items);
   const fetchServer = useCartStore((s) => s.fetchServer);
   const navigate = useNavigate();
-  const def = user?.addresses?.find((a) => a.isDefault) || user?.addresses?.[0] || {};
-  const [form, setForm] = useState({
-    contactName: user?.name || '',
-    phone: user?.phone || def.phone || '',
-    line1: def.line1 || '',
-    line2: def.line2 || '',
-    city: def.city || '',
-    state: def.state || '',
-    pincode: def.pincode || '',
-    country: def.country || 'India',
-  });
+  const addresses = user?.addresses || [];
+  const preferred = defaultAddress(user);
+  const [form, setForm] = useState(() => checkoutFromAddress(preferred, user));
+  const [selectedId, setSelectedId] = useState(preferred ? addressId(preferred) : 'new');
+  const [saveAddress, setSaveAddress] = useState(!addresses.length);
+  const [makeDefault, setMakeDefault] = useState(!addresses.length);
+  const [locating, setLocating] = useState(false);
   const [quote, setQuote] = useState(null);
   const [coupon, setCoupon] = useState('');
   const [method, setMethod] = useState('');
@@ -33,6 +33,14 @@ export default function CheckoutPage() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  useEffect(() => {
+    if (!user || form.line1) return;
+    const next = defaultAddress(user);
+    if (!next) return;
+    setForm(checkoutFromAddress(next, user));
+    setSelectedId(addressId(next));
+  }, [user]);
 
   useEffect(() => {
     if (!items.length) return;
@@ -56,6 +64,68 @@ export default function CheckoutPage() {
 
   if (!items.length) {
     return <EmptyState title={page.emptyTitle} body={page.emptyBody} />;
+  }
+
+  function applySaved(row) {
+    if (!row) {
+      setSelectedId('new');
+      setSaveAddress(true);
+      return;
+    }
+    setSelectedId(addressId(row));
+    setForm(checkoutFromAddress(row, user));
+    setSaveAddress(false);
+    setMakeDefault(Boolean(row.isDefault));
+  }
+
+  async function useCurrentLocation() {
+    setLocating(true);
+    setError('');
+    try {
+      const found = await detectCurrentAddress();
+      setForm((current) => ({
+        ...current,
+        ...checkoutFromAddress({ ...emptyAddress(), ...found, phone: current.phone || user?.phone }, user),
+        contactName: current.contactName || user?.name || '',
+        phone: current.phone || user?.phone || '',
+      }));
+      setSelectedId('new');
+      setSaveAddress(true);
+      setMakeDefault(!addresses.length);
+      if (found.needsPincode) setError('Location found. Add your 6-digit pincode to continue.');
+    } catch (err) {
+      setError(err.message || 'Could not read your location.');
+    } finally {
+      setLocating(false);
+    }
+  }
+
+  async function persistAddressIfNeeded() {
+    if (!user) return;
+    if (makeDefault && selectedId !== 'new' && !saveAddress) {
+      await updateProfile({ addresses: setDefaultAddress(addresses, selectedId) });
+      return;
+    }
+    if (!saveAddress && !makeDefault) return;
+    const existing = selectedId !== 'new' ? addresses.find((row) => addressId(row) === selectedId) : null;
+    const draft = {
+      ...(existing || {}),
+      label: existing?.label || (selectedId === 'new' ? 'Current location' : 'Home'),
+      line1: form.line1,
+      line2: form.line2,
+      city: form.city,
+      state: form.state,
+      pincode: form.pincode,
+      country: form.country || 'India',
+      phone: form.phone,
+      isDefault: makeDefault || !addresses.length,
+      source: existing?.source || (selectedId === 'new' ? 'gps' : 'manual'),
+    };
+    if (!draft.line1 || !draft.city || !/^\d{6}$/.test(String(draft.pincode || '').replace(/\D/g, ''))) return;
+    await updateProfile({
+      phone: user.phone || form.phone,
+      addresses: upsertAddress(addresses, draft),
+    });
   }
 
   async function applyCoupon(e) {
@@ -92,6 +162,11 @@ export default function CheckoutPage() {
           country: form.country,
         },
       });
+      try {
+        await persistAddressIfNeeded();
+      } catch {
+        /* order already placed */
+      }
       await fetchServer();
       if (method === 'gateway' && data.cashfree?.paymentSessionId) {
         await startCashfreeCheckout(data.cashfree);
@@ -117,6 +192,23 @@ export default function CheckoutPage() {
       <form onSubmit={submit} className="space-y-3">
         <h1 className="font-serif text-2xl gold-text">{page.title}</h1>
         <p className="text-sm text-lilac">{page.body}</p>
+        <AddressPicker
+          addresses={addresses}
+          selectedId={selectedId}
+          onSelect={applySaved}
+          onUseLocation={useCurrentLocation}
+          locating={locating}
+          saveAddress={saveAddress}
+          onSaveAddress={(checked) => {
+            setSaveAddress(checked);
+            if (checked && !addresses.length) setMakeDefault(true);
+          }}
+          makeDefault={makeDefault}
+          onMakeDefault={(checked) => {
+            setMakeDefault(checked);
+            if (checked) setSaveAddress(true);
+          }}
+        />
         {[['contactName', 'Full name'], ['phone', 'Phone'], ['line1', 'Address'], ['line2', 'Apartment / landmark'], ['city', 'City'], ['state', 'State'], ['pincode', 'Pincode'], ['country', 'Country']].map(([k, label]) => (
           <label key={k} className="block text-xs uppercase tracking-widest text-gold">
             {label}

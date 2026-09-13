@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../api/client';
 import Button from '../../components/ui/Button';
 import AdminHeader, { fieldClass, labelClass } from '../../components/admin/AdminHeader';
@@ -47,9 +48,19 @@ const empty = {
   seo: { title: 'Kuberstones', description: '', keywords: '', ogImage: '', noIndex: false },
 };
 
+const SETTINGS_TABS = ['general', 'payment', 'shipping', 'tax', 'notifications', 'seo', 'webhooks'];
+
 export default function AdminSettings() {
+  const [params, setParams] = useSearchParams();
+  const requested = params.get('tab') || 'general';
+  const tab = SETTINGS_TABS.includes(requested) ? requested : 'general';
+  const setTab = (id) => {
+    const next = new URLSearchParams(params);
+    if (!id || id === 'general') next.delete('tab');
+    else next.set('tab', id);
+    setParams(next, { replace: true });
+  };
   const [form, setForm] = useState(empty);
-  const [tab, setTab] = useState('general');
   const [warehouses, setWarehouses] = useState([]);
   const [warehouseNote, setWarehouseNote] = useState('');
   const [hooks, setHooks] = useState({ cashfree: 'https://beadbackend.onrender.com/api/payments/cashfree/webhook', ithink: 'https://beadbackend.onrender.com/api/shipping/ithink/webhook', ithinkSync: 'https://beadbackend.onrender.com/api/shipping/ithink/sync' });
