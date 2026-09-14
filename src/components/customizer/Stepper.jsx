@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useCustomizerStore } from '../../store/customizerStore';
 
 const STEPS = [
@@ -9,9 +10,16 @@ const STEPS = [
   { n: 6, label: 'Review' },
 ];
 
+const LAYER_STEPS = [
+  { n: 5, label: 'Charm' },
+  { n: 6, label: 'Review' },
+];
+
 export default function Stepper() {
+  const navigate = useNavigate();
   const step = useCustomizerStore((s) => s.step);
   const setStep = useCustomizerStore((s) => s.setStep);
+  const layer = useCustomizerStore((s) => s.layer);
   const purpose = useCustomizerStore((s) => s.purpose);
   const intention = useCustomizerStore((s) => s.intention);
   const recommended = useCustomizerStore((s) => s.recommended);
@@ -19,8 +27,14 @@ export default function Stepper() {
   const calibration = useCustomizerStore((s) => s.calibration);
   const charm = useCustomizerStore((s) => s.charm);
   const picked = (recommended || []).some((b) => (quantities[b._id] || 0) > 0);
+  const steps = layer ? LAYER_STEPS : STEPS;
 
   const can = (n) => {
+    if (layer) {
+      if (n === 5) return true;
+      if (n === 6) return !!charm;
+      return false;
+    }
     if (n <= step) return true;
     if (n === 2) return !!purpose;
     if (n === 3) return !!intention && picked;
@@ -32,7 +46,7 @@ export default function Stepper() {
 
   return (
     <ol className="studio-steps no-scrollbar">
-      {STEPS.map((s, i) => {
+      {steps.map((s, i) => {
         const active = step === s.n;
         const done = step > s.n;
         const allowed = can(s.n);
@@ -41,13 +55,20 @@ export default function Stepper() {
             <button
               type="button"
               disabled={!allowed}
-              onClick={() => allowed && setStep(s.n)}
+              onClick={() => {
+                if (!allowed) return;
+                if (layer && s.n < 5 && layer.path) {
+                  navigate(layer.path);
+                  return;
+                }
+                setStep(s.n);
+              }}
               className={`studio-chip ${active ? 'is-on' : done ? 'is-done' : ''}`}
             >
-              <span className="studio-chip-n">{String(s.n).padStart(2, '0')}</span>
+              <span className="studio-chip-n">{String(layer ? i + 1 : s.n).padStart(2, '0')}</span>
               <span className="hidden sm:inline">{s.label}</span>
             </button>
-            {i < STEPS.length - 1 && <span className="studio-chip-rule" aria-hidden />}
+            {i < steps.length - 1 && <span className="studio-chip-rule" aria-hidden />}
           </li>
         );
       })}

@@ -15,7 +15,7 @@ export default function AdminAbandonedCarts() {
 
   return (
     <div>
-      <AdminHeader title="Abandoned carts" subtitle="Carts with items that have sat idle for more than an hour." />
+      <AdminHeader title="Abandoned carts" subtitle="Carts idle for more than an hour. Remind creates an admin notification — it does not email the customer." />
       <AdminTable
         rows={slice}
         empty="No abandoned carts."

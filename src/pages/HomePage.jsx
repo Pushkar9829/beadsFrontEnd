@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api, { mediaUrl } from '../api/client';
 import Hero from '../components/home/Hero';
@@ -6,30 +6,26 @@ import SectionHead from '../components/home/SectionHead';
 import RitualSteps from '../components/home/RitualSteps';
 import HousesRow from '../components/home/HousesRow';
 import Testimonials from '../components/home/Testimonials';
+import FaqAccordion from '../components/home/FaqAccordion';
 import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
 import Reveal from '../components/ui/Reveal';
 import InViewGroup from '../components/ui/InViewGroup';
 import { claimIcon } from '../lib/claimIcons';
 import { useSite } from '../store/contentStore';
+import { useBrand, pageTitle } from '../store/settingsStore';
 import { PurposeIcon, purposeHasImage, purposeToneStyle } from '../components/customizer/PurposeGrid';
 import finaleBanner from '../assets/home/finale-banner.jpg';
 import studioBanner from '../assets/home/hero-bracelet.jpg';
 import NewsletterBox from '../components/NewsletterBox';
 import FlashCountdown from '../components/FlashCountdown';
+import FlashSaleMark from '../components/ui/FlashSaleMark';
 import SeoHead from '../components/SeoHead';
-
-const FALLBACK_PURPOSES = [
-  { slug: 'love-relationships', name: 'Love & Relationships', description: 'Invite tenderness, partnership and self-worth.' },
-  { slug: 'money-abundance', name: 'Money & Abundance', description: 'Align with wealth, flow and material ease.' },
-  { slug: 'career-success', name: 'Career & Success', description: 'Support ambition, recognition and skilled work.' },
-  { slug: 'confidence-power', name: 'Confidence & Power', description: 'Stand in your voice, will and presence.' },
-  { slug: 'protection-grounding', name: 'Protection & Grounding', description: 'Feel held, bounded and rooted.' },
-  { slug: 'calm-emotional-balance', name: 'Calm & Emotional Balance', description: 'Soften intensity and restore evenness.' },
-];
+import useRefreshOnView from '../hooks/useRefreshOnView';
 
 export default function HomePage() {
   const home = useSite();
+  const brand = useBrand();
   const [featured, setFeatured] = useState([]);
   const [purposes, setPurposes] = useState([]);
   const [rails, setRails] = useState({ bestsellers: [], newArrivals: [], trending: [] });
@@ -39,7 +35,7 @@ export default function HomePage() {
   const [flashProducts, setFlashProducts] = useState([]);
   const [posts, setPosts] = useState([]);
 
-  useEffect(() => {
+  const loadCatalog = useCallback(() => {
     api.get('/products?featured=true').then(({ data }) => setFeatured(data.products || [])).catch(() => {});
     api.get('/customizer/purposes').then(({ data }) => setPurposes(data.purposes || [])).catch(() => {});
     api.get('/home/collections').then(({ data }) => setRails(data)).catch(() => {});
@@ -51,11 +47,21 @@ export default function HomePage() {
     }).catch(() => {});
     api.get('/blog').then(({ data }) => setPosts((data.posts || []).slice(0, 3))).catch(() => {});
   }, []);
-  const studioPurposes = (purposes.length ? purposes : FALLBACK_PURPOSES).slice(0, 6);
+
+  useRefreshOnView(loadCatalog);
+
+  const studioPurposes = purposes.slice(0, 6);
   const marquee = home.marquee;
   const claims = home.trustClaims;
   const studioImage = home.studio.bannerImage ? mediaUrl(home.studio.bannerImage) : studioBanner;
   const finaleImage = home.finale.image ? mediaUrl(home.finale.image) : finaleBanner;
+  const purposeCopy = home.purpose || {};
+  const railCopy = home.rails || {};
+  const faqCopy = home.faq || {};
+  const journalCopy = home.journal || {};
+  const flashCopy = home.flash || {};
+  const newsletterCopy = home.newsletter || {};
+  const voices = (home.testimonials || []).filter((v) => v.quote && v.name);
 
   const layout = (home.homeLayout || []).filter((s) => s.enabled !== false);
   const now = Date.now();
@@ -68,12 +74,12 @@ export default function HomePage() {
     return true;
   };
 
-  function ProductRail({ title, eyebrow, products, to }) {
+  function ProductRail({ title, eyebrow, products, to, action }) {
     if (!products?.length) return null;
     return (
       <section className="shell py-8 sm:py-10 md:py-14">
         <Reveal variant="head">
-          <SectionHead eyebrow={eyebrow} title={title} to={to} action="See all →" />
+          <SectionHead eyebrow={eyebrow} title={title} to={to} action={action || 'See all →'} />
         </Reveal>
         <InViewGroup className="feature-grid mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {products.slice(0, 8).map((p, i) => (
@@ -90,30 +96,42 @@ export default function HomePage() {
     hero: live('hero') && (
       <div key="hero">
         <Hero hero={home.hero} />
-        {flash && (
-          <div className="shell mt-4 space-y-4">
-            <FlashCountdown sale={flash} />
-            {flashProducts.length > 0 && (
-              <InViewGroup className="feature-grid grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {flashProducts.slice(0, 4).map((p, i) => (
-                  <div key={p._id} className="feature-item" style={{ '--i': i }}>
-                    <ProductCard product={p} description={p.shortDescription} />
-                  </div>
-                ))}
-              </InViewGroup>
-            )}
-          </div>
-        )}
         {banners.length > 0 && (
-          <div className="shell mt-4 grid gap-3 md:grid-cols-2">
-            {banners.slice(0, 2).map((b) => (
-              <Link key={b._id} to={b.link || '/shop'} className="overflow-hidden rounded-2xl border border-gold/20">
-                <img src={mediaUrl(b.image)} alt={b.title} className="h-40 w-full object-cover" />
-              </Link>
-            ))}
+          <div className="shell">
+            <div className={`home-banners home-banners-${Math.min(2, banners.length)}`}>
+              {banners.slice(0, 2).map((b) => (
+                <Link key={b._id} to={b.link || '/shop'} className="home-banner">
+                  <img src={mediaUrl(b.mobileImage || b.image)} alt="" className="home-banner-img" />
+                  {b.title && <span className="home-banner-label">{b.title}</span>}
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </div>
+    ),
+    flash_sale: live('flash_sale') && flash && (
+      <section key="flash_sale" className="shell flash-home">
+        <Reveal variant="head">
+          <SectionHead
+            eyebrow={<FlashSaleMark size="md" label={flashCopy.label || 'Flash sale'} />}
+            title={flash.name}
+            body={flashCopy.body}
+            to={flashCopy.to || '/sale'}
+            action={flashCopy.action || 'Shop the sale →'}
+            aside={<FlashCountdown sale={flash} to={null} compact />}
+          />
+        </Reveal>
+        {flashProducts.length > 0 && (
+          <InViewGroup className={`feature-grid flash-products flash-products-${Math.min(4, flashProducts.length)}`}>
+            {flashProducts.slice(0, 4).map((p, i) => (
+              <div key={p._id} className="feature-item h-full min-w-0" style={{ '--i': i }}>
+                <ProductCard product={p} description={p.shortDescription} />
+              </div>
+            ))}
+          </InViewGroup>
+        )}
+      </section>
     ),
     marquee: live('marquee') && marquee.length > 0 && (
       <div key="marquee" className="marquee" aria-hidden>
@@ -178,10 +196,16 @@ export default function HomePage() {
         </InViewGroup>
       </section>
     ),
-    shop_by_purpose: live('shop_by_purpose') && (
+    shop_by_purpose: live('shop_by_purpose') && studioPurposes.length > 0 && (
       <section key="shop_by_purpose" className="shell py-8 sm:py-10 md:py-14">
         <Reveal variant="head">
-          <SectionHead eyebrow="Purpose" title="Shop by purpose" body="Begin with why you wear it. Each purpose opens the studio with that intention already chosen." to="/shop-by-purpose" action="All purposes →" />
+          <SectionHead
+            eyebrow={purposeCopy.eyebrow}
+            title={purposeCopy.title}
+            body={purposeCopy.body}
+            to={purposeCopy.to || '/customize/purpose'}
+            action={purposeCopy.action}
+          />
         </Reveal>
         <div className="purpose-pick mt-8">
           {studioPurposes.map((p) => (
@@ -198,10 +222,37 @@ export default function HomePage() {
         </div>
       </section>
     ),
-    bestsellers: live('bestsellers') && <ProductRail key="bestsellers" eyebrow="Collection" title="Best sellers" products={rails.bestsellers} to="/collection/best-sellers" />,
-    new_arrivals: live('new_arrivals') && <ProductRail key="new_arrivals" eyebrow="Collection" title="New arrivals" products={rails.newArrivals} to="/collection/new-arrivals" />,
-    trending: live('trending') && <ProductRail key="trending" eyebrow="Collection" title="Trending bracelets" products={rails.trending} to="/collection/trending" />,
-    testimonials: live('testimonials') && (
+    bestsellers: live('bestsellers') && (
+      <ProductRail
+        key="bestsellers"
+        eyebrow={railCopy.bestsellers?.eyebrow}
+        title={railCopy.bestsellers?.title}
+        action={railCopy.bestsellers?.action}
+        products={rails.bestsellers}
+        to={railCopy.bestsellers?.to || '/collection/best-sellers'}
+      />
+    ),
+    new_arrivals: live('new_arrivals') && (
+      <ProductRail
+        key="new_arrivals"
+        eyebrow={railCopy.newArrivals?.eyebrow}
+        title={railCopy.newArrivals?.title}
+        action={railCopy.newArrivals?.action}
+        products={rails.newArrivals}
+        to={railCopy.newArrivals?.to || '/collection/new-arrivals'}
+      />
+    ),
+    trending: live('trending') && (
+      <ProductRail
+        key="trending"
+        eyebrow={railCopy.trending?.eyebrow}
+        title={railCopy.trending?.title}
+        action={railCopy.trending?.action}
+        products={rails.trending}
+        to={railCopy.trending?.to || '/collection/trending'}
+      />
+    ),
+    testimonials: live('testimonials') && voices.length > 0 && (
       <section key="testimonials" className="relative py-8 sm:py-10 md:py-14">
         <div className="pointer-events-none absolute inset-0 lotus-corner" />
         <div className="relative shell">
@@ -236,22 +287,15 @@ export default function HomePage() {
     faq: live('faq') && faqs.length > 0 && (
       <section key="faq" className="shell py-8 sm:py-10 md:py-14">
         <Reveal variant="head">
-          <SectionHead eyebrow="FAQ" title="Questions, answered" to="/faq" action="All questions →" />
+          <SectionHead eyebrow={faqCopy.eyebrow} title={faqCopy.title} to={faqCopy.to || '/faq'} action={faqCopy.action} />
         </Reveal>
-        <div className="mt-6 space-y-3">
-          {faqs.slice(0, 4).map((f) => (
-            <article key={f._id} className="rounded-2xl border border-gold/20 p-4">
-              <h3 className="font-serif text-lg gold-text">{f.question}</h3>
-              <p className="mt-2 text-sm text-lilac">{f.answer}</p>
-            </article>
-          ))}
-        </div>
+        <FaqAccordion items={faqs.slice(0, 4)} />
       </section>
     ),
     journal: live('journal') && posts.length > 0 && (
       <section key="journal" className="shell py-8 sm:py-10 md:py-14">
         <Reveal variant="head">
-          <SectionHead eyebrow="Journal" title="From the atelier" to="/journal" action="All notes →" />
+          <SectionHead eyebrow={journalCopy.eyebrow} title={journalCopy.title} to={journalCopy.to || '/journal'} action={journalCopy.action} />
         </Reveal>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {posts.map((p) => (
@@ -266,7 +310,7 @@ export default function HomePage() {
     ),
     newsletter: live('newsletter') && (
       <section key="newsletter" className="shell py-8">
-        <NewsletterBox />
+        <NewsletterBox eyebrow={newsletterCopy.eyebrow} title={newsletterCopy.title} />
       </section>
     ),
     finale: live('finale') && (
@@ -295,7 +339,13 @@ export default function HomePage() {
 
   return (
     <div className="home-page">
-      <SeoHead title="Kuberstones" description={home.hero?.subtitle} />
+      <SeoHead
+        title={pageTitle('', brand)}
+        description={brand.seo?.description || home.hero?.subtitle}
+        keywords={brand.seo?.keywords}
+        image={brand.seo?.ogImage}
+        noIndex={brand.seo?.noIndex}
+      />
       {ordered}
     </div>
   );

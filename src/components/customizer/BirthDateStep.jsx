@@ -10,7 +10,7 @@ function daysInMonth(year, month) {
   return new Date(Number(year), Number(month), 0).getDate();
 }
 
-function DateOfBirthFields({ value, onChange }) {
+export function DateOfBirthFields({ value, onChange }) {
   const now = new Date();
   const maxYear = now.getFullYear();
   const parsed = String(value || '').split('-');

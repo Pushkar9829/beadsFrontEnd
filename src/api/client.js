@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { publishStorefront } from '../lib/storefrontSync';
 
 export const API_ORIGIN = String(import.meta.env.VITE_API_URL || '')
   .trim()
@@ -35,7 +36,17 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    const method = String(res.config?.method || '').toLowerCase();
+    const url = String(res.config?.url || '');
+    if (['put', 'patch', 'delete'].includes(method) && /admin|customizer\/admin/.test(url)) {
+      publishStorefront();
+    }
+    if (method === 'post' && /\/admin\//.test(url)) {
+      publishStorefront();
+    }
+    return res;
+  },
   (err) => {
     const status = err.response?.status;
     const message = err.response?.data?.message || err.message || 'Request failed.';

@@ -64,6 +64,20 @@ export default function BeadDetailDrawer() {
               <p className="mt-1 text-sm text-amethyst-light">{bead.reason}</p>
             </>
           )}
+          {bead.origin && (
+            <>
+              <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">Origin</h3>
+              <p className="mt-1 text-sm">{bead.origin}</p>
+            </>
+          )}
+          {(bead.sizeMm || bead.shape || bead.grade) && (
+            <>
+              <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">Specification</h3>
+              <p className="mt-1 text-sm text-lilac">
+                {[bead.sizeMm ? `${bead.sizeMm} mm` : null, bead.shape, bead.grade].filter(Boolean).join(' · ')}
+              </p>
+            </>
+          )}
           <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">Care</h3>
           <p className="mt-1 text-sm text-lilac">{bead.careNotes}</p>
           <p className="mt-6 text-xs leading-relaxed text-ivory/45">{bead.disclaimer}</p>

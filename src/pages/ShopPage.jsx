@@ -10,6 +10,9 @@ import CmsFinale from '../components/ui/CmsFinale';
 import Pager from '../components/ui/Pager';
 import { fillCopy, houseMeta } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
+import { useBrand, pageTitle } from '../store/settingsStore';
+import useRefreshOnView from '../hooks/useRefreshOnView';
+import SeoHead from '../components/SeoHead';
 
 const CRUMBS = [
   { label: 'Home', to: '/' },
@@ -18,6 +21,7 @@ const CRUMBS = [
 
 export default function ShopPage() {
   const site = useSite();
+  const brand = useBrand();
   const page = site.pages.shop;
   const houses = site.houses?.items || [];
   const [params, setParams] = useSearchParams();
@@ -27,8 +31,10 @@ export default function ShopPage() {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
+  const [tick, setTick] = useState(0);
   const collection = params.get('collection') || '';
   const pageNum = Number(params.get('page') || 1);
+  useRefreshOnView(() => setTick((n) => n + 1));
 
   useEffect(() => {
     setLoading(true);
@@ -41,11 +47,11 @@ export default function ShopPage() {
       setProducts(data.products || []);
       setPagination(data.pagination || { page: 1, pages: 1, total: (data.products || []).length });
     }).finally(() => setLoading(false));
-  }, [family, collection, pageNum]);
+  }, [family, collection, pageNum, tick]);
   useEffect(() => {
     api.get('/collections').then(({ data }) => setCollections(data.collections || [])).catch(() => {});
     api.get('/banners?placement=shop').then(({ data }) => setBanners(data.banners || [])).catch(() => {});
-  }, []);
+  }, [tick]);
 
   function setFilter(next) {
     const qs = new URLSearchParams();
@@ -58,6 +64,7 @@ export default function ShopPage() {
 
   return (
     <div className="relative">
+      <SeoHead title={pageTitle(house?.name || page.title, brand)} description={house ? fillCopy(page.familyBody, { house: house.name.toLowerCase() }) : page.body} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
       <div className="pointer-events-none absolute inset-0 lotus-corner" />
       <div className="relative shell py-8 sm:py-10 md:py-12">
         <Breadcrumbs items={CRUMBS} />

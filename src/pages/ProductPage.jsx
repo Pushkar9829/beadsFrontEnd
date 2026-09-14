@@ -6,17 +6,21 @@ import Button from '../components/ui/Button';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
 import GemVisual from '../components/ui/GemVisual';
 import Price from '../components/ui/Price';
+import ProductRating from '../components/ui/ProductRating';
+import FlashSaleMark from '../components/ui/FlashSaleMark';
 import QtyControl from '../components/ui/QtyControl';
 import Spinner from '../components/ui/Spinner';
 import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
 import { houseMeta } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
+import { useBrand, pageTitle } from '../store/settingsStore';
 import CmsFinale from '../components/ui/CmsFinale';
 import SeoHead from '../components/SeoHead';
 
 export default function ProductPage() {
   const site = useSite();
+  const brand = useBrand();
   const { slug } = useParams();
   const [product, setProduct] = useState(null);
   const [qty, setQty] = useState(1);
@@ -52,7 +56,7 @@ export default function ProductPage() {
         ) : (
           <>
           <SeoHead
-            title={product.seo?.title || `${product.name} · Kuberstones`}
+            title={product.seo?.title || pageTitle(product.name, brand)}
             description={product.seo?.description || product.shortDescription}
             keywords={product.seo?.keywords}
             image={product.seo?.ogImage || product.images?.[0]}
@@ -72,6 +76,7 @@ export default function ProductPage() {
                     {house?.name || product.family}
                   </p>
                   <h1 className="mt-2 font-serif text-2xl gold-text sm:text-3xl md:text-4xl">{product.name}</h1>
+                  <ProductRating product={product} size="md" />
                   {product.shortDescription && (
                     <p className="mt-3 text-sm leading-relaxed text-lilac md:text-base">{product.shortDescription}</p>
                   )}
@@ -84,7 +89,12 @@ export default function ProductPage() {
                     </p>
                   )}
                   {product.flashSale && (
-                    <p className="mt-2 text-[10px] uppercase tracking-widest text-gold">Flash sale · {product.flashSale.name}</p>
+                    <FlashSaleMark
+                      size="md"
+                      label="Flash sale"
+                      name={product.flashSale.name}
+                      className="mt-3"
+                    />
                   )}
                 </div>
                 <div className="product-card-tools">

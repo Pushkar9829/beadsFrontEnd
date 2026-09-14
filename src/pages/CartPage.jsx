@@ -13,39 +13,13 @@ import SectionHead from '../components/home/SectionHead';
 import CmsFinale from '../components/ui/CmsFinale';
 import { fillCopy } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
+import CouponPicker from '../components/cart/CouponPicker';
+import { itemMeta, itemTitle } from '../lib/cartItems';
 
 const CRUMBS = [
   { label: 'Home', to: '/' },
   { label: 'Bag' },
 ];
-
-function itemTitle(item) {
-  const snap = item.snapshot || {};
-  if (item.kind === 'custom_bracelet') {
-    return snap.name || `Custom bracelet · ${snap.intention?.name || 'Intention'}`;
-  }
-  return snap.name || 'Piece';
-}
-
-function itemMeta(item) {
-  const snap = item.snapshot || {};
-  if (item.kind !== 'custom_bracelet') return '';
-  const parts = [];
-  if (snap.purpose?.name) parts.push(snap.purpose.name);
-  if (snap.intention?.name && snap.intention.name !== snap.purpose?.name) {
-    parts.push(snap.intention.name);
-  }
-  if (snap.charm?.name) parts.push(snap.charm.name);
-  if (snap.mulank) parts.push(`Mulank ${snap.mulank}`);
-  if (snap.zodiac?.sign) parts.push(snap.zodiac.sign);
-  if (snap.finish?.label && snap.finish.label !== 'Gold') parts.push(snap.finish.label);
-  if (snap.wristSize) parts.push(snap.wristSize);
-  const beads = snap.beads
-    ?.map((b) => (b.name ? `${b.name} × ${b.quantity}` : ''))
-    .filter(Boolean);
-  if (beads?.length) parts.push(beads.join(' · '));
-  return parts.join(' · ');
-}
 
 export default function CartPage() {
   const page = useSite().pages.cart;
@@ -158,7 +132,7 @@ export default function CartPage() {
               <h2 className="bag-summary-title gold-text">Checkout.</h2>
               {user && (
                 <form
-                  className="mb-4 flex gap-2"
+                  className="mb-3 flex gap-2"
                   onSubmit={async (e) => {
                     e.preventDefault();
                     setCouponMsg('');
@@ -171,9 +145,39 @@ export default function CartPage() {
                     }
                   }}
                 >
-                  <input className="flex-1 rounded-xl border border-gold/30 bg-ink px-3 py-2 text-sm text-ivory" placeholder="Coupon" value={coupon} onChange={(e) => setCoupon(e.target.value)} />
+                  <input className="flex-1 rounded-xl border border-gold/30 bg-ink px-3 py-2 text-sm text-ivory" placeholder="Coupon code" value={coupon} onChange={(e) => setCoupon(e.target.value)} />
                   <button type="submit" className="text-xs uppercase tracking-widest text-gold">Apply</button>
                 </form>
+              )}
+              <CouponPicker
+                signedIn={!!user}
+                appliedCode={quote?.coupon?.code || coupon}
+                refreshKey={`${items.length}-${amount}`}
+                onQuote={(next, message) => {
+                  if (next) {
+                    setQuote(next);
+                    if (next.coupon?.code) setCoupon(next.coupon.code);
+                  }
+                  if (message) setCouponMsg(message);
+                }}
+              />
+              {quote?.coupon?.code && user && (
+                <button
+                  type="button"
+                  className="mb-3 text-[11px] uppercase tracking-widest text-gold"
+                  onClick={async () => {
+                    try {
+                      const { data } = await api.delete('/cart/coupon');
+                      setQuote(data.quote);
+                      setCoupon('');
+                      setCouponMsg('');
+                    } catch (err) {
+                      setCouponMsg(err.message);
+                    }
+                  }}
+                >
+                  Remove {quote.coupon.code}
+                </button>
               )}
               {couponMsg && <p className="mb-2 text-xs text-lilac">{couponMsg}</p>}
               <dl className="bag-summary-rows">
@@ -187,8 +191,14 @@ export default function CartPage() {
                 </div>
                 {quote?.discount ? (
                   <div>
-                    <dt>Discount</dt>
+                    <dt>{quote.coupon?.code ? `Coupon (${quote.coupon.code})` : quote.offer?.discount ? `Offer (${quote.offer.name})` : 'Discount'}</dt>
                     <dd>-<Price value={quote.discount} /></dd>
+                  </div>
+                ) : null}
+                {quote?.offer?.freeShipping && !quote?.discount ? (
+                  <div>
+                    <dt>Offer</dt>
+                    <dd>{quote.offer.name}</dd>
                   </div>
                 ) : null}
                 <div>

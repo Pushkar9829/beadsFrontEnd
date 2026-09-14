@@ -1,9 +1,12 @@
+import { useNavigate } from 'react-router-dom';
 import { useCustomizerStore, useCustomizerQuote } from '../../store/customizerStore';
 import PlaceOrderButton from './PlaceOrderButton';
 import Price from '../ui/Price';
 import { formatWristChoice } from '../../lib/format';
 
 export default function ReviewStep() {
+  const navigate = useNavigate();
+  const layer = useCustomizerStore((s) => s.layer);
   const purpose = useCustomizerStore((s) => s.purpose);
   const intention = useCustomizerStore((s) => s.intention);
   const charm = useCustomizerStore((s) => s.charm);
@@ -19,25 +22,38 @@ export default function ReviewStep() {
   return (
     <article className="auth-card">
       <p className="bag-summary-kicker">The composition</p>
-      <h2 className="bag-summary-title gold-text">{intention?.name || 'Custom strand'}</h2>
+      <h2 className="bag-summary-title gold-text">{intention?.name || layer?.name || 'Custom strand'}</h2>
 
       <dl className="bag-summary-rows">
-        <div>
-          <dt>Intention</dt>
-          <dd>{purpose?.name} · {intention?.name}</dd>
-        </div>
-        <div>
-          <dt>Date of birth</dt>
-          <dd>{dateOfBirth}</dd>
-        </div>
-        <div>
-          <dt>Mulank / Bhagyank</dt>
-          <dd>{calibration?.mulank} / {calibration?.bhagyank}</dd>
-        </div>
-        <div>
-          <dt>Zodiac</dt>
-          <dd>{calibration?.zodiac?.sign} · {calibration?.zodiac?.bead?.name}</dd>
-        </div>
+        {layer ? (
+          <div>
+            <dt>Path</dt>
+            <dd>{layer.modeLabel} · {layer.name}</dd>
+          </div>
+        ) : (
+          <div>
+            <dt>Intention</dt>
+            <dd>{purpose?.name} · {intention?.name}</dd>
+          </div>
+        )}
+        {dateOfBirth ? (
+          <div>
+            <dt>Date of birth</dt>
+            <dd>{dateOfBirth}</dd>
+          </div>
+        ) : null}
+        {(calibration?.mulank || calibration?.bhagyank) ? (
+          <div>
+            <dt>Mulank / Bhagyank</dt>
+            <dd>{calibration?.mulank || '—'} / {calibration?.bhagyank || '—'}</dd>
+          </div>
+        ) : null}
+        {calibration?.zodiac?.sign ? (
+          <div>
+            <dt>Zodiac</dt>
+            <dd>{calibration.zodiac.sign}{calibration.zodiac.bead?.name ? ` · ${calibration.zodiac.bead.name}` : ''}</dd>
+          </div>
+        ) : null}
         {lines.map((l) => (
           <div key={l.beadId}>
             <dt>{l.name} × {l.quantity}</dt>
@@ -72,9 +88,15 @@ export default function ReviewStep() {
           <button type="button" className="bag-summary-clear" onClick={goBack}>
             ← Charm
           </button>
-          <button type="button" className="bag-summary-clear" onClick={() => setStep(3)}>
-            Edit calibration
-          </button>
+          {layer ? (
+            <button type="button" className="bag-summary-clear" onClick={() => navigate(layer.path)}>
+              Edit selection
+            </button>
+          ) : (
+            <button type="button" className="bag-summary-clear" onClick={() => setStep(3)}>
+              Edit calibration
+            </button>
+          )}
         </div>
       </div>
     </article>

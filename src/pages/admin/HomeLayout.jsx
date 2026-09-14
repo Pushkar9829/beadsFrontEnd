@@ -5,6 +5,7 @@ import AdminHeader, { fieldClass, labelClass } from '../../components/admin/Admi
 import { toast } from '../../lib/adminToast';
 import { useContentStore } from '../../store/contentStore';
 import { mergeHomeLayout } from '../../lib/homeContent';
+import { publishStorefront } from '../../lib/storefrontSync';
 
 export default function AdminHomeLayout() {
   const loadContent = useContentStore((s) => s.load);
@@ -30,7 +31,8 @@ export default function AdminHomeLayout() {
     try {
       await api.put('/admin/content', { ...content, homeLayout: layout });
       toast('Homepage layout saved.');
-      loadContent();
+      loadContent(true);
+      publishStorefront();
     } catch (err) {
       toast(err.message || 'Could not save.', 'error');
     }

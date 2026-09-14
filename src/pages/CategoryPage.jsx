@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import api from '../api/client';
+import { useParams, Link } from 'react-router-dom';
+import api, { mediaUrl } from '../api/client';
 import ProductCard from '../components/ui/ProductCard';
 import Spinner from '../components/ui/Spinner';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
@@ -9,16 +9,19 @@ import SectionHead from '../components/home/SectionHead';
 import CmsFinale from '../components/ui/CmsFinale';
 import { houseMeta } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
+import { useBrand, pageTitle } from '../store/settingsStore';
 import SeoHead from '../components/SeoHead';
 
 export default function CategoryPage() {
   const site = useSite();
+  const brand = useBrand();
   const page = site.pages.category;
   const { slug } = useParams();
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [missing, setMissing] = useState(false);
+  const [banners, setBanners] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -30,6 +33,7 @@ export default function CategoryPage() {
       })
       .catch(() => setMissing(true))
       .finally(() => setLoading(false));
+    api.get('/banners?placement=category').then(({ data }) => setBanners(data.banners || [])).catch(() => {});
   }, [slug]);
 
   const house = houseMeta(site, category?.family);
@@ -53,12 +57,15 @@ export default function CategoryPage() {
         ) : (
           <>
             <SeoHead
-              title={category.seo?.title || `${category.name} · Kuberstones`}
+              title={category.seo?.title || pageTitle(category.name, brand)}
               description={category.seo?.description || category.description}
               keywords={category.seo?.keywords}
               image={category.seo?.ogImage || category.image}
               noIndex={category.seo?.noIndex}
             />
+            {category.image ? (
+              <img src={mediaUrl(category.image)} alt="" className="mt-8 h-44 w-full rounded-2xl object-cover" />
+            ) : null}
             <div className="mt-8">
               <SectionHead
                 eyebrow={house?.name || category.family}
@@ -68,6 +75,16 @@ export default function CategoryPage() {
                 action={page.action}
               />
             </div>
+
+            {banners.filter((b) => !b.link || String(b.link).includes(`/c/${slug}`)).slice(0, 2).length > 0 && (
+              <div className="mt-6 grid gap-3 md:grid-cols-2">
+                {banners.filter((b) => !b.link || String(b.link).includes(`/c/${slug}`)).slice(0, 2).map((b) => (
+                  <Link key={b._id} to={b.link || `/c/${slug}`} className="overflow-hidden rounded-2xl border border-gold/20">
+                    <img src={mediaUrl(b.image)} alt={b.title} className="h-36 w-full object-cover" />
+                  </Link>
+                ))}
+              </div>
+            )}
 
             {products.length === 0 ? (
               <CmsFinale block={page.empty} />

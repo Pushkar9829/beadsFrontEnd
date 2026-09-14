@@ -6,8 +6,9 @@ import AdminDrawer from '../../components/admin/AdminDrawer';
 import ConfirmDelete from '../../components/admin/ConfirmDelete';
 import AdminHeader, { RowActions, fieldClass, labelClass } from '../../components/admin/AdminHeader';
 import AdminToolbar, { paginate, Pagination } from '../../components/admin/AdminToolbar';
+import MediaField from '../../components/admin/MediaField';
 
-const empty = { name: '', family: 'crystals', parentId: '', description: '', sortOrder: 0, isActive: true, seo: { title: '', description: '', keywords: '', ogImage: '', noIndex: false } };
+const empty = { name: '', family: 'crystals', parentId: '', description: '', image: '', sortOrder: 0, isActive: true, seo: { title: '', description: '', keywords: '', ogImage: '', noIndex: false } };
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
@@ -93,6 +94,7 @@ export default function AdminCategories() {
           </label>
           <label className={labelClass}>Sort<input type="number" className={`${fieldClass} mt-1`} value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: e.target.value })} /></label>
           <label className={labelClass}>Description<textarea className={`${fieldClass} mt-1`} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>
+          <MediaField label="Image" value={form.image} onChange={(image) => setForm({ ...form, image })} />
           <label className={labelClass}>SEO title<input className={`${fieldClass} mt-1`} value={form.seo?.title || ''} onChange={(e) => setForm({ ...form, seo: { ...form.seo, title: e.target.value } })} /></label>
           <label className={labelClass}>Meta description<textarea className={`${fieldClass} mt-1`} value={form.seo?.description || ''} onChange={(e) => setForm({ ...form, seo: { ...form.seo, description: e.target.value } })} /></label>
           <label className="flex items-center gap-2 text-sm text-lilac">

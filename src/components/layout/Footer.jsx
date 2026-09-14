@@ -1,46 +1,33 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, MapPin } from 'lucide-react';
-import logo from '../../assets/brand/logo.jpg';
+import { Mail, MapPin, Phone } from 'lucide-react';
 import footerBanner from '../../assets/home/footer-banner.jpg';
 import { mediaUrl } from '../../api/client';
 import Button from '../ui/Button';
 import ContactDrawer from './ContactDrawer';
 import NewsletterBox from '../NewsletterBox';
 import { useSite } from '../../store/contentStore';
+import { useBrand, useStoreIdentity } from '../../store/settingsStore';
 
 const linkClass = 'footer-link';
-
-const SHOP_LINKS = [
-  { to: '/about', label: 'About Kuberstones' },
-  { to: '/crystals', label: 'Crystal Beads' },
-  { to: '/customize', label: 'Spiritual Bracelets' },
-  { to: '/gemstones', label: 'Gemstones' },
-  { to: '/rudraksha', label: 'Rudraksha' },
-  { to: '/shop-by-purpose', label: 'Shop by Purpose' },
-];
-
-const CARE_LINKS = [
-  { to: '/shipping', label: 'Shipping & Delivery' },
-  { to: '/returns', label: 'Returns' },
-  { to: '/exchanges', label: 'Exchanges' },
-  { to: '/refunds', label: 'Refunds & Cancellations' },
-  { to: '/faq', label: 'FAQs' },
-  { to: '/account', label: 'Track Order' },
-];
-
-const LEGAL_LINKS = [
-  { to: '/privacy', label: 'Privacy Policy' },
-  { to: '/terms', label: 'Terms & Conditions' },
-  { to: '/maintenance', label: 'Website Maintenance' },
-  { to: '/grievance', label: 'Contact & Grievance Redressal' },
-];
 
 export default function Footer() {
   const [contactOpen, setContactOpen] = useState(false);
   const site = useSite();
+  const brand = useBrand();
+  const store = useStoreIdentity();
   const footer = site.footer;
   const banner = footer.bannerImage ? mediaUrl(footer.bannerImage) : footerBanner;
+  const emailHref = footer.email
+    ? (String(footer.email).startsWith('mailto:') ? footer.email : `mailto:${String(footer.email).replace(/^mailto:/i, '')}`)
+    : store.email
+      ? `mailto:${store.email}`
+      : '';
+  const phone = footer.supportPhone || store.phone;
+  const phoneHref = phone ? `tel:${String(phone).replace(/[^\d+]/g, '')}` : '';
+  const shopLinks = footer.shopLinks?.length ? footer.shopLinks : [];
+  const careLinks = footer.careLinks?.length ? footer.careLinks : [];
+  const legalLinks = footer.legalLinks?.length ? footer.legalLinks : [];
 
   return (
     <footer className="footer">
@@ -64,65 +51,78 @@ export default function Footer() {
         <div className="grid gap-10 py-10 sm:grid-cols-2 sm:gap-12 sm:py-14 lg:grid-cols-5">
           <div className="sm:col-span-2 lg:col-span-2">
             <Link to="/" className="inline-flex items-center gap-3">
-              <img src={logo} alt="" className="h-12 w-12 rounded-full object-cover ring-1 ring-gold/40" />
+              <img src={brand.logo} alt="" className="h-12 w-12 rounded-full object-cover ring-1 ring-gold/40" />
               <span className="font-serif text-base tracking-[0.14em] gold-text sm:text-lg sm:tracking-[0.22em]">
-                {footer.brandName}
+                {footer.brandName || brand.display}
               </span>
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-lilac">{footer.blurb}</p>
             <p className="mt-4 text-[10px] uppercase tracking-[0.22em] text-ivory/45">{footer.tagline}</p>
-            <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-gold/80">
-              {footer.legalEntity ? `A brand by ${footer.legalEntity}` : 'A brand by Nexxgenn Technology'}
-            </p>
+            {footer.legalEntity ? (
+              <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-gold/80">
+                A brand by {footer.legalEntity}
+              </p>
+            ) : null}
             <div className="mt-6 flex gap-3">
-              <a href={footer.email} className="footer-icon" aria-label="Email">
-                <Mail size={15} />
-              </a>
-              <a href={footer.instagram} className="footer-icon" aria-label="Instagram" target="_blank" rel="noreferrer">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <rect x="3" y="3" width="18" height="18" rx="5" />
-                  <circle cx="12" cy="12" r="4" />
-                  <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none" />
-                </svg>
-              </a>
+              {emailHref && (
+                <a href={emailHref} className="footer-icon" aria-label="Email">
+                  <Mail size={15} />
+                </a>
+              )}
+              {phoneHref && (
+                <a href={phoneHref} className="footer-icon" aria-label="Phone">
+                  <Phone size={15} />
+                </a>
+              )}
+              {footer.instagram && (
+                <a href={footer.instagram} className="footer-icon" aria-label="Instagram" target="_blank" rel="noreferrer">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <rect x="3" y="3" width="18" height="18" rx="5" />
+                    <circle cx="12" cy="12" r="4" />
+                    <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none" />
+                  </svg>
+                </a>
+              )}
             </div>
             <div className="mt-6">
-              <NewsletterBox compact title="The list." />
+              <NewsletterBox compact title={site.newsletter?.compactTitle || site.newsletter?.title} eyebrow={site.newsletter?.eyebrow} />
             </div>
           </div>
 
           <div>
-            <h3 className="text-[11px] uppercase tracking-[0.22em] text-gold">Shop</h3>
+            <h3 className="text-[11px] uppercase tracking-[0.22em] text-gold">{footer.shopHeading || 'Shop'}</h3>
             <nav className="mt-5 flex flex-col gap-2.5 text-sm">
-              {SHOP_LINKS.map((item) => (
-                <Link key={item.to} to={item.to} className={linkClass}>{item.label}</Link>
+              {shopLinks.map((item) => (
+                <Link key={`${item.to}-${item.label}`} to={item.to} className={linkClass}>{item.label}</Link>
               ))}
               <button type="button" className={`${linkClass} text-left`} onClick={() => setContactOpen(true)}>
-                Contact Us
+                {footer.contactLabel || 'Contact Us'}
               </button>
             </nav>
           </div>
 
           <div>
-            <h3 className="text-[11px] uppercase tracking-[0.22em] text-gold">Customer Care</h3>
+            <h3 className="text-[11px] uppercase tracking-[0.22em] text-gold">{footer.careHeading || 'Customer Care'}</h3>
             <nav className="mt-5 flex flex-col gap-2.5 text-sm">
-              {CARE_LINKS.map((item) => (
-                <Link key={item.to} to={item.to} className={linkClass}>{item.label}</Link>
+              {careLinks.map((item) => (
+                <Link key={`${item.to}-${item.label}`} to={item.to} className={linkClass}>{item.label}</Link>
               ))}
             </nav>
           </div>
 
           <div>
-            <h3 className="text-[11px] uppercase tracking-[0.22em] text-gold">Legal</h3>
+            <h3 className="text-[11px] uppercase tracking-[0.22em] text-gold">{footer.legalHeading || 'Legal'}</h3>
             <nav className="mt-5 flex flex-col gap-2.5 text-sm">
-              {LEGAL_LINKS.map((item) => (
-                <Link key={item.to} to={item.to} className={linkClass}>{item.label}</Link>
+              {legalLinks.map((item) => (
+                <Link key={`${item.to}-${item.label}`} to={item.to} className={linkClass}>{item.label}</Link>
               ))}
             </nav>
-            <div className="mt-6 flex items-start gap-2 text-sm text-lilac">
-              <MapPin size={14} className="mt-0.5 shrink-0 text-gold" />
-              <span>{footer.location}</span>
-            </div>
+            {footer.location ? (
+              <div className="mt-6 flex items-start gap-2 text-sm text-lilac">
+                <MapPin size={14} className="mt-0.5 shrink-0 text-gold" />
+                <span>{footer.location}</span>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

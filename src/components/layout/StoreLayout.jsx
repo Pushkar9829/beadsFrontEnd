@@ -6,11 +6,14 @@ import Atmosphere from './Atmosphere';
 import { paintGoldShine } from '../../lib/paintGoldShine';
 import { useCustomizerStore } from '../../store/customizerStore';
 import { useContentStore } from '../../store/contentStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { purposeToneStyle } from '../customizer/PurposeGrid';
+import useRefreshOnView from '../../hooks/useRefreshOnView';
 
 export default function StoreLayout() {
   const { pathname } = useLocation();
   const loadContent = useContentStore((s) => s.load);
+  const loadSettings = useSettingsStore((s) => s.load);
   const purpose = useCustomizerStore((s) => s.purpose);
   const step = useCustomizerStore((s) => s.step);
   const purposeTone =
@@ -31,6 +34,7 @@ export default function StoreLayout() {
     pathname.startsWith('/p/') ||
     pathname === '/about' ||
     pathname === '/customize' ||
+    pathname.startsWith('/customize/') ||
     pathname === '/account' ||
     pathname === '/journal' ||
     pathname.startsWith('/journal/') ||
@@ -48,9 +52,15 @@ export default function StoreLayout() {
     pathname === '/maintenance' ||
     pathname === '/grievance';
 
+  useRefreshOnView((force) => {
+    loadContent(force);
+    loadSettings(force);
+  });
+
   useEffect(() => {
     loadContent();
-  }, [loadContent]);
+    loadSettings();
+  }, [pathname, loadContent, loadSettings]);
 
   useEffect(() => {
     paintGoldShine();

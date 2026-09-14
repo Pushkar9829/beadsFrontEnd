@@ -131,6 +131,7 @@ export default function AdminBeads() {
           <label className={labelClass}>Power / use<textarea className={`${fieldClass} mt-1`} value={form.powerUse} onChange={(e) => setForm({ ...form, powerUse: e.target.value })} /></label>
           <label className={labelClass}>Benefits (one per line)<textarea className={`${fieldClass} mt-1`} value={form.benefits} onChange={(e) => setForm({ ...form, benefits: e.target.value })} /></label>
           <label className={labelClass}>Care notes<textarea className={`${fieldClass} mt-1`} value={form.careNotes} onChange={(e) => setForm({ ...form, careNotes: e.target.value })} /></label>
+          <label className="flex items-center gap-2 text-sm text-lilac"><input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} /> Active</label>
           <div className="flex gap-2 pt-2">
             <Button type="submit">{editing ? 'Save' : 'Create'}</Button>
             <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>

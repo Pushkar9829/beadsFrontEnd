@@ -9,9 +9,11 @@ import SectionHead from '../components/home/SectionHead';
 import CmsFinale from '../components/ui/CmsFinale';
 import SeoHead from '../components/SeoHead';
 import { useSite } from '../store/contentStore';
+import { useBrand, pageTitle } from '../store/settingsStore';
 
 export default function CollectionPage() {
   const site = useSite();
+  const brand = useBrand();
   const { slug } = useParams();
   const [collection, setCollection] = useState(null);
   const [products, setProducts] = useState([]);
@@ -34,7 +36,7 @@ export default function CollectionPage() {
 
   return (
     <div className="relative">
-      <SeoHead title={collection ? `${collection.name} · Kuberstones` : 'Collection · Kuberstones'} description={collection?.description} />
+      <SeoHead title={pageTitle(collection?.name || 'Collection', brand)} description={collection?.description} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
       <div className="pointer-events-none absolute inset-0 lotus-corner" />
       <div className="relative shell py-8 sm:py-10 md:py-12">
         <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Shop All', to: '/shop' }, { label: collection?.name || 'Collection' }]} />
@@ -43,11 +45,14 @@ export default function CollectionPage() {
         ) : (
           <>
             <div className="mt-8">
+              {collection.image ? (
+                <img src={mediaUrl(collection.image)} alt="" className="mb-8 h-44 w-full rounded-2xl object-cover" />
+              ) : null}
               <SectionHead eyebrow="Collection" title={collection.name} body={collection.description} to="/collections" action="All collections →" />
             </div>
-            {banners.length > 0 && (
+            {banners.filter((b) => !b.link || String(b.link).includes(`/collection/${slug}`)).slice(0, 2).length > 0 && (
               <div className="mt-6 grid gap-3 md:grid-cols-2">
-                {banners.slice(0, 2).map((b) => (
+                {banners.filter((b) => !b.link || String(b.link).includes(`/collection/${slug}`)).slice(0, 2).map((b) => (
                   <Link key={b._id} to={b.link || `/collection/${slug}`} className="overflow-hidden rounded-2xl border border-gold/20">
                     <img src={mediaUrl(b.image)} alt={b.title} className="h-36 w-full object-cover" />
                   </Link>

@@ -5,6 +5,7 @@ import { useWishlistStore } from '../store/wishlistStore';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
 import GemVisual from '../components/ui/GemVisual';
 import Price from '../components/ui/Price';
+import ProductRating from '../components/ui/ProductRating';
 import InViewGroup from '../components/ui/InViewGroup';
 import SectionHead from '../components/home/SectionHead';
 import CmsFinale from '../components/ui/CmsFinale';
@@ -62,36 +63,39 @@ export default function WishlistPage() {
                       />
                     </div>
                   </Link>
-                  <div className="flex flex-1 items-stretch gap-3 p-[1.1rem_1.15rem_1.15rem]">
-                    <Link to={`/p/${item.slug}`} className="min-w-0 flex-1">
+                  <div className="product-card-body">
+                    <Link to={`/p/${item.slug}`} className="product-card-copy">
                       {item.family && (
                         <p className="text-[10px] uppercase tracking-[0.2em] text-gold">{item.family}</p>
                       )}
                       <h3 className="mt-2 font-serif text-xl leading-snug">{item.name}</h3>
-                      {item.shortDescription && (
-                        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-lilac">{item.shortDescription}</p>
-                      )}
-                      <p className="mt-3 text-gold">
-                        <Price value={item.price} />
-                      </p>
+                      <ProductRating product={item} />
                     </Link>
-                    <div className="product-card-tools">
-                      <button
-                        type="button"
-                        aria-label="Add to bag"
-                        onClick={() => addProduct(item, 1)}
-                        className="product-tool"
-                      >
-                        <ShoppingBag size={15} />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Remove from wishlist"
-                        onClick={() => remove(item._id)}
-                        className="product-tool is-on"
-                      >
-                        <Heart size={15} fill="currentColor" />
-                      </button>
+                    <div className="product-card-split">
+                      <div className="product-card-left">
+                        {item.shortDescription && <p className="product-card-desc">{item.shortDescription}</p>}
+                        <p className="product-card-price">
+                          <Price value={item.price} />
+                        </p>
+                      </div>
+                      <div className="product-card-tools">
+                        <button
+                          type="button"
+                          aria-label="Remove from wishlist"
+                          onClick={() => remove(item._id)}
+                          className="product-tool is-on"
+                        >
+                          <Heart size={15} fill="currentColor" />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Add to bag"
+                          onClick={() => addProduct(item, 1)}
+                          className="product-tool"
+                        >
+                          <ShoppingBag size={15} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </article>

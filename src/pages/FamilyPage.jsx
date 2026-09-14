@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import api from '../api/client';
+import api, { mediaUrl } from '../api/client';
 import ProductCard from '../components/ui/ProductCard';
 import Spinner from '../components/ui/Spinner';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
@@ -9,9 +9,12 @@ import SectionHead from '../components/home/SectionHead';
 import CmsFinale from '../components/ui/CmsFinale';
 import { fillCopy, houseMeta } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
+import { useBrand, pageTitle } from '../store/settingsStore';
+import SeoHead from '../components/SeoHead';
 
 export default function FamilyPage() {
   const site = useSite();
+  const brand = useBrand();
   const page = site.pages.family;
   const family = useLocation().pathname.replace(/^\//, '');
   const meta = houseMeta(site, family);
@@ -41,6 +44,7 @@ export default function FamilyPage() {
 
   return (
     <div className="relative">
+      <SeoHead title={pageTitle(title, brand)} description={meta?.blurb} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
       <div className="pointer-events-none absolute inset-0 lotus-corner" />
       <div className="relative shell py-8 sm:py-10 md:py-12">
         <Breadcrumbs items={crumbs} />
@@ -67,6 +71,9 @@ export default function FamilyPage() {
                       to={c.slug === 'customize-your-bracelet' ? '/customize' : `/c/${c.slug}`}
                       className="purpose-card group block h-full"
                     >
+                      {c.image ? (
+                        <img src={mediaUrl(c.image)} alt="" className="mb-3 h-28 w-full rounded-xl object-cover" />
+                      ) : null}
                       <span className="text-[10px] uppercase tracking-[0.22em] text-gold/80">
                         {String(i + 1).padStart(2, '0')}
                       </span>

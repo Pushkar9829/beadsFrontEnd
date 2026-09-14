@@ -8,6 +8,7 @@ import AdminHeader, { RowActions, fieldClass, labelClass } from '../../component
 import AdminToolbar, { paginate, Pagination } from '../../components/admin/AdminToolbar';
 import StatusBadge from '../../components/admin/StatusBadge';
 import { toast } from '../../lib/adminToast';
+import MediaField from '../../components/admin/MediaField';
 
 const empty = { name: '', slug: '', description: '', image: '', sortOrder: 0, isActive: true, ruleType: 'manual', ruleConfig: { maxPrice: 999, days: 30, limit: 24 } };
 
@@ -77,7 +78,7 @@ export default function AdminCollections() {
         <form onSubmit={save} className="space-y-3">
           <label className={labelClass}>Name<input required className={`${fieldClass} mt-1`} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
           <label className={labelClass}>Slug<input className={`${fieldClass} mt-1`} value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="auto from name" /></label>
-          <label className={labelClass}>Image URL<input className={`${fieldClass} mt-1`} value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} /></label>
+          <MediaField label="Image" value={form.image} onChange={(image) => setForm({ ...form, image })} />
           <label className={labelClass}>Rule
             <select className={`${fieldClass} mt-1`} value={form.ruleType || 'manual'} onChange={(e) => setForm({ ...form, ruleType: e.target.value })}>
               <option value="manual">Manual products</option>

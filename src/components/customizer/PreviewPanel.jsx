@@ -9,6 +9,7 @@ export default function PreviewPanel({ mobile }) {
   const navigate = useNavigate();
   const purpose = useCustomizerStore((s) => s.purpose);
   const intention = useCustomizerStore((s) => s.intention);
+  const layer = useCustomizerStore((s) => s.layer);
   const quote = useCustomizerQuote();
   const charm = useCustomizerStore((s) => s.charm);
   const finish = useCustomizerStore((s) => s.finish);
@@ -32,11 +33,11 @@ export default function PreviewPanel({ mobile }) {
         compact={mobile}
       />
       <p className="bag-summary-kicker mt-4">Live strand</p>
-      <h2 className="bag-summary-title gold-text">{intention?.name || purpose?.name || 'Custom strand'}</h2>
+      <h2 className="bag-summary-title gold-text">{intention?.name || layer?.name || purpose?.name || 'Custom strand'}</h2>
       <p className="mt-1 text-sm text-lilac">
-        {purpose?.name || 'Purpose pending'}
-        {intention ? ` · ${intention.name}` : ''}
-        {calibration ? ` · Mulank ${calibration.mulank}` : ''}
+        {layer ? `${layer.modeLabel} · ${layer.name}` : (purpose?.name || 'Purpose pending')}
+        {!layer && intention ? ` · ${intention.name}` : ''}
+        {calibration?.mulank ? ` · Mulank ${calibration.mulank}` : ''}
         {calibration?.zodiac?.sign ? ` · ${calibration.zodiac.sign}` : ''}
       </p>
       <dl className="bag-summary-rows">
@@ -63,9 +64,15 @@ export default function PreviewPanel({ mobile }) {
         <p className="mt-3 text-xs text-red-300">{quote.errors.join(' ')}</p>
       )}
       <div className="mt-4 flex justify-between gap-3">
-        <button type="button" className="bag-summary-clear" onClick={() => setStep(1)}>
-          Edit purpose
-        </button>
+        {layer ? (
+          <button type="button" className="bag-summary-clear" onClick={() => navigate(layer.path)}>
+            Edit selection
+          </button>
+        ) : (
+          <button type="button" className="bag-summary-clear" onClick={() => setStep(1)}>
+            Edit purpose
+          </button>
+        )}
         <button
           type="button"
           className="bag-summary-clear"

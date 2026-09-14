@@ -5,6 +5,7 @@ import { useAuthStore } from './store/authStore';
 import { useCartStore } from './store/cartStore';
 import { useWishlistStore } from './store/wishlistStore';
 import { useContentStore } from './store/contentStore';
+import { useSettingsStore } from './store/settingsStore';
 import StoreLayout from './components/layout/StoreLayout';
 import AdminLayout from './components/layout/AdminLayout';
 import { RequireAdmin, RequireAuth } from './components/gates';
@@ -15,6 +16,7 @@ import CategoryPage from './pages/CategoryPage';
 import ProductPage from './pages/ProductPage';
 import AboutPage from './pages/AboutPage';
 import CustomizePage from './pages/CustomizePage';
+import CustomizeLayerPage from './pages/CustomizeLayerPage';
 import CartPage from './pages/CartPage';
 import WishlistPage from './pages/WishlistPage';
 import CheckoutPage from './pages/CheckoutPage';
@@ -67,16 +69,18 @@ export default function App() {
   const onLogin = useCartStore((s) => s.onLogin);
   const syncWish = useWishlistStore((s) => s.sync);
   const loadContent = useContentStore((s) => s.load);
+  const loadSettings = useSettingsStore((s) => s.load);
 
   useEffect(() => {
     loadContent();
+    loadSettings();
     hydrate().then((user) => {
       if (user) {
         onLogin();
         syncWish();
       }
     });
-  }, [hydrate, onLogin, syncWish, loadContent]);
+  }, [hydrate, onLogin, syncWish, loadContent, loadSettings]);
 
   return (
     <BrowserRouter>
@@ -94,10 +98,12 @@ export default function App() {
           <Route path="/journal/:slug" element={<BlogPostPage />} />
           <Route path="/faq" element={<FaqPage />} />
           <Route path="/sale" element={<FlashSalePage />} />
-          <Route path="/shop-by-purpose" element={<ShopByPurposePage />} />
+          <Route path="/shop-by-purpose" element={<Navigate to="/customize/purpose" replace />} />
           <Route path="/c/:slug" element={<CategoryPage />} />
           <Route path="/p/:slug" element={<ProductPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/customize/purpose" element={<ShopByPurposePage />} />
+          <Route path="/customize/:kind" element={<CustomizeLayerPage />} />
           <Route path="/customize" element={<CustomizePage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />

@@ -4,9 +4,11 @@ import api, { mediaUrl } from '../api/client';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
 import Spinner from '../components/ui/Spinner';
 import SeoHead from '../components/SeoHead';
+import { useBrand, pageTitle } from '../store/settingsStore';
 
 export default function BlogPostPage() {
   const { slug } = useParams();
+  const brand = useBrand();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -20,7 +22,7 @@ export default function BlogPostPage() {
   return (
     <div className="shell py-10">
       <SeoHead
-        title={post.seo?.title || `${post.title} · Kuberstones`}
+        title={post.seo?.title || pageTitle(post.title, brand)}
         description={post.seo?.description || post.excerpt}
         keywords={post.seo?.keywords}
         image={post.seo?.ogImage || post.image}

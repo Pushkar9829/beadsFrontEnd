@@ -12,7 +12,7 @@ import { toast } from '../../lib/adminToast';
 
 const empty = {
   code: '', type: 'percent', value: 10, minOrder: 0, maxDiscount: '',
-  applyTo: 'all', audience: 'all', usageLimit: '', perCustomerLimit: 1,
+  applyTo: 'all', categoryIds: [], productIds: [], audience: 'all', usageLimit: '', perCustomerLimit: 1,
   startsAt: '', endsAt: '', isActive: true,
 };
 
@@ -26,8 +26,14 @@ export default function AdminCoupons() {
   const [status, setStatus] = useState('all');
   const [page, setPage] = useState(1);
   const [usage, setUsage] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
 
-  const load = () => api.get('/admin/coupons').then(({ data }) => setCoupons(data.coupons || []));
+  const load = () => {
+    api.get('/admin/coupons').then(({ data }) => setCoupons(data.coupons || []));
+    api.get('/categories/admin/all').then(({ data }) => setCategories(data.categories || [])).catch(() => {});
+    api.get('/products/admin/all').then(({ data }) => setProducts(data.products || [])).catch(() => {});
+  };
   useEffect(() => { load(); }, []);
 
   const filtered = useMemo(() => coupons.filter((c) => {
@@ -45,6 +51,9 @@ export default function AdminCoupons() {
       maxDiscount: form.maxDiscount === '' ? undefined : Number(form.maxDiscount),
       usageLimit: form.usageLimit === '' ? undefined : Number(form.usageLimit),
       perCustomerLimit: Number(form.perCustomerLimit || 1),
+      applyTo: form.applyTo || 'all',
+      categoryIds: form.applyTo === 'category' ? form.categoryIds : [],
+      productIds: form.applyTo === 'products' ? form.productIds : [],
       startsAt: form.startsAt || undefined,
       endsAt: form.endsAt || undefined,
     };
@@ -67,7 +76,7 @@ export default function AdminCoupons() {
 
   return (
     <div>
-      <AdminHeader title="Coupons" subtitle="Percent or fixed discounts. Codes are stored uppercase." onCreate={() => { setEditing(null); setForm(empty); setOpen(true); }} createLabel="Create coupon" />
+      <AdminHeader title="Coupons" subtitle="Percent or fixed discounts. Restrict a code to categories or products when needed. Codes are stored uppercase." onCreate={() => { setEditing(null); setForm(empty); setOpen(true); }} createLabel="Create coupon" />
       <AdminToolbar
         search={q}
         onSearch={setQ}
@@ -106,6 +115,9 @@ export default function AdminCoupons() {
                     maxDiscount: c.maxDiscount ?? '',
                     usageLimit: c.usageLimit ?? '',
                     perCustomerLimit: c.perCustomerLimit ?? 1,
+                    applyTo: c.applyTo || 'all',
+                    categoryIds: (c.categoryIds || []).map((id) => String(id._id || id)),
+                    productIds: (c.productIds || []).map((id) => String(id._id || id)),
                     startsAt: c.startsAt ? c.startsAt.slice(0, 16) : '',
                     endsAt: c.endsAt ? c.endsAt.slice(0, 16) : '',
                   });
@@ -130,6 +142,37 @@ export default function AdminCoupons() {
           <label className={labelClass}>Value<input type="number" required className={`${fieldClass} mt-1`} value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} /></label>
           <label className={labelClass}>Minimum order<input type="number" className={`${fieldClass} mt-1`} value={form.minOrder} onChange={(e) => setForm({ ...form, minOrder: e.target.value })} /></label>
           <label className={labelClass}>Max discount (optional)<input type="number" className={`${fieldClass} mt-1`} value={form.maxDiscount} onChange={(e) => setForm({ ...form, maxDiscount: e.target.value })} /></label>
+          <label className={labelClass}>Applies to
+            <select className={`${fieldClass} mt-1`} value={form.applyTo} onChange={(e) => setForm({ ...form, applyTo: e.target.value })}>
+              <option value="all">Entire bag</option>
+              <option value="category">Selected categories</option>
+              <option value="products">Selected products</option>
+            </select>
+          </label>
+          {form.applyTo === 'category' && (
+            <label className={labelClass}>Categories
+              <select
+                multiple
+                className={`${fieldClass} mt-1 h-28`}
+                value={form.categoryIds}
+                onChange={(e) => setForm({ ...form, categoryIds: [...e.target.selectedOptions].map((o) => o.value) })}
+              >
+                {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+              </select>
+            </label>
+          )}
+          {form.applyTo === 'products' && (
+            <label className={labelClass}>Products
+              <select
+                multiple
+                className={`${fieldClass} mt-1 h-28`}
+                value={form.productIds}
+                onChange={(e) => setForm({ ...form, productIds: [...e.target.selectedOptions].map((o) => o.value) })}
+              >
+                {products.map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
+              </select>
+            </label>
+          )}
           <label className={labelClass}>Audience
             <select className={`${fieldClass} mt-1`} value={form.audience} onChange={(e) => setForm({ ...form, audience: e.target.value })}>
               <option value="all">Everyone</option>

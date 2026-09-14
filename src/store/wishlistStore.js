@@ -14,6 +14,8 @@ function toItem(product) {
     colorHex: product.colorHex,
     family: product.family,
     shortDescription: product.shortDescription,
+    rating: product.rating,
+    reviewCount: product.reviewCount,
   };
 }
 

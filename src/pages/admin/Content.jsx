@@ -8,6 +8,7 @@ import MediaField from '../../components/admin/MediaField';
 import { CLAIM_ICON_OPTIONS } from '../../lib/claimIcons';
 import { HOME_DEFAULTS, pickHome } from '../../lib/homeContent';
 import { useContentStore } from '../../store/contentStore';
+import { publishStorefront } from '../../lib/storefrontSync';
 
 const HOUSE_SLUGS = ['crystals', 'rudraksha', 'gemstones'];
 
@@ -18,6 +19,13 @@ const SECTIONS = [
   { key: 'studio', label: 'Studio banner', hint: 'Home page' },
   { key: 'ritual', label: 'Ritual steps', hint: 'Home page' },
   { key: 'featured', label: 'Featured section', hint: 'Home page' },
+  { key: 'brand', label: 'Header brand', hint: 'Name, tagline, logo, nav labels' },
+  { key: 'purpose', label: 'Shop by purpose', hint: 'Home + purpose page' },
+  { key: 'rails', label: 'Product rails', hint: 'Best sellers, new, trending' },
+  { key: 'faq', label: 'FAQ copy', hint: 'Home + FAQ page' },
+  { key: 'journal', label: 'Journal copy', hint: 'Home + journal page' },
+  { key: 'flash', label: 'Flash sale copy', hint: 'Home + sale page' },
+  { key: 'newsletter', label: 'Newsletter', hint: 'Home + footer' },
   { key: 'testimonials', label: 'Testimonials', hint: 'Home page' },
   { key: 'trust', label: 'Trust claims', hint: 'Home + About' },
   { key: 'finale', label: 'Finale banner', hint: 'Home, About, legal' },
@@ -25,6 +33,7 @@ const SECTIONS = [
   { key: 'contact', label: 'Contact drawer', hint: 'Every page' },
   { key: 'about', label: 'About copy', hint: 'About page body' },
   { key: 'pageAbout', label: 'About layout', hint: 'About page image and links' },
+  { key: 'pageCollections', label: 'Collections index', hint: 'Collections listing page' },
   { key: 'pageShop', label: 'Shop All', hint: 'Shop page' },
   { key: 'pageFamily', label: 'House pages', hint: 'Crystals / Rudraksha / Gemstones' },
   { key: 'pageCategory', label: 'Category pages', hint: 'Collection empty states' },
@@ -37,10 +46,26 @@ const SECTIONS = [
   { key: 'pageRegister', label: 'Create account', hint: 'Register page' },
   { key: 'pageAccount', label: 'Account', hint: 'Account page' },
   { key: 'pageNotFound', label: '404', hint: 'Missing page' },
-  { key: 'legalReturns', label: 'Returns', hint: 'Legal page' },
-  { key: 'legalPrivacy', label: 'Privacy', hint: 'Legal page' },
-  { key: 'legalTerms', label: 'Terms', hint: 'Legal page' },
+  { key: 'legalReturns', label: 'Returns', hint: 'Legal page', kind: 'returns' },
+  { key: 'legalExchanges', label: 'Exchanges', hint: 'Legal page', kind: 'exchanges' },
+  { key: 'legalRefunds', label: 'Refunds', hint: 'Legal page', kind: 'refunds' },
+  { key: 'legalShipping', label: 'Shipping', hint: 'Legal page', kind: 'shipping' },
+  { key: 'legalPrivacy', label: 'Privacy', hint: 'Legal page', kind: 'privacy' },
+  { key: 'legalTerms', label: 'Terms', hint: 'Legal page', kind: 'terms' },
+  { key: 'legalMaintenance', label: 'Maintenance', hint: 'Legal page', kind: 'maintenance' },
+  { key: 'legalGrievance', label: 'Contact & grievance', hint: 'Legal page', kind: 'grievance' },
 ];
+
+const LEGAL_CMS = {
+  legalReturns: 'returns',
+  legalExchanges: 'exchanges',
+  legalRefunds: 'refunds',
+  legalShipping: 'shipping',
+  legalPrivacy: 'privacy',
+  legalTerms: 'terms',
+  legalMaintenance: 'maintenance',
+  legalGrievance: 'grievance',
+};
 
 function Field({ label, value, onChange, textarea, rows = 3, placeholder }) {
   const Tag = textarea ? 'textarea' : 'input';
@@ -91,6 +116,81 @@ function IconPicker({ value, onChange }) {
   );
 }
 
+function LinkListFields({ label, items = [], onChange }) {
+  return (
+    <div className="space-y-2 rounded-xl p-3 gold-border">
+      <p className={labelClass}>{label}</p>
+      {(items || []).map((item, i) => (
+        <div key={i} className="flex flex-col gap-2 sm:flex-row">
+          <input
+            className={fieldClass}
+            placeholder="Label"
+            value={item.label || ''}
+            onChange={(e) => {
+              const next = [...items];
+              next[i] = { ...item, label: e.target.value };
+              onChange(next);
+            }}
+          />
+          <input
+            className={fieldClass}
+            placeholder="/path"
+            value={item.to || ''}
+            onChange={(e) => {
+              const next = [...items];
+              next[i] = { ...item, to: e.target.value };
+              onChange(next);
+            }}
+          />
+          <button type="button" className="text-xs text-red-300" onClick={() => onChange(items.filter((_, idx) => idx !== i))}>
+            Remove
+          </button>
+        </div>
+      ))}
+      <Button type="button" variant="ghost" onClick={() => onChange([...(items || []), { label: '', to: '' }])}>
+        Add link
+      </Button>
+    </div>
+  );
+}
+
+function StringListFields({ label, items = [], onChange }) {
+  return (
+    <div className="space-y-2 rounded-xl p-3 gold-border">
+      <p className={labelClass}>{label}</p>
+      {(items || []).map((item, i) => (
+        <div key={i} className="flex gap-2">
+          <input
+            className={fieldClass}
+            value={item || ''}
+            onChange={(e) => {
+              const next = [...items];
+              next[i] = e.target.value;
+              onChange(next);
+            }}
+          />
+          <button type="button" className="text-xs text-red-300" onClick={() => onChange(items.filter((_, idx) => idx !== i))}>
+            Remove
+          </button>
+        </div>
+      ))}
+      <Button type="button" variant="ghost" onClick={() => onChange([...(items || []), ''])}>Add line</Button>
+    </div>
+  );
+}
+
+function RailCopyFields({ label, value = {}, onChange }) {
+  return (
+    <div className="space-y-2 rounded-xl p-3 gold-border">
+      <p className={labelClass}>{label}</p>
+      <Field label="Eyebrow" value={value.eyebrow} onChange={(eyebrow) => onChange({ ...value, eyebrow })} />
+      <Field label="Title" value={value.title} onChange={(title) => onChange({ ...value, title })} />
+      <Field label="Link label" value={value.action} onChange={(action) => onChange({ ...value, action })} />
+      <Field label="Link" value={value.to} onChange={(to) => onChange({ ...value, to })} />
+    </div>
+  );
+}
+
 function EmptyFields({ value = {}, onChange }) {
   return (
     <div className="space-y-3 rounded-xl p-3 gold-border">
@@ -111,6 +211,13 @@ function previewFor(content, key) {
   if (key === 'studio') return content.studio?.heading || content.studio?.title || '—';
   if (key === 'ritual') return `${(content.ritual?.steps || []).length} steps`;
   if (key === 'featured') return content.featured?.title || '—';
+  if (key === 'brand') return content.brand?.name || content.hero?.brandName || '—';
+  if (key === 'purpose') return content.purpose?.title || '—';
+  if (key === 'rails') return content.rails?.bestsellers?.title || '—';
+  if (key === 'faq') return content.faq?.title || '—';
+  if (key === 'journal') return content.journal?.title || '—';
+  if (key === 'flash') return content.flash?.label || '—';
+  if (key === 'newsletter') return content.newsletter?.title || '—';
   if (key === 'testimonials') return `${(content.testimonials || []).length} notes`;
   if (key === 'trust') return `${(content.trustClaims || []).length} claims`;
   if (key === 'finale') return content.finale?.title || '—';
@@ -118,6 +225,7 @@ function previewFor(content, key) {
   if (key === 'footer') return content.footer?.title || '—';
   if (key === 'contact') return content.contact?.title || '—';
   if (key === 'pageAbout') return content.pages?.aboutPage?.eyebrow || '—';
+  if (key === 'pageCollections') return content.pages?.collections?.title || '—';
   if (key === 'pageShop') return content.pages?.shop?.title || '—';
   if (key === 'pageFamily') return content.pages?.family?.piecesTitle || '—';
   if (key === 'pageCategory') return content.pages?.category?.empty?.title || '—';
@@ -130,9 +238,7 @@ function previewFor(content, key) {
   if (key === 'pageRegister') return content.pages?.register?.title || '—';
   if (key === 'pageAccount') return content.pages?.account?.title || '—';
   if (key === 'pageNotFound') return content.pages?.notFound?.title || '—';
-  if (key === 'legalReturns') return content.pages?.legal?.returns?.title || '—';
-  if (key === 'legalPrivacy') return content.pages?.legal?.privacy?.title || '—';
-  if (key === 'legalTerms') return content.pages?.legal?.terms?.title || '—';
+  if (LEGAL_CMS[key]) return content.pages?.legal?.[LEGAL_CMS[key]]?.title || '—';
   return '—';
 }
 
@@ -163,6 +269,17 @@ export default function AdminContent() {
     if (key === 'studio') setDraft({ ...home.studio });
     if (key === 'ritual') setDraft({ ...home.ritual, steps: (home.ritual.steps || []).map((step) => ({ ...step })) });
     if (key === 'featured') setDraft({ ...home.featured });
+    if (key === 'brand') setDraft({ ...(home.brand || {}) });
+    if (key === 'purpose') setDraft({ ...(home.purpose || {}) });
+    if (key === 'rails') setDraft({
+      bestsellers: { ...(home.rails?.bestsellers || {}) },
+      newArrivals: { ...(home.rails?.newArrivals || {}) },
+      trending: { ...(home.rails?.trending || {}) },
+    });
+    if (key === 'faq') setDraft({ ...(home.faq || {}) });
+    if (key === 'journal') setDraft({ ...(home.journal || {}) });
+    if (key === 'flash') setDraft({ ...(home.flash || {}) });
+    if (key === 'newsletter') setDraft({ ...(home.newsletter || {}) });
     if (key === 'testimonials') {
       setDraft({
         ...home.voices,
@@ -176,10 +293,19 @@ export default function AdminContent() {
       });
     }
     if (key === 'finale') setDraft({ ...home.finale });
-    if (key === 'about') setDraft({ ...home.about });
+    if (key === 'about') setDraft({
+      ...home.about,
+      intro: [...(home.about?.intro || [])],
+      morePoints: [...(home.about?.morePoints || [])],
+      promises: [...(home.about?.promises || [])],
+      collections: (home.about?.collections || []).map((item) => ({ ...item })),
+      different: (home.about?.different || []).map((item) => ({ ...item })),
+      steps: (home.about?.steps || []).map((item) => ({ ...item })),
+    });
     if (key === 'footer') setDraft({ ...home.footer });
     if (key === 'contact') setDraft({ ...home.contact });
     if (key === 'pageAbout') setDraft({ ...home.pages.aboutPage });
+    if (key === 'pageCollections') setDraft({ ...home.pages.collections, empty: { ...home.pages.collections.empty } });
     if (key === 'pageShop') setDraft({ ...home.pages.shop, empty: { ...home.pages.shop.empty } });
     if (key === 'pageFamily') setDraft({ ...home.pages.family, empty: { ...home.pages.family.empty } });
     if (key === 'pageCategory') setDraft({ ...home.pages.category, empty: { ...home.pages.category.empty }, missing: { ...home.pages.category.missing } });
@@ -192,9 +318,10 @@ export default function AdminContent() {
     if (key === 'pageRegister') setDraft({ ...home.pages.register });
     if (key === 'pageAccount') setDraft({ ...home.pages.account, empty: { ...home.pages.account.empty } });
     if (key === 'pageNotFound') setDraft({ ...home.pages.notFound });
-    if (key === 'legalReturns') setDraft({ ...home.pages.legal.returns, sections: (home.pages.legal.returns.sections || []).map((s) => ({ ...s })) });
-    if (key === 'legalPrivacy') setDraft({ ...home.pages.legal.privacy, sections: (home.pages.legal.privacy.sections || []).map((s) => ({ ...s })) });
-    if (key === 'legalTerms') setDraft({ ...home.pages.legal.terms, sections: (home.pages.legal.terms.sections || []).map((s) => ({ ...s })) });
+    if (LEGAL_CMS[key]) {
+      const page = home.pages.legal[LEGAL_CMS[key]] || { title: '', eyebrow: '', body: '', sections: [] };
+      setDraft({ ...page, sections: (page.sections || []).map((s) => ({ ...s })) });
+    }
   }
 
   async function save(e) {
@@ -209,6 +336,13 @@ export default function AdminContent() {
       if (section === 'studio') next.studio = draft;
       if (section === 'ritual') next.ritual = draft;
       if (section === 'featured') next.featured = draft;
+      if (section === 'brand') next.brand = draft;
+      if (section === 'purpose') next.purpose = draft;
+      if (section === 'rails') next.rails = draft;
+      if (section === 'faq') next.faq = draft;
+      if (section === 'journal') next.journal = draft;
+      if (section === 'flash') next.flash = draft;
+      if (section === 'newsletter') next.newsletter = draft;
       if (section === 'testimonials') {
         next.voices = { eyebrow: draft.eyebrow, title: draft.title, body: draft.body };
         next.testimonials = draft.items;
@@ -224,6 +358,7 @@ export default function AdminContent() {
       if (section.startsWith('page') || section.startsWith('legal')) {
         next.pages = { ...next.pages };
         if (section === 'pageAbout') next.pages.aboutPage = draft;
+        if (section === 'pageCollections') next.pages.collections = draft;
         if (section === 'pageShop') next.pages.shop = draft;
         if (section === 'pageFamily') next.pages.family = draft;
         if (section === 'pageCategory') next.pages.category = draft;
@@ -236,13 +371,14 @@ export default function AdminContent() {
         if (section === 'pageRegister') next.pages.register = draft;
         if (section === 'pageAccount') next.pages.account = draft;
         if (section === 'pageNotFound') next.pages.notFound = draft;
-        if (section === 'legalReturns') next.pages.legal = { ...next.pages.legal, returns: draft };
-        if (section === 'legalPrivacy') next.pages.legal = { ...next.pages.legal, privacy: draft };
-        if (section === 'legalTerms') next.pages.legal = { ...next.pages.legal, terms: draft };
+        if (LEGAL_CMS[section]) {
+          next.pages.legal = { ...next.pages.legal, [LEGAL_CMS[section]]: draft };
+        }
       }
       const { data } = await api.put('/admin/content', next);
       setContent(pickHome(data.content));
-      useContentStore.getState().load();
+      useContentStore.getState().load(true);
+      publishStorefront();
       setSection(null);
     } catch (err) {
       setError(err.message || 'Could not save this section.');
@@ -431,6 +567,85 @@ export default function AdminContent() {
             </>
           )}
 
+          {section === 'brand' && draft && (
+            <>
+              <Field label="Header name" value={draft.name} onChange={(name) => setDraft({ ...draft, name })} />
+              <Field label="Header tagline" value={draft.tagline} onChange={(tagline) => setDraft({ ...draft, tagline })} />
+              <MediaField label="Logo (optional, Settings logo wins if set)" value={draft.logo} onChange={(logo) => setDraft({ ...draft, logo })} />
+              <Field label="Customization nav label" value={draft.customizeLabel} onChange={(customizeLabel) => setDraft({ ...draft, customizeLabel })} />
+              <Field label="Collections nav label" value={draft.collectionsLabel} onChange={(collectionsLabel) => setDraft({ ...draft, collectionsLabel })} />
+              <Field label="Shop All nav label" value={draft.shopAllLabel} onChange={(shopAllLabel) => setDraft({ ...draft, shopAllLabel })} />
+            </>
+          )}
+
+          {section === 'purpose' && draft && (
+            <>
+              <Field label="Home eyebrow" value={draft.eyebrow} onChange={(eyebrow) => setDraft({ ...draft, eyebrow })} />
+              <Field label="Home title" value={draft.title} onChange={(title) => setDraft({ ...draft, title })} />
+              <Field label="Home body" textarea value={draft.body} onChange={(body) => setDraft({ ...draft, body })} />
+              <Field label="Home link label" value={draft.action} onChange={(action) => setDraft({ ...draft, action })} />
+              <Field label="Home link" value={draft.to} onChange={(to) => setDraft({ ...draft, to })} />
+              <Field label="Page eyebrow" value={draft.pageEyebrow} onChange={(pageEyebrow) => setDraft({ ...draft, pageEyebrow })} />
+              <Field label="Page title" value={draft.pageTitle} onChange={(pageTitle) => setDraft({ ...draft, pageTitle })} />
+              <Field label="Page body" textarea value={draft.pageBody} onChange={(pageBody) => setDraft({ ...draft, pageBody })} />
+            </>
+          )}
+
+          {section === 'rails' && draft && (
+            <>
+              <RailCopyFields label="Best sellers" value={draft.bestsellers} onChange={(bestsellers) => setDraft({ ...draft, bestsellers })} />
+              <RailCopyFields label="New arrivals" value={draft.newArrivals} onChange={(newArrivals) => setDraft({ ...draft, newArrivals })} />
+              <RailCopyFields label="Trending" value={draft.trending} onChange={(trending) => setDraft({ ...draft, trending })} />
+            </>
+          )}
+
+          {section === 'faq' && draft && (
+            <>
+              <Field label="Home eyebrow" value={draft.eyebrow} onChange={(eyebrow) => setDraft({ ...draft, eyebrow })} />
+              <Field label="Home title" value={draft.title} onChange={(title) => setDraft({ ...draft, title })} />
+              <Field label="Home link label" value={draft.action} onChange={(action) => setDraft({ ...draft, action })} />
+              <Field label="Home link" value={draft.to} onChange={(to) => setDraft({ ...draft, to })} />
+              <Field label="Page eyebrow" value={draft.pageEyebrow} onChange={(pageEyebrow) => setDraft({ ...draft, pageEyebrow })} />
+              <Field label="Page title" value={draft.pageTitle} onChange={(pageTitle) => setDraft({ ...draft, pageTitle })} />
+              <Field label="Page body" textarea value={draft.pageBody} onChange={(pageBody) => setDraft({ ...draft, pageBody })} />
+              <Field label="Empty body" textarea value={draft.emptyBody} onChange={(emptyBody) => setDraft({ ...draft, emptyBody })} />
+            </>
+          )}
+
+          {section === 'journal' && draft && (
+            <>
+              <Field label="Home eyebrow" value={draft.eyebrow} onChange={(eyebrow) => setDraft({ ...draft, eyebrow })} />
+              <Field label="Home title" value={draft.title} onChange={(title) => setDraft({ ...draft, title })} />
+              <Field label="Home link label" value={draft.action} onChange={(action) => setDraft({ ...draft, action })} />
+              <Field label="Home link" value={draft.to} onChange={(to) => setDraft({ ...draft, to })} />
+              <Field label="Page eyebrow" value={draft.pageEyebrow} onChange={(pageEyebrow) => setDraft({ ...draft, pageEyebrow })} />
+              <Field label="Page title" value={draft.pageTitle} onChange={(pageTitle) => setDraft({ ...draft, pageTitle })} />
+              <Field label="Page body" textarea value={draft.pageBody} onChange={(pageBody) => setDraft({ ...draft, pageBody })} />
+              <Field label="Empty body" textarea value={draft.emptyBody} onChange={(emptyBody) => setDraft({ ...draft, emptyBody })} />
+            </>
+          )}
+
+          {section === 'flash' && draft && (
+            <>
+              <Field label="Badge label" value={draft.label} onChange={(label) => setDraft({ ...draft, label })} />
+              <Field label="Home body" textarea value={draft.body} onChange={(body) => setDraft({ ...draft, body })} />
+              <Field label="Home link label" value={draft.action} onChange={(action) => setDraft({ ...draft, action })} />
+              <Field label="Home link" value={draft.to} onChange={(to) => setDraft({ ...draft, to })} />
+              <Field label="Sale page body" textarea value={draft.pageBody} onChange={(pageBody) => setDraft({ ...draft, pageBody })} />
+              <Field label="Empty sale title" value={draft.emptyTitle} onChange={(emptyTitle) => setDraft({ ...draft, emptyTitle })} />
+              <Field label="Empty sale body" textarea value={draft.emptyBody} onChange={(emptyBody) => setDraft({ ...draft, emptyBody })} />
+              <Field label="Empty products line" value={draft.emptyProducts} onChange={(emptyProducts) => setDraft({ ...draft, emptyProducts })} />
+            </>
+          )}
+
+          {section === 'newsletter' && draft && (
+            <>
+              <Field label="Eyebrow" value={draft.eyebrow} onChange={(eyebrow) => setDraft({ ...draft, eyebrow })} />
+              <Field label="Title" value={draft.title} onChange={(title) => setDraft({ ...draft, title })} />
+              <Field label="Footer compact title" value={draft.compactTitle} onChange={(compactTitle) => setDraft({ ...draft, compactTitle })} />
+            </>
+          )}
+
           {section === 'testimonials' && draft && (
             <>
               <Field label="Eyebrow" value={draft.eyebrow} onChange={(eyebrow) => setDraft({ ...draft, eyebrow })} />
@@ -528,15 +743,91 @@ export default function AdminContent() {
 
           {section === 'about' && draft && (
             <>
+              <Field label="Eyebrow" value={draft.eyebrow} onChange={(eyebrow) => setDraft({ ...draft, eyebrow })} />
               <Field label="Headline" value={draft.headline} onChange={(headline) => setDraft({ ...draft, headline })} />
               <Field label="Tagline" value={draft.tagline} onChange={(tagline) => setDraft({ ...draft, tagline })} />
-              <Field label="Body" textarea rows={8} value={draft.body} onChange={(body) => setDraft({ ...draft, body })} />
+              <StringListFields label="Intro paragraphs" items={draft.intro || []} onChange={(intro) => setDraft({ ...draft, intro })} />
+              <Field label="Extra body" textarea rows={6} value={draft.body} onChange={(body) => setDraft({ ...draft, body })} />
+              <Field label="More title" value={draft.moreTitle} onChange={(moreTitle) => setDraft({ ...draft, moreTitle })} />
+              <Field label="More body" textarea value={draft.moreBody} onChange={(moreBody) => setDraft({ ...draft, moreBody })} />
+              <StringListFields label="More points" items={draft.morePoints || []} onChange={(morePoints) => setDraft({ ...draft, morePoints })} />
+              <Field label="More close" textarea value={draft.moreClose} onChange={(moreClose) => setDraft({ ...draft, moreClose })} />
+              <Field label="Collections title" value={draft.collectionsTitle} onChange={(collectionsTitle) => setDraft({ ...draft, collectionsTitle })} />
+              {(draft.collections || []).map((item, i) => (
+                <div key={i} className="space-y-2 rounded-xl p-3 gold-border">
+                  <p className="text-[10px] uppercase tracking-widest text-gold">Collection {i + 1}</p>
+                  <Field label="Name" value={item.name} onChange={(name) => {
+                    const collections = [...draft.collections];
+                    collections[i] = { ...item, name };
+                    setDraft({ ...draft, collections });
+                  }} />
+                  <Field label="Link" value={item.to} onChange={(to) => {
+                    const collections = [...draft.collections];
+                    collections[i] = { ...item, to };
+                    setDraft({ ...draft, collections });
+                  }} />
+                  <Field label="Body" textarea rows={2} value={item.body} onChange={(body) => {
+                    const collections = [...draft.collections];
+                    collections[i] = { ...item, body };
+                    setDraft({ ...draft, collections });
+                  }} />
+                  <button type="button" className="text-xs text-red-300" onClick={() => setDraft({ ...draft, collections: draft.collections.filter((_, idx) => idx !== i) })}>Remove</button>
+                </div>
+              ))}
+              <Button type="button" variant="ghost" onClick={() => setDraft({ ...draft, collections: [...(draft.collections || []), { name: '', to: '', body: '' }] })}>Add collection</Button>
+              <Field label="Different title" value={draft.differentTitle} onChange={(differentTitle) => setDraft({ ...draft, differentTitle })} />
+              {(draft.different || []).map((item, i) => (
+                <div key={i} className="space-y-2 rounded-xl p-3 gold-border">
+                  <Field label="Title" value={item.title} onChange={(title) => {
+                    const different = [...draft.different];
+                    different[i] = { ...item, title };
+                    setDraft({ ...draft, different });
+                  }} />
+                  <Field label="Body" textarea rows={2} value={item.body} onChange={(body) => {
+                    const different = [...draft.different];
+                    different[i] = { ...item, body };
+                    setDraft({ ...draft, different });
+                  }} />
+                  <button type="button" className="text-xs text-red-300" onClick={() => setDraft({ ...draft, different: draft.different.filter((_, idx) => idx !== i) })}>Remove</button>
+                </div>
+              ))}
+              <Button type="button" variant="ghost" onClick={() => setDraft({ ...draft, different: [...(draft.different || []), { title: '', body: '' }] })}>Add difference</Button>
+              <Field label="Approach eyebrow" value={draft.approachTitle} onChange={(approachTitle) => setDraft({ ...draft, approachTitle })} />
+              <Field label="Approach title" value={draft.approachKicker} onChange={(approachKicker) => setDraft({ ...draft, approachKicker })} />
+              <Field label="Approach body" textarea value={draft.approachBody} onChange={(approachBody) => setDraft({ ...draft, approachBody })} />
+              <Field label="Approach note" textarea value={draft.approachNote} onChange={(approachNote) => setDraft({ ...draft, approachNote })} />
+              {(draft.steps || []).map((step, i) => (
+                <div key={i} className="space-y-2 rounded-xl p-3 gold-border">
+                  <Field label="Number" value={step.n} onChange={(n) => {
+                    const steps = [...draft.steps];
+                    steps[i] = { ...step, n };
+                    setDraft({ ...draft, steps });
+                  }} />
+                  <Field label="Title" value={step.title} onChange={(title) => {
+                    const steps = [...draft.steps];
+                    steps[i] = { ...step, title };
+                    setDraft({ ...draft, steps });
+                  }} />
+                  <Field label="Body" textarea rows={2} value={step.body} onChange={(body) => {
+                    const steps = [...draft.steps];
+                    steps[i] = { ...step, body };
+                    setDraft({ ...draft, steps });
+                  }} />
+                </div>
+              ))}
+              <Field label="Vision title" value={draft.visionTitle} onChange={(visionTitle) => setDraft({ ...draft, visionTitle })} />
+              <Field label="Vision" textarea value={draft.vision} onChange={(vision) => setDraft({ ...draft, vision })} />
+              <Field label="Promise title" value={draft.promiseTitle} onChange={(promiseTitle) => setDraft({ ...draft, promiseTitle })} />
+              <StringListFields label="Promises" items={draft.promises || []} onChange={(promises) => setDraft({ ...draft, promises })} />
+              <Field label="Close line" value={draft.closeLine} onChange={(closeLine) => setDraft({ ...draft, closeLine })} />
+              <Field label="Close entity" value={draft.closeEntity} onChange={(closeEntity) => setDraft({ ...draft, closeEntity })} />
             </>
           )}
 
           {section === 'footer' && draft && (
             <>
               <MediaField label="Banner image" value={draft.bannerImage} onChange={(bannerImage) => setDraft({ ...draft, bannerImage })} />
+              <MediaField label="Footer logo" value={draft.logo} onChange={(logo) => setDraft({ ...draft, logo })} />
               <Field label="Kicker" value={draft.kicker} onChange={(kicker) => setDraft({ ...draft, kicker })} />
               <Field label="Title" value={draft.title} onChange={(title) => setDraft({ ...draft, title })} />
               <Field label="Copy" textarea value={draft.copy} onChange={(copy) => setDraft({ ...draft, copy })} />
@@ -554,6 +845,13 @@ export default function AdminContent() {
               <Field label="Grievance email" value={draft.grievanceEmail} onChange={(grievanceEmail) => setDraft({ ...draft, grievanceEmail })} />
               <Field label="Copyright line" value={draft.copyright} onChange={(copyright) => setDraft({ ...draft, copyright })} />
               <Field label="Disclaimer" textarea value={draft.disclaimer} onChange={(disclaimer) => setDraft({ ...draft, disclaimer })} />
+              <Field label="Shop heading" value={draft.shopHeading} onChange={(shopHeading) => setDraft({ ...draft, shopHeading })} />
+              <LinkListFields label="Shop links" items={draft.shopLinks || []} onChange={(shopLinks) => setDraft({ ...draft, shopLinks })} />
+              <Field label="Contact button label" value={draft.contactLabel} onChange={(contactLabel) => setDraft({ ...draft, contactLabel })} />
+              <Field label="Care heading" value={draft.careHeading} onChange={(careHeading) => setDraft({ ...draft, careHeading })} />
+              <LinkListFields label="Customer care links" items={draft.careLinks || []} onChange={(careLinks) => setDraft({ ...draft, careLinks })} />
+              <Field label="Legal heading" value={draft.legalHeading} onChange={(legalHeading) => setDraft({ ...draft, legalHeading })} />
+              <LinkListFields label="Legal links" items={draft.legalLinks || []} onChange={(legalLinks) => setDraft({ ...draft, legalLinks })} />
             </>
           )}
 
@@ -575,6 +873,16 @@ export default function AdminContent() {
               <Field label="Link label" value={draft.action} onChange={(action) => setDraft({ ...draft, action })} />
               <Field label="Link" value={draft.to} onChange={(to) => setDraft({ ...draft, to })} />
               <MediaField label="Portrait image" value={draft.image} onChange={(image) => setDraft({ ...draft, image })} />
+            </>
+          )}
+
+          {section === 'pageCollections' && draft && (
+            <>
+              <Field label="Eyebrow" value={draft.eyebrow} onChange={(eyebrow) => setDraft({ ...draft, eyebrow })} />
+              <Field label="Title" value={draft.title} onChange={(title) => setDraft({ ...draft, title })} />
+              <Field label="Body" textarea value={draft.body} onChange={(body) => setDraft({ ...draft, body })} />
+              <Field label="Card action" value={draft.action} onChange={(action) => setDraft({ ...draft, action })} />
+              <EmptyFields value={draft.empty} onChange={(empty) => setDraft({ ...draft, empty })} />
             </>
           )}
 
@@ -709,7 +1017,7 @@ export default function AdminContent() {
             </>
           )}
 
-          {(section === 'legalReturns' || section === 'legalPrivacy' || section === 'legalTerms') && draft && (
+          {LEGAL_CMS[section] && draft && (
             <>
               <Field label="Eyebrow" value={draft.eyebrow} onChange={(eyebrow) => setDraft({ ...draft, eyebrow })} />
               <Field label="Title" value={draft.title} onChange={(title) => setDraft({ ...draft, title })} />

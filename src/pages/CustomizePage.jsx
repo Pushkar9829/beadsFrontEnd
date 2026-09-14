@@ -17,22 +17,25 @@ import Button from '../components/ui/Button';
 import PlaceOrderButton from '../components/customizer/PlaceOrderButton';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
 import SectionHead from '../components/home/SectionHead';
+import StudioModeNav from '../components/customizer/StudioModeNav';
 import { useSite } from '../store/contentStore';
-
-const CRUMBS = [
-  { label: 'Home', to: '/' },
-  { label: 'Customization' },
-];
+import { useBrand, pageTitle } from '../store/settingsStore';
+import SeoHead from '../components/SeoHead';
 
 export default function CustomizePage() {
   const steps = useSite().pages.customize.steps || [];
+  const brand = useBrand();
+  const intro = steps[0] || {};
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const appliedSlug = useRef('');
   const init = useCustomizerStore((s) => s.init);
   const purposes = useCustomizerStore((s) => s.purposes);
   const purpose = useCustomizerStore((s) => s.purpose);
+  const layer = useCustomizerStore((s) => s.layer);
   const selectPurpose = useCustomizerStore((s) => s.selectPurpose);
+  const hydrateLayerFromQuery = useCustomizerStore((s) => s.hydrateLayerFromQuery);
+  const setStep = useCustomizerStore((s) => s.setStep);
   const loading = useCustomizerStore((s) => s.loading);
   const error = useCustomizerStore((s) => s.error);
   const step = useCustomizerStore((s) => s.step);
@@ -41,14 +44,40 @@ export default function CustomizePage() {
   const goBack = useCustomizerStore((s) => s.goBack);
   const advancing = useCustomizerStore((s) => s.advancing);
   const stepError = useCustomizerStore((s) => s.stepError);
-  const copy = steps[step - 1] || steps[0] || {};
+  const copy = steps[step - 1] || intro;
+  const crumbs = [
+    { label: 'Home', to: '/' },
+    { label: brand.nav.customize, to: '/customize' },
+  ];
+  if (layer) {
+    crumbs.push({ label: layer.modeLabel, to: layer.path });
+    crumbs.push({ label: layer.name });
+  }
 
   useEffect(() => {
     init();
   }, [init]);
 
   useEffect(() => {
+    const kind = params.get('layer');
+    const key = params.get('key');
+    if (!kind || !key) return;
+    hydrateLayerFromQuery({
+      kind,
+      key,
+      mulank: params.get('mulank'),
+      bhagyank: params.get('bhagyank'),
+      dateOfBirth: params.get('dob'),
+    });
+  }, [params, hydrateLayerFromQuery]);
+
+  useEffect(() => {
+    if (layer && step < 5) setStep(5);
+  }, [layer, step, setStep]);
+
+  useEffect(() => {
     const slug = params.get('purpose');
+    if (params.get('layer') || layer) return;
     if (!slug || !purposes.length) return;
     if (purpose?.slug === slug) {
       appliedSlug.current = slug;
@@ -59,14 +88,22 @@ export default function CustomizePage() {
     if (!match) return;
     appliedSlug.current = slug;
     selectPurpose(match);
-  }, [params, purposes, purpose, selectPurpose]);
+  }, [params, purposes, purpose, selectPurpose, layer]);
 
   useEffect(() => {
-    if (!purpose?.slug) return;
+    if (layer) {
+      if (params.get('layer') === layer.kind && params.get('key') === String(layer.key)) return;
+      const q = new URLSearchParams({ layer: layer.kind, key: String(layer.key) });
+      if (layer.mulank) q.set('mulank', String(layer.mulank));
+      if (layer.bhagyank) q.set('bhagyank', String(layer.bhagyank));
+      navigate(`/customize?${q.toString()}`, { replace: true });
+      return;
+    }
+    if (!purpose?.slug || !purpose._id) return;
     if (params.get('purpose') === purpose.slug) return;
     appliedSlug.current = purpose.slug;
     navigate(`/customize?purpose=${purpose.slug}`, { replace: true });
-  }, [purpose, params, navigate]);
+  }, [purpose, params, navigate, layer]);
 
   if (loading) {
     return (
@@ -103,11 +140,23 @@ export default function CustomizePage() {
     <div className="studio-page relative pb-28">
       <div className="pointer-events-none absolute inset-0 lotus-corner" />
       <div className="relative shell py-8 sm:py-10 md:py-12">
-        <Breadcrumbs items={CRUMBS} />
+        <SeoHead
+          title={pageTitle(copy.title || brand.nav.customize, brand)}
+          description={copy.body || intro.body}
+          keywords={brand.seo?.keywords}
+          image={brand.seo?.ogImage}
+          noIndex={brand.seo?.noIndex}
+        />
+        <Breadcrumbs items={crumbs} />
 
         <div className="studio-head">
-          <SectionHead eyebrow={copy.eyebrow} title={copy.title} body={copy.body} />
+          <SectionHead
+            eyebrow={layer ? layer.modeLabel : copy.eyebrow}
+            title={layer && step >= 5 ? `${layer.name}` : copy.title}
+            body={layer ? (layer.theme || copy.body) : copy.body}
+          />
         </div>
+        {!layer && <StudioModeNav />}
 
         <Stepper />
 
@@ -132,8 +181,11 @@ export default function CustomizePage() {
           <button
             type="button"
             className="text-xs uppercase tracking-[0.16em] text-lilac disabled:opacity-40"
-            onClick={goBack}
-            disabled={step === 1 || advancing}
+            onClick={() => {
+              if (layer && step === 5) navigate(layer.path);
+              else goBack();
+            }}
+            disabled={(!layer && step === 1) || advancing}
           >
             Back
           </button>

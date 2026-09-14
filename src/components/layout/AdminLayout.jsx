@@ -35,6 +35,7 @@ import api from '../../api/client';
 const groups = [
   {
     label: 'Overview',
+    icon: LayoutDashboard,
     items: [
       { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
       { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
@@ -43,6 +44,7 @@ const groups = [
   },
   {
     label: 'Catalog',
+    icon: Layers,
     items: [
       { to: '/admin/categories', label: 'Categories', icon: Layers },
       { to: '/admin/products', label: 'Products', icon: ShoppingBag },
@@ -53,6 +55,7 @@ const groups = [
   },
   {
     label: 'Inventory',
+    icon: Warehouse,
     items: [
       { to: '/admin/inventory', label: 'Stock', icon: Warehouse, end: true },
       { to: '/admin/inventory/low', label: 'Low stock', icon: Warehouse },
@@ -61,6 +64,7 @@ const groups = [
   },
   {
     label: 'Orders',
+    icon: ShoppingBag,
     items: [
       { to: '/admin/orders', label: 'All orders', icon: ShoppingBag, end: true },
       { to: '/admin/orders/pending_payment', label: 'Pending' },
@@ -73,6 +77,7 @@ const groups = [
   },
   {
     label: 'Marketing',
+    icon: Ticket,
     items: [
       { to: '/admin/coupons', label: 'Coupons', icon: Ticket },
       { to: '/admin/offers', label: 'Offers', icon: Percent },
@@ -84,6 +89,7 @@ const groups = [
   },
   {
     label: 'Customers',
+    icon: Users,
     items: [
       { to: '/admin/customers', label: 'All customers', icon: Users },
       { to: '/admin/groups', label: 'Customer groups' },
@@ -91,6 +97,7 @@ const groups = [
   },
   {
     label: 'Bracelet builder',
+    icon: Sparkles,
     items: [
       { to: '/admin/config', label: 'Config', icon: SlidersHorizontal },
       { to: '/admin/intentions', label: 'Bead rules & purposes', icon: Sparkles },
@@ -98,6 +105,7 @@ const groups = [
   },
   {
     label: 'Content',
+    icon: FileText,
     items: [
       { to: '/admin/home-layout', label: 'Homepage', icon: FileText },
       { to: '/admin/content', label: 'Site CMS', icon: FileText },
@@ -110,6 +118,7 @@ const groups = [
   },
   {
     label: 'Settings',
+    icon: Settings,
     items: [
       { to: '/admin/settings', label: 'General', icon: Settings, settingsTab: 'general' },
       { to: '/admin/settings?tab=payment', label: 'Payment', icon: CreditCard, settingsTab: 'payment' },
@@ -171,12 +180,17 @@ function Sidebar({ onNavigate }) {
                 type="button"
                 aria-expanded={expanded}
                 onClick={() => setOpen((prev) => ({ ...prev, [g.label]: !prev[g.label] }))}
-                className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-[10px] uppercase tracking-[0.18em] ${
-                  current ? 'text-gold' : 'text-gold/70 hover:bg-raised hover:text-gold'
+                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-[10px] uppercase tracking-[0.18em] ${
+                  current ? 'bg-gold/10 text-gold' : 'text-gold/70 hover:bg-raised hover:text-gold'
                 }`}
               >
-                {g.label}
-                <ChevronDown size={12} className={`transition ${expanded ? 'rotate-180' : ''}`} />
+                {g.icon ? <g.icon size={14} className="shrink-0" /> : null}
+                <span className="flex-1 text-left">{g.label}</span>
+                <ChevronDown
+                  size={16}
+                  strokeWidth={2.25}
+                  className={`shrink-0 text-gold transition duration-200 ${expanded ? 'rotate-180' : ''}`}
+                />
               </button>
               {expanded && (
                 <div className="mt-0.5 space-y-0.5">

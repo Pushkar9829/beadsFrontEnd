@@ -1,4 +1,5 @@
 import { PAGES_DEFAULTS, FOOTER_DEFAULTS, CONTACT_DEFAULTS } from './sitePages';
+import { ABOUT_BRAND } from './aboutBrand';
 
 export const HOME_DEFAULTS = {
   hero: {
@@ -82,6 +83,64 @@ export const HOME_DEFAULTS = {
     action: 'Shop all →',
     to: '/shop',
   },
+  brand: {
+    name: 'KUBERSTONES',
+    tagline: 'Personalized With Purpose',
+    logo: '',
+    customizeLabel: 'Customization',
+    collectionsLabel: 'Collections',
+    shopAllLabel: 'Shop All',
+  },
+  purpose: {
+    eyebrow: 'Purpose',
+    title: 'Shop by purpose',
+    body: 'Begin with why you wear it. Each purpose opens the studio with that intention already chosen.',
+    action: 'All purposes →',
+    to: '/customize/purpose',
+    pageEyebrow: 'Studio',
+    pageTitle: 'Shop by purpose',
+    pageBody: 'Choose the reason first. The studio then places crystals for that intention.',
+  },
+  rails: {
+    bestsellers: { eyebrow: 'Collection', title: 'Best sellers', action: 'See all →', to: '/collection/best-sellers' },
+    newArrivals: { eyebrow: 'Collection', title: 'New arrivals', action: 'See all →', to: '/collection/new-arrivals' },
+    trending: { eyebrow: 'Collection', title: 'Trending bracelets', action: 'See all →', to: '/collection/trending' },
+  },
+  faq: {
+    eyebrow: 'FAQ',
+    title: 'Questions, answered',
+    action: 'All questions →',
+    to: '/faq',
+    pageEyebrow: 'Care',
+    pageTitle: 'Questions, answered quietly.',
+    pageBody: '',
+    emptyBody: 'No questions published yet.',
+  },
+  journal: {
+    eyebrow: 'Journal',
+    title: 'From the atelier',
+    action: 'All notes →',
+    to: '/journal',
+    pageEyebrow: 'Journal',
+    pageTitle: 'From the atelier',
+    pageBody: 'Quiet writing on stones, ritual, and making.',
+    emptyBody: 'No journal entries yet.',
+  },
+  flash: {
+    label: 'Flash sale',
+    body: 'Timed prices on a short list. When the clock ends, the atelier rate returns.',
+    action: 'Shop the sale →',
+    to: '/sale',
+    pageBody: 'Timed prices. When the clock ends, the list returns to the atelier rate.',
+    emptyTitle: 'No sale is running.',
+    emptyBody: 'When a flash sale is live, timed prices will appear here.',
+    emptyProducts: 'Products for this sale are being placed.',
+  },
+  newsletter: {
+    eyebrow: 'The list',
+    title: 'Quiet notes from the atelier.',
+    compactTitle: 'The list.',
+  },
   voices: {
     eyebrow: 'Voices',
     title: 'From those who wear it',
@@ -103,9 +162,30 @@ export const HOME_DEFAULTS = {
     secondaryCta: { label: 'Shop All', to: '/shop' },
   },
   about: {
-    headline: 'Personalized Spirituality, Designed Around You',
-    tagline: 'A brand by Nexxgenn Technology',
+    eyebrow: ABOUT_BRAND.eyebrow,
+    headline: ABOUT_BRAND.headline,
+    tagline: ABOUT_BRAND.tagline,
+    intro: ABOUT_BRAND.intro,
     body: '',
+    moreTitle: ABOUT_BRAND.moreTitle,
+    moreBody: ABOUT_BRAND.moreBody,
+    morePoints: ABOUT_BRAND.morePoints,
+    moreClose: ABOUT_BRAND.moreClose,
+    collectionsTitle: ABOUT_BRAND.collectionsTitle,
+    collections: ABOUT_BRAND.collections,
+    differentTitle: ABOUT_BRAND.differentTitle,
+    different: ABOUT_BRAND.different,
+    approachTitle: ABOUT_BRAND.approachTitle,
+    approachKicker: ABOUT_BRAND.approachKicker,
+    approachBody: ABOUT_BRAND.approachBody,
+    approachNote: ABOUT_BRAND.approachNote,
+    steps: ABOUT_BRAND.steps,
+    visionTitle: ABOUT_BRAND.visionTitle,
+    vision: ABOUT_BRAND.vision,
+    promiseTitle: ABOUT_BRAND.promiseTitle,
+    promises: ABOUT_BRAND.promises,
+    closeLine: ABOUT_BRAND.closeLine,
+    closeEntity: ABOUT_BRAND.closeEntity,
   },
   pages: PAGES_DEFAULTS,
   footer: FOOTER_DEFAULTS,
@@ -119,7 +199,7 @@ function isPlainObject(value) {
 function mergeDeep(fallback, stored) {
   if (stored == null || stored === '') return fallback;
   if (Array.isArray(fallback)) {
-    return Array.isArray(stored) && stored.length ? stored : fallback;
+    return Array.isArray(stored) ? stored : fallback;
   }
   if (isPlainObject(fallback)) {
     const out = { ...fallback };
@@ -133,21 +213,22 @@ function mergeDeep(fallback, stored) {
 
 export const HOME_LAYOUT_DEFAULTS = [
   { key: 'hero', label: 'Hero banner', enabled: true, sortOrder: 0 },
-  { key: 'marquee', label: 'Marquee', enabled: true, sortOrder: 1 },
-  { key: 'houses', label: 'Featured categories', enabled: true, sortOrder: 2 },
-  { key: 'studio', label: 'Studio invite', enabled: true, sortOrder: 3 },
-  { key: 'shop_by_purpose', label: 'Shop by purpose', enabled: true, sortOrder: 4 },
-  { key: 'ritual', label: 'Ritual steps', enabled: true, sortOrder: 5 },
-  { key: 'featured', label: 'Featured products', enabled: true, sortOrder: 6 },
-  { key: 'bestsellers', label: 'Best sellers', enabled: true, sortOrder: 7 },
-  { key: 'new_arrivals', label: 'New arrivals', enabled: true, sortOrder: 8 },
-  { key: 'trending', label: 'Trending bracelets', enabled: true, sortOrder: 9 },
-  { key: 'testimonials', label: 'Testimonials', enabled: true, sortOrder: 10 },
-  { key: 'trust', label: 'Trust claims', enabled: true, sortOrder: 11 },
-  { key: 'faq', label: 'FAQ', enabled: true, sortOrder: 12 },
-  { key: 'journal', label: 'Journal', enabled: true, sortOrder: 13 },
-  { key: 'newsletter', label: 'Newsletter', enabled: true, sortOrder: 14 },
-  { key: 'finale', label: 'Finale', enabled: true, sortOrder: 15 },
+  { key: 'flash_sale', label: 'Flash sale', enabled: true, sortOrder: 1 },
+  { key: 'marquee', label: 'Marquee', enabled: true, sortOrder: 2 },
+  { key: 'houses', label: 'Featured categories', enabled: true, sortOrder: 3 },
+  { key: 'studio', label: 'Studio invite', enabled: true, sortOrder: 4 },
+  { key: 'shop_by_purpose', label: 'Shop by purpose', enabled: true, sortOrder: 5 },
+  { key: 'ritual', label: 'Ritual steps', enabled: true, sortOrder: 6 },
+  { key: 'featured', label: 'Featured products', enabled: true, sortOrder: 7 },
+  { key: 'bestsellers', label: 'Best sellers', enabled: true, sortOrder: 8 },
+  { key: 'new_arrivals', label: 'New arrivals', enabled: true, sortOrder: 9 },
+  { key: 'trending', label: 'Trending bracelets', enabled: true, sortOrder: 10 },
+  { key: 'testimonials', label: 'Testimonials', enabled: true, sortOrder: 11 },
+  { key: 'trust', label: 'Trust claims', enabled: true, sortOrder: 12 },
+  { key: 'faq', label: 'FAQ', enabled: true, sortOrder: 13 },
+  { key: 'journal', label: 'Journal', enabled: true, sortOrder: 14 },
+  { key: 'newsletter', label: 'Newsletter', enabled: true, sortOrder: 15 },
+  { key: 'finale', label: 'Finale', enabled: true, sortOrder: 16 },
 ];
 
 export function mergeHomeLayout(stored) {

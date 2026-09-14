@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useCustomizerStore, useCustomizerQuote } from '../../store/customizerStore';
 import Button from '../ui/Button';
 import Price from '../ui/Price';
@@ -19,12 +20,14 @@ const HINT = {
 };
 
 export default function WizardNav() {
+  const navigate = useNavigate();
   const step = useCustomizerStore((s) => s.step);
   const goBack = useCustomizerStore((s) => s.goBack);
   const goNext = useCustomizerStore((s) => s.goNext);
   const advancing = useCustomizerStore((s) => s.advancing);
   const calibrating = useCustomizerStore((s) => s.calibrating);
   const stepError = useCustomizerStore((s) => s.stepError);
+  const layer = useCustomizerStore((s) => s.layer);
   const purpose = useCustomizerStore((s) => s.purpose);
   const intention = useCustomizerStore((s) => s.intention);
   const recommended = useCustomizerStore((s) => s.recommended);
@@ -47,15 +50,23 @@ export default function WizardNav() {
   if (step === 6) return null;
 
   const busy = advancing;
+  const hint = layer && step === 5 ? 'Choose Sriyantra or Om, then a thread.' : HINT[step];
 
   return (
     <div className="studio-nav">
-      {(stepError || (!ready && HINT[step])) && (
+      {(stepError || (!ready && hint)) && (
         <p className={`mb-3 w-full text-sm ${stepError ? 'text-red-300' : 'text-lilac'}`}>
-          {stepError || HINT[step]}
+          {stepError || hint}
         </p>
       )}
-      <Button variant="ghost" onClick={goBack} disabled={step === 1 || busy}>
+      <Button
+        variant="ghost"
+        onClick={() => {
+          if (layer && step === 5) navigate(layer.path);
+          else goBack();
+        }}
+        disabled={(!layer && step === 1) || busy}
+      >
         Back
       </Button>
       <div className="flex items-center gap-4">

@@ -4,6 +4,9 @@ import api from '../../api/client';
 import Button from '../../components/ui/Button';
 import AdminHeader, { fieldClass, labelClass } from '../../components/admin/AdminHeader';
 import { toast } from '../../lib/adminToast';
+import { useSettingsStore } from '../../store/settingsStore';
+import { publishStorefront } from '../../lib/storefrontSync';
+import MediaField from '../../components/admin/MediaField';
 
 const empty = {
   storeName: 'Kuberstones',
@@ -98,6 +101,8 @@ export default function AdminSettings() {
         });
       }
       toast('Settings saved.');
+      useSettingsStore.getState().load(true);
+      publishStorefront();
     } catch (err) {
       toast(err.message || 'Could not save settings.', 'error');
     }
@@ -132,10 +137,11 @@ export default function AdminSettings() {
         {tab === 'general' && (
           <>
             <label className={labelClass}>Store name<input className={`${fieldClass} mt-1`} value={form.storeName} onChange={(e) => setForm({ ...form, storeName: e.target.value })} /></label>
-            <label className={labelClass}>Logo URL<input className={`${fieldClass} mt-1`} value={form.logo} onChange={(e) => setForm({ ...form, logo: e.target.value })} /></label>
+            <MediaField label="Logo" value={form.logo} onChange={(logo) => setForm({ ...form, logo })} />
             <label className={labelClass}>Email<input className={`${fieldClass} mt-1`} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
             <label className={labelClass}>Phone<input className={`${fieldClass} mt-1`} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label>
-            <label className={labelClass}>Currency<input className={`${fieldClass} mt-1`} value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} /></label>
+            <label className={labelClass}>Currency<input className={`${fieldClass} mt-1`} value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} placeholder="INR" /></label>
+            <p className="text-xs text-lilac">ISO code used for every storefront price. Email and phone fill footer and grievance when CMS contact fields are empty.</p>
           </>
         )}
         {tab === 'payment' && (
@@ -267,7 +273,7 @@ export default function AdminSettings() {
             <label className="flex items-center gap-2 text-sm text-lilac"><input type="checkbox" checked={form.notifications.email} onChange={(e) => setForm({ ...form, notifications: { ...form.notifications, email: e.target.checked } })} /> Email</label>
             <label className="flex items-center gap-2 text-sm text-lilac"><input type="checkbox" checked={form.notifications.sms} onChange={(e) => setForm({ ...form, notifications: { ...form.notifications, sms: e.target.checked } })} /> SMS</label>
             <label className="flex items-center gap-2 text-sm text-lilac"><input type="checkbox" checked={form.notifications.whatsapp} onChange={(e) => setForm({ ...form, notifications: { ...form.notifications, whatsapp: e.target.checked } })} /> WhatsApp</label>
-            <p className="text-xs text-lilac">Alerts are stored in the admin notification center. Channel flags mark how they should go out once a provider is connected.</p>
+            <p className="text-xs text-lilac">These flags only tag alerts in the admin notification center. Customer email, SMS, and WhatsApp are not sent yet.</p>
           </>
         )}
         {tab === 'seo' && (

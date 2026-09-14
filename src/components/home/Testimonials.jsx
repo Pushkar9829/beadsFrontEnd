@@ -5,33 +5,6 @@ import crystals from '../../assets/home/house-crystals.jpg';
 import gemstones from '../../assets/home/house-gemstones.jpg';
 import rudraksha from '../../assets/home/house-rudraksha.jpg';
 
-export const DEFAULT_TESTIMONIALS = [
-  {
-    quote:
-      'The Mulank calibration felt considered. I wear it every day and it still feels made for me — not picked from a tray.',
-    name: 'Ananya M.',
-    place: 'Mumbai',
-    piece: 'Customization · Love',
-    media: crystals,
-  },
-  {
-    quote:
-      'I asked for abundance and they did not oversell it. Citrine and pyrite sit quietly on the wrist. That is what I wanted.',
-    name: 'Rohan S.',
-    place: 'Bengaluru',
-    piece: 'Customization · Money',
-    media: gemstones,
-  },
-  {
-    quote:
-      'The atelier tone is rare. Packaging, engraving, the note — all of it felt like a house, not a catalogue.',
-    name: 'Meera K.',
-    place: 'Delhi',
-    piece: 'Rudraksha house',
-    media: rudraksha,
-  },
-];
-
 const FALLBACK_MEDIA = [crystals, gemstones, rudraksha];
 
 function initials(name = '') {
@@ -111,8 +84,8 @@ function VoiceMedia({ src, name }) {
 }
 
 export default function Testimonials({ items }) {
-  const voices = (items || []).filter((v) => v.quote && v.name);
-  const notes = voices.length ? voices : DEFAULT_TESTIMONIALS;
+  const notes = (items || []).filter((v) => v.quote && v.name);
+  if (!notes.length) return null;
 
   return (
     <InViewGroup className="voice-grid mt-8 grid gap-3 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">

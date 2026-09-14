@@ -115,6 +115,7 @@ export default function AdminOrders() {
               {editing.tax ? <> · GST <Price value={editing.tax} /></> : null}
               {editing.shippingFee != null ? <> · Ship <Price value={editing.shippingFee} /></> : null}
               {editing.couponCode ? <> · {editing.couponCode}</> : null}
+              {editing.offerName ? <> · Offer {editing.offerName}</> : null}
             </p>
             <ul className="space-y-1 text-sm text-lilac">
               {(editing.items || []).map((item, i) => (

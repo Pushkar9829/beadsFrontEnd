@@ -1,9 +1,25 @@
+let activeCurrency = 'INR';
+
+export function setStoreCurrency(code) {
+  const next = String(code || 'INR').trim().toUpperCase();
+  activeCurrency = /^[A-Z]{3}$/.test(next) ? next : 'INR';
+}
+
 export function formatInr(value) {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(Number(value || 0));
+  const amount = Number(value || 0);
+  try {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: activeCurrency,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  } catch {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(amount);
+  }
 }
 
 export function parseWristInches(size = '6.5"') {

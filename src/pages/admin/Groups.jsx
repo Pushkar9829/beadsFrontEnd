@@ -6,7 +6,7 @@ export default function AdminGroups() {
   return (
     <AdminCrud
       title="Customer groups"
-      subtitle="Manual groups you can assign on a customer profile. Computed segments still appear on the customers list."
+      subtitle="Manual CRM tags you assign on a customer profile. They do not change storefront prices or coupons."
       endpoint="/admin/groups"
       createLabel="Create group"
       emptyForm={empty}

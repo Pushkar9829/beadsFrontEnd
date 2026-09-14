@@ -168,6 +168,7 @@ export default function AccountPage() {
                   <p className="mt-3 text-xs text-lilac">
                     {o.payment?.method === 'gateway' ? `Cashfree · ${o.payment?.status || 'pending'} · ` : ''}
                     {o.couponCode ? `Coupon ${o.couponCode} · ` : ''}
+                    {o.offerName ? `Offer ${o.offerName} · ` : ''}
                     {o.discount ? <>Discount <Price value={o.discount} /> · </> : null}
                     {o.shippingFee != null ? <>Ship <Price value={o.shippingFee} /> · </> : null}
                     {o.tax ? <>GST <Price value={o.tax} /></> : null}

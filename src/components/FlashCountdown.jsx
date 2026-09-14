@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import FlashSaleMark from './ui/FlashSaleMark';
 
 function parts(endsAt) {
   const ms = Math.max(0, new Date(endsAt) - Date.now());
@@ -12,7 +13,7 @@ function parts(endsAt) {
   };
 }
 
-export default function FlashCountdown({ sale, to = '/sale' }) {
+export default function FlashCountdown({ sale, to = '/sale', compact = false }) {
   const [t, setT] = useState(() => (sale?.endsAt ? parts(sale.endsAt) : null));
   useEffect(() => {
     if (!sale?.endsAt) return undefined;
@@ -21,12 +22,14 @@ export default function FlashCountdown({ sale, to = '/sale' }) {
   }, [sale?.endsAt]);
   if (!sale || !t) return null;
   const inner = (
-    <div className="rounded-2xl border border-gold/30 bg-gold/10 px-4 py-3 text-center">
-      <p className="text-[10px] uppercase tracking-[0.22em] text-gold">{sale.name}</p>
-      <p className="mt-1 font-serif text-lg text-ivory">
+    <div className={`flash-timer${compact ? ' flash-timer-inline' : ''}`}>
+      {!compact && (
+        <FlashSaleMark size="md" label="Flash sale" name={sale.name} />
+      )}
+      <p className="flash-timer-clock">
         {t.d}d {t.h}h {t.m}m {t.s}s
       </p>
-      {to && <p className="mt-1 text-[10px] uppercase tracking-widest text-gold">Shop the sale →</p>}
+      {to && <p className="flash-timer-cta">Shop the sale →</p>}
     </div>
   );
   return to ? <Link to={to} className="block">{inner}</Link> : inner;

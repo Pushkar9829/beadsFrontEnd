@@ -278,15 +278,15 @@ function stripMailto(value = '') {
   return String(value).replace(/^mailto:/i, '').trim();
 }
 
-export function companyContacts(footer = {}) {
-  const email = stripMailto(footer.email) || 'hello@kuberstones.com';
+export function companyContacts(footer = {}, store = {}) {
+  const email = stripMailto(footer.email) || stripMailto(store.email) || 'hello@kuberstones.com';
   const grievanceEmail = stripMailto(footer.grievanceEmail) || email;
   return {
-    brand: footer.brandName || 'Kuberstones',
+    brand: footer.brandName || store.storeName || 'Kuberstones',
     legalEntity: footer.legalEntity || 'Nexxgenn Technology',
     email,
     emailHref: `mailto:${email}`,
-    phone: String(footer.supportPhone || '').trim(),
+    phone: String(footer.supportPhone || store.phone || '').trim(),
     address: String(footer.address || footer.location || '').trim(),
     grievanceOfficer: String(footer.grievanceOfficer || '').trim(),
     grievanceEmail,

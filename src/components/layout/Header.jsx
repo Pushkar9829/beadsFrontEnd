@@ -1,14 +1,17 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown, Heart, ShoppingBag, User } from 'lucide-react';
-import logo from '../../assets/brand/logo.jpg';
 import api from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import { useWishlistStore } from '../../store/wishlistStore';
 import AccountDrawer from './AccountDrawer';
+import { useBrand } from '../../store/settingsStore';
 import { useSite } from '../../store/contentStore';
 import { isStaff } from '../../lib/staff';
+import FlashSaleMark from '../ui/FlashSaleMark';
+import useRefreshOnView from '../../hooks/useRefreshOnView';
+import { STUDIO_MODES } from '../../lib/studioModes';
 
 const fallbackFamilies = [
   { slug: 'crystals', name: 'Crystals' },
@@ -19,7 +22,9 @@ const fallbackFamilies = [
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  const houseItems = useSite().houses?.items || [];
+  const site = useSite();
+  const houseItems = site.houses?.items || [];
+  const brand = useBrand();
   const families = houseItems.length
     ? houseItems.map((h) => ({ slug: h.slug, name: h.name }))
     : fallbackFamilies;
@@ -42,11 +47,11 @@ export default function Header() {
     setAccountOpen(false);
   }, [location.pathname]);
 
-  useEffect(() => {
+  useRefreshOnView(() => {
     api.get('/categories').then(({ data }) => setTree(data.tree || [])).catch(() => {});
     api.get('/collections').then(({ data }) => setCollections(data.collections || [])).catch(() => {});
     api.get('/flash-sales/active').then(({ data }) => setFlash(data.sale || null)).catch(() => {});
-  }, []);
+  });
 
   useLayoutEffect(() => {
     const el = headerRef.current;
@@ -117,17 +122,19 @@ export default function Header() {
         <div className="shell flex items-center justify-between gap-2 py-2 sm:gap-3 sm:py-2.5">
           <Link to="/" className="group flex min-w-0 items-center gap-2 sm:gap-2.5">
             <img
-              src={logo}
-              alt="Kuberstones"
+              src={brand.logo}
+              alt={brand.name}
               className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-gold/40 transition duration-300 group-hover:ring-gold group-hover:shadow-[0_0_18px_rgba(198,167,94,0.35)] sm:h-10 sm:w-10"
             />
             <div className="min-w-0 leading-tight">
               <div className="whitespace-nowrap font-serif text-[10px] tracking-[0.14em] gold-text sm:text-xs sm:tracking-[0.22em]">
-                KUBERSTONES
+                {brand.display}
               </div>
-              <div className="hidden text-[10px] uppercase tracking-[0.22em] text-lilac sm:block">
-                Personalized With Purpose
-              </div>
+              {brand.tagline ? (
+                <div className="hidden text-[10px] uppercase tracking-[0.22em] text-lilac sm:block">
+                  {brand.tagline}
+                </div>
+              ) : null}
             </div>
           </Link>
 
@@ -155,7 +162,7 @@ export default function Header() {
                   <div className="absolute left-0 top-full w-72 pt-3">
                     <div className="animate-mega overflow-hidden rounded-2xl bg-surface/95 p-2 gold-border backdrop-blur-md">
                       {childrenOf(f.slug).length === 0 && (
-                        <p className="px-3 py-2 text-sm text-lilac">Collections incoming.</p>
+                        <p className="px-3 py-2 text-sm text-lilac">{site.pages?.collections?.empty?.copy || site.pages?.category?.empty?.copy || 'No collections in this house yet.'}</p>
                       )}
                       {childrenOf(f.slug).map((c) =>
                         c.slug === 'customize-your-bracelet' ? (
@@ -181,18 +188,42 @@ export default function Header() {
                 )}
               </div>
             ))}
-            <NavLink
-              to="/customize"
-              className={({ isActive }) =>
-                `ml-1 rounded-full px-3.5 py-1.5 text-xs uppercase tracking-[0.16em] transition duration-200 ${
-                  isActive
-                    ? 'gold-btn'
-                    : 'border border-gold/40 hover:border-gold hover:bg-gold/10'
-                }`
-              }
+            <div
+              className="relative ml-1"
+              onMouseEnter={() => openMega('customize')}
+              onMouseLeave={closeMega}
             >
-              <span className="gold-cloud">Customization</span>
-            </NavLink>
+              <NavLink
+                to="/customize"
+                className={() => {
+                  const on = location.pathname.startsWith('/customize');
+                  return `flex items-center gap-1 rounded-full px-3.5 py-1.5 text-xs uppercase tracking-[0.16em] transition duration-200 ${
+                    on ? 'gold-btn' : 'border border-gold/40 hover:border-gold hover:bg-gold/10'
+                  }`;
+                }}
+              >
+                <span className="gold-cloud">{brand.nav.customize}</span>
+                <ChevronDown
+                  size={12}
+                  className={`transition duration-200 ${mega === 'customize' ? 'rotate-180 text-gold' : ''}`}
+                />
+              </NavLink>
+              {mega === 'customize' && (
+                <div className="absolute left-0 top-full w-80 pt-3">
+                  <div className="animate-mega overflow-hidden rounded-2xl bg-surface/95 p-2 gold-border backdrop-blur-md">
+                    {STUDIO_MODES.map((mode) => (
+                      <Link
+                        key={mode.slug}
+                        to={mode.path}
+                        className="header-cat-link block rounded-xl px-3 py-2.5 text-sm transition hover:bg-gold/10"
+                      >
+                        {mode.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             <div
               className="relative"
               onMouseEnter={() => openMega('collections')}
@@ -204,7 +235,7 @@ export default function Header() {
                   `header-nav-link flex items-center gap-1 px-3 py-2 ${isActive ? 'is-active' : ''}`
                 }
               >
-                Collections
+                {brand.nav.collections}
                 <ChevronDown
                   size={12}
                   className={`transition duration-200 ${mega === 'collections' ? 'rotate-180 text-gold' : ''}`}
@@ -235,46 +266,11 @@ export default function Header() {
                 `header-nav-link px-3 py-2 ${isActive ? 'is-active' : ''}`
               }
             >
-              Shop All
-            </NavLink>
-            <NavLink
-              to="/shop-by-purpose"
-              className={({ isActive }) =>
-                `header-nav-link px-3 py-2 ${isActive ? 'is-active' : ''}`
-              }
-            >
-              Shop by Purpose
-            </NavLink>
-            <NavLink
-              to="/journal"
-              className={({ isActive }) =>
-                `header-nav-link px-3 py-2 ${isActive ? 'is-active' : ''}`
-              }
-            >
-              Journal
-            </NavLink>
-            <NavLink
-              to="/faq"
-              className={({ isActive }) =>
-                `header-nav-link px-3 py-2 ${isActive ? 'is-active' : ''}`
-              }
-            >
-              FAQ
-            </NavLink>
-            <NavLink
-              to="/about"
-              className={({ isActive }) =>
-                `header-nav-link px-3 py-2 ${isActive ? 'is-active' : ''}`
-              }
-            >
-              About
+              {brand.nav.shopAll}
             </NavLink>
             {flash && (
-              <NavLink
-                to="/sale"
-                className="ml-1 rounded-full border border-gold/50 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-gold hover:bg-gold/10"
-              >
-                Sale
+              <NavLink to="/sale" className="flash-nav">
+                <FlashSaleMark />
               </NavLink>
             )}
           </nav>
@@ -331,14 +327,27 @@ export default function Header() {
           ))}
           <NavLink
             to="/customize"
-            className={({ isActive }) =>
+            className={() =>
               `shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
-                isActive ? 'gold-btn' : 'border border-gold/40'
+                location.pathname === '/customize' ? 'gold-btn' : 'border border-gold/40'
               }`
             }
           >
-            <span className="gold-cloud">Customization</span>
+            <span className="gold-cloud">{brand.nav.customize}</span>
           </NavLink>
+          {STUDIO_MODES.map((mode) => (
+            <NavLink
+              key={mode.slug}
+              to={mode.path}
+              className={({ isActive }) =>
+                `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
+                  isActive ? 'is-active bg-gold/15' : ''
+                }`
+              }
+            >
+              {mode.short}
+            </NavLink>
+          ))}
           <NavLink
             to="/collections"
             className={({ isActive }) =>
@@ -347,7 +356,7 @@ export default function Header() {
               }`
             }
           >
-            Collections
+            {brand.nav.collections}
           </NavLink>
           <NavLink
             to="/shop"
@@ -357,54 +366,11 @@ export default function Header() {
               }`
             }
           >
-            Shop All
-          </NavLink>
-          <NavLink
-            to="/shop-by-purpose"
-            className={({ isActive }) =>
-              `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
-                isActive ? 'is-active bg-gold/15' : ''
-              }`
-            }
-          >
-            Shop by Purpose
-          </NavLink>
-          <NavLink
-            to="/journal"
-            className={({ isActive }) =>
-              `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
-                isActive ? 'is-active bg-gold/15' : ''
-              }`
-            }
-          >
-            Journal
-          </NavLink>
-          <NavLink
-            to="/faq"
-            className={({ isActive }) =>
-              `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
-                isActive ? 'is-active bg-gold/15' : ''
-              }`
-            }
-          >
-            FAQ
-          </NavLink>
-          <NavLink
-            to="/about"
-            className={({ isActive }) =>
-              `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
-                isActive ? 'is-active bg-gold/15' : ''
-              }`
-            }
-          >
-            About
+            {brand.nav.shopAll}
           </NavLink>
           {flash && (
-            <NavLink
-              to="/sale"
-              className="shrink-0 rounded-full border border-gold/50 px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] text-gold"
-            >
-              Sale
+            <NavLink to="/sale" className="flash-nav shrink-0">
+              <FlashSaleMark />
             </NavLink>
           )}
         </nav>

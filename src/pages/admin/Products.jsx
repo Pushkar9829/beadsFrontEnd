@@ -13,7 +13,7 @@ import { toast } from '../../lib/adminToast';
 const empty = {
   name: '', family: 'crystals', categoryId: '', sku: '', description: '', shortDescription: '',
   price: 0, compareAtPrice: '', stock: 0, lowStockLimit: 5, featured: false, isActive: true,
-  colorHex: '#6B3FA0', imagesText: '', collectionIds: [],
+  colorHex: '#6B3FA0', imagesText: '', collectionIds: [], rating: 5, reviewCount: '',
   seo: { title: '', description: '', keywords: '', ogImage: '', noIndex: false },
   attributes: {},
 };
@@ -68,6 +68,8 @@ export default function AdminProducts() {
       compareAtPrice: prod.compareAtPrice || '',
       imagesText: (prod.images || []).join(', '),
       sku: prod.sku || '',
+      rating: prod.rating ?? 5,
+      reviewCount: prod.reviewCount ?? '',
       lowStockLimit: prod.lowStockLimit ?? 5,
       seo: { title: '', description: '', keywords: '', ogImage: '', noIndex: false, ...prod.seo },
       attributes: prod.attributes && typeof prod.attributes === 'object' && !Array.isArray(prod.attributes)
@@ -85,6 +87,8 @@ export default function AdminProducts() {
       stock: Number(form.stock),
       lowStockLimit: Number(form.lowStockLimit || 5),
       compareAtPrice: form.compareAtPrice ? Number(form.compareAtPrice) : undefined,
+      rating: Math.min(5, Math.max(0, Number(form.rating) || 5)),
+      reviewCount: form.reviewCount === '' || form.reviewCount == null ? undefined : Math.max(0, Number(form.reviewCount)),
       categoryId: form.categoryId || undefined,
       collectionIds: form.collectionIds,
       sku: form.sku || undefined,
@@ -175,6 +179,8 @@ export default function AdminProducts() {
           </label>
           <label className={labelClass}>Price<input type="number" className={`${fieldClass} mt-1`} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></label>
           <label className={labelClass}>Compare at<input type="number" className={`${fieldClass} mt-1`} value={form.compareAtPrice} onChange={(e) => setForm({ ...form, compareAtPrice: e.target.value })} /></label>
+          <label className={labelClass}>Rating (0–5)<input type="number" min="0" max="5" step="0.1" className={`${fieldClass} mt-1`} value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} /></label>
+          <label className={labelClass}>Review count<input type="number" min="0" className={`${fieldClass} mt-1`} value={form.reviewCount} onChange={(e) => setForm({ ...form, reviewCount: e.target.value })} placeholder="Shown on product cards" /></label>
           <label className={labelClass}>Stock<input type="number" className={`${fieldClass} mt-1`} value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} /></label>
           <label className={labelClass}>Low-stock alert<input type="number" className={`${fieldClass} mt-1`} value={form.lowStockLimit} onChange={(e) => setForm({ ...form, lowStockLimit: e.target.value })} /></label>
           <label className={labelClass}>Image URLs<input className={`${fieldClass} mt-1`} value={form.imagesText || ''} onChange={(e) => setForm({ ...form, imagesText: e.target.value })} /></label>

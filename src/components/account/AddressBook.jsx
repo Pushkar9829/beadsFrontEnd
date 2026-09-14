@@ -4,18 +4,22 @@ import Button from '../ui/Button';
 import { useAuthStore } from '../../store/authStore';
 import { detectCurrentAddress } from '../../lib/location';
 import {
+  addressBadges,
   addressId,
   defaultAddress,
+  digitsOnly,
   emptyAddress,
   formatAddress,
+  normalizePhone,
   removeAddress,
   setDefaultAddress,
   upsertAddress,
+  validateAddress,
 } from '../../lib/addresses';
 
 const FIELDS = [
   ['label', 'Label', false],
-  ['phone', 'Phone', false],
+  ['phone', 'Phone', true],
   ['line1', 'Address', true],
   ['line2', 'Apartment / landmark', false],
   ['city', 'City', true],
@@ -29,37 +33,51 @@ export default function AddressBook() {
   const updateProfile = useAuthStore((s) => s.updateProfile);
   const addresses = user?.addresses || [];
   const [draft, setDraft] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [busy, setBusy] = useState('');
   const [note, setNote] = useState('');
 
   function edit(row) {
     setNote('');
-    setDraft(row ? { ...emptyAddress(), ...row, _id: row._id } : emptyAddress({
+    setFieldErrors({});
+    setDraft(row ? {
+      ...emptyAddress(),
+      ...row,
+      _id: row._id,
+      phone: digitsOnly(row.phone || user?.phone || '', 10),
+      pincode: digitsOnly(row.pincode, 6),
+    } : emptyAddress({
       isDefault: addresses.length === 0,
-      phone: user?.phone || '',
+      phone: digitsOnly(user?.phone || '', 10),
     }));
   }
 
   async function saveList(next, message) {
     const saved = await updateProfile({ addresses: next });
     setDraft(null);
+    setFieldErrors({});
     setNote(message || 'Address saved.');
     return saved;
   }
 
   async function saveDraft(e) {
     e.preventDefault();
-    if (!draft.line1 || !draft.city || !/^\d{6}$/.test(String(draft.pincode || '').replace(/\D/g, ''))) {
-      setNote('Address, city, and a 6-digit pincode are required.');
+    const nextDraft = {
+      ...draft,
+      phone: normalizePhone(draft.phone),
+      pincode: digitsOnly(draft.pincode, 6),
+    };
+    const errors = validateAddress(nextDraft);
+    if (Object.keys(errors).length) {
+      setFieldErrors(errors);
+      setNote('Fix the marked fields to save this address.');
       return;
     }
     setBusy('save');
     setNote('');
+    setFieldErrors({});
     try {
-      await saveList(upsertAddress(addresses, {
-        ...draft,
-        pincode: String(draft.pincode).replace(/\D/g, '').slice(0, 6),
-      }), draft._id ? 'Address updated.' : 'Address added.');
+      await saveList(upsertAddress(addresses, nextDraft), draft._id ? 'Address updated.' : 'Address added.');
     } catch (err) {
       setNote(err.message || 'Could not save address.');
     } finally {
@@ -129,19 +147,20 @@ export default function AddressBook() {
 
       {preferred && !draft && (
         <p className="mt-4 text-xs text-gold">
-          Default: {preferred.label || 'Home'} · {formatAddress(preferred)}
+          Default address: {preferred.label || 'Home'} · {formatAddress(preferred)}
         </p>
       )}
 
       <div className="mt-6 grid gap-3">
         {addresses.map((row) => (
-          <article key={addressId(row)} className="rounded-2xl border border-gold/20 bg-surface/70 p-4">
+          <article key={addressId(row)} className={`rounded-2xl border p-4 ${row.isDefault ? 'border-gold/50 bg-gold/5' : 'border-gold/20 bg-surface/70'}`}>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-[10px] uppercase tracking-[0.2em] text-gold">
-                  {row.label || 'Home'}{row.isDefault ? ' · Default' : ''}{row.source === 'gps' ? ' · Current location' : ''}
+                  {row.label || 'Home'}{addressBadges(row).length ? ` · ${addressBadges(row).join(' · ')}` : ''}
                 </p>
                 <p className="mt-2 text-sm text-lilac">{formatAddress(row)}</p>
+                {row.display && <p className="mt-1 text-xs text-lilac/80">{row.display}</p>}
                 {row.phone && <p className="mt-1 text-xs text-lilac">{row.phone}</p>}
               </div>
               <div className="flex flex-wrap gap-2">
@@ -171,17 +190,42 @@ export default function AddressBook() {
               <MapPin size={14} /> {busy === 'gps' ? 'Locating…' : 'Use current location'}
             </Button>
           </div>
-          {FIELDS.map(([key, label, required]) => (
-            <label key={key} className="block text-xs uppercase tracking-widest text-gold">
-              {label}
-              <input
-                required={required}
-                value={draft[key] || ''}
-                onChange={(e) => setDraft((row) => ({ ...row, [key]: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-gold/30 bg-ink px-3 py-2 text-ivory"
-              />
-            </label>
-          ))}
+          {FIELDS.map(([key, label, required]) => {
+            const invalid = Boolean(fieldErrors[key]);
+            const isNumber = key === 'phone' || key === 'pincode';
+            return (
+              <label key={key} className="block text-xs uppercase tracking-widest text-gold">
+                {label}{required || isNumber ? ' *' : ''}
+                <input
+                  type={isNumber ? 'tel' : 'text'}
+                  inputMode={isNumber ? 'numeric' : undefined}
+                  maxLength={key === 'phone' ? 10 : key === 'pincode' ? 6 : undefined}
+                  value={draft[key] || ''}
+                  aria-invalid={invalid}
+                  onChange={(e) => {
+                    const value = isNumber ? digitsOnly(e.target.value, key === 'phone' ? 10 : 6) : e.target.value;
+                    setDraft((row) => ({ ...row, [key]: value }));
+                    setFieldErrors((current) => {
+                      if (!current[key]) return current;
+                      const next = { ...current };
+                      delete next[key];
+                      return next;
+                    });
+                  }}
+                  className={`mt-1 w-full rounded-xl border bg-ink px-3 py-2 text-ivory ${
+                    invalid ? 'border-red-400' : 'border-gold/30'
+                  }`}
+                />
+                {invalid ? (
+                  <span className="mt-1 block text-[11px] normal-case tracking-normal text-red-300">{fieldErrors[key]}</span>
+                ) : key === 'phone' ? (
+                  <span className="mt-1 block text-[11px] normal-case tracking-normal text-lilac">10-digit Indian mobile</span>
+                ) : key === 'pincode' ? (
+                  <span className="mt-1 block text-[11px] normal-case tracking-normal text-lilac">6-digit pincode</span>
+                ) : null}
+              </label>
+            );
+          })}
           <label className="flex items-center gap-2 text-sm text-lilac">
             <input
               type="checkbox"
@@ -192,7 +236,7 @@ export default function AddressBook() {
           </label>
           <div className="flex flex-wrap gap-2">
             <Button type="submit" disabled={busy === 'save'}>{busy === 'save' ? 'Saving…' : 'Save address'}</Button>
-            <Button type="button" variant="ghost" onClick={() => { setDraft(null); setNote(''); }}>Cancel</Button>
+            <Button type="button" variant="ghost" onClick={() => { setDraft(null); setNote(''); setFieldErrors({}); }}>Cancel</Button>
           </div>
         </form>
       )}

@@ -9,7 +9,7 @@ import AdminToolbar, { paginate, Pagination } from '../../components/admin/Admin
 import StatusBadge from '../../components/admin/StatusBadge';
 import { toast } from '../../lib/adminToast';
 
-const empty = { name: '', type: 'percent', percent: 10, amountOff: '', minOrder: '', buyQty: 1, getQty: 1, categoryId: '', isActive: true };
+const empty = { name: '', type: 'percent', percent: 10, amountOff: '', minOrder: '', buyQty: 1, getQty: 1, categoryId: '', productIds: [], isActive: true };
 
 const TYPE_LABEL = {
   bogo: 'BOGO',
@@ -22,6 +22,7 @@ const TYPE_LABEL = {
 export default function AdminOffers() {
   const [offers, setOffers] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
   const [form, setForm] = useState(empty);
   const [editing, setEditing] = useState(null);
   const [open, setOpen] = useState(false);
@@ -32,6 +33,7 @@ export default function AdminOffers() {
   const load = () => {
     api.get('/admin/offers').then(({ data }) => setOffers(data.offers || []));
     api.get('/categories/admin/all').then(({ data }) => setCategories(data.categories || []));
+    api.get('/products/admin/all').then(({ data }) => setProducts(data.products || [])).catch(() => {});
   };
   useEffect(() => { load(); }, []);
 
@@ -47,6 +49,7 @@ export default function AdminOffers() {
       buyQty: Number(form.buyQty || 1),
       getQty: Number(form.getQty || 1),
       categoryId: form.categoryId || undefined,
+      productIds: form.productIds?.length ? form.productIds : [],
     };
   }
 
@@ -67,7 +70,7 @@ export default function AdminOffers() {
 
   return (
     <div>
-      <AdminHeader title="Offers" subtitle="Automatic promotions: percent off, BOGO, free shipping, bundles." onCreate={() => { setEditing(null); setForm(empty); setOpen(true); }} createLabel="Create offer" />
+      <AdminHeader title="Offers" subtitle="Automatic checkout promotions: percent off, amount off, BOGO, free shipping, and bundles." onCreate={() => { setEditing(null); setForm(empty); setOpen(true); }} createLabel="Create offer" />
       <AdminToolbar search={q} onSearch={setQ} searchPlaceholder="Search offers" />
       <AdminTable
         rows={slice}
@@ -81,7 +84,7 @@ export default function AdminOffers() {
             <RowActions
               onEdit={() => {
                 setEditing(o._id);
-                setForm({ ...empty, ...o, categoryId: o.categoryId?._id || o.categoryId || '', percent: o.percent ?? '', amountOff: o.amountOff ?? '', minOrder: o.minOrder ?? '' });
+                setForm({ ...empty, ...o, categoryId: o.categoryId?._id || o.categoryId || '', productIds: (o.productIds || []).map((id) => String(id._id || id)), percent: o.percent ?? '', amountOff: o.amountOff ?? '', minOrder: o.minOrder ?? '' });
                 setOpen(true);
               }}
               onDelete={() => setRemove(o)}
@@ -100,6 +103,12 @@ export default function AdminOffers() {
           </label>
           {form.type === 'percent' && <label className={labelClass}>Percent<input type="number" className={`${fieldClass} mt-1`} value={form.percent} onChange={(e) => setForm({ ...form, percent: e.target.value })} /></label>}
           {form.type === 'fixed' && <label className={labelClass}>Amount off<input type="number" className={`${fieldClass} mt-1`} value={form.amountOff} onChange={(e) => setForm({ ...form, amountOff: e.target.value })} /></label>}
+          {form.type === 'bundle' && (
+            <>
+              <label className={labelClass}>Percent (optional)<input type="number" className={`${fieldClass} mt-1`} value={form.percent} onChange={(e) => setForm({ ...form, percent: e.target.value })} /></label>
+              <label className={labelClass}>Amount off (if no percent)<input type="number" className={`${fieldClass} mt-1`} value={form.amountOff} onChange={(e) => setForm({ ...form, amountOff: e.target.value })} /></label>
+            </>
+          )}
           {form.type === 'bogo' && (
             <>
               <label className={labelClass}>Buy qty<input type="number" className={`${fieldClass} mt-1`} value={form.buyQty} onChange={(e) => setForm({ ...form, buyQty: e.target.value })} /></label>
@@ -111,6 +120,16 @@ export default function AdminOffers() {
             <select className={`${fieldClass} mt-1`} value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}>
               <option value="">All categories</option>
               {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+            </select>
+          </label>
+          <label className={labelClass}>Products (optional)
+            <select
+              multiple
+              className={`${fieldClass} mt-1 h-28`}
+              value={form.productIds}
+              onChange={(e) => setForm({ ...form, productIds: [...e.target.selectedOptions].map((o) => o.value) })}
+            >
+              {products.map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
             </select>
           </label>
           <label className="flex items-center gap-2 text-sm text-lilac"><input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} /> Active</label>

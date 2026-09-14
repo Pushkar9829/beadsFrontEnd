@@ -8,12 +8,32 @@ import SeoHead from '../components/SeoHead';
 import ContactDrawer from '../components/layout/ContactDrawer';
 import { companyContacts, getPolicy, POLICY_NAV } from '../lib/policies';
 import { useSite } from '../store/contentStore';
+import { useBrand, pageTitle, useStoreIdentity } from '../store/settingsStore';
+
+function policyFromCms(kind, site) {
+  const cms = site?.pages?.legal?.[kind];
+  if (!cms || !(cms.title || cms.body || cms.sections?.length)) return null;
+  return {
+    slug: kind,
+    title: cms.title,
+    eyebrow: cms.eyebrow,
+    description: cms.body,
+    sections: (cms.sections || []).map((section) => ({
+      heading: section.heading,
+      paragraphs: section.body ? [section.body] : (section.paragraphs || []),
+      bullets: section.bullets || [],
+    })),
+  };
+}
 
 export default function LegalPage({ kind }) {
   const [contactOpen, setContactOpen] = useState(false);
   const site = useSite();
-  const page = getPolicy(kind);
-  const contacts = companyContacts(site.footer);
+  const brand = useBrand();
+  const store = useStoreIdentity();
+  const page = policyFromCms(kind, site) || getPolicy(kind);
+  const contacts = companyContacts(site.footer, store);
+  const finale = site.finale || {};
   const crumbs = [
     { label: 'Home', to: '/' },
     { label: page.title },
@@ -21,7 +41,7 @@ export default function LegalPage({ kind }) {
 
   return (
     <div className="relative">
-      <SeoHead title={`${page.title} · Kuberstones`} description={page.description} />
+      <SeoHead title={pageTitle(page.title, brand)} description={page.description} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
       <div className="pointer-events-none absolute inset-0 lotus-corner" />
       <div className="relative shell py-8 sm:py-10 md:py-12">
         <Breadcrumbs items={crumbs} />
@@ -104,20 +124,22 @@ export default function LegalPage({ kind }) {
 
         <InViewGroup className="finale-stage mt-12 sm:mt-16">
           <div className="finale px-5 py-14 text-center sm:px-8 sm:py-16">
-            <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">Kuberstones</p>
+            <p className="finale-kicker text-[11px] uppercase tracking-[0.28em] text-gold">{finale.kicker || brand.display}</p>
             <h2 className="finale-title mt-3 font-serif text-2xl gold-text sm:text-3xl">
-              Crystals. Gemstones. Rudraksha. Personalized With Purpose.
+              {finale.title || brand.tagline}
             </h2>
-            <p className="finale-copy mx-auto mt-3 max-w-md text-sm text-lilac">
-              A brand by Nexxgenn Technology.
-            </p>
+            {finale.copy ? (
+              <p className="finale-copy mx-auto mt-3 max-w-md text-sm text-lilac">{finale.copy}</p>
+            ) : null}
             <div className="finale-actions mt-8 flex flex-col justify-center gap-3 min-[420px]:flex-row min-[420px]:flex-wrap">
               <Button onClick={() => setContactOpen(true)} className="w-full min-[420px]:w-auto">
-                Contact us
+                {site.contact?.cta || site.footer?.cta || 'Contact us'}
               </Button>
-              <Button to="/shop" variant="ghost" className="w-full min-[420px]:w-auto">
-                Shop all
-              </Button>
+              {finale.secondaryCta?.label && (
+                <Button to={finale.secondaryCta.to || '/shop'} variant="ghost" className="w-full min-[420px]:w-auto">
+                  {finale.secondaryCta.label}
+                </Button>
+              )}
             </div>
           </div>
         </InViewGroup>
