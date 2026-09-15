@@ -2920,9 +2920,133 @@ main.has-purpose-tone .studio-nav {
 .store-canvas .footer-invite .text-lilac,
 .store-canvas .finale .text-lilac,
 .store-canvas .bg-surface .text-lilac,
-.store-canvas .bg-surface\/80 .text-lilac {
-  color: #b7a9c4;
+.store-canvas .bg-surface\/80 .text-lilac,
+.store-canvas .sky-glass .text-lilac,
+.store-canvas .hero-copy .sky-copy,
+.store-canvas .sec-head .sec-body,
+.store-canvas .ritual-step .ritual-title,
+.store-canvas .ritual-step .ritual-body {
+  color: #d9cfe6;
   text-shadow: none;
+}
+
+.store-canvas {
+  --glass: rgba(10, 4, 22, 0.55);
+  --glass-strong: rgba(8, 3, 18, 0.7);
+  --glass-line: rgba(232, 213, 163, 0.22);
+  --glass-blur: 18px;
+}
+
+.store-canvas .sky-glass,
+.store-canvas .sec-head,
+.store-canvas .hero-copy,
+.store-canvas .ritual-step,
+.store-canvas .house-card,
+.store-canvas .trust-card,
+.store-canvas .faq-item,
+.store-canvas .wish-card,
+.store-canvas .voice-card,
+.store-canvas .auth-card,
+.store-canvas .bag-summary,
+.store-canvas .layer-pick-card,
+.store-canvas .layer-continue,
+.store-canvas .footer-invite,
+.store-canvas .studio-charm-card,
+.store-canvas .bg-surface,
+.store-canvas .bg-surface\/80,
+.store-canvas .bg-surface\/95 {
+  background: var(--glass);
+  border-color: var(--glass-line);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 16px 40px rgba(0, 0, 0, 0.22);
+}
+
+.store-canvas .sec-head,
+.store-canvas .hero-copy,
+.store-canvas .ritual-step {
+  padding: 1rem 1.15rem 1.1rem;
+  border-radius: 1.2rem;
+  border: 1px solid var(--glass-line);
+}
+
+.store-canvas .hero-copy {
+  padding: 1.15rem 1.2rem 1.25rem;
+}
+
+.store-canvas .ritual-num {
+  background: transparent;
+}
+
+.store-canvas header {
+  background: rgba(10, 4, 20, 0.48) !important;
+  backdrop-filter: blur(22px) saturate(1.4);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+}
+
+.store-canvas .footer {
+  background: rgba(8, 3, 16, 0.58);
+  backdrop-filter: blur(20px) saturate(1.25);
+  -webkit-backdrop-filter: blur(20px) saturate(1.25);
+}
+
+.store-canvas .purpose-pick-card {
+  backdrop-filter: blur(14px) saturate(1.25);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  background:
+    radial-gradient(120% 80% at 50% 10%, var(--purpose-wash, transparent) 0%, transparent 62%),
+    color-mix(in srgb, var(--purpose-bg, rgba(12, 5, 24, 0.72)) 62%, transparent);
+}
+
+.store-canvas .studio-chip:not(.is-on):not(.is-done),
+.store-canvas .studio-mode-chip:not(.is-on) {
+  background: rgba(10, 4, 22, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.store-canvas .house-card:hover,
+.store-canvas .wish-card:hover,
+.store-canvas .trust-card:hover,
+.store-canvas .faq-item:hover,
+.store-canvas .voice-card:hover {
+  background: rgba(16, 7, 30, 0.66);
+}
+
+.store-canvas .layer-pick-card.is-on {
+  background: rgba(198, 167, 94, 0.14);
+}
+
+.store-canvas .house-card-media::after,
+.store-canvas .wish-card-media::after {
+  background: linear-gradient(to top, rgba(10, 4, 22, 0.78) 0%, transparent 55%);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .store-canvas .sky-glass,
+  .store-canvas .sec-head,
+  .store-canvas .hero-copy,
+  .store-canvas .ritual-step,
+  .store-canvas .house-card,
+  .store-canvas .trust-card,
+  .store-canvas .faq-item,
+  .store-canvas .wish-card,
+  .store-canvas .voice-card,
+  .store-canvas .auth-card,
+  .store-canvas .bag-summary,
+  .store-canvas .layer-pick-card,
+  .store-canvas .layer-continue,
+  .store-canvas .footer-invite,
+  .store-canvas .studio-charm-card,
+  .store-canvas .bg-surface,
+  .store-canvas .bg-surface\/80,
+  .store-canvas .bg-surface\/95,
+  .store-canvas header,
+  .store-canvas .footer {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(12, 6, 22, 0.92);
+  }
 }
 
 .wish-card {
@@ -3633,7 +3757,9 @@ html:has(.cart-page.is-filled) {
   background: #140428;
 }
 
-.atm-video {
+.atm-video,
+.atm-canvas,
+.atm canvas {
   position: absolute;
   inset: 0;
   display: block;

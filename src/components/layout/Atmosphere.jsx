@@ -1,61 +1,93 @@
-import { useEffect, useRef } from 'react';
+import { Component, Suspense, useEffect, useState } from 'react';
+import { Canvas, useThree } from '@react-three/fiber';
+import * as THREE from 'three';
+import SkyScene from './SkyScene';
 
 const SKY_SRC = '/atmosphere/sky.mp4';
 
+function canWebGL() {
+  try {
+    const canvas = document.createElement('canvas');
+    return Boolean(canvas.getContext('webgl2') || canvas.getContext('webgl'));
+  } catch {
+    return false;
+  }
+}
+
+class WebGLGuard extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { failed: false };
+  }
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch() {}
+  render() {
+    if (this.state.failed) return this.props.fallback;
+    return this.props.children;
+  }
+}
+
+function VideoSky() {
+  return (
+    <video className="atm-video" src={SKY_SRC} autoPlay muted loop playsInline preload="metadata" />
+  );
+}
+
+function Kick({ live }) {
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(() => {
+    if (!live) invalidate();
+  }, [live, invalidate]);
+  return null;
+}
+
 export default function Atmosphere() {
-  const videoRef = useRef(null);
+  const [webgl] = useState(canWebGL);
+  const [live, setLive] = useState(true);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return undefined;
-
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-    async function playSafe() {
-      if (reduced.matches || document.visibilityState !== 'visible') {
-        video.pause();
-        return;
-      }
-      try {
-        await video.play();
-      } catch {
-        /* Autoplay can wait until the tab is visible. */
-      }
-    }
-
-    function onVis() {
-      if (document.visibilityState === 'visible') playSafe();
-      else video.pause();
-    }
-
-    function onMotion(event) {
-      if (event.matches) video.pause();
-      else playSafe();
-    }
-
-    playSafe();
-    document.addEventListener('visibilitychange', onVis);
-    reduced.addEventListener('change', onMotion);
-
+    const sync = () => {
+      setLive(document.visibilityState === 'visible' && !reduced.matches);
+    };
+    sync();
+    document.addEventListener('visibilitychange', sync);
+    reduced.addEventListener('change', sync);
     return () => {
-      video.pause();
-      document.removeEventListener('visibilitychange', onVis);
-      reduced.removeEventListener('change', onMotion);
+      document.removeEventListener('visibilitychange', sync);
+      reduced.removeEventListener('change', sync);
     };
   }, []);
 
   return (
     <div className="atm" aria-hidden>
-      <video
-        ref={videoRef}
-        className="atm-video"
-        src={SKY_SRC}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-      />
+      {webgl ? (
+        <WebGLGuard fallback={<VideoSky />}>
+          <Canvas
+            className="atm-canvas"
+            frameloop={live ? 'always' : 'demand'}
+            dpr={[1, 1.2]}
+            flat
+            gl={{
+              antialias: false,
+              alpha: false,
+              powerPreference: 'high-performance',
+              toneMapping: THREE.NoToneMapping,
+            }}
+            camera={{ position: [0, 0, 6.2], fov: 50 }}
+          >
+            <color attach="background" args={['#140428']} />
+            <Suspense fallback={null}>
+              <Kick live={live} />
+              <SkyScene frozen={!live} />
+            </Suspense>
+          </Canvas>
+        </WebGLGuard>
+      ) : (
+        <VideoSky />
+      )}
     </div>
   );
 }

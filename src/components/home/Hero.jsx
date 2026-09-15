@@ -16,7 +16,7 @@ export default function Hero({ hero = {} }) {
       </div>
 
       <div className="shell relative grid items-center gap-6 pt-2 pb-8 sm:gap-8 sm:pt-3 sm:pb-10 md:grid-cols-2 md:pt-5 md:pb-12 lg:gap-12 lg:pt-6 lg:pb-14">
-        <div className="min-w-0">
+        <div className="hero-copy min-w-0">
           {hero.eyebrow && (
             <p className="hero-fade hero-delay-1 hero-italic text-[10px] uppercase tracking-[0.2em] text-gold sm:text-xs sm:tracking-[0.24em]">
               {hero.eyebrow}
