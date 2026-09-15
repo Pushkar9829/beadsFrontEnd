@@ -14,6 +14,9 @@ export default function NameStep() {
 
   return (
     <div className="studio-birth">
+      {!charms.length ? (
+        <p className="text-sm text-lilac">Charms are still loading. Stay on this step for a moment.</p>
+      ) : null}
       <div>
         <p className="studio-birth-kicker">Charm</p>
         <div className="studio-charm-row">

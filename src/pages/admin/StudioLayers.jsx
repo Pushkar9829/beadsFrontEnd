@@ -34,7 +34,7 @@ const emptyByKind = {
   numerology: {
     kind: 'numerology',
     slug: '1',
-    name: 'Number 1',
+    name: '',
     number: 1,
     theme: '',
     sortOrder: 1,
@@ -137,7 +137,7 @@ export default function AdminStudioLayers() {
     const payload = { ...form, kind: tab };
     if (tab === 'numerology') {
       payload.slug = String(payload.number || payload.slug);
-      payload.name = payload.name || `Number ${payload.number}`;
+      payload.name = payload.theme || payload.name;
     }
     try {
       if (editing) await api.put(`/customizer/admin/layers/${editing}`, payload);
@@ -200,7 +200,7 @@ export default function AdminStudioLayers() {
             label: tab === 'numerology' ? 'Number' : 'Name',
             render: (row) => (
               <div>
-                <div className="font-medium">{row.hindi ? `${row.hindi} / ${row.name}` : row.name || `Number ${row.number}`}</div>
+                <div className="font-medium">{row.hindi ? `${row.hindi} / ${row.name || row.theme}` : (row.name && !/^number\s*\d+$/i.test(row.name) ? row.name : row.theme) || '—'}</div>
                 <div className="text-xs text-lilac">{row.slug}{row.dates ? ` · ${row.dates}` : ''}</div>
               </div>
             ),
@@ -233,7 +233,7 @@ export default function AdminStudioLayers() {
                 max={9}
                 className={`${fieldClass} mt-1`}
                 value={form.number || ''}
-                onChange={(e) => setForm({ ...form, number: Number(e.target.value), slug: e.target.value, name: `Number ${e.target.value}` })}
+                onChange={(e) => setForm({ ...form, number: Number(e.target.value), slug: e.target.value })}
               />
             </label>
           ) : (

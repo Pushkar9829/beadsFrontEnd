@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import api from '../api/client';
 import Breadcrumbs from '../components/ui/Breadcrumbs';
@@ -22,6 +22,21 @@ const MODE_LABELS = {
   planetary: 'Customise by planetary',
   profession: 'Customise by profession',
 };
+
+function itemNumber(item) {
+  const n = Number(item?.number ?? item?.slug);
+  return Number.isFinite(n) ? n : null;
+}
+
+function slotNames(slots) {
+  return (slots || []).map((slot) => slot.name).filter(Boolean).join(' · ');
+}
+
+function cardTitle(item) {
+  const name = String(item?.name || '').trim();
+  if (!name || /^number\s*\d+$/i.test(name)) return item?.theme || '';
+  return name;
+}
 
 function idsOf(slots, selected) {
   return (slots || [])
@@ -90,9 +105,11 @@ export default function CustomizeLayerPage() {
   const mode = studioMode(kind);
   const init = useCustomizerStore((s) => s.init);
   const applyLayer = useCustomizerStore((s) => s.applyLayer);
+  const ready = useCustomizerStore((s) => s.ready);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
   const [picked, setPicked] = useState(null);
   const [selected, setSelected] = useState({});
   const [dob, setDob] = useState('');
@@ -100,6 +117,7 @@ export default function CustomizeLayerPage() {
   const [bhagyank, setBhagyank] = useState(null);
   const [mulankOn, setMulankOn] = useState({});
   const [bhagyankOn, setBhagyankOn] = useState({});
+  const detailRef = useRef(null);
 
   const load = useCallback(() => {
     if (!LAYER_KINDS.has(kind)) return;
@@ -126,6 +144,7 @@ export default function CustomizeLayerPage() {
     setMulankOn({});
     setBhagyankOn({});
     setError('');
+    setBusy(false);
   }, [kind]);
 
   useEffect(() => {
@@ -139,11 +158,17 @@ export default function CustomizeLayerPage() {
   }, [dob]);
 
   const mulankItem = useMemo(
-    () => items.find((row) => Number(row.number) === Number(mulank)) || null,
+    () =>
+      items.find(
+        (row) => itemNumber(row) === Number(mulank) || String(row.slug) === String(mulank)
+      ) || null,
     [items, mulank]
   );
   const bhagyankItem = useMemo(
-    () => items.find((row) => Number(row.number) === Number(bhagyank)) || null,
+    () =>
+      items.find(
+        (row) => itemNumber(row) === Number(bhagyank) || String(row.slug) === String(bhagyank)
+      ) || null,
     [items, bhagyank]
   );
 
@@ -155,12 +180,12 @@ export default function CustomizeLayerPage() {
     if (bhagyankItem) setBhagyankOn(defaultSelected(bhagyankItem.bhagyank));
   }, [bhagyankItem]);
 
-  if (!LAYER_KINDS.has(kind)) return <Navigate to="/customize" replace />;
+  useEffect(() => {
+    if (!picked && !mulankItem && !bhagyankItem) return;
+    detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [picked, mulankItem, bhagyankItem]);
 
-  function pickItem(item) {
-    setPicked(item);
-    setSelected(defaultSelected(item.recommended));
-  }
+  if (!LAYER_KINDS.has(kind)) return <Navigate to="/customize" replace />;
 
   function toggle(map, setMap, id) {
     setMap({ ...map, [id]: !map[id] });
@@ -172,29 +197,28 @@ export default function CustomizeLayerPage() {
   );
   const availableCount = recommendedSlots.filter((s) => s.bead).length;
   const pickedCount = idsOf(recommendedSlots, selected).length;
-  const minPick = Math.min(3, availableCount);
-  const canContinueSimple = picked && pickedCount >= minPick && pickedCount <= 4;
+  const minPick = Math.min(3, availableCount) || (availableCount > 0 ? availableCount : 0);
+  const canContinueSimple = Boolean(picked) && availableCount > 0 && pickedCount >= minPick && pickedCount <= 4;
 
-  const mulankAvail = (mulankItem?.mulank || []).filter((s) => s.bead).length;
-  const bhagyankAvail = (bhagyankItem?.bhagyank || []).filter((s) => s.bead).length;
-  const mulankCount = idsOf(mulankItem?.mulank, mulankOn).length;
-  const bhagyankCount = idsOf(bhagyankItem?.bhagyank, bhagyankOn).length;
-  const mulankMin = Math.min(3, mulankAvail);
-  const bhagyankMin = Math.min(3, bhagyankAvail);
-  const mulankReady = Boolean(mulankItem) && mulankCount >= mulankMin && mulankCount <= 4;
-  const bhagyankReady = Boolean(bhagyankItem) && bhagyankCount >= bhagyankMin && bhagyankCount <= 4;
-  const canContinueNumerology =
-    (mulankReady || bhagyankReady) &&
-    (!mulankItem || mulankReady) &&
-    (!bhagyankItem || bhagyankReady);
+  function selectedMap(slots, map) {
+    if (map && Object.values(map).some(Boolean)) return map;
+    return defaultSelected(slots);
+  }
 
   function selectedNames(slots, map) {
+    const on = selectedMap(slots, map);
     return (slots || [])
-      .filter((slot) => slot.bead && map[String(slot.bead._id)])
+      .filter((slot) => slot.bead && on[String(slot.bead._id)])
       .map((slot) => slot.bead.name);
   }
 
-  function rolesByBeadId() {
+  const mulankMap = selectedMap(mulankItem?.mulank, mulankOn);
+  const bhagyankMap = selectedMap(bhagyankItem?.bhagyank, bhagyankOn);
+  const mulankReady = Boolean(mulankItem) && uniqueBeads(mulankItem.mulank, mulankMap).length > 0;
+  const bhagyankReady = Boolean(bhagyankItem) && uniqueBeads(bhagyankItem.bhagyank, bhagyankMap).length > 0;
+  const canContinueNumerology = mulankReady || bhagyankReady;
+
+  function rolesByBeadId(mItem, mMap, bItem, bMap) {
     const roles = {};
     const mark = (slots, map, role) => {
       (slots || []).forEach((slot) => {
@@ -203,81 +227,156 @@ export default function CustomizeLayerPage() {
         roles[id] = [...new Set([...(roles[id] || []), role])];
       });
     };
-    if (mulankReady) mark(mulankItem.mulank, mulankOn, 'Mulank');
-    if (bhagyankReady) mark(bhagyankItem.bhagyank, bhagyankOn, 'Bhagyank');
+    if (mItem) mark(mItem.mulank, mMap, 'Mulank');
+    if (bItem) mark(bItem.bhagyank, bMap, 'Bhagyank');
     return roles;
   }
 
-  function continueSimple() {
-    if (!canContinueSimple) return;
-    applyLayer({
-      kind,
-      key: picked.slug,
-      path: mode.path,
-      modeLabel: MODE_LABELS[kind],
-      name: picked.name,
-      hindi: picked.hindi,
-      theme: picked.theme,
-      beads: uniqueBeads([...recommendedSlots, ...extraSlots], selected),
-      layerSelections: kind === 'zodiac'
-        ? {
-            zodiac: {
-              sign: picked.name,
-              hindi: picked.hindi,
-              recommended: selectedNames(recommendedSlots, selected),
-              suitable: selectedNames(extraSlots, selected),
-            },
-          }
-        : undefined,
-    });
-    navigate(`/customize?layer=${kind}&key=${picked.slug}`);
+  async function ensureStudio() {
+    if (!ready) await init();
   }
 
-  function continueNumerology() {
-    if (!canContinueNumerology) return;
+  async function goToStudio(item, selectedMap) {
+    const rec = item?.recommended || [];
+    const extras = (item?.suitable || []).filter(
+      (slot) => !rec.some((core) => core.name === slot.name)
+    );
+    const map = selectedMap || defaultSelected(rec);
+    const beads = uniqueBeads([...rec, ...extras], map);
+    if (!beads.length) {
+      setPicked(item);
+      setSelected(map);
+      setError('These crystals are not in the atelier yet. They need to be added under Beads first.');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      await ensureStudio();
+      applyLayer({
+        kind,
+        key: item.slug,
+        path: mode.path,
+        modeLabel: MODE_LABELS[kind],
+        name: item.name,
+        hindi: item.hindi,
+        theme: item.theme,
+        beads,
+        layerSelections: kind === 'zodiac'
+          ? {
+              zodiac: {
+                sign: item.name,
+                hindi: item.hindi,
+                recommended: selectedNames(rec, map),
+                suitable: selectedNames(extras, map),
+              },
+            }
+          : undefined,
+      });
+      navigate(`/customize?layer=${kind}&key=${encodeURIComponent(item.slug)}`);
+    } catch (e) {
+      setBusy(false);
+      setError(e.message || 'Could not open the studio.');
+    }
+  }
+
+  function pickItem(item) {
+    const map = defaultSelected(item.recommended);
+    setPicked(item);
+    setSelected(map);
+    setError('');
+    goToStudio(item, map);
+  }
+
+  async function continueNumerology() {
+    if (busy) return;
+    const mItem = mulankItem;
+    const bItem = bhagyankItem;
+    const mMap = selectedMap(mItem?.mulank, mulankOn);
+    const bMap = selectedMap(bItem?.bhagyank, bhagyankOn);
+    const mBeads = mItem ? uniqueBeads(mItem.mulank, mMap) : [];
+    const bBeads = bItem ? uniqueBeads(bItem.bhagyank, bMap) : [];
     const seen = new Set();
-    const beads = [
-      ...(mulankReady ? uniqueBeads(mulankItem.mulank, mulankOn) : []),
-      ...(bhagyankReady ? uniqueBeads(bhagyankItem.bhagyank, bhagyankOn) : []),
-    ].filter((bead) => {
+    const beads = [...mBeads, ...bBeads].filter((bead) => {
       const id = String(bead._id);
       if (seen.has(id)) return false;
       seen.add(id);
       return true;
     });
-    const m = mulankReady ? mulankItem.number : null;
-    const b = bhagyankReady ? bhagyankItem.number : null;
+    if (!beads.length) {
+      setError(
+        mItem || bItem
+          ? 'These crystals are not in the atelier yet. They need to be added under Beads first.'
+          : 'Choose a Mulank or Bhagyank combination to continue.'
+      );
+      return;
+    }
+    const m = mBeads.length ? itemNumber(mItem) : null;
+    const b = bBeads.length ? itemNumber(bItem) : null;
     const key = m && b ? `${m}-${b}` : m ? `m${m}` : `b${b}`;
-    const name = [m ? `Mulank ${m}` : '', b ? `Bhagyank ${b}` : ''].filter(Boolean).join(' · ');
-    applyLayer({
-      kind: 'numerology',
-      key,
-      path: mode.path,
-      modeLabel: MODE_LABELS.numerology,
-      name,
-      theme: [mulankReady ? mulankItem.theme : '', bhagyankReady && b !== m ? bhagyankItem.theme : '']
-        .filter(Boolean)
-        .join(' · '),
-      beads,
-      dateOfBirth: dob,
-      mulank: m,
-      bhagyank: b,
-      rolesById: rolesByBeadId(),
-      layerSelections: {
-        mulank: mulankReady
-          ? { number: m, beads: selectedNames(mulankItem.mulank, mulankOn) }
-          : null,
-        bhagyank: bhagyankReady
-          ? { number: b, beads: selectedNames(bhagyankItem.bhagyank, bhagyankOn) }
-          : null,
-      },
-    });
-    const q = new URLSearchParams({ layer: 'numerology', key });
-    if (m) q.set('mulank', String(m));
-    if (b) q.set('bhagyank', String(b));
-    if (dob) q.set('dob', dob);
-    navigate(`/customize?${q.toString()}`);
+    const name = [m ? mItem.theme : '', b ? bItem.theme : '']
+      .filter(Boolean)
+      .filter((value, index, all) => all.indexOf(value) === index)
+      .join(' · ');
+    setBusy(true);
+    setError('');
+    try {
+      await ensureStudio();
+      applyLayer({
+        kind: 'numerology',
+        key,
+        path: mode.path,
+        modeLabel: MODE_LABELS.numerology,
+        name,
+        theme: [m ? mItem.theme : '', b && b !== m ? bItem.theme : ''].filter(Boolean).join(' · '),
+        beads,
+        dateOfBirth: dob,
+        mulank: m,
+        bhagyank: b,
+        rolesById: rolesByBeadId(m ? mItem : null, mMap, b ? bItem : null, bMap),
+        layerSelections: {
+          mulank: m ? { number: m, beads: selectedNames(mItem.mulank, mMap) } : null,
+          bhagyank: b ? { number: b, beads: selectedNames(bItem.bhagyank, bMap) } : null,
+        },
+      });
+      const q = new URLSearchParams({ layer: 'numerology', key });
+      if (m) q.set('mulank', String(m));
+      if (b) q.set('bhagyank', String(b));
+      if (dob) q.set('dob', dob);
+      navigate(`/customize?${q.toString()}`);
+    } catch (e) {
+      setBusy(false);
+      setError(e.message || 'Could not open the studio.');
+    }
   }
+
+  function pickMulank(item) {
+    setMulank(itemNumber(item) ?? item.slug);
+    setMulankOn(defaultSelected(item.mulank));
+    setError('');
+  }
+
+  function pickBhagyank(item) {
+    setBhagyank(itemNumber(item) ?? item.slug);
+    setBhagyankOn(defaultSelected(item.bhagyank));
+    setError('');
+  }
+
+  const numerologyContinueBar =
+    mulankItem || bhagyankItem ? (
+      <div className="layer-continue">
+        <p className="text-xs text-lilac">
+          {mulankReady && bhagyankReady
+            ? 'Mulank and Bhagyank are set. Continue opens charm and review.'
+            : mulankReady
+              ? 'Mulank is set. Add Bhagyank below, or continue with this layer only.'
+              : 'Bhagyank is set. Add Mulank above, or continue with this layer only.'}
+        </p>
+        <Button onClick={continueNumerology} disabled={!canContinueNumerology || busy}>
+          {busy ? 'Opening…' : 'Continue to charm'}
+        </Button>
+      </div>
+    ) : null;
 
   return (
     <div className="relative">
@@ -304,10 +403,10 @@ export default function CustomizeLayerPage() {
 
         {loading ? (
           <Spinner />
-        ) : error ? (
+        ) : error && !items.length ? (
           <p className="mt-8 text-sm text-red-300">{error}</p>
         ) : kind === 'numerology' ? (
-          <div className="mt-8 space-y-8">
+          <div className="mt-8 space-y-8 pb-8">
             <div className="auth-card">
               <p className="studio-birth-kicker">Optional date of birth</p>
               <p className="mt-2 text-sm text-lilac">
@@ -321,27 +420,30 @@ export default function CustomizeLayerPage() {
             <div>
               <p className="studio-birth-kicker">Mulank</p>
               <div className="layer-pick mt-3">
-                {items.map((item) => (
-                  <button
-                    key={`m-${item.slug}`}
-                    type="button"
-                    onClick={() => setMulank(Number(mulank) === item.number ? null : item.number)}
-                    className={`layer-pick-card ${Number(mulank) === item.number ? 'is-on' : ''}`}
-                  >
-                    <span className="layer-pick-kicker">Number</span>
-                    <h3>{item.number}</h3>
-                    <p>{item.theme}</p>
-                  </button>
-                ))}
+                {items.map((item) => {
+                  const n = itemNumber(item);
+                  return (
+                    <button
+                      key={`m-${item.slug}`}
+                      type="button"
+                      onClick={() => pickMulank(item)}
+                      className={`layer-pick-card ${Number(mulank) === n ? 'is-on' : ''}`}
+                    >
+                      <h3>{item.theme || cardTitle(item)}</h3>
+                      <p>{slotNames(item.mulank)}</p>
+                    </button>
+                  );
+                })}
               </div>
               {mulankItem && (
-                <div className="mt-4">
+                <div ref={detailRef} className="mt-4">
                   <p className="text-sm text-lilac">Choose any 3 or all 4 Mulank crystals. This layer can stand alone.</p>
                   <BeadToggles
                     slots={mulankItem.mulank}
-                    selected={mulankOn}
-                    onToggle={(id) => toggle(mulankOn, setMulankOn, id)}
+                    selected={mulankMap}
+                    onToggle={(id) => toggle(mulankMap, setMulankOn, id)}
                   />
+                  {numerologyContinueBar}
                 </div>
               )}
             </div>
@@ -349,47 +451,45 @@ export default function CustomizeLayerPage() {
             <div>
               <p className="studio-birth-kicker">Bhagyank</p>
               <div className="layer-pick mt-3">
-                {items.map((item) => (
-                  <button
-                    key={`b-${item.slug}`}
-                    type="button"
-                    onClick={() => setBhagyank(Number(bhagyank) === item.number ? null : item.number)}
-                    className={`layer-pick-card ${Number(bhagyank) === item.number ? 'is-on' : ''}`}
-                  >
-                    <span className="layer-pick-kicker">Number</span>
-                    <h3>{item.number}</h3>
-                    <p>{item.theme}</p>
-                  </button>
-                ))}
+                {items.map((item) => {
+                  const n = itemNumber(item);
+                  return (
+                    <button
+                      key={`b-${item.slug}`}
+                      type="button"
+                      onClick={() => pickBhagyank(item)}
+                      className={`layer-pick-card ${Number(bhagyank) === n ? 'is-on' : ''}`}
+                    >
+                      <h3>{item.theme || cardTitle(item)}</h3>
+                      <p>{slotNames(item.bhagyank)}</p>
+                    </button>
+                  );
+                })}
               </div>
               {bhagyankItem && (
                 <div className="mt-4">
                   <p className="text-sm text-lilac">Choose any 3 or all 4 Bhagyank crystals. Shared stones with Mulank stay once in the strand.</p>
                   <BeadToggles
                     slots={bhagyankItem.bhagyank}
-                    selected={bhagyankOn}
-                    onToggle={(id) => toggle(bhagyankOn, setBhagyankOn, id)}
+                    selected={bhagyankMap}
+                    onToggle={(id) => toggle(bhagyankMap, setBhagyankOn, id)}
                   />
+                  {numerologyContinueBar}
                 </div>
               )}
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-xs text-lilac">
-                Traditional catalog associations, not medical claims.
-              </p>
-              <Button onClick={continueNumerology} disabled={!canContinueNumerology}>
-                Continue in studio
-              </Button>
-            </div>
+            {error ? <p className="text-sm text-red-300">{error}</p> : null}
+            <p className="text-xs text-lilac">Traditional catalog associations, not medical claims.</p>
           </div>
         ) : (
-          <div className="mt-8">
+          <div className="mt-8 pb-8">
             <div className="layer-pick">
               {items.map((item) => (
                 <button
                   key={item.slug}
                   type="button"
+                  disabled={busy}
                   onClick={() => pickItem(item)}
                   className={`layer-pick-card ${picked?.slug === item.slug ? 'is-on' : ''}`}
                 >
@@ -399,38 +499,23 @@ export default function CustomizeLayerPage() {
                 </button>
               ))}
             </div>
+            {!items.length ? <p className="mt-6 text-sm text-lilac">No combinations in this catalog yet.</p> : null}
+            {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
 
-            {picked && (
-              <div className="mt-8 space-y-4">
+            {picked && !busy && !canContinueSimple ? (
+              <div ref={detailRef} className="mt-8 space-y-4">
                 <div>
                   <p className="studio-birth-kicker">{picked.name}</p>
                   <p className="mt-2 text-sm text-lilac">{picked.theme}</p>
-                  <p className="mt-1 text-sm text-lilac">{picked.rule || 'Keep any 3 or all 4 recommended crystals, then finish charm and review in the studio.'}</p>
+                  <p className="mt-1 text-sm text-lilac">{picked.rule}</p>
                 </div>
                 <BeadToggles
                   slots={recommendedSlots}
                   selected={selected}
                   onToggle={(id) => toggle(selected, setSelected, id)}
                 />
-                {kind === 'zodiac' && extraSlots.length ? (
-                  <div>
-                    <p className="studio-birth-kicker">Also suitable</p>
-                    <p className="mt-1 text-sm text-lilac">Optional catalog stones for this sign. They merge into the strand after the recommended core.</p>
-                    <BeadToggles
-                      slots={extraSlots.map((slot) => ({ ...slot, core: false }))}
-                      selected={selected}
-                      onToggle={(id) => toggle(selected, setSelected, id)}
-                    />
-                  </div>
-                ) : null}
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-xs text-lilac">Traditional catalog associations, not medical claims.</p>
-                  <Button onClick={continueSimple} disabled={!canContinueSimple}>
-                    Continue in studio
-                  </Button>
-                </div>
               </div>
-            )}
+            ) : null}
           </div>
         )}
       </div>

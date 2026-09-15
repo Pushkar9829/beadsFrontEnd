@@ -1,8 +1,10 @@
+import { useNavigate } from 'react-router-dom';
 import { useCustomizerStore } from '../../store/customizerStore';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 
 export default function CharmStep() {
+  const navigate = useNavigate();
   const charms = useCustomizerStore((s) => s.charms);
   const charm = useCustomizerStore((s) => s.charm);
   const finish = useCustomizerStore((s) => s.finish);
@@ -12,10 +14,11 @@ export default function CharmStep() {
   const setWristSize = useCustomizerStore((s) => s.setWristSize);
   const config = useCustomizerStore((s) => s.config);
   const setStep = useCustomizerStore((s) => s.setStep);
+  const layer = useCustomizerStore((s) => s.layer);
 
   return (
     <div>
-      <Button variant="text" onClick={() => setStep(3)}>← Beads</Button>
+      <Button variant="text" onClick={() => (layer?.path ? navigate(layer.path) : setStep(4))}>← Back</Button>
       <h2 className="mt-2 font-serif text-2xl gold-text">Charm & wrist size</h2>
       <p className="mt-2 text-sm text-lilac">The oval charm is our signature finish. It appears on the live preview and order summary.</p>
       <div className="mt-6 grid gap-4">
@@ -60,7 +63,7 @@ export default function CharmStep() {
         ))}
       </select>
       <div className="mt-6 flex justify-end">
-        <Button onClick={() => setStep(5)}>Review & order</Button>
+        <Button onClick={() => setStep(6)} disabled={!charm}>Review & order</Button>
       </div>
     </div>
   );

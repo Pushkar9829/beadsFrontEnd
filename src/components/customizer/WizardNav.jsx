@@ -73,7 +73,7 @@ export default function WizardNav() {
         <span className="text-sm text-lilac">
           {quote.beadCount || 0} / {config?.beadLimit || 18} · <Price value={quote.total} />
         </span>
-        <Button onClick={goNext} disabled={busy}>
+        <Button onClick={goNext} disabled={busy || !ready}>
           {busy || (step === 3 && calibrating) ? 'Working…' : NEXT_LABEL[step]}
         </Button>
       </div>

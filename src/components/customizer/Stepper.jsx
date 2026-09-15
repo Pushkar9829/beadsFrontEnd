@@ -65,8 +65,7 @@ export default function Stepper() {
               }}
               className={`studio-chip ${active ? 'is-on' : done ? 'is-done' : ''}`}
             >
-              <span className="studio-chip-n">{String(layer ? i + 1 : s.n).padStart(2, '0')}</span>
-              <span className="hidden sm:inline">{s.label}</span>
+              <span>{s.label}</span>
             </button>
             {i < steps.length - 1 && <span className="studio-chip-rule" aria-hidden />}
           </li>

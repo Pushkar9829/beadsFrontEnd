@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useCustomizerStore, useCustomizerQuote } from '../store/customizerStore';
 import Stepper from '../components/customizer/Stepper';
@@ -29,10 +29,12 @@ export default function CustomizePage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const appliedSlug = useRef('');
+  const hydratedLayer = useRef('');
   const init = useCustomizerStore((s) => s.init);
   const purposes = useCustomizerStore((s) => s.purposes);
   const purpose = useCustomizerStore((s) => s.purpose);
   const layer = useCustomizerStore((s) => s.layer);
+  const recommended = useCustomizerStore((s) => s.recommended);
   const selectPurpose = useCustomizerStore((s) => s.selectPurpose);
   const hydrateLayerFromQuery = useCustomizerStore((s) => s.hydrateLayerFromQuery);
   const setStep = useCustomizerStore((s) => s.setStep);
@@ -44,6 +46,10 @@ export default function CustomizePage() {
   const goBack = useCustomizerStore((s) => s.goBack);
   const advancing = useCustomizerStore((s) => s.advancing);
   const stepError = useCustomizerStore((s) => s.stepError);
+  const charm = useCustomizerStore((s) => s.charm);
+  const threadType = useCustomizerStore((s) => s.threadType);
+  const wristSize = useCustomizerStore((s) => s.wristSize);
+  const [bootingLayer, setBootingLayer] = useState(() => Boolean(params.get('layer') && params.get('key')));
   const copy = steps[step - 1] || intro;
   const crumbs = [
     { label: 'Home', to: '/' },
@@ -61,15 +67,38 @@ export default function CustomizePage() {
   useEffect(() => {
     const kind = params.get('layer');
     const key = params.get('key');
-    if (!kind || !key) return;
-    hydrateLayerFromQuery({
-      kind,
-      key,
-      mulank: params.get('mulank'),
-      bhagyank: params.get('bhagyank'),
-      dateOfBirth: params.get('dob'),
+    const token = `${kind || ''}:${key || ''}:${params.get('mulank') || ''}:${params.get('bhagyank') || ''}:${params.get('dob') || ''}`;
+    if (!kind || !key) {
+      hydratedLayer.current = '';
+      setBootingLayer(false);
+      return;
+    }
+    const already =
+      layer?.kind === kind &&
+      String(layer?.key) === String(key) &&
+      (recommended || []).length > 0;
+    if (already || hydratedLayer.current === token) {
+      setBootingLayer(false);
+      return;
+    }
+    let cancelled = false;
+    setBootingLayer(true);
+    Promise.resolve(
+      hydrateLayerFromQuery({
+        kind,
+        key,
+        mulank: params.get('mulank'),
+        bhagyank: params.get('bhagyank'),
+        dateOfBirth: params.get('dob'),
+      })
+    ).finally(() => {
+      hydratedLayer.current = token;
+      if (!cancelled) setBootingLayer(false);
     });
-  }, [params, hydrateLayerFromQuery]);
+    return () => {
+      cancelled = true;
+    };
+  }, [params, hydrateLayerFromQuery, layer, recommended]);
 
   useEffect(() => {
     if (layer && step < 5) setStep(5);
@@ -105,7 +134,10 @@ export default function CustomizePage() {
     navigate(`/customize?purpose=${purpose.slug}`, { replace: true });
   }, [purpose, params, navigate, layer]);
 
-  if (loading) {
+  const layerReady =
+    !!charm && (threadType !== 'steel-core' || Boolean(wristSize));
+
+  if (loading || bootingLayer) {
     return (
       <div className="relative">
         <div className="pointer-events-none absolute inset-0 lotus-corner" />
@@ -122,6 +154,22 @@ export default function CustomizePage() {
         <div className="pointer-events-none absolute inset-0 lotus-corner" />
         <div className="relative shell py-10">
           <p className="text-center text-sm text-red-300">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (params.get('layer') && !layer) {
+    return (
+      <div className="relative">
+        <div className="pointer-events-none absolute inset-0 lotus-corner" />
+        <div className="relative shell py-10 text-center">
+          <p className="text-sm text-red-300">{stepError || 'That combination could not be opened.'}</p>
+          <div className="mt-6">
+            <Button to={params.get('layer') ? `/customize/${params.get('layer')}` : '/customize'}>
+              Back to selection
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -193,8 +241,8 @@ export default function CustomizePage() {
             <Price value={quote.total} />
           </span>
           {step < 6 ? (
-            <Button onClick={goNext} disabled={advancing} className="px-4! py-2!">
-              {advancing ? '…' : 'Next'}
+            <Button onClick={goNext} disabled={advancing || (layer && !layerReady)} className="px-4! py-2!">
+              {advancing ? '…' : layer && step === 5 ? 'Review & order' : 'Next'}
             </Button>
           ) : (
             <div className="min-w-0 shrink-0">

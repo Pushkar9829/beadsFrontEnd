@@ -1023,6 +1023,27 @@ select:-webkit-autofill {
   margin-top: 0.85rem;
 }
 
+.layer-continue {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  margin-top: 1.15rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(198, 167, 94, 0.32);
+  background: rgba(18, 18, 20, 0.96);
+  position: sticky;
+  bottom: 0.75rem;
+  z-index: 40;
+}
+
+.layer-continue p {
+  margin: 0;
+  max-width: 28rem;
+}
+
 .layer-bead {
   display: flex;
   align-items: center;
@@ -1264,7 +1285,12 @@ main.has-purpose-tone .studio-nav {
   gap: 0.35rem;
   margin-top: 1.5rem;
   overflow-x: auto;
-  padding-bottom: 0.15rem;
+  padding: 0 0 0.15rem;
+  list-style: none;
+}
+
+.studio-steps > li::marker {
+  content: none;
 }
 
 .studio-chip {

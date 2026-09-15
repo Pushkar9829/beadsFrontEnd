@@ -266,7 +266,6 @@ export const useCustomizerStore = create((set, get) => ({
     layerSelections = null,
   }) {
     const config = get().config;
-    const finish = get().finish;
     const limit = config?.beadLimit || 18;
     const unique = [];
     const seen = new Set();
@@ -282,8 +281,16 @@ export const useCustomizerStore = create((set, get) => ({
       quantity: quantities[b._id] || 0,
       roles: rolesById[String(b._id)] || [],
     }));
-    const quote = quoteFromBeads(config, priced, finish);
+    const charms = get().charms || [];
+    const charm = get().charm || charms[0] || null;
+    const nextFinish =
+      get().finish ||
+      charm?.finishes?.[0] ||
+      null;
+    const quote = quoteFromBeads(config, priced, nextFinish);
     set({
+      charm,
+      finish: nextFinish,
       layer: {
         kind,
         key,
@@ -384,7 +391,7 @@ export const useCustomizerStore = create((set, get) => ({
             key: `${mulankItem.number}-${bhagyankItem.number}`,
             path: '/customize/numerology',
             modeLabel: labels.numerology,
-            name: `Mulank ${mulankItem.number} · Bhagyank ${bhagyankItem.number}`,
+            name: [mulankItem.theme, bhagyankItem.theme].filter(Boolean).filter((value, i, all) => all.indexOf(value) === i).join(' · '),
             theme: [mulankItem.theme, bhagyankItem.theme].filter(Boolean).join(' · '),
             beads,
             dateOfBirth: data.dateOfBirth || dateOfBirth || '',
@@ -431,7 +438,10 @@ export const useCustomizerStore = create((set, get) => ({
             }
           });
         }
-        if (!beads.length) return;
+        if (!beads.length) {
+          set({ stepError: 'Those numerology crystals are not in the atelier yet.' });
+          return;
+        }
         const mNum = mulankItem?.number;
         const bNum = bhagyankItem?.number;
         get().applyLayer({
@@ -439,7 +449,7 @@ export const useCustomizerStore = create((set, get) => ({
           key: mNum && bNum ? `${mNum}-${bNum}` : mNum ? `m${mNum}` : `b${bNum}`,
           path: '/customize/numerology',
           modeLabel: labels.numerology,
-          name: [mNum ? `Mulank ${mNum}` : '', bNum ? `Bhagyank ${bNum}` : ''].filter(Boolean).join(' · '),
+          name: [mulankItem?.theme, bhagyankItem?.theme].filter(Boolean).filter((value, i, all) => all.indexOf(value) === i).join(' · '),
           theme: [mulankItem?.theme, bhagyankItem?.theme].filter(Boolean).join(' · '),
           beads,
           dateOfBirth: dateOfBirth || '',
@@ -459,7 +469,15 @@ export const useCustomizerStore = create((set, get) => ({
       }
       const { data } = await api.get(`/customizer/layers/${kind}/${key}`);
       const item = data.item;
-      if (!item) return;
+      if (!item) {
+        set({ stepError: 'That combination could not be opened.' });
+        return;
+      }
+      const beads = (item.recommended || []).map((slot) => slot.bead).filter(Boolean);
+      if (!beads.length) {
+        set({ stepError: 'Those crystals are not in the atelier yet.' });
+        return;
+      }
       get().applyLayer({
         kind,
         key: item.slug,
@@ -468,7 +486,7 @@ export const useCustomizerStore = create((set, get) => ({
         name: item.name,
         hindi: item.hindi,
         theme: item.theme,
-        beads: (item.recommended || []).map((slot) => slot.bead).filter(Boolean),
+        beads,
       });
     } catch (e) {
       set({ stepError: e.message || 'Could not open that customisation path.' });
@@ -488,6 +506,10 @@ export const useCustomizerStore = create((set, get) => ({
     set({ advancing: true, stepError: '' });
     try {
       if (state.layer) {
+        if (state.step < 5) {
+          set({ step: 5 });
+          return;
+        }
         if (state.step === 5) {
           if (!get().charm) throw new Error('Choose a charm to continue.');
           if (get().threadType === 'steel-core' && !get().wristSize) {
