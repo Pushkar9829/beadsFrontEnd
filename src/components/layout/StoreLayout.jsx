@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import Atmosphere from './Atmosphere';
+import SkyBoot from './SkyBoot';
 import { paintGoldShine } from '../../lib/paintGoldShine';
 import { useCustomizerStore } from '../../store/customizerStore';
 import { useContentStore } from '../../store/contentStore';
@@ -12,6 +13,7 @@ import useRefreshOnView from '../../hooks/useRefreshOnView';
 
 export default function StoreLayout() {
   const { pathname } = useLocation();
+  const [skyReady, setSkyReady] = useState(false);
   const loadContent = useContentStore((s) => s.load);
   const loadSettings = useSettingsStore((s) => s.load);
   const purpose = useCustomizerStore((s) => s.purpose);
@@ -40,7 +42,8 @@ export default function StoreLayout() {
 
   return (
     <div className="store-canvas relative flex min-h-screen flex-col text-ivory">
-      <Atmosphere />
+      <Atmosphere onReady={() => setSkyReady(true)} />
+      <SkyBoot skyReady={skyReady} />
       <div className="relative z-[1] flex min-h-screen flex-col">
         <Header />
         <main

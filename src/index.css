@@ -66,7 +66,7 @@ body,
 
 html {
   color-scheme: dark;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   overflow-x: hidden;
   scrollbar-width: none;
   font-size: 14px;
@@ -2931,10 +2931,9 @@ main.has-purpose-tone .studio-nav {
 }
 
 .store-canvas {
-  --glass: rgba(10, 4, 22, 0.55);
-  --glass-strong: rgba(8, 3, 18, 0.7);
+  --glass: rgba(10, 4, 22, 0.78);
+  --glass-strong: rgba(8, 3, 18, 0.88);
   --glass-line: rgba(232, 213, 163, 0.22);
-  --glass-blur: 18px;
 }
 
 .store-canvas .sky-glass,
@@ -2957,8 +2956,8 @@ main.has-purpose-tone .studio-nav {
 .store-canvas .bg-surface\/95 {
   background: var(--glass);
   border-color: var(--glass-line);
-  backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 16px 40px rgba(0, 0, 0, 0.22);
 }
 
@@ -2979,30 +2978,32 @@ main.has-purpose-tone .studio-nav {
 }
 
 .store-canvas header {
-  background: rgba(10, 4, 20, 0.48) !important;
-  backdrop-filter: blur(22px) saturate(1.4);
-  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  isolation: isolate;
+  transform: translateZ(0);
+  background: rgba(10, 4, 20, 0.72) !important;
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
 }
 
 .store-canvas .footer {
-  background: rgba(8, 3, 16, 0.58);
-  backdrop-filter: blur(20px) saturate(1.25);
-  -webkit-backdrop-filter: blur(20px) saturate(1.25);
+  background: rgba(8, 3, 16, 0.82);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .store-canvas .purpose-pick-card {
-  backdrop-filter: blur(14px) saturate(1.25);
-  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   background:
     radial-gradient(120% 80% at 50% 10%, var(--purpose-wash, transparent) 0%, transparent 62%),
-    color-mix(in srgb, var(--purpose-bg, rgba(12, 5, 24, 0.72)) 62%, transparent);
+    color-mix(in srgb, var(--purpose-bg, rgba(12, 5, 24, 0.86)) 86%, #0c0518);
 }
 
 .store-canvas .studio-chip:not(.is-on):not(.is-done),
 .store-canvas .studio-mode-chip:not(.is-on) {
-  background: rgba(10, 4, 22, 0.45);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(10, 4, 22, 0.72);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .store-canvas .house-card:hover,
@@ -3746,6 +3747,86 @@ html:has(.cart-page.is-filled) {
 @keyframes marquee {
   from { transform: translate3d(0, 0, 0); }
   to { transform: translate3d(-50%, 0, 0); }
+}
+
+.sky-boot {
+  pointer-events: auto;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 18% 8%, #7a2bb8 0%, transparent 46%),
+    radial-gradient(ellipse at 82% 82%, #2d0a58 0%, #140428 72%);
+  opacity: 1;
+  transition: opacity 0.28s ease;
+}
+
+.sky-boot.is-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sky-boot-mist {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(232, 80, 255, 0.28), transparent 42%),
+    radial-gradient(ellipse at 70% 60%, rgba(90, 40, 180, 0.35), transparent 48%);
+  animation: sky-boot-drift 10s ease-in-out infinite alternate;
+}
+
+.sky-boot-mark {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 0.7rem;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.sky-boot-ring {
+  width: 2.85rem;
+  height: 2.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 213, 163, 0.28);
+  border-top-color: #e8d5a3;
+  animation: sky-boot-spin 1.05s linear infinite;
+}
+
+.sky-boot-name {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.sky-boot-kicker {
+  margin: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(246, 241, 232, 0.72);
+}
+
+@keyframes sky-boot-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes sky-boot-drift {
+  from { transform: translate3d(-2%, -1%, 0) scale(1); }
+  to { transform: translate3d(2%, 2%, 0) scale(1.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sky-boot-mist,
+  .sky-boot-ring {
+    animation: none;
+  }
 }
 
 .atm {

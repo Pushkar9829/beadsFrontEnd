@@ -1,5 +1,5 @@
-import { Component, Suspense, useEffect, useState } from 'react';
-import { Canvas, useThree } from '@react-three/fiber';
+import { Component, Suspense, useEffect, useRef, useState } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import SkyScene from './SkyScene';
 
@@ -29,21 +29,47 @@ class WebGLGuard extends Component {
   }
 }
 
-function VideoSky() {
+function VideoSky({ onReady }) {
   return (
-    <video className="atm-video" src={SKY_SRC} autoPlay muted loop playsInline preload="metadata" />
+    <video
+      className="atm-video"
+      src={SKY_SRC}
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="auto"
+      onPlaying={() => onReady?.()}
+      onCanPlay={() => onReady?.()}
+      onError={() => onReady?.()}
+    />
   );
 }
 
-function Kick({ live }) {
+function Kick({ live, onReady }) {
   const invalidate = useThree((s) => s.invalidate);
+  const fired = useRef(false);
+  useFrame(() => {
+    if (fired.current) return;
+    fired.current = true;
+    onReady?.();
+  });
   useEffect(() => {
     if (!live) invalidate();
   }, [live, invalidate]);
   return null;
 }
 
-export default function Atmosphere() {
+export default function Atmosphere({ onReady }) {
+  const readyRef = useRef(onReady);
+  readyRef.current = onReady;
+  const fired = useRef(false);
+
+  const markReady = () => {
+    if (fired.current) return;
+    fired.current = true;
+    readyRef.current?.();
+  };
   const [webgl] = useState(canWebGL);
   const [live, setLive] = useState(true);
 
@@ -64,7 +90,7 @@ export default function Atmosphere() {
   return (
     <div className="atm" aria-hidden>
       {webgl ? (
-        <WebGLGuard fallback={<VideoSky />}>
+        <WebGLGuard fallback={<VideoSky onReady={markReady} />}>
           <Canvas
             className="atm-canvas"
             frameloop={live ? 'always' : 'demand'}
@@ -77,16 +103,17 @@ export default function Atmosphere() {
               toneMapping: THREE.NoToneMapping,
             }}
             camera={{ position: [0, 0, 6.2], fov: 50 }}
+            onCreated={() => markReady()}
           >
             <color attach="background" args={['#140428']} />
             <Suspense fallback={null}>
-              <Kick live={live} />
+              <Kick live={live} onReady={markReady} />
               <SkyScene frozen={!live} />
             </Suspense>
           </Canvas>
         </WebGLGuard>
       ) : (
-        <VideoSky />
+        <VideoSky onReady={markReady} />
       )}
     </div>
   );
