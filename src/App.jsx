@@ -33,6 +33,7 @@ import AdminBeads from './pages/admin/Beads';
 import AdminCollections from './pages/admin/Collections';
 import AdminInventory from './pages/admin/Inventory';
 import AdminIntentions from './pages/admin/Intentions';
+import AdminStudioLayers from './pages/admin/StudioLayers';
 import AdminConfig from './pages/admin/Config';
 import AdminOrders from './pages/admin/Orders';
 import AdminCustomers from './pages/admin/Customers';
@@ -154,6 +155,7 @@ export default function App() {
           <Route path="inventory/low" element={<AdminInventory />} />
           <Route path="inventory/history" element={<AdminInventory />} />
           <Route path="intentions" element={<AdminIntentions />} />
+          <Route path="studio-layers" element={<AdminStudioLayers />} />
           <Route path="config" element={<AdminConfig />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="orders/:tab" element={<AdminOrders />} />

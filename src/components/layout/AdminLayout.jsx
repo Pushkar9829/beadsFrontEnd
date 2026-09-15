@@ -101,6 +101,7 @@ const groups = [
     items: [
       { to: '/admin/config', label: 'Config', icon: SlidersHorizontal },
       { to: '/admin/intentions', label: 'Bead rules & purposes', icon: Sparkles },
+      { to: '/admin/studio-layers', label: 'Layer catalogs', icon: Layers },
     ],
   },
   {

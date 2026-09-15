@@ -73,6 +73,8 @@ function BeadToggles({ slots, selected, onToggle }) {
             <span>
               <strong>{slot.name}</strong>
               <em>{bead ? bead.shortDescriptor : 'Not in the atelier yet'}</em>
+              {slot.shared ? <span className="layer-bead-flag">Shared</span> : null}
+              {slot.core === false ? <span className="layer-bead-flag">Suitable</span> : null}
             </span>
           </button>
         );
@@ -165,6 +167,9 @@ export default function CustomizeLayerPage() {
   }
 
   const recommendedSlots = picked?.recommended || [];
+  const extraSlots = (picked?.suitable || []).filter(
+    (slot) => !(picked?.recommended || []).some((core) => core.name === slot.name)
+  );
   const availableCount = recommendedSlots.filter((s) => s.bead).length;
   const pickedCount = idsOf(recommendedSlots, selected).length;
   const minPick = Math.min(3, availableCount);
@@ -176,13 +181,32 @@ export default function CustomizeLayerPage() {
   const bhagyankCount = idsOf(bhagyankItem?.bhagyank, bhagyankOn).length;
   const mulankMin = Math.min(3, mulankAvail);
   const bhagyankMin = Math.min(3, bhagyankAvail);
+  const mulankReady = Boolean(mulankItem) && mulankCount >= mulankMin && mulankCount <= 4;
+  const bhagyankReady = Boolean(bhagyankItem) && bhagyankCount >= bhagyankMin && bhagyankCount <= 4;
   const canContinueNumerology =
-    mulankItem &&
-    bhagyankItem &&
-    mulankCount >= mulankMin &&
-    mulankCount <= 4 &&
-    bhagyankCount >= bhagyankMin &&
-    bhagyankCount <= 4;
+    (mulankReady || bhagyankReady) &&
+    (!mulankItem || mulankReady) &&
+    (!bhagyankItem || bhagyankReady);
+
+  function selectedNames(slots, map) {
+    return (slots || [])
+      .filter((slot) => slot.bead && map[String(slot.bead._id)])
+      .map((slot) => slot.bead.name);
+  }
+
+  function rolesByBeadId() {
+    const roles = {};
+    const mark = (slots, map, role) => {
+      (slots || []).forEach((slot) => {
+        if (!slot.bead?._id || !map[String(slot.bead._id)]) return;
+        const id = String(slot.bead._id);
+        roles[id] = [...new Set([...(roles[id] || []), role])];
+      });
+    };
+    if (mulankReady) mark(mulankItem.mulank, mulankOn, 'Mulank');
+    if (bhagyankReady) mark(bhagyankItem.bhagyank, bhagyankOn, 'Bhagyank');
+    return roles;
+  }
 
   function continueSimple() {
     if (!canContinueSimple) return;
@@ -194,7 +218,17 @@ export default function CustomizeLayerPage() {
       name: picked.name,
       hindi: picked.hindi,
       theme: picked.theme,
-      beads: uniqueBeads(recommendedSlots, selected),
+      beads: uniqueBeads([...recommendedSlots, ...extraSlots], selected),
+      layerSelections: kind === 'zodiac'
+        ? {
+            zodiac: {
+              sign: picked.name,
+              hindi: picked.hindi,
+              recommended: selectedNames(recommendedSlots, selected),
+              suitable: selectedNames(extraSlots, selected),
+            },
+          }
+        : undefined,
     });
     navigate(`/customize?layer=${kind}&key=${picked.slug}`);
   }
@@ -203,35 +237,44 @@ export default function CustomizeLayerPage() {
     if (!canContinueNumerology) return;
     const seen = new Set();
     const beads = [
-      ...uniqueBeads(mulankItem.mulank, mulankOn),
-      ...uniqueBeads(bhagyankItem.bhagyank, bhagyankOn),
+      ...(mulankReady ? uniqueBeads(mulankItem.mulank, mulankOn) : []),
+      ...(bhagyankReady ? uniqueBeads(bhagyankItem.bhagyank, bhagyankOn) : []),
     ].filter((bead) => {
       const id = String(bead._id);
       if (seen.has(id)) return false;
       seen.add(id);
       return true;
     });
-    const key = `${mulankItem.number}-${bhagyankItem.number}`;
+    const m = mulankReady ? mulankItem.number : null;
+    const b = bhagyankReady ? bhagyankItem.number : null;
+    const key = m && b ? `${m}-${b}` : m ? `m${m}` : `b${b}`;
+    const name = [m ? `Mulank ${m}` : '', b ? `Bhagyank ${b}` : ''].filter(Boolean).join(' · ');
     applyLayer({
       kind: 'numerology',
       key,
       path: mode.path,
       modeLabel: MODE_LABELS.numerology,
-      name: `Mulank ${mulankItem.number} · Bhagyank ${bhagyankItem.number}`,
-      theme: [mulankItem.theme, bhagyankItem.number === mulankItem.number ? '' : bhagyankItem.theme]
+      name,
+      theme: [mulankReady ? mulankItem.theme : '', bhagyankReady && b !== m ? bhagyankItem.theme : '']
         .filter(Boolean)
         .join(' · '),
       beads,
       dateOfBirth: dob,
-      mulank: mulankItem.number,
-      bhagyank: bhagyankItem.number,
+      mulank: m,
+      bhagyank: b,
+      rolesById: rolesByBeadId(),
+      layerSelections: {
+        mulank: mulankReady
+          ? { number: m, beads: selectedNames(mulankItem.mulank, mulankOn) }
+          : null,
+        bhagyank: bhagyankReady
+          ? { number: b, beads: selectedNames(bhagyankItem.bhagyank, bhagyankOn) }
+          : null,
+      },
     });
-    const q = new URLSearchParams({
-      layer: 'numerology',
-      key,
-      mulank: String(mulankItem.number),
-      bhagyank: String(bhagyankItem.number),
-    });
+    const q = new URLSearchParams({ layer: 'numerology', key });
+    if (m) q.set('mulank', String(m));
+    if (b) q.set('bhagyank', String(b));
     if (dob) q.set('dob', dob);
     navigate(`/customize?${q.toString()}`);
   }
@@ -268,7 +311,7 @@ export default function CustomizeLayerPage() {
             <div className="auth-card">
               <p className="studio-birth-kicker">Optional date of birth</p>
               <p className="mt-2 text-sm text-lilac">
-                Mulank is the birth-day number. Bhagyank is the full-date number. You can also tap a number below.
+                Mulank is the birth-day number. Bhagyank is the full-date number. Use one layer or both. Matching stones stay once, with both roles kept.
               </p>
               <div className="mt-4">
                 <DateOfBirthFields value={dob} onChange={setDob} />
@@ -282,7 +325,7 @@ export default function CustomizeLayerPage() {
                   <button
                     key={`m-${item.slug}`}
                     type="button"
-                    onClick={() => setMulank(item.number)}
+                    onClick={() => setMulank(Number(mulank) === item.number ? null : item.number)}
                     className={`layer-pick-card ${Number(mulank) === item.number ? 'is-on' : ''}`}
                   >
                     <span className="layer-pick-kicker">Number</span>
@@ -293,7 +336,7 @@ export default function CustomizeLayerPage() {
               </div>
               {mulankItem && (
                 <div className="mt-4">
-                  <p className="text-sm text-lilac">Choose any 3 or all 4 Mulank crystals.</p>
+                  <p className="text-sm text-lilac">Choose any 3 or all 4 Mulank crystals. This layer can stand alone.</p>
                   <BeadToggles
                     slots={mulankItem.mulank}
                     selected={mulankOn}
@@ -310,7 +353,7 @@ export default function CustomizeLayerPage() {
                   <button
                     key={`b-${item.slug}`}
                     type="button"
-                    onClick={() => setBhagyank(item.number)}
+                    onClick={() => setBhagyank(Number(bhagyank) === item.number ? null : item.number)}
                     className={`layer-pick-card ${Number(bhagyank) === item.number ? 'is-on' : ''}`}
                   >
                     <span className="layer-pick-kicker">Number</span>
@@ -321,7 +364,7 @@ export default function CustomizeLayerPage() {
               </div>
               {bhagyankItem && (
                 <div className="mt-4">
-                  <p className="text-sm text-lilac">Choose any 3 or all 4 Bhagyank crystals. Matching stones stay once in the strand.</p>
+                  <p className="text-sm text-lilac">Choose any 3 or all 4 Bhagyank crystals. Shared stones with Mulank stay once in the strand.</p>
                   <BeadToggles
                     slots={bhagyankItem.bhagyank}
                     selected={bhagyankOn}
@@ -362,13 +405,24 @@ export default function CustomizeLayerPage() {
                 <div>
                   <p className="studio-birth-kicker">{picked.name}</p>
                   <p className="mt-2 text-sm text-lilac">{picked.theme}</p>
-                  <p className="mt-1 text-sm text-lilac">Keep any 3 or all 4 recommended crystals, then finish charm and review in the studio.</p>
+                  <p className="mt-1 text-sm text-lilac">{picked.rule || 'Keep any 3 or all 4 recommended crystals, then finish charm and review in the studio.'}</p>
                 </div>
                 <BeadToggles
                   slots={recommendedSlots}
                   selected={selected}
                   onToggle={(id) => toggle(selected, setSelected, id)}
                 />
+                {kind === 'zodiac' && extraSlots.length ? (
+                  <div>
+                    <p className="studio-birth-kicker">Also suitable</p>
+                    <p className="mt-1 text-sm text-lilac">Optional catalog stones for this sign. They merge into the strand after the recommended core.</p>
+                    <BeadToggles
+                      slots={extraSlots.map((slot) => ({ ...slot, core: false }))}
+                      selected={selected}
+                      onToggle={(id) => toggle(selected, setSelected, id)}
+                    />
+                  </div>
+                ) : null}
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="text-xs text-lilac">Traditional catalog associations, not medical claims.</p>
                   <Button onClick={continueSimple} disabled={!canContinueSimple}>

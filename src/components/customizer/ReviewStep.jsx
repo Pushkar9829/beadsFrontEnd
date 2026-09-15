@@ -42,13 +42,27 @@ export default function ReviewStep() {
             <dd>{dateOfBirth}</dd>
           </div>
         ) : null}
-        {(calibration?.mulank || calibration?.bhagyank) ? (
+        {(calibration?.mulank || layer?.selections?.mulank) ? (
           <div>
-            <dt>Mulank / Bhagyank</dt>
-            <dd>{calibration?.mulank || '—'} / {calibration?.bhagyank || '—'}</dd>
+            <dt>Mulank {calibration?.mulank || layer?.selections?.mulank?.number}</dt>
+            <dd>{(layer?.selections?.mulank?.beads || []).join(' · ') || calibration?.mulank}</dd>
           </div>
         ) : null}
-        {calibration?.zodiac?.sign ? (
+        {(calibration?.bhagyank || layer?.selections?.bhagyank) ? (
+          <div>
+            <dt>Bhagyank {calibration?.bhagyank || layer?.selections?.bhagyank?.number}</dt>
+            <dd>{(layer?.selections?.bhagyank?.beads || []).join(' · ') || calibration?.bhagyank}</dd>
+          </div>
+        ) : null}
+        {layer?.selections?.zodiac ? (
+          <div>
+            <dt>Zodiac</dt>
+            <dd>
+              {layer.selections.zodiac.hindi ? `${layer.selections.zodiac.hindi} / ` : ''}
+              {layer.selections.zodiac.sign}
+            </dd>
+          </div>
+        ) : calibration?.zodiac?.sign ? (
           <div>
             <dt>Zodiac</dt>
             <dd>{calibration.zodiac.sign}{calibration.zodiac.bead?.name ? ` · ${calibration.zodiac.bead.name}` : ''}</dd>
@@ -56,7 +70,10 @@ export default function ReviewStep() {
         ) : null}
         {lines.map((l) => (
           <div key={l.beadId}>
-            <dt>{l.name} × {l.quantity}</dt>
+            <dt>
+              {l.name} × {l.quantity}
+              {l.roles?.length ? ` · ${l.roles.join(' + ')}` : ''}
+            </dt>
             <dd><Price value={l.subtotal} /></dd>
           </div>
         ))}

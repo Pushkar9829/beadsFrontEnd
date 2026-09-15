@@ -262,6 +262,8 @@ export const useCustomizerStore = create((set, get) => ({
     dateOfBirth = '',
     mulank,
     bhagyank,
+    rolesById = {},
+    layerSelections = null,
   }) {
     const config = get().config;
     const finish = get().finish;
@@ -278,14 +280,30 @@ export const useCustomizerStore = create((set, get) => ({
       ...b,
       beadId: b._id,
       quantity: quantities[b._id] || 0,
+      roles: rolesById[String(b._id)] || [],
     }));
     const quote = quoteFromBeads(config, priced, finish);
     set({
-      layer: { kind, key, path, modeLabel, name, hindi, theme, mulank, bhagyank },
+      layer: {
+        kind,
+        key,
+        path,
+        modeLabel,
+        name,
+        hindi,
+        theme,
+        mulank,
+        bhagyank,
+        rolesById,
+        selections: layerSelections,
+      },
       purpose: { name: modeLabel, slug: kind },
       intention: { name, slug: key },
       intentions: [],
-      recommended: unique,
+      recommended: unique.map((b) => ({
+        ...b,
+        roles: rolesById[String(b._id)] || [],
+      })),
       quantities,
       dateOfBirth: dateOfBirth || '',
       calibration: {
@@ -293,12 +311,17 @@ export const useCustomizerStore = create((set, get) => ({
         mulank,
         bhagyank,
         zodiac: kind === 'zodiac' ? { sign: name } : undefined,
-        beads: unique.map((b) => ({ beadId: b._id, quantity: quantities[b._id] })),
+        beads: unique.map((b) => ({
+          beadId: b._id,
+          quantity: quantities[b._id],
+          roles: rolesById[String(b._id)] || [],
+        })),
         layout: [],
         explanation: theme
           ? `${name}: ${theme}. Traditional catalog associations, not medical claims.`
           : '',
         quote,
+        layerSelections,
       },
       zodiacAdded: true,
       step: 5,
@@ -322,33 +345,115 @@ export const useCustomizerStore = create((set, get) => ({
     };
     try {
       if (kind === 'numerology') {
-        const m = mulank || String(key).split('-')[0];
-        const b = bhagyank || String(key).split('-')[1] || m;
-        const { data } = await api.get(`/customizer/layers/numerology/${m}`, {
-          params: dateOfBirth ? { dateOfBirth } : { mulank: m, bhagyank: b },
-        });
-        const mulankItem = data.mulank;
-        const bhagyankItem = data.bhagyank || data.mulank;
-        if (!mulankItem) return;
+        const rawKey = String(key || '');
+        let m = mulank;
+        let b = bhagyank;
+        if (!m && !b) {
+          if (rawKey.startsWith('m')) m = rawKey.slice(1);
+          else if (rawKey.startsWith('b')) b = rawKey.slice(1);
+          else {
+            const parts = rawKey.split('-');
+            m = parts[0];
+            b = parts[1];
+          }
+        }
+        if (dateOfBirth && (!m || !b)) {
+          const { data } = await api.get(`/customizer/layers/numerology/${m || '1'}`, {
+            params: { dateOfBirth },
+          });
+          const mulankItem = data.mulank;
+          const bhagyankItem = data.bhagyank || data.mulank;
+          const beads = [];
+          const seen = new Set();
+          const rolesById = {};
+          const mark = (slots, role) => {
+            (slots || []).forEach((slot) => {
+              const bead = slot.bead;
+              if (!bead?._id) return;
+              const id = String(bead._id);
+              rolesById[id] = [...new Set([...(rolesById[id] || []), role])];
+              if (seen.has(id)) return;
+              seen.add(id);
+              beads.push(bead);
+            });
+          };
+          mark(mulankItem?.mulank, 'Mulank');
+          mark(bhagyankItem?.bhagyank, 'Bhagyank');
+          get().applyLayer({
+            kind: 'numerology',
+            key: `${mulankItem.number}-${bhagyankItem.number}`,
+            path: '/customize/numerology',
+            modeLabel: labels.numerology,
+            name: `Mulank ${mulankItem.number} · Bhagyank ${bhagyankItem.number}`,
+            theme: [mulankItem.theme, bhagyankItem.theme].filter(Boolean).join(' · '),
+            beads,
+            dateOfBirth: data.dateOfBirth || dateOfBirth || '',
+            mulank: mulankItem.number,
+            bhagyank: bhagyankItem.number,
+            rolesById,
+            layerSelections: {
+              mulank: { number: mulankItem.number, beads: (mulankItem.mulank || []).map((s) => s.bead?.name).filter(Boolean) },
+              bhagyank: { number: bhagyankItem.number, beads: (bhagyankItem.bhagyank || []).map((s) => s.bead?.name).filter(Boolean) },
+            },
+          });
+          return;
+        }
+        const rolesById = {};
         const beads = [];
         const seen = new Set();
-        [...(mulankItem.mulank || []), ...(bhagyankItem.bhagyank || [])].forEach((slot) => {
-          const bead = slot.bead;
-          if (!bead?._id || seen.has(String(bead._id))) return;
-          seen.add(String(bead._id));
-          beads.push(bead);
-        });
+        let mulankItem = null;
+        let bhagyankItem = null;
+        if (m) {
+          const { data } = await api.get(`/customizer/layers/numerology/${m}`);
+          mulankItem = data.item || data.mulank;
+          (mulankItem?.mulank || []).forEach((slot) => {
+            const bead = slot.bead;
+            if (!bead?._id) return;
+            const id = String(bead._id);
+            rolesById[id] = [...new Set([...(rolesById[id] || []), 'Mulank'])];
+            if (!seen.has(id)) {
+              seen.add(id);
+              beads.push(bead);
+            }
+          });
+        }
+        if (b) {
+          const { data } = await api.get(`/customizer/layers/numerology/${b}`);
+          bhagyankItem = data.item || data.bhagyank;
+          (bhagyankItem?.bhagyank || []).forEach((slot) => {
+            const bead = slot.bead;
+            if (!bead?._id) return;
+            const id = String(bead._id);
+            rolesById[id] = [...new Set([...(rolesById[id] || []), 'Bhagyank'])];
+            if (!seen.has(id)) {
+              seen.add(id);
+              beads.push(bead);
+            }
+          });
+        }
+        if (!beads.length) return;
+        const mNum = mulankItem?.number;
+        const bNum = bhagyankItem?.number;
         get().applyLayer({
           kind: 'numerology',
-          key: `${mulankItem.number}-${bhagyankItem.number}`,
+          key: mNum && bNum ? `${mNum}-${bNum}` : mNum ? `m${mNum}` : `b${bNum}`,
           path: '/customize/numerology',
           modeLabel: labels.numerology,
-          name: `Mulank ${mulankItem.number} · Bhagyank ${bhagyankItem.number}`,
-          theme: [mulankItem.theme, bhagyankItem.theme].filter(Boolean).join(' · '),
+          name: [mNum ? `Mulank ${mNum}` : '', bNum ? `Bhagyank ${bNum}` : ''].filter(Boolean).join(' · '),
+          theme: [mulankItem?.theme, bhagyankItem?.theme].filter(Boolean).join(' · '),
           beads,
-          dateOfBirth: data.dateOfBirth || dateOfBirth || '',
-          mulank: mulankItem.number,
-          bhagyank: bhagyankItem.number,
+          dateOfBirth: dateOfBirth || '',
+          mulank: mNum,
+          bhagyank: bNum,
+          rolesById,
+          layerSelections: {
+            mulank: mulankItem
+              ? { number: mNum, beads: (mulankItem.mulank || []).map((s) => s.bead?.name).filter(Boolean) }
+              : null,
+            bhagyank: bhagyankItem
+              ? { number: bNum, beads: (bhagyankItem.bhagyank || []).map((s) => s.bead?.name).filter(Boolean) }
+              : null,
+          },
         });
         return;
       }
@@ -540,7 +645,11 @@ export const useCustomizerStore = create((set, get) => ({
           purpose: { name: layer.modeLabel },
           intention: { name: layer.name },
           layer: { kind: layer.kind, key: layer.key, name: layer.name },
-          beads: quote.lines,
+          layerSelections: layer.selections || calibration?.layerSelections,
+          beads: quote.lines.map((line) => ({
+            ...line,
+            roles: layer.rolesById?.[String(line.beadId)] || line.roles || [],
+          })),
           layout: calibration?.layout || [],
           mulank: calibration?.mulank,
           bhagyank: calibration?.bhagyank,

@@ -15,7 +15,7 @@ export const STUDIO_MODES = [
     short: 'Numerology',
     eyebrow: 'Mulank · Bhagyank',
     title: 'Customise by numerology',
-    body: 'Choose a number, or enter a date of birth. Mulank and Bhagyank stay as two layers. Pick 3 or 4 crystals from each, then continue in the studio.',
+    body: 'Mulank and Bhagyank stay as two separate layers. Pick 3 or 4 crystals from either layer, or from both. Matching stones stay once in the strand, with both roles kept.',
   },
   {
     slug: 'zodiac',
@@ -24,7 +24,7 @@ export const STUDIO_MODES = [
     short: 'Zodiac',
     eyebrow: 'Rashi',
     title: 'Customise by zodiac sign',
-    body: 'Twelve signs, each with a recommended four-crystal core from the Kuberstones catalog. Pick a sign, keep 3 or 4 stones, then continue to charm and review.',
+    body: 'Twelve signs, each with a recommended four-crystal core. Keep 3 or 4 of those, optionally add other suitable catalog stones, then continue to charm and review.',
   },
   {
     slug: 'planetary',

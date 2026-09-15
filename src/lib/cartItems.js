@@ -16,6 +16,13 @@ export function itemMeta(item) {
   }
   if (snap.charm?.name) parts.push(snap.charm.name);
   if (snap.mulank) parts.push(`Mulank ${snap.mulank}`);
+  if (snap.bhagyank) parts.push(`Bhagyank ${snap.bhagyank}`);
+  if (snap.layerSelections?.mulank?.beads?.length) {
+    parts.push(`Mulank beads ${snap.layerSelections.mulank.beads.join(', ')}`);
+  }
+  if (snap.layerSelections?.bhagyank?.beads?.length) {
+    parts.push(`Bhagyank beads ${snap.layerSelections.bhagyank.beads.join(', ')}`);
+  }
   if (snap.zodiac?.sign) parts.push(snap.zodiac.sign);
   if (snap.finish?.label && snap.finish.label !== 'Gold') parts.push(snap.finish.label);
   if (snap.wristSize) parts.push(snap.wristSize);

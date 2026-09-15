@@ -11,13 +11,15 @@ export function formatInr(value) {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: activeCurrency,
-      maximumFractionDigits: 0,
+      maximumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+      minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
     }).format(amount);
   } catch {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0,
+      maximumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+      minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
     }).format(amount);
   }
 }

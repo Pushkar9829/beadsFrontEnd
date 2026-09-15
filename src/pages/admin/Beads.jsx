@@ -75,7 +75,7 @@ export default function AdminBeads() {
 
   return (
     <div>
-      <AdminHeader title="Beads" subtitle="Per-bead prices, grade, and stock live here. The storefront never hard-codes them." onCreate={openCreate} createLabel="Create bead" />
+      <AdminHeader title="Beads" subtitle="Per-bead prices, grade, and stock. Zodiac and numerology combinations are edited under Layer catalogs." onCreate={openCreate} createLabel="Create bead" />
       <AdminToolbar search={q} onSearch={setQ} searchPlaceholder="Search beads" />
       <AdminTable
         rows={slice}
