@@ -1,5 +1,5 @@
 import { Component, Suspense, useEffect, useRef, useState } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import SkyScene from './SkyScene';
 
@@ -46,14 +46,8 @@ function VideoSky({ onReady }) {
   );
 }
 
-function Kick({ live, onReady }) {
+function Kick({ live }) {
   const invalidate = useThree((s) => s.invalidate);
-  const fired = useRef(false);
-  useFrame(() => {
-    if (fired.current) return;
-    fired.current = true;
-    onReady?.();
-  });
   useEffect(() => {
     if (!live) invalidate();
   }, [live, invalidate]);
@@ -103,12 +97,11 @@ export default function Atmosphere({ onReady }) {
               toneMapping: THREE.NoToneMapping,
             }}
             camera={{ position: [0, 0, 6.2], fov: 50 }}
-            onCreated={() => markReady()}
           >
             <color attach="background" args={['#140428']} />
             <Suspense fallback={null}>
-              <Kick live={live} onReady={markReady} />
-              <SkyScene frozen={!live} />
+              <Kick live={live} />
+              <SkyScene frozen={!live} onReady={markReady} />
             </Suspense>
           </Canvas>
         </WebGLGuard>

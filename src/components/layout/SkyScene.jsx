@@ -349,12 +349,21 @@ function Crystal({ position, scale }) {
   );
 }
 
-export default function SkyScene({ frozen = false }) {
+export default function SkyScene({ frozen = false, onReady }) {
   const tex = useSkyTextures();
   const { viewport, size } = useThree();
   const width = viewport.width;
   const height = viewport.height;
   const mobile = size.width < 640;
+  const painted = useRef(false);
+  const frames = useRef(0);
+  useFrame(() => {
+    if (painted.current) return;
+    frames.current += 1;
+    if (frames.current < 2) return;
+    painted.current = true;
+    onReady?.();
+  });
   const puffs = useMemo(() => {
     const m = Math.min(width, height);
     return [

@@ -9,11 +9,13 @@ import { useCustomizerStore } from '../../store/customizerStore';
 import { useContentStore } from '../../store/contentStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { purposeToneStyle } from '../customizer/PurposeGrid';
+import { useBootStore } from '../../store/bootStore';
 import useRefreshOnView from '../../hooks/useRefreshOnView';
 
 export default function StoreLayout() {
   const { pathname } = useLocation();
   const [skyReady, setSkyReady] = useState(false);
+  const markPageReady = useBootStore((s) => s.markPageReady);
   const loadContent = useContentStore((s) => s.load);
   const loadSettings = useSettingsStore((s) => s.load);
   const purpose = useCustomizerStore((s) => s.purpose);
@@ -32,6 +34,10 @@ export default function StoreLayout() {
     loadContent();
     loadSettings();
   }, [pathname, loadContent, loadSettings]);
+
+  useEffect(() => {
+    if (pathname !== '/') markPageReady();
+  }, [pathname, markPageReady]);
 
   useEffect(() => {
     paintGoldShine();

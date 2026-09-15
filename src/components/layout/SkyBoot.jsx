@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useContentStore } from '../../store/contentStore';
 import { useBrand, useSettingsStore } from '../../store/settingsStore';
+import { useBootStore } from '../../store/bootStore';
 
 export default function SkyBoot({ skyReady }) {
   const contentReady = useContentStore((s) => s.loadedAt > 0);
   const settingsReady = useSettingsStore((s) => s.loadedAt > 0);
+  const pageReady = useBootStore((s) => s.pageReady);
   const brand = useBrand();
   const [open, setOpen] = useState(true);
   const [leaving, setLeaving] = useState(false);
@@ -28,22 +30,19 @@ export default function SkyBoot({ skyReady }) {
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const hide = window.setTimeout(() => setOpen(false), reduced ? 480 : 1600);
     const cap = window.setTimeout(() => {
       if (done.current) return;
       done.current = true;
       setLeaving(true);
-    }, reduced ? 400 : 1200);
-    return () => {
-      window.clearTimeout(hide);
-      window.clearTimeout(cap);
-    };
+      window.setTimeout(() => setOpen(false), reduced ? 80 : 280);
+    }, reduced ? 2500 : 8000);
+    return () => window.clearTimeout(cap);
   }, []);
 
   useEffect(() => {
     if (done.current || leaving) return undefined;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const minMs = reduced ? 60 : 220;
+    const minMs = reduced ? 40 : 160;
 
     const finish = () => {
       if (done.current) return;
@@ -54,13 +53,13 @@ export default function SkyBoot({ skyReady }) {
 
     const tryFinish = () => {
       if (performance.now() - started.current < minMs) return;
-      if (skyReady && contentReady && settingsReady && fontsReady) finish();
+      if (skyReady && contentReady && settingsReady && fontsReady && pageReady) finish();
     };
 
     tryFinish();
     const waitMin = window.setTimeout(tryFinish, minMs);
     return () => window.clearTimeout(waitMin);
-  }, [skyReady, contentReady, settingsReady, fontsReady, leaving]);
+  }, [skyReady, contentReady, settingsReady, fontsReady, pageReady, leaving]);
 
   if (!open) return null;
 

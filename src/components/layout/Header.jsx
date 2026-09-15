@@ -115,8 +115,8 @@ export default function Header() {
         ref={headerRef}
         className={`fixed inset-x-0 top-0 z-40 border-b transition-[background,box-shadow,border-color] duration-300 ${
           scrolled
-            ? 'border-[rgba(198,167,94,0.32)] bg-black/92 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl'
-            : 'border-[rgba(198,167,94,0.18)] bg-black/78 backdrop-blur-md'
+            ? 'border-[rgba(198,167,94,0.32)] bg-black/92 shadow-[0_12px_40px_rgba(0,0,0,0.45)]'
+            : 'border-[rgba(198,167,94,0.18)] bg-black/90'
         }`}
       >
         <div className="shell flex items-center justify-between gap-2 py-2 sm:gap-3 sm:py-2.5">
@@ -160,7 +160,7 @@ export default function Header() {
                 </NavLink>
                 {mega === f.slug && (
                   <div className="absolute left-0 top-full w-72 pt-3">
-                    <div className="animate-mega overflow-hidden rounded-2xl bg-surface/95 p-2 gold-border backdrop-blur-md">
+                    <div className="animate-mega overflow-hidden rounded-2xl bg-surface/95 p-2 gold-border">
                       {childrenOf(f.slug).length === 0 && (
                         <p className="px-3 py-2 text-sm text-lilac">{site.pages?.collections?.empty?.copy || site.pages?.category?.empty?.copy || 'No collections in this house yet.'}</p>
                       )}
@@ -210,7 +210,7 @@ export default function Header() {
               </NavLink>
               {mega === 'customize' && (
                 <div className="absolute left-0 top-full w-80 pt-3">
-                  <div className="animate-mega overflow-hidden rounded-2xl bg-surface/95 p-2 gold-border backdrop-blur-md">
+                  <div className="animate-mega overflow-hidden rounded-2xl bg-surface/95 p-2 gold-border">
                     {STUDIO_MODES.map((mode) => (
                       <Link
                         key={mode.slug}
@@ -243,7 +243,7 @@ export default function Header() {
               </NavLink>
               {mega === 'collections' && (
                 <div className="absolute left-0 top-full w-72 pt-3">
-                  <div className="animate-mega overflow-hidden rounded-2xl bg-surface/95 p-2 gold-border backdrop-blur-md">
+                  <div className="animate-mega overflow-hidden rounded-2xl bg-surface/95 p-2 gold-border">
                     <Link to="/collections" className="header-cat-link block rounded-xl px-3 py-2.5 text-sm transition hover:bg-gold/10">
                       All collections
                     </Link>

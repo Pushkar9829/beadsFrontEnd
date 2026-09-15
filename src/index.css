@@ -1996,8 +1996,7 @@ main.has-purpose-tone .studio-nav {
   bottom: 0;
   z-index: 45;
   border-top: 1px solid rgba(198, 167, 94, 0.28);
-  background: rgba(8, 8, 10, 0.92);
-  backdrop-filter: blur(14px);
+  background: rgba(8, 8, 10, 0.96);
   padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
 }
 
@@ -2980,9 +2979,9 @@ main.has-purpose-tone .studio-nav {
 .store-canvas header {
   isolation: isolate;
   transform: translateZ(0);
-  background: rgba(10, 4, 20, 0.72) !important;
-  backdrop-filter: blur(18px) saturate(1.25);
-  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  background: rgba(10, 4, 20, 0.92) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .store-canvas .footer {
@@ -3921,7 +3920,6 @@ html:has(.cart-page.is-filled) {
   font-size: 0.875rem;
   outline: none;
   min-width: 0;
-  backdrop-filter: blur(8px);
   transition: border-color 0.2s ease;
 }
 

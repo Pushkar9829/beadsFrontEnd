@@ -29,7 +29,7 @@ export default function LoginPage() {
     setBusy(true);
     setError('');
     try {
-      const user = await login(email, password);
+      const user = await login(email.trim(), password);
       await onLogin();
       navigate(user.role === 'admin' && from === '/account' ? '/admin' : from, { replace: true });
     } catch (err) {

@@ -14,6 +14,7 @@ import InViewGroup from '../components/ui/InViewGroup';
 import { claimIcon } from '../lib/claimIcons';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
+import { useBootStore } from '../store/bootStore';
 import { PurposeIcon, purposeHasImage, purposeToneStyle } from '../components/customizer/PurposeGrid';
 import finaleBanner from '../assets/home/finale-banner.jpg';
 import studioBanner from '../assets/home/hero-bracelet.jpg';
@@ -34,19 +35,22 @@ export default function HomePage() {
   const [flash, setFlash] = useState(null);
   const [flashProducts, setFlashProducts] = useState([]);
   const [posts, setPosts] = useState([]);
+  const markPageReady = useBootStore((s) => s.markPageReady);
 
   const loadCatalog = useCallback(() => {
-    api.get('/products?featured=true').then(({ data }) => setFeatured(data.products || [])).catch(() => {});
-    api.get('/customizer/purposes').then(({ data }) => setPurposes(data.purposes || [])).catch(() => {});
-    api.get('/home/collections').then(({ data }) => setRails(data)).catch(() => {});
-    api.get('/faqs').then(({ data }) => setFaqs(data.faqs || [])).catch(() => {});
-    api.get('/banners?placement=home').then(({ data }) => setBanners(data.banners || [])).catch(() => {});
-    api.get('/flash-sales/active').then(({ data }) => {
-      setFlash(data.sale);
-      setFlashProducts(data.products || []);
-    }).catch(() => {});
-    api.get('/blog').then(({ data }) => setPosts((data.posts || []).slice(0, 3))).catch(() => {});
-  }, []);
+    return Promise.all([
+      api.get('/products?featured=true').then(({ data }) => setFeatured(data.products || [])).catch(() => {}),
+      api.get('/customizer/purposes').then(({ data }) => setPurposes(data.purposes || [])).catch(() => {}),
+      api.get('/home/collections').then(({ data }) => setRails(data)).catch(() => {}),
+      api.get('/faqs').then(({ data }) => setFaqs(data.faqs || [])).catch(() => {}),
+      api.get('/banners?placement=home').then(({ data }) => setBanners(data.banners || [])).catch(() => {}),
+      api.get('/flash-sales/active').then(({ data }) => {
+        setFlash(data.sale);
+        setFlashProducts(data.products || []);
+      }).catch(() => {}),
+      api.get('/blog').then(({ data }) => setPosts((data.posts || []).slice(0, 3))).catch(() => {}),
+    ]).finally(() => markPageReady());
+  }, [markPageReady]);
 
   useRefreshOnView(loadCatalog);
 
