@@ -55,7 +55,7 @@ export default function AboutPage() {
               to={page.to || '/customize'}
               action={page.action || 'Customization →'}
             />
-            <div className="mt-6 max-w-2xl space-y-4 text-sm leading-relaxed text-lilac md:text-base">
+            <div className="mt-6 max-w-2xl space-y-4 text-sm leading-relaxed sky-copy md:text-base">
               {intro.map((p) => (
                 <p key={p}>{p}</p>
               ))}
@@ -67,7 +67,7 @@ export default function AboutPage() {
         {(copy.moreTitle || morePoints.length > 0) && (
           <section className="mt-14 sm:mt-16">
             <SectionHead eyebrow="The studio" title={copy.moreTitle} />
-            {copy.moreBody ? <p className="mt-5 max-w-3xl text-sm leading-relaxed text-lilac md:text-base">{copy.moreBody}</p> : null}
+            {copy.moreBody ? <p className="mt-5 max-w-3xl text-sm leading-relaxed sky-copy md:text-base">{copy.moreBody}</p> : null}
             {morePoints.length > 0 && (
               <ul className="mt-6 grid gap-3 sm:grid-cols-2">
                 {morePoints.map((point) => (
@@ -80,7 +80,7 @@ export default function AboutPage() {
                 ))}
               </ul>
             )}
-            {copy.moreClose ? <p className="mt-6 max-w-3xl text-sm leading-relaxed text-lilac md:text-base">{copy.moreClose}</p> : null}
+            {copy.moreClose ? <p className="mt-6 max-w-3xl text-sm leading-relaxed sky-copy md:text-base">{copy.moreClose}</p> : null}
           </section>
         )}
 
@@ -141,7 +141,7 @@ export default function AboutPage() {
                 </div>
               ))}
             </InViewGroup>
-            {copy.approachNote ? <p className="mt-6 max-w-3xl text-sm leading-relaxed text-lilac">{copy.approachNote}</p> : null}
+            {copy.approachNote ? <p className="mt-6 max-w-3xl text-sm leading-relaxed sky-copy">{copy.approachNote}</p> : null}
           </section>
         )}
 

@@ -11,8 +11,8 @@ export default function RitualSteps({ steps }) {
       {steps.map((step, i) => (
         <li key={step.n || step.title || i} className="ritual-step" style={{ '--i': i }}>
           <p className="ritual-num font-serif text-xl text-gold">{step.n}</p>
-          <h3 className="ritual-title mt-3 font-serif text-lg">{step.title}</h3>
-          <p className="ritual-body mt-2 text-xs leading-relaxed text-lilac">{step.body}</p>
+          <h3 className="ritual-title mt-3 font-serif text-lg sky-copy">{step.title}</h3>
+          <p className="ritual-body mt-2 text-xs leading-relaxed sky-copy">{step.body}</p>
         </li>
       ))}
     </ol>

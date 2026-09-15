@@ -306,7 +306,7 @@ export default function CheckoutPage() {
         <div className="cart-head">
           <p className="text-[11px] uppercase tracking-[0.22em] text-gold">{page.title}</p>
           <h1 className="mt-2 font-serif text-2xl gold-text sm:text-3xl">{page.title}</h1>
-          {page.body ? <p className="mt-2 max-w-xl text-sm text-lilac">{page.body}</p> : null}
+          {page.body ? <p className="mt-2 max-w-xl text-sm sky-copy">{page.body}</p> : null}
         </div>
 
         <div className="bag-stage">

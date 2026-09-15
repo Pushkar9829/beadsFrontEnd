@@ -437,7 +437,7 @@ export default function CustomizeLayerPage() {
               </div>
               {mulankItem && (
                 <div ref={detailRef} className="mt-4">
-                  <p className="text-sm text-lilac">Choose any 3 or all 4 Mulank crystals. This layer can stand alone.</p>
+                  <p className="sky-copy text-sm text-lilac">Choose any 3 or all 4 Mulank crystals. This layer can stand alone.</p>
                   <BeadToggles
                     slots={mulankItem.mulank}
                     selected={mulankMap}
@@ -468,7 +468,7 @@ export default function CustomizeLayerPage() {
               </div>
               {bhagyankItem && (
                 <div className="mt-4">
-                  <p className="text-sm text-lilac">Choose any 3 or all 4 Bhagyank crystals. Shared stones with Mulank stay once in the strand.</p>
+                  <p className="sky-copy text-sm text-lilac">Choose any 3 or all 4 Bhagyank crystals. Shared stones with Mulank stay once in the strand.</p>
                   <BeadToggles
                     slots={bhagyankItem.bhagyank}
                     selected={bhagyankMap}
@@ -480,7 +480,7 @@ export default function CustomizeLayerPage() {
             </div>
 
             {error ? <p className="text-sm text-red-300">{error}</p> : null}
-            <p className="text-xs text-lilac">Traditional catalog associations, not medical claims.</p>
+            <p className="sky-copy text-xs text-lilac">Traditional catalog associations, not medical claims.</p>
           </div>
         ) : (
           <div className="mt-8 pb-8">
@@ -499,15 +499,15 @@ export default function CustomizeLayerPage() {
                 </button>
               ))}
             </div>
-            {!items.length ? <p className="mt-6 text-sm text-lilac">No combinations in this catalog yet.</p> : null}
+            {!items.length ? <p className="mt-6 text-sm sky-copy text-lilac">No combinations in this catalog yet.</p> : null}
             {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
 
             {picked && !busy && !canContinueSimple ? (
               <div ref={detailRef} className="mt-8 space-y-4">
                 <div>
                   <p className="studio-birth-kicker">{picked.name}</p>
-                  <p className="mt-2 text-sm text-lilac">{picked.theme}</p>
-                  <p className="mt-1 text-sm text-lilac">{picked.rule}</p>
+                  <p className="mt-2 text-sm sky-copy text-lilac">{picked.theme}</p>
+                  <p className="mt-1 text-sm sky-copy text-lilac">{picked.rule}</p>
                 </div>
                 <BeadToggles
                   slots={recommendedSlots}

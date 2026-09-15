@@ -20,37 +20,6 @@ export default function StoreLayout() {
     pathname === '/customize' && purpose && step > 1
       ? purposeToneStyle(purpose)
       : undefined;
-  const showAtmosphere =
-    pathname === '/' ||
-    pathname === '/shop' ||
-    pathname === '/wishlist' ||
-    pathname === '/cart' ||
-    pathname === '/login' ||
-    pathname === '/register' ||
-    pathname === '/crystals' ||
-    pathname === '/rudraksha' ||
-    pathname === '/gemstones' ||
-    pathname.startsWith('/c/') ||
-    pathname.startsWith('/p/') ||
-    pathname === '/about' ||
-    pathname === '/customize' ||
-    pathname.startsWith('/customize/') ||
-    pathname === '/account' ||
-    pathname === '/journal' ||
-    pathname.startsWith('/journal/') ||
-    pathname === '/faq' ||
-    pathname === '/collections' ||
-    pathname.startsWith('/collection/') ||
-    pathname === '/sale' ||
-    pathname === '/shop-by-purpose' ||
-    pathname === '/returns' ||
-    pathname === '/exchanges' ||
-    pathname === '/refunds' ||
-    pathname === '/shipping' ||
-    pathname === '/privacy' ||
-    pathname === '/terms' ||
-    pathname === '/maintenance' ||
-    pathname === '/grievance';
 
   useRefreshOnView((force) => {
     loadContent(force);
@@ -71,7 +40,7 @@ export default function StoreLayout() {
 
   return (
     <div className="store-canvas relative flex min-h-screen flex-col text-ivory">
-      {showAtmosphere && <Atmosphere />}
+      <Atmosphere />
       <div className="relative z-[1] flex min-h-screen flex-col">
         <Header />
         <main

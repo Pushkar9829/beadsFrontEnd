@@ -1,28 +1,61 @@
-import { useMemo } from 'react';
+import { useEffect, useRef } from 'react';
 
-const KEYS = ['atm-drift-a', 'atm-drift-b', 'atm-drift-c', 'atm-drift-d', 'atm-drift-e'];
+const SKY_SRC = '/atmosphere/sky.mp4';
 
 export default function Atmosphere() {
-  const clouds = useMemo(
-    () =>
-      KEYS.map((name, i) => ({
-        name,
-        className: `atm-cloud atm-${i + 1}`,
-        dur: `${(6.5 + Math.random() * 7).toFixed(2)}s`,
-        delay: `${(-Math.random() * 9).toFixed(2)}s`,
-      })),
-    [],
-  );
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return undefined;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    async function playSafe() {
+      if (reduced.matches || document.visibilityState !== 'visible') {
+        video.pause();
+        return;
+      }
+      try {
+        await video.play();
+      } catch {
+        /* Autoplay can wait until the tab is visible. */
+      }
+    }
+
+    function onVis() {
+      if (document.visibilityState === 'visible') playSafe();
+      else video.pause();
+    }
+
+    function onMotion(event) {
+      if (event.matches) video.pause();
+      else playSafe();
+    }
+
+    playSafe();
+    document.addEventListener('visibilitychange', onVis);
+    reduced.addEventListener('change', onMotion);
+
+    return () => {
+      video.pause();
+      document.removeEventListener('visibilitychange', onVis);
+      reduced.removeEventListener('change', onMotion);
+    };
+  }, []);
 
   return (
     <div className="atm" aria-hidden>
-      {clouds.map((c) => (
-        <span
-          key={c.name}
-          className={c.className}
-          style={{ '--atm-dur': c.dur, '--atm-delay': c.delay }}
-        />
-      ))}
+      <video
+        ref={videoRef}
+        className="atm-video"
+        src={SKY_SRC}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+      />
     </div>
   );
 }

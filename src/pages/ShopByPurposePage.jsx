@@ -48,7 +48,7 @@ export default function ShopByPurposePage() {
                 </span>
               </Link>
             ))}
-            {!purposes.length && <p className="text-lilac">Purposes will appear here once the studio is configured.</p>}
+            {!purposes.length && <p className="sky-copy">Purposes will appear here once the studio is configured.</p>}
           </div>
         )}
       </div>

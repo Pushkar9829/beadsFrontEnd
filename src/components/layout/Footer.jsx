@@ -56,8 +56,8 @@ export default function Footer() {
                 {footer.brandName || brand.display}
               </span>
             </Link>
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-lilac">{footer.blurb}</p>
-            <p className="mt-4 text-[10px] uppercase tracking-[0.22em] text-ivory/45">{footer.tagline}</p>
+            <p className="mt-5 max-w-sm text-sm leading-relaxed sky-copy">{footer.blurb}</p>
+            <p className="mt-4 text-[10px] uppercase tracking-[0.22em] sky-copy">{footer.tagline}</p>
             {footer.legalEntity ? (
               <p className="mt-2 text-[10px] uppercase tracking-[0.18em] text-gold/80">
                 A brand by {footer.legalEntity}
@@ -118,7 +118,7 @@ export default function Footer() {
               ))}
             </nav>
             {footer.location ? (
-              <div className="mt-6 flex items-start gap-2 text-sm text-lilac">
+              <div className="mt-6 flex items-start gap-2 text-sm sky-copy">
                 <MapPin size={14} className="mt-0.5 shrink-0 text-gold" />
                 <span>{footer.location}</span>
               </div>
@@ -128,7 +128,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-[rgba(198,167,94,0.15)]">
-        <div className="shell flex flex-col gap-3 py-5 text-xs text-ivory/40 md:flex-row md:items-center md:justify-between">
+        <div className="shell flex flex-col gap-3 py-5 text-xs sky-copy md:flex-row md:items-center md:justify-between">
           <p>© {new Date().getFullYear()} {footer.copyright}</p>
           <p>{footer.disclaimer}</p>
         </div>

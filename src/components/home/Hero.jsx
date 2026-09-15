@@ -34,7 +34,7 @@ export default function Hero({ hero = {} }) {
           )}
           {hero.subtitle && (
             <p
-              className="hero-fade hero-delay-copy mt-3 max-w-lg text-sm leading-relaxed text-lilac sm:mt-4 sm:text-base"
+              className="hero-fade hero-delay-copy sky-copy mt-3 max-w-lg text-sm leading-relaxed text-lilac sm:mt-4 sm:text-base"
               style={{ animationDelay: '280ms' }}
             >
               {hero.subtitle}
