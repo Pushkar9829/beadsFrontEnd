@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import api from '../../api/client';
+import api, { mediaUrl } from '../../api/client';
 import Button from '../../components/ui/Button';
 import AdminTable from '../../components/admin/AdminTable';
 import AdminDrawer from '../../components/admin/AdminDrawer';
 import ConfirmDelete from '../../components/admin/ConfirmDelete';
 import AdminHeader, { RowActions, fieldClass, labelClass } from '../../components/admin/AdminHeader';
+import MediaField from '../../components/admin/MediaField';
 
 const TABS = [
   { id: 'purposes', label: 'Purposes' },
@@ -24,8 +25,8 @@ export default function AdminIntentions() {
   const [zodiac, setZodiac] = useState([]);
   const [open, setOpen] = useState(false);
   const [remove, setRemove] = useState(null);
-  const [pForm, setPForm] = useState({ name: '', description: '' });
-  const [iForm, setIForm] = useState({ name: '', purposeId: '', description: '' });
+  const [pForm, setPForm] = useState({ name: '', description: '', image: '', icon: '' });
+  const [iForm, setIForm] = useState({ name: '', braceletName: '', purposeId: '', description: '', image: '', icon: '' });
   const [mForm, setMForm] = useState({ intentionId: '', beadId: '', reason: '' });
   const [nForm, setNForm] = useState({ number: 1, beadId: '', reason: '' });
   const [zForm, setZForm] = useState({ sign: '', fromMonth: 1, fromDay: 1, toMonth: 1, toDay: 1, beadId: '', reason: '' });
@@ -51,8 +52,8 @@ export default function AdminIntentions() {
 
   function openCreate() {
     setEditing(null);
-    setPForm({ name: '', description: '' });
-    setIForm({ name: '', purposeId: '', description: '' });
+    setPForm({ name: '', description: '', image: '', icon: '' });
+    setIForm({ name: '', braceletName: '', purposeId: '', description: '', image: '', icon: '' });
     setMForm({ intentionId: '', beadId: '', reason: '' });
     setNForm({ number: 1, beadId: '', reason: '' });
     setZForm({ sign: '', fromMonth: 1, fromDay: 1, toMonth: 1, toDay: 1, beadId: '', reason: '' });
@@ -104,7 +105,7 @@ export default function AdminIntentions() {
     <div>
       <AdminHeader
         title="Purposes & mappings"
-        subtitle="Purpose → intention crystals, then Mulank calibration and zodiac beads."
+        subtitle="Purpose → named bracelets → crystals. Catalog rows can be edited here after seed."
         onCreate={openCreate}
         createLabel={createLabel}
       />
@@ -125,7 +126,12 @@ export default function AdminIntentions() {
         <AdminTable
           rows={purposes}
           columns={[
-            { key: 'name', label: 'Purpose', render: (p) => <span className="font-medium">{p.name}</span> },
+            { key: 'name', label: 'Purpose', render: (p) => (
+              <span className="flex items-center gap-2 font-medium">
+                {p.image ? <img src={mediaUrl(p.image)} alt="" className="h-8 w-8 rounded object-contain" /> : null}
+                {p.name}
+              </span>
+            ) },
             { key: 'description', label: 'Description', render: (p) => <span className="text-lilac">{p.description}</span> },
             { key: 'sortOrder', label: 'Sort' },
             { key: 'isActive', label: 'Status', render: (p) => p.isActive ? 'Active' : 'Hidden' },
@@ -135,7 +141,7 @@ export default function AdminIntentions() {
               align: 'right',
               render: (p) => (
                 <RowActions
-                  onEdit={() => { setEditing(p._id); setPForm({ name: p.name, description: p.description || '' }); setOpen(true); }}
+                  onEdit={() => { setEditing(p._id); setPForm({ name: p.name, description: p.description || '', image: p.image || '', icon: p.icon || '' }); setOpen(true); }}
                   onDelete={() => setRemove(p)}
                 />
               ),
@@ -150,6 +156,7 @@ export default function AdminIntentions() {
           columns={[
             { key: 'purpose', label: 'Purpose', render: (i) => i.purposeId?.name || '—' },
             { key: 'name', label: 'Intention' },
+            { key: 'braceletName', label: 'Bracelet' },
             { key: 'description', label: 'Description', render: (i) => <span className="line-clamp-2 text-lilac">{i.description}</span> },
             {
               key: 'actions',
@@ -159,7 +166,7 @@ export default function AdminIntentions() {
                 <RowActions
                   onEdit={() => {
                     setEditing(i._id);
-                    setIForm({ name: i.name, purposeId: i.purposeId?._id || i.purposeId, description: i.description || '' });
+                    setIForm({ name: i.name, braceletName: i.braceletName || '', purposeId: i.purposeId?._id || i.purposeId, description: i.description || '', image: i.image || '', icon: i.icon || '' });
                     setOpen(true);
                   }}
                   onDelete={() => setRemove(i)}
@@ -267,6 +274,8 @@ export default function AdminIntentions() {
             <>
               <label className={labelClass}>Name<input required className={`${fieldClass} mt-1`} value={pForm.name} onChange={(e) => setPForm({ ...pForm, name: e.target.value })} /></label>
               <label className={labelClass}>Description<textarea className={`${fieldClass} mt-1`} value={pForm.description} onChange={(e) => setPForm({ ...pForm, description: e.target.value })} /></label>
+              <MediaField label="Box image" folder="purpose" value={pForm.image} onChange={(image) => setPForm({ ...pForm, image })} />
+              <label className={labelClass}>Icon (emoji fallback)<input className={`${fieldClass} mt-1`} value={pForm.icon} onChange={(e) => setPForm({ ...pForm, icon: e.target.value })} /></label>
             </>
           )}
           {tab === 'intentions' && (
@@ -278,7 +287,10 @@ export default function AdminIntentions() {
                 </select>
               </label>
               <label className={labelClass}>Name<input required className={`${fieldClass} mt-1`} value={iForm.name} onChange={(e) => setIForm({ ...iForm, name: e.target.value })} /></label>
+              <label className={labelClass}>Bracelet name<input className={`${fieldClass} mt-1`} value={iForm.braceletName} onChange={(e) => setIForm({ ...iForm, braceletName: e.target.value })} /></label>
               <label className={labelClass}>Description<textarea className={`${fieldClass} mt-1`} value={iForm.description} onChange={(e) => setIForm({ ...iForm, description: e.target.value })} /></label>
+              <MediaField label="Box image" folder="purpose" value={iForm.image} onChange={(image) => setIForm({ ...iForm, image })} />
+              <label className={labelClass}>Icon (emoji fallback)<input className={`${fieldClass} mt-1`} value={iForm.icon} onChange={(e) => setIForm({ ...iForm, icon: e.target.value })} /></label>
             </>
           )}
           {tab === 'mappings' && (

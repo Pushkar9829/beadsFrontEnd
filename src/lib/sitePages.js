@@ -60,36 +60,38 @@ const PAGES_DEFAULTS = {
     },
   },
   customize: {
+    // Matched to the studio flow by `id`, so reordering never shifts copy onto the
+    // wrong step. See lib/studioFlow.js for the defaults these override.
     steps: [
       {
-        eyebrow: 'The studio',
-        title: 'Choose a purpose',
-        body: 'Begin with why you wear it. One purpose opens its intentions — calm, abundance, protection, or love.',
+        id: 'choose',
+        eyebrow: 'Step 01 · Choose',
+        title: 'What is this bracelet for?',
+        body: 'Begin with why you wear it. Your choice sets the crystals we suggest next.',
       },
       {
-        eyebrow: 'Step 02 · Intention',
-        title: 'Choose an intention',
-        body: 'Click an intention. Its crystals open so you can keep or release them, then continue.',
+        id: 'crystals',
+        eyebrow: 'Step 02 · Crystals',
+        title: 'Choose your crystals',
+        body: 'We have pre-selected the traditional stones. Add or remove any of them.',
       },
       {
-        eyebrow: 'Step 03 · Birth',
-        title: 'Date of birth',
-        body: 'Mulank is taken from the day. The strand is composed to that number.',
+        id: 'fit',
+        eyebrow: 'Step 03 · Fit',
+        title: 'How it should fit',
+        body: 'Bead size and wrist size together set how many beads the strand carries.',
       },
       {
-        eyebrow: 'Step 04 · Zodiac',
-        title: 'Zodiac beads',
-        body: 'Your sign’s stone is added beside the charm. The repeating pattern stays fixed.',
+        id: 'finish',
+        eyebrow: 'Step 04 · Finish',
+        title: 'Finish the piece',
+        body: 'Pick the charm at the clasp, the accent, the thread, and an optional name.',
       },
       {
-        eyebrow: 'Step 05 · Name',
-        title: 'Charm & thread',
-        body: 'Sriyantra or Om at the clasp. Korean elastic is free size; steel core is sized to the wrist.',
-      },
-      {
-        eyebrow: 'Step 06 · Review',
+        id: 'review',
+        eyebrow: 'Step 05 · Review',
         title: 'Review & order',
-        body: 'Confirm the composition. Place the piece in your bag, then continue to checkout.',
+        body: 'Confirm the composition, then place the piece in your bag.',
       },
     ],
   },

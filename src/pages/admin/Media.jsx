@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api, { mediaUrl } from '../../api/client';
+import { uploadAdminMedia } from '../../api/uploadMedia';
 import AdminTable from '../../components/admin/AdminTable';
 import AdminHeader, { RowActions, fieldClass } from '../../components/admin/AdminHeader';
 import AdminToolbar, { FilterSelect, paginate, Pagination } from '../../components/admin/AdminToolbar';
@@ -9,9 +10,13 @@ import { toast } from '../../lib/adminToast';
 const FOLDERS = [
   { value: 'all', label: 'All media' },
   { value: 'product', label: 'Product images' },
+  { value: 'bead', label: 'Bead images' },
   { value: 'category', label: 'Category images' },
-  { value: 'banner', label: 'Homepage banners' },
+  { value: 'banner', label: 'Banners' },
   { value: 'blog', label: 'Blog images' },
+  { value: 'studio', label: 'Studio' },
+  { value: 'purpose', label: 'Purpose' },
+  { value: 'logo', label: 'Logos' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -38,8 +43,8 @@ export default function AdminMedia() {
       const fd = new FormData();
       fd.append('file', file);
       fd.append('folder', uploadFolder);
-      if (targetId) await api.post(`/admin/media/${targetId}/replace`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      else await api.post('/admin/media', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      if (targetId) await api.post(`/admin/media/${targetId}/replace`, fd);
+      else await uploadAdminMedia(file, uploadFolder);
       toast(targetId ? 'File replaced.' : 'File uploaded.');
       e.target.value = '';
       load();

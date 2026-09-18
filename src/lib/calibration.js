@@ -195,13 +195,13 @@ export function quantitiesFromLayout(layout) {
   return [...map.values()].map((row) => ({ ...row, roles: [...row.roles] }));
 }
 
-export function quoteFromBeads(config, beads, finish) {
+export function packagingQuote(config, beads, { czStyle = 'cz' } = {}) {
   const lines = (beads || []).map((b) => ({
     beadId: b.beadId || b._id,
     name: b.name,
     quantity: b.quantity,
     pricePerBead: b.pricePerBead,
-    subtotal: b.quantity * b.pricePerBead,
+    subtotal: (b.quantity || 0) * (b.pricePerBead || 0),
     colorHex: b.colorHex,
     image: b.image,
     powerUse: b.powerUse,
@@ -209,15 +209,57 @@ export function quoteFromBeads(config, beads, finish) {
   }));
   const beadCount = lines.reduce((s, l) => s + l.quantity, 0);
   const beadsTotal = lines.reduce((s, l) => s + l.subtotal, 0);
-  const baseMakingPrice = config?.baseMakingPrice || 0;
-  const charmPrice = finish?.price || 0;
-  const total = baseMakingPrice + beadsTotal + charmPrice;
-  const beadLimit = config?.beadLimit || 18;
+  const p = {
+    box: 44,
+    clasp: 10,
+    charm: 60,
+    cz: 6,
+    roundCz: 8,
+    thread: 20,
+    ...(config?.packaging || {}),
+  };
+  const labels = {
+    box: 'Box',
+    clasp: 'Clasp',
+    charm: 'Charm',
+    cz: 'CZ',
+    roundCz: 'Round CZ',
+    thread: 'Thread',
+    ...(config?.packagingLabels || {}),
+  };
+  const option = (config?.czOptions || []).find((row) => row.key === czStyle);
+  const czKey = czStyle === 'round' ? 'roundCz' : (option?.key === 'cz' ? 'cz' : czStyle || 'cz');
+  const cz = option?.price != null ? Number(option.price) : Number(p[czKey] || p.cz || 0);
+  const packLines = [
+    { key: 'box', label: labels.box, amount: Number(p.box || 0) },
+    { key: 'clasp', label: labels.clasp, amount: Number(p.clasp || 0) },
+    { key: 'charm', label: labels.charm, amount: Number(p.charm || 0) },
+    { key: czKey, label: option?.label || labels[czKey] || labels.cz, amount: cz },
+    { key: 'thread', label: labels.thread, amount: Number(p.thread || 0) },
+  ];
+  const packagingTotal = packLines.reduce((s, l) => s + l.amount, 0);
+  const beadLimit = config?.beadLimit || 32;
   const minBeads = config?.minBeads || 1;
   const errors = [];
   if (beadCount < minBeads) errors.push(`Choose at least ${minBeads} bead.`);
   if (beadCount > beadLimit) errors.push(`This bracelet holds up to ${beadLimit} beads.`);
-  return { lines, beadCount, beadsTotal, baseMakingPrice, charmPrice, addOns: 0, total, valid: errors.length === 0, errors };
+  return {
+    lines,
+    beadCount,
+    beadsTotal,
+    packaging: { lines: packLines, total: packagingTotal, czStyle },
+    packagingTotal,
+    baseMakingPrice: 0,
+    charmPrice: Number(p.charm || 0),
+    addOns: 0,
+    total: beadsTotal + packagingTotal,
+    valid: errors.length === 0,
+    errors,
+  };
+}
+
+export function quoteFromBeads(config, beads, finish, extras = {}) {
+  return packagingQuote(config, beads, extras);
 }
 
 export function calibrateLocal({

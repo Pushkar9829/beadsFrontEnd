@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import api from '../../api/client';
+import api, { mediaUrl } from '../../api/client';
 import Button from '../../components/ui/Button';
 import AdminTable from '../../components/admin/AdminTable';
 import AdminDrawer from '../../components/admin/AdminDrawer';
 import ConfirmDelete from '../../components/admin/ConfirmDelete';
 import AdminHeader, { RowActions, fieldClass, labelClass } from '../../components/admin/AdminHeader';
+import MediaField from '../../components/admin/MediaField';
 import { toast } from '../../lib/adminToast';
 
 const TABS = [
@@ -26,6 +27,8 @@ const emptyByKind = {
     toMonth: 1,
     toDay: 1,
     theme: '',
+    description: '',
+    image: '',
     sortOrder: 1,
     isActive: true,
     suitable: [],
@@ -37,6 +40,8 @@ const emptyByKind = {
     name: '',
     number: 1,
     theme: '',
+    description: '',
+    image: '',
     sortOrder: 1,
     isActive: true,
     mulank: [],
@@ -48,6 +53,8 @@ const emptyByKind = {
     name: '',
     hindi: '',
     theme: '',
+    description: '',
+    image: '',
     sortOrder: 1,
     isActive: true,
     recommended: [],
@@ -57,6 +64,8 @@ const emptyByKind = {
     slug: '',
     name: '',
     theme: '',
+    description: '',
+    image: '',
     sortOrder: 1,
     isActive: true,
     recommended: [],
@@ -199,9 +208,12 @@ export default function AdminStudioLayers() {
             key: 'name',
             label: tab === 'numerology' ? 'Number' : 'Name',
             render: (row) => (
-              <div>
+              <div className="flex items-center gap-2">
+                {row.image ? <img src={mediaUrl(row.image)} alt="" className="h-8 w-8 rounded object-contain" /> : null}
+                <div>
                 <div className="font-medium">{row.hindi ? `${row.hindi} / ${row.name || row.theme}` : (row.name && !/^number\s*\d+$/i.test(row.name) ? row.name : row.theme) || '—'}</div>
                 <div className="text-xs text-lilac">{row.slug}{row.dates ? ` · ${row.dates}` : ''}</div>
+                </div>
               </div>
             ),
           },
@@ -257,6 +269,8 @@ export default function AdminStudioLayers() {
             </>
           )}
           <label className={labelClass}>Theme<input className={`${fieldClass} mt-1`} value={form.theme || ''} onChange={(e) => setForm({ ...form, theme: e.target.value })} /></label>
+          <label className={labelClass}>Description<textarea className={`${fieldClass} mt-1`} value={form.description || ''} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Shown on the storefront box" /></label>
+          <MediaField label="Box image" folder="studio" value={form.image || ''} onChange={(image) => setForm({ ...form, image })} />
           <label className={labelClass}>Sort order<input type="number" className={`${fieldClass} mt-1`} value={form.sortOrder || 0} onChange={(e) => setForm({ ...form, sortOrder: e.target.value })} /></label>
           {tab === 'numerology' ? (
             <>

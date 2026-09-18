@@ -9,8 +9,6 @@ export default function PlaceOrderButton({ className = 'w-full' }) {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const quote = useCustomizerQuote();
-  const calibration = useCustomizerStore((s) => s.calibration);
-  const layer = useCustomizerStore((s) => s.layer);
   const charm = useCustomizerStore((s) => s.charm);
   const toCartPayload = useCustomizerStore((s) => s.toCartPayload);
   const clearBuild = useCustomizerStore((s) => s.clearBuild);
@@ -22,10 +20,6 @@ export default function PlaceOrderButton({ className = 'w-full' }) {
     setErr('');
     if (!charm) {
       setErr('Choose Sriyantra or Om before placing the order.');
-      return;
-    }
-    if (!calibration && !layer) {
-      setErr('Calibrate the strand from your date of birth first.');
       return;
     }
     setBusy(true);

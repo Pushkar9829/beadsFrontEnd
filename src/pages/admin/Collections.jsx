@@ -78,7 +78,7 @@ export default function AdminCollections() {
         <form onSubmit={save} className="space-y-3">
           <label className={labelClass}>Name<input required className={`${fieldClass} mt-1`} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
           <label className={labelClass}>Slug<input className={`${fieldClass} mt-1`} value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="auto from name" /></label>
-          <MediaField label="Image" value={form.image} onChange={(image) => setForm({ ...form, image })} />
+          <MediaField label="Image" folder="category" value={form.image} onChange={(image) => setForm({ ...form, image })} />
           <label className={labelClass}>Rule
             <select className={`${fieldClass} mt-1`} value={form.ruleType || 'manual'} onChange={(e) => setForm({ ...form, ruleType: e.target.value })}>
               <option value="manual">Manual products</option>

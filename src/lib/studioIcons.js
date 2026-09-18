@@ -1,8 +1,3 @@
-import { useState } from 'react';
-import { useCustomizerStore } from '../../store/customizerStore';
-import CrystalSelectModal from './CrystalSelectModal';
-import { purposeToneStyle } from './PurposeGrid';
-
 const BY_NAME = {
   'attract wealth': '💎',
   'financial freedom': '🕊️',
@@ -14,7 +9,7 @@ const BY_NAME = {
   'savings growth': '🏦',
   'career advancement': '🚀',
   'prosperity mindset': '🧠',
-  'opportunities': '🔑',
+  opportunities: '🔑',
   'material comfort': '🏡',
   'open the heart': '🩷',
   'attract partnership': '💑',
@@ -89,86 +84,14 @@ const LOOKS = [
 
 const FALLBACKS = ['🩷', '💎', '👑', '🔥', '🛡️', '🔮', '🪷', '🌙', '☀️', '✨', '🌱', '💬', '⚖️'];
 
-function emojiFor(intention) {
-  if (intention.icon) return intention.icon;
-  const name = (intention.name || '').trim().toLowerCase();
+export function intentionEmoji(intention) {
+  if (intention?.icon) return intention.icon;
+  const name = (intention?.name || '').trim().toLowerCase();
   if (BY_NAME[name]) return BY_NAME[name];
-  const hay = `${intention.slug || ''} ${intention.name || ''}`;
+  const hay = `${intention?.slug || ''} ${intention?.name || ''}`;
   const found = LOOKS.find((item) => item.match.test(hay));
   if (found) return found.emoji;
   let n = 0;
   for (const ch of name) n += ch.charCodeAt(0);
   return FALLBACKS[n % FALLBACKS.length];
-}
-
-export default function IntentionGrid() {
-  const purpose = useCustomizerStore((s) => s.purpose);
-  const intentions = useCustomizerStore((s) => s.intentions);
-  const selected = useCustomizerStore((s) => s.intention);
-  const recommended = useCustomizerStore((s) => s.recommended);
-  const quantities = useCustomizerStore((s) => s.quantities);
-  const selectIntention = useCustomizerStore((s) => s.selectIntention);
-  const selectingIntention = useCustomizerStore((s) => s.selectingIntention);
-  const stepError = useCustomizerStore((s) => s.stepError);
-  const goNext = useCustomizerStore((s) => s.goNext);
-  const picked = recommended.filter((b) => (quantities[b._id] || 0) > 0);
-  const [crystalOpen, setCrystalOpen] = useState(false);
-
-  async function onPick(it) {
-    setCrystalOpen(true);
-    if (selected?._id === it._id && recommended.length) return;
-    await selectIntention(it);
-  }
-
-  async function onComplete() {
-    setCrystalOpen(false);
-    await goNext();
-  }
-
-  return (
-    <div>
-      <p className="text-[11px] uppercase tracking-[0.2em] text-gold">
-        For {purpose?.name || 'this purpose'}
-      </p>
-
-      <div className="purpose-pick mt-5">
-        {intentions.map((it) => {
-          const on = selected?._id === it._id;
-          return (
-            <button
-              key={it._id}
-              type="button"
-              disabled={selectingIntention}
-              onClick={() => onPick(it)}
-              className={`purpose-pick-card disabled:opacity-60 ${on ? 'is-on' : ''}`}
-              style={purposeToneStyle(it)}
-            >
-              <span className="purpose-pick-emoji is-plain" aria-hidden>
-                {emojiFor(it)}
-              </span>
-              <span className="purpose-pick-copy">
-                <h3>{it.name}</h3>
-                <p>{it.description}</p>
-                <span className="purpose-pick-meta">
-                  {on
-                    ? selectingIntention
-                      ? 'Selecting crystals…'
-                      : `${picked.length} crystal${picked.length === 1 ? '' : 's'} · Edit`
-                    : 'Select →'}
-                </span>
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {stepError && !crystalOpen && <p className="mt-4 text-sm text-red-300">{stepError}</p>}
-
-      <CrystalSelectModal
-        open={crystalOpen}
-        onClose={() => setCrystalOpen(false)}
-        onComplete={onComplete}
-      />
-    </div>
-  );
 }

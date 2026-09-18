@@ -15,6 +15,7 @@ const EMPTY = {
 
 export const useSettingsStore = create((set, get) => ({
   store: EMPTY,
+  studioModes: [],
   loadedAt: 0,
   async load(force = false) {
     const now = Date.now();
@@ -29,6 +30,7 @@ export const useSettingsStore = create((set, get) => ({
       setStoreCurrency(store.currency);
       set({
         store,
+        studioModes: data.studioModes || [],
         loadedAt: Date.now(),
       });
     } catch {

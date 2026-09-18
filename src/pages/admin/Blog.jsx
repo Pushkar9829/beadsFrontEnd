@@ -7,6 +7,7 @@ import ConfirmDelete from '../../components/admin/ConfirmDelete';
 import AdminHeader, { RowActions, fieldClass, labelClass } from '../../components/admin/AdminHeader';
 import AdminToolbar, { paginate, Pagination } from '../../components/admin/AdminToolbar';
 import { toast } from '../../lib/adminToast';
+import MediaField from '../../components/admin/MediaField';
 
 const empty = {
   title: '', slug: '', excerpt: '', body: '', image: '', author: 'Kuberstones', isPublished: false,
@@ -63,10 +64,11 @@ export default function AdminBlog() {
         <form onSubmit={save} className="space-y-3">
           <label className={labelClass}>Title<input required className={`${fieldClass} mt-1`} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></label>
           <label className={labelClass}>Slug<input className={`${fieldClass} mt-1`} value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} /></label>
-          <label className={labelClass}>Image URL<input className={`${fieldClass} mt-1`} value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} /></label>
+          <MediaField label="Cover image" folder="blog" value={form.image} onChange={(image) => setForm({ ...form, image })} />
           <label className={labelClass}>Excerpt<textarea className={`${fieldClass} mt-1`} value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} /></label>
           <label className={labelClass}>Body<textarea rows={8} className={`${fieldClass} mt-1`} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} /></label>
           <label className={labelClass}>SEO title<input className={`${fieldClass} mt-1`} value={form.seo.title} onChange={(e) => setForm({ ...form, seo: { ...form.seo, title: e.target.value } })} /></label>
+          <MediaField label="OG image" folder="blog" value={form.seo.ogImage || ''} onChange={(ogImage) => setForm({ ...form, seo: { ...form.seo, ogImage } })} />
           <label className={labelClass}>Meta description<textarea className={`${fieldClass} mt-1`} value={form.seo.description} onChange={(e) => setForm({ ...form, seo: { ...form.seo, description: e.target.value } })} /></label>
           <label className="flex items-center gap-2 text-sm text-lilac"><input type="checkbox" checked={form.isPublished} onChange={(e) => setForm({ ...form, isPublished: e.target.checked })} /> Published</label>
           <div className="flex gap-2 pt-2"><Button type="submit">{editing ? 'Save' : 'Create'}</Button><Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button></div>

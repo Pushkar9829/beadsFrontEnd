@@ -9,11 +9,12 @@ import AdminHeader, { RowActions, fieldClass, labelClass } from '../../component
 import AdminToolbar, { FilterSelect, paginate, Pagination } from '../../components/admin/AdminToolbar';
 import StatusBadge from '../../components/admin/StatusBadge';
 import { toast } from '../../lib/adminToast';
+import MediaField, { MediaListField } from '../../components/admin/MediaField';
 
 const empty = {
   name: '', family: 'crystals', categoryId: '', sku: '', description: '', shortDescription: '',
   price: 0, compareAtPrice: '', stock: 0, lowStockLimit: 5, featured: false, isActive: true,
-  colorHex: '#6B3FA0', imagesText: '', collectionIds: [], rating: 5, reviewCount: '',
+  colorHex: '#6B3FA0', images: [], collectionIds: [], rating: 5, reviewCount: '',
   seo: { title: '', description: '', keywords: '', ogImage: '', noIndex: false },
   attributes: {},
 };
@@ -66,7 +67,7 @@ export default function AdminProducts() {
       categoryId: prod.categoryId?._id || prod.categoryId || '',
       collectionIds: (prod.collectionIds || []).map((c) => c._id || c),
       compareAtPrice: prod.compareAtPrice || '',
-      imagesText: (prod.images || []).join(', '),
+      images: prod.images || [],
       sku: prod.sku || '',
       rating: prod.rating ?? 5,
       reviewCount: prod.reviewCount ?? '',
@@ -92,10 +93,9 @@ export default function AdminProducts() {
       categoryId: form.categoryId || undefined,
       collectionIds: form.collectionIds,
       sku: form.sku || undefined,
-      images: form.imagesText ? form.imagesText.split(',').map((s) => s.trim()).filter(Boolean) : form.images,
+      images: Array.isArray(form.images) ? form.images.filter(Boolean) : [],
       attributes: Object.fromEntries(Object.entries(form.attributes || {}).filter(([, v]) => String(v || '').trim() !== '')),
     };
-    delete payload.imagesText;
     try {
       if (editing) await api.put(`/products/admin/${editing}`, payload);
       else await api.post('/products/admin', payload);
@@ -183,13 +183,13 @@ export default function AdminProducts() {
           <label className={labelClass}>Review count<input type="number" min="0" className={`${fieldClass} mt-1`} value={form.reviewCount} onChange={(e) => setForm({ ...form, reviewCount: e.target.value })} placeholder="Shown on product cards" /></label>
           <label className={labelClass}>Stock<input type="number" className={`${fieldClass} mt-1`} value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} /></label>
           <label className={labelClass}>Low-stock alert<input type="number" className={`${fieldClass} mt-1`} value={form.lowStockLimit} onChange={(e) => setForm({ ...form, lowStockLimit: e.target.value })} /></label>
-          <label className={labelClass}>Image URLs<input className={`${fieldClass} mt-1`} value={form.imagesText || ''} onChange={(e) => setForm({ ...form, imagesText: e.target.value })} /></label>
+          <MediaListField label="Images" folder="product" value={form.images || []} onChange={(images) => setForm({ ...form, images })} />
           <label className={labelClass}>Short description<input className={`${fieldClass} mt-1`} value={form.shortDescription} onChange={(e) => setForm({ ...form, shortDescription: e.target.value })} /></label>
           <label className={labelClass}>Description<textarea className={`${fieldClass} mt-1`} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>
           <label className={labelClass}>SEO title<input className={`${fieldClass} mt-1`} value={form.seo?.title || ''} onChange={(e) => setForm({ ...form, seo: { ...form.seo, title: e.target.value } })} /></label>
           <label className={labelClass}>Meta description<textarea className={`${fieldClass} mt-1`} value={form.seo?.description || ''} onChange={(e) => setForm({ ...form, seo: { ...form.seo, description: e.target.value } })} /></label>
           <label className={labelClass}>Keywords<input className={`${fieldClass} mt-1`} value={form.seo?.keywords || ''} onChange={(e) => setForm({ ...form, seo: { ...form.seo, keywords: e.target.value } })} /></label>
-          <label className={labelClass}>OG image<input className={`${fieldClass} mt-1`} value={form.seo?.ogImage || ''} onChange={(e) => setForm({ ...form, seo: { ...form.seo, ogImage: e.target.value } })} /></label>
+          <MediaField label="OG image" folder="product" value={form.seo?.ogImage || ''} onChange={(ogImage) => setForm({ ...form, seo: { ...form.seo, ogImage } })} />
           <label className="flex items-center gap-2 text-sm text-lilac"><input type="checkbox" checked={form.seo?.noIndex || false} onChange={(e) => setForm({ ...form, seo: { ...form.seo, noIndex: e.target.checked } })} /> No-index this product</label>
           {attributeDefs.length > 0 && (
             <div className="space-y-2 rounded-2xl border border-gold/15 p-3">

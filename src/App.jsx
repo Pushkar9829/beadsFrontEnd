@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import { useAuthStore } from './store/authStore';
 import { useCartStore } from './store/cartStore';
@@ -16,7 +16,6 @@ import CategoryPage from './pages/CategoryPage';
 import ProductPage from './pages/ProductPage';
 import AboutPage from './pages/AboutPage';
 import CustomizePage from './pages/CustomizePage';
-import CustomizeLayerPage from './pages/CustomizeLayerPage';
 import CartPage from './pages/CartPage';
 import WishlistPage from './pages/WishlistPage';
 import CheckoutPage from './pages/CheckoutPage';
@@ -64,6 +63,15 @@ import BlogPostPage from './pages/BlogPostPage';
 import FaqPage from './pages/FaqPage';
 import FlashSalePage from './pages/FlashSalePage';
 import ShopByPurposePage from './pages/ShopByPurposePage';
+import { STUDIO_PATHS } from './lib/studioFlow';
+
+// The per-path pages folded into the single flow at /customize, so their old URLs
+// (still linked from the footer and studioModes) forward into it.
+function CustomizePathRedirect() {
+  const { kind } = useParams();
+  if (!STUDIO_PATHS.includes(kind)) return <Navigate to="/customize" replace />;
+  return <Navigate to={`/customize?path=${kind}`} replace />;
+}
 
 export default function App() {
   const hydrate = useAuthStore((s) => s.hydrate);
@@ -104,7 +112,7 @@ export default function App() {
           <Route path="/p/:slug" element={<ProductPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/customize/purpose" element={<ShopByPurposePage />} />
-          <Route path="/customize/:kind" element={<CustomizeLayerPage />} />
+          <Route path="/customize/:kind" element={<CustomizePathRedirect />} />
           <Route path="/customize" element={<CustomizePage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />

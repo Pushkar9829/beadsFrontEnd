@@ -69,7 +69,7 @@ html {
   scroll-behavior: auto;
   overflow-x: hidden;
   scrollbar-width: none;
-  font-size: 14px;
+  font-size: 15.5px;
 }
 
 html::-webkit-scrollbar {
@@ -337,8 +337,8 @@ select:-webkit-autofill {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: #c6a75e;
-  transition: color 0.2s ease, text-shadow 0.2s ease, filter 0.2s ease;
+  color: #fff;
+  transition: color 0.2s ease;
 }
 
 .header-cat-link {
@@ -364,9 +364,7 @@ select:-webkit-autofill {
 .header-nav-link.is-active,
 .header-cat-link:hover,
 .header-cat-link.is-active {
-  color: #f0dcb0;
-  filter: brightness(1.18);
-  text-shadow: 0 0 14px rgba(240, 220, 176, 0.4);
+  color: #c6a75e;
 }
 
 .header-nav-link:hover::after,
@@ -815,13 +813,15 @@ select:-webkit-autofill {
 }
 
 .purpose-pick-card.is-on {
+  /* Gold on an opaque dark base — the purpose wash matches the page tint, so using
+     it here made the selected tile vanish into the background. */
   background:
-    radial-gradient(120% 80% at 50% 10%, var(--purpose-wash, rgba(198, 167, 94, 0.32)) 0%, transparent 64%),
-    color-mix(in srgb, var(--purpose-bg, #1a1a1e) 78%, white 22%);
-  border-color: var(--purpose-border, rgba(198, 167, 94, 0.7));
+    linear-gradient(rgba(198, 167, 94, 0.32), rgba(198, 167, 94, 0.32)),
+    #140c18;
+  border-color: #c6a75e;
   box-shadow:
-    0 0 0 1px var(--purpose-border, rgba(198, 167, 94, 0.12)),
-    0 16px 36px var(--purpose-glow, rgba(107, 63, 160, 0.16));
+    0 0 0 2px rgba(198, 167, 94, 0.45),
+    0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
 .purpose-pick-card.is-on:hover {
@@ -874,12 +874,23 @@ select:-webkit-autofill {
 }
 
 .purpose-pick-copy h3 {
+  display: -webkit-box;
   margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  /* The tile is a fixed square, and profession names run long. */
+  -webkit-line-clamp: 2;
   font-family: var(--font-serif);
   font-size: 0.72rem;
   font-weight: 500;
   line-height: 1.2;
   color: #f6f1e8;
+}
+
+/* Numerology picks are chosen by their number, so the numeral carries the tile. */
+.purpose-pick-copy h3.is-numeral {
+  font-size: 1.35rem;
+  line-height: 1.05;
 }
 
 .purpose-pick-copy p {
@@ -1120,18 +1131,20 @@ main.has-purpose-tone .lotus-corner {
 }
 
 main.has-purpose-tone .studio-chip {
-  border-color: var(--purpose-border, rgba(198, 167, 94, 0.18));
+  border-color: var(--purpose-border, rgba(198, 167, 94, 0.3));
 }
 
 main.has-purpose-tone .studio-chip.is-on,
 main.has-purpose-tone .studio-chip.is-done {
-  border-color: var(--purpose-border, rgba(198, 167, 94, 0.7));
+  border-color: #c6a75e;
   color: #f6f1e8;
-  background: color-mix(in srgb, var(--purpose-wash, rgba(198, 167, 94, 0.08)) 55%, transparent);
+  background:
+    linear-gradient(rgba(198, 167, 94, 0.32), rgba(198, 167, 94, 0.32)),
+    #140c18;
 }
 
 main.has-purpose-tone .studio-chip-rule {
-  background: var(--purpose-border, rgba(198, 167, 94, 0.28));
+  background: var(--purpose-border, rgba(198, 167, 94, 0.38));
 }
 
 main.has-purpose-tone .studio-select,
@@ -1142,8 +1155,12 @@ main.has-purpose-tone .gold-border {
 
 main.has-purpose-tone .studio-select:focus,
 main.has-purpose-tone .studio-qty-btn.is-on {
-  border-color: var(--purpose-border, #c6a75e);
-  background: color-mix(in srgb, var(--purpose-bg, #121214) 70%, #121214 30%);
+  border-color: #c6a75e;
+  background:
+    linear-gradient(rgba(198, 167, 94, 0.32), rgba(198, 167, 94, 0.32)),
+    #140c18;
+  color: #f6f1e8;
+  box-shadow: 0 0 0 2px rgba(198, 167, 94, 0.4);
 }
 
 main.has-purpose-tone .studio-birth-kicker,
@@ -1165,9 +1182,15 @@ main.has-purpose-tone .studio-preview {
     0 18px 40px var(--purpose-glow, rgba(107, 63, 160, 0.1));
 }
 
-main.has-purpose-tone .studio-dock {
+main.has-purpose-tone .studio-actions {
   border-top-color: var(--purpose-border, rgba(198, 167, 94, 0.28));
   background: color-mix(in srgb, var(--purpose-bg, rgba(8, 8, 10, 0.92)) 82%, rgba(8, 8, 10, 0.94) 18%);
+}
+
+@media (min-width: 1024px) {
+  main.has-purpose-tone .studio-actions {
+    background: none;
+  }
 }
 
 main.has-purpose-tone .gold-btn {
@@ -1180,8 +1203,9 @@ main.has-purpose-tone .gold-btn:hover {
   background: color-mix(in srgb, var(--purpose-bg, #1a1a1e) 55%, #1a1a1e 45%);
 }
 
-main.has-purpose-tone .studio-nav {
-  border-top-color: var(--purpose-border, rgba(198, 167, 94, 0.2));
+main.has-purpose-tone .studio-chosen {
+  border-color: var(--purpose-border, rgba(198, 167, 94, 0.4));
+  background: color-mix(in srgb, var(--purpose-well, rgba(198, 167, 94, 0.12)) 55%, transparent);
 }
 
 .has-purpose-tone .studio-modal-scrim {
@@ -1216,11 +1240,11 @@ main.has-purpose-tone .studio-nav {
 .has-purpose-tone .studio-size-card.is-on,
 .has-purpose-tone .studio-crystal.is-on,
 .has-purpose-tone .studio-crystal-tile.is-on {
-  border-color: var(--purpose-border, rgba(198, 167, 94, 0.7));
+  border-color: #c6a75e;
   background:
-    radial-gradient(ellipse at 50% 0%, var(--purpose-wash, transparent) 0%, transparent 64%),
-    color-mix(in srgb, var(--purpose-bg, #1a1a1e) 55%, #1a1a1e 45%);
-  box-shadow: 0 0 0 1px var(--purpose-glow, rgba(198, 167, 94, 0.12));
+    linear-gradient(rgba(198, 167, 94, 0.28), rgba(198, 167, 94, 0.28)),
+    #140c18;
+  box-shadow: 0 0 0 2px rgba(198, 167, 94, 0.4);
 }
 
 .has-purpose-tone .studio-size-price,
@@ -1277,10 +1301,11 @@ main.has-purpose-tone .studio-nav {
 .studio-steps {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
   margin-top: 1.5rem;
   overflow-x: auto;
-  padding: 0 0 0.15rem;
+  /* Room for the active chip's ring, which the scroll container would otherwise clip. */
+  padding: 0.3rem 0.2rem 0.4rem;
   list-style: none;
 }
 
@@ -1288,53 +1313,68 @@ main.has-purpose-tone .studio-nav {
   content: none;
 }
 
+/* The rail sits over the nebula backdrop, so every chip carries its own dark backing
+   rather than relying on the page behind it. */
 .studio-chip {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.5rem;
   flex-shrink: 0;
   white-space: nowrap;
-  padding: 0.32rem 0.6rem;
+  padding: 0.45rem 0.8rem;
   border-radius: 999px;
-  border: 1px solid rgba(198, 167, 94, 0.18);
-  background: transparent;
-  color: #b7a9c4;
-  font-size: 0.56rem;
-  letter-spacing: 0.16em;
+  border: 1px solid rgba(198, 167, 94, 0.3);
+  background: rgba(10, 4, 22, 0.62);
+  color: #cabedc;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .studio-chip-n {
   font-family: var(--font-serif);
-  font-size: 0.85rem;
+  font-size: 1rem;
+  line-height: 1;
   letter-spacing: 0;
   text-transform: none;
+  opacity: 0.85;
 }
 
+/* Current step: gold tint layered on the dark backing so it stays opaque, plus a ring
+   to lift it above the rest of the rail. */
 .studio-chip.is-on {
-  border-color: rgba(198, 167, 94, 0.7);
+  border-color: #c6a75e;
+  color: #f6f1e8;
+  background: linear-gradient(rgba(198, 167, 94, 0.2), rgba(198, 167, 94, 0.2)),
+    rgba(10, 4, 22, 0.88);
+  box-shadow: 0 0 0 3px rgba(198, 167, 94, 0.16);
+}
+
+.studio-chip.is-on .studio-chip-n {
   color: #c6a75e;
-  background: rgba(198, 167, 94, 0.08);
+  opacity: 1;
 }
 
 .studio-chip.is-done {
-  border-color: rgba(198, 167, 94, 0.45);
+  border-color: rgba(198, 167, 94, 0.5);
   color: #c6a75e;
+  background: rgba(10, 4, 22, 0.78);
 }
 
 .studio-chip:disabled {
-  opacity: 0.4;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
 .studio-chip-rule {
   display: none;
-  width: 1.1rem;
+  width: 1.25rem;
   height: 1px;
   flex-shrink: 0;
-  background: rgba(198, 167, 94, 0.28);
+  background: rgba(198, 167, 94, 0.38);
 }
 
 .studio-stage {
@@ -1703,6 +1743,13 @@ main.has-purpose-tone .studio-nav {
   color: #f6f1e8;
 }
 
+.studio-charm-thumb {
+  display: block;
+  width: 2.6rem;
+  height: 2.6rem;
+  object-fit: contain;
+}
+
 .studio-charm-card span {
   font-size: 0.68rem;
   line-height: 1.35;
@@ -1710,8 +1757,11 @@ main.has-purpose-tone .studio-nav {
 }
 
 .studio-charm-card.is-on {
-  border-color: rgba(198, 167, 94, 0.7);
-  background: rgba(198, 167, 94, 0.08);
+  border-color: #c6a75e;
+  color: #f6f1e8;
+  background: linear-gradient(rgba(198, 167, 94, 0.2), rgba(198, 167, 94, 0.2)),
+    rgba(10, 4, 22, 0.88);
+  box-shadow: 0 0 0 3px rgba(198, 167, 94, 0.16);
 }
 
 .studio-size-row {
@@ -1920,6 +1970,143 @@ main.has-purpose-tone .studio-nav {
   cursor: not-allowed;
 }
 
+.studio-chosen {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(198, 167, 94, 0.4);
+  background: rgba(198, 167, 94, 0.07);
+}
+
+.studio-chosen-copy {
+  display: block;
+  min-width: 0;
+}
+
+.studio-chosen-copy strong {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: #f6f1e8;
+}
+
+.studio-chosen-copy em {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.4;
+  color: #b7a9c4;
+}
+
+.studio-chosen button {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #c6a75e;
+}
+
+.studio-chosen button:hover {
+  color: #f6f1e8;
+}
+
+.studio-pick-count {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.studio-pick-count span:first-child {
+  color: #c6a75e;
+}
+
+.studio-pick-count span:last-child {
+  color: #b7a9c4;
+}
+
+.studio-pick-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.7rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(198, 167, 94, 0.22);
+  background: rgba(18, 18, 20, 0.9);
+}
+
+.studio-pick-row.is-on {
+  border-color: #c6a75e;
+  background:
+    linear-gradient(rgba(198, 167, 94, 0.28), rgba(198, 167, 94, 0.28)),
+    #140c18;
+  box-shadow: 0 0 0 2px rgba(198, 167, 94, 0.4);
+}
+
+.studio-pick-main {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.studio-pick-row.is-on .studio-bead-box {
+  border-color: #c6a75e;
+  background: #c6a75e;
+}
+
+.studio-pick-row .studio-bead-box svg {
+  display: block;
+  stroke: #0b0b0d;
+}
+
+.studio-pick-roles {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #b7a9c4;
+}
+
+.studio-pick-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.studio-pick-info {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 999px;
+  color: #b7a9c4;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.studio-pick-info:hover {
+  background: rgba(198, 167, 94, 0.1);
+  color: #f6f1e8;
+}
+
 .studio-bead-name {
   font-family: var(--font-serif);
   font-size: 1rem;
@@ -1983,21 +2170,88 @@ main.has-purpose-tone .studio-nav {
   }
 }
 
-.studio-nav {
-  display: none;
-  margin-top: 1.75rem;
-  padding-top: 1.15rem;
-  border-top: 1px solid rgba(198, 167, 94, 0.2);
-}
-
-.studio-dock {
+/* One navigation bar for the whole flow: pinned to the viewport on small screens,
+   inline at the foot of the pane once the sticky preview appears. */
+.studio-actions {
   position: fixed;
   inset-inline: 0;
   bottom: 0;
   z-index: 45;
   border-top: 1px solid rgba(198, 167, 94, 0.28);
   background: rgba(8, 8, 10, 0.96);
-  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  padding: 0.7rem 0 calc(0.7rem + env(safe-area-inset-bottom));
+}
+
+.studio-actions-shell {
+  width: min(72rem, 100%);
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.studio-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.studio-actions-hint {
+  margin-bottom: 0.55rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #b7a9c4;
+}
+
+.studio-actions-hint.is-error {
+  color: #fca5a5;
+}
+
+.studio-actions-back {
+  flex-shrink: 0;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #b7a9c4;
+  cursor: pointer;
+}
+
+.studio-actions-back:hover:not(:disabled) {
+  color: #c6a75e;
+}
+
+.studio-actions-back:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.studio-actions-meta {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  text-align: center;
+}
+
+.studio-actions-meta span {
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #b7a9c4;
+}
+
+.studio-actions-meta strong {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 400;
+  white-space: nowrap;
+  color: #c6a75e;
+}
+
+.studio-actions-next {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .studio-layout {
@@ -2024,16 +2278,20 @@ main.has-purpose-tone .studio-nav {
   height: 2.35rem;
   padding: 0 0.7rem;
   border-radius: 999px;
-  border: 1px solid rgba(198, 167, 94, 0.28);
-  color: #b7a9c4;
+  border: 1px solid rgba(198, 167, 94, 0.3);
+  background: rgba(10, 4, 22, 0.62);
+  color: #cabedc;
   font-size: 0.8rem;
-  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .studio-qty-btn.is-on {
-  border-color: rgba(198, 167, 94, 0.7);
-  color: #c6a75e;
-  background: rgba(198, 167, 94, 0.08);
+  border-color: #c6a75e;
+  color: #f6f1e8;
+  background: linear-gradient(rgba(198, 167, 94, 0.2), rgba(198, 167, 94, 0.2)),
+    rgba(10, 4, 22, 0.88);
+  box-shadow: 0 0 0 3px rgba(198, 167, 94, 0.16);
 }
 
 @media (min-width: 640px) {
@@ -2043,6 +2301,15 @@ main.has-purpose-tone .studio-nav {
 
   .studio-chip-rule {
     display: block;
+  }
+
+  .studio-chip {
+    padding: 0.5rem 0.95rem;
+    font-size: 0.7rem;
+  }
+
+  .studio-chip-n {
+    font-size: 1.05rem;
   }
 
   .studio-stage {
@@ -2067,16 +2334,23 @@ main.has-purpose-tone .studio-nav {
     top: calc(var(--header-h, 5.5rem) + 1rem);
   }
 
-  .studio-nav {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
+  .studio-actions {
+    position: static;
+    z-index: auto;
+    margin-top: 1.75rem;
+    padding: 1.15rem 0 0;
+    background: none;
+    border-top: 1px solid rgba(198, 167, 94, 0.2);
   }
 
-  .studio-dock {
-    display: none;
+  .studio-actions-shell {
+    width: 100%;
+    padding: 0;
+  }
+
+  .studio-actions-meta {
+    align-items: flex-end;
+    text-align: right;
   }
 }
 
@@ -2880,7 +3154,6 @@ main.has-purpose-tone .studio-nav {
 .store-canvas .hero-stage .text-lilac,
 .store-canvas .footer-link,
 .store-canvas footer .text-lilac,
-.store-canvas .studio-nav .text-lilac,
 .store-canvas .studio-pane .text-lilac {
   color: #fff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.62);
@@ -2913,9 +3186,8 @@ main.has-purpose-tone .studio-nav {
 .store-canvas .faq-item .text-lilac,
 .store-canvas .studio-invite-copy .text-lilac,
 .store-canvas .studio-charm-card .text-lilac,
-.store-canvas .studio-dock .text-lilac,
+.store-canvas .studio-actions .text-lilac,
 .store-canvas .layer-pick-card .text-lilac,
-.store-canvas .layer-continue .text-lilac,
 .store-canvas .footer-invite .text-lilac,
 .store-canvas .finale .text-lilac,
 .store-canvas .bg-surface .text-lilac,
@@ -2998,6 +3270,25 @@ main.has-purpose-tone .studio-nav {
     color-mix(in srgb, var(--purpose-bg, rgba(12, 5, 24, 0.86)) 86%, #0c0518);
 }
 
+/* Selected tiles must not inherit the canvas glass or the purpose wash — both
+   match the nebula and hide the pick. Gold over opaque plum stays readable. */
+.store-canvas .purpose-pick-card.is-on,
+.store-canvas .studio-charm-card.is-on,
+.store-canvas .studio-qty-btn.is-on,
+.store-canvas .studio-pick-row.is-on,
+.store-canvas .layer-pick-card.is-on,
+.store-canvas .studio-chip.is-on,
+.store-canvas .studio-chip.is-done {
+  background:
+    linear-gradient(rgba(198, 167, 94, 0.32), rgba(198, 167, 94, 0.32)),
+    #140c18;
+  border-color: #c6a75e;
+  color: #f6f1e8;
+  box-shadow: 0 0 0 2px rgba(198, 167, 94, 0.4);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 .store-canvas .studio-chip:not(.is-on):not(.is-done),
 .store-canvas .studio-mode-chip:not(.is-on) {
   background: rgba(10, 4, 22, 0.72);
@@ -3014,7 +3305,9 @@ main.has-purpose-tone .studio-nav {
 }
 
 .store-canvas .layer-pick-card.is-on {
-  background: rgba(198, 167, 94, 0.14);
+  background:
+    linear-gradient(rgba(198, 167, 94, 0.32), rgba(198, 167, 94, 0.32)),
+    #140c18;
 }
 
 .store-canvas .house-card-media::after,
@@ -4027,6 +4320,108 @@ header {
 
   .hero-draw-stroke {
     stroke-width: 5.2;
+  }
+
+  /* Stop iOS zooming inputs that are smaller than 16px. */
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='color']),
+  textarea,
+  select,
+  .studio-select,
+  .studio-birth-fields .studio-select {
+    font-size: 16px;
+  }
+
+  .purpose-pick {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+    gap: 0.45rem;
+  }
+
+  .purpose-pick-card {
+    max-width: none;
+    padding: 0.4rem 0.32rem 0.38rem;
+  }
+
+  .purpose-pick-copy h3 {
+    font-size: 0.66rem;
+  }
+
+  .purpose-pick-copy h3.is-numeral {
+    font-size: 1.15rem;
+  }
+
+  .studio-chip {
+    padding: 0.36rem 0.55rem;
+    font-size: 0.56rem;
+    gap: 0.28rem;
+  }
+
+  .studio-chip-n {
+    font-size: 0.88rem;
+  }
+
+  .studio-actions-row {
+    flex-wrap: wrap;
+    gap: 0.5rem 0.65rem;
+  }
+
+  .studio-actions-meta strong {
+    font-size: 0.88rem;
+    white-space: normal;
+  }
+
+  .studio-actions-next {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .studio-charm-card {
+    min-height: 0;
+    padding: 0.55rem 0.5rem 0.5rem;
+  }
+
+  .studio-charm-card strong {
+    font-size: 0.82rem;
+  }
+
+  .studio-charm-card span {
+    font-size: 0.62rem;
+  }
+
+  .studio-pick-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .studio-pick-actions {
+    justify-content: flex-end;
+    padding-left: 2.4rem;
+  }
+
+  .studio-chosen {
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .studio-birth-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .layer-pick {
+    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  }
+
+  .studio-size-row,
+  .studio-crystal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bag-card-price-row {
+    margin-left: 0;
+  }
+
+  .crumbs ol {
+    flex-wrap: wrap;
+    row-gap: 0.2rem;
   }
 }
 

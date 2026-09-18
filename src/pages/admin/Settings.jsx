@@ -137,7 +137,7 @@ export default function AdminSettings() {
         {tab === 'general' && (
           <>
             <label className={labelClass}>Store name<input className={`${fieldClass} mt-1`} value={form.storeName} onChange={(e) => setForm({ ...form, storeName: e.target.value })} /></label>
-            <MediaField label="Logo" value={form.logo} onChange={(logo) => setForm({ ...form, logo })} />
+            <MediaField label="Logo" folder="logo" value={form.logo} onChange={(logo) => setForm({ ...form, logo })} />
             <label className={labelClass}>Email<input className={`${fieldClass} mt-1`} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
             <label className={labelClass}>Phone<input className={`${fieldClass} mt-1`} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label>
             <label className={labelClass}>Currency<input className={`${fieldClass} mt-1`} value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} placeholder="INR" /></label>
@@ -281,7 +281,7 @@ export default function AdminSettings() {
             <label className={labelClass}>Default title<input className={`${fieldClass} mt-1`} value={form.seo.title} onChange={(e) => setForm({ ...form, seo: { ...form.seo, title: e.target.value } })} /></label>
             <label className={labelClass}>Meta description<textarea className={`${fieldClass} mt-1`} value={form.seo.description} onChange={(e) => setForm({ ...form, seo: { ...form.seo, description: e.target.value } })} /></label>
             <label className={labelClass}>Keywords<input className={`${fieldClass} mt-1`} value={form.seo.keywords} onChange={(e) => setForm({ ...form, seo: { ...form.seo, keywords: e.target.value } })} /></label>
-            <label className={labelClass}>OG image<input className={`${fieldClass} mt-1`} value={form.seo.ogImage} onChange={(e) => setForm({ ...form, seo: { ...form.seo, ogImage: e.target.value } })} /></label>
+            <MediaField label="OG image" folder="logo" value={form.seo.ogImage} onChange={(ogImage) => setForm({ ...form, seo: { ...form.seo, ogImage } })} />
             <label className="flex items-center gap-2 text-sm text-lilac"><input type="checkbox" checked={form.seo.noIndex} onChange={(e) => setForm({ ...form, seo: { ...form.seo, noIndex: e.target.checked } })} /> No-index the store</label>
           </>
         )}

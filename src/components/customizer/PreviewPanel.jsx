@@ -14,31 +14,26 @@ export default function PreviewPanel({ mobile }) {
   const charm = useCustomizerStore((s) => s.charm);
   const finish = useCustomizerStore((s) => s.finish);
   const wristSize = useCustomizerStore((s) => s.wristSize);
-  const config = useCustomizerStore((s) => s.config);
   const clearBuild = useCustomizerStore((s) => s.clearBuild);
   const setStep = useCustomizerStore((s) => s.setStep);
   const previewOpen = useCustomizerStore((s) => s.previewOpen);
   const setPreviewOpen = useCustomizerStore((s) => s.setPreviewOpen);
-  const calibration = useCustomizerStore((s) => s.calibration);
   const threadType = useCustomizerStore((s) => s.threadType);
 
   const body = (
     <>
       <BraceletPreview
         lines={quote.lines}
-        layout={calibration?.layout}
         wristSize={wristSize}
         finish={finish}
         charm={charm}
         compact={mobile}
       />
       <p className="bag-summary-kicker mt-4">Live strand</p>
-      <h2 className="bag-summary-title gold-text">{intention?.name || layer?.name || purpose?.name || 'Custom strand'}</h2>
+      <h2 className="bag-summary-title gold-text">{intention?.braceletName || intention?.name || layer?.name || purpose?.name || 'Custom strand'}</h2>
       <p className="mt-1 text-sm text-lilac">
-        {layer ? `${layer.modeLabel} · ${layer.name}` : (purpose?.name || 'Purpose pending')}
-        {!layer && intention ? ` · ${intention.name}` : ''}
-        {calibration?.mulank ? ` · Mulank ${calibration.mulank}` : ''}
-        {calibration?.zodiac?.sign ? ` · ${calibration.zodiac.sign}` : ''}
+        {layer ? `${layer.modeLabel} · ${layer.name}` : purpose?.name || 'Selection pending'}
+        {!layer && intention ? ` · ${intention.braceletName || intention.name}` : ''}
       </p>
       <dl className="bag-summary-rows">
         {(quote.lines || []).map((l) => (
@@ -47,13 +42,15 @@ export default function PreviewPanel({ mobile }) {
             <dd><Price value={l.subtotal} /></dd>
           </div>
         ))}
-        <div>
-          <dt>{charm?.name}</dt>
-          <dd><Price value={quote.charmPrice} /></dd>
-        </div>
+        {(quote.packaging?.lines || []).map((row) => (
+          <div key={row.key}>
+            <dt>{row.label}</dt>
+            <dd><Price value={row.amount} /></dd>
+          </div>
+        ))}
         <div>
           <dt>{formatWristChoice(threadType, wristSize)}</dt>
-          <dd>{quote.beadCount} / {config?.beadLimit} beads</dd>
+          <dd>{quote.beadCount} beads</dd>
         </div>
         <div className="bag-summary-total">
           <dt>Live total</dt>
@@ -64,15 +61,9 @@ export default function PreviewPanel({ mobile }) {
         <p className="mt-3 text-xs text-red-300">{quote.errors.join(' ')}</p>
       )}
       <div className="mt-4 flex justify-between gap-3">
-        {layer ? (
-          <button type="button" className="bag-summary-clear" onClick={() => navigate(layer.path)}>
-            Edit selection
-          </button>
-        ) : (
-          <button type="button" className="bag-summary-clear" onClick={() => setStep(1)}>
-            Edit purpose
-          </button>
-        )}
+        <button type="button" className="bag-summary-clear" onClick={() => setStep(1)}>
+          Edit selection
+        </button>
         <button
           type="button"
           className="bag-summary-clear"

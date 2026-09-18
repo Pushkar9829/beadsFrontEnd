@@ -30,15 +30,24 @@ export function parseWristInches(size = '6.5"') {
 }
 
 export const THREAD_TYPES = [
-  { key: 'korean-elastic', label: 'Korean elastic thread', detail: 'Free size' },
-  { key: 'steel-core', label: 'Steel core thread', detail: 'Choose a wrist size' },
+  { key: 'korean-elastic', label: 'Korean elastic thread', detail: 'Free-size fit' },
+  { key: 'steel-core', label: 'Steel core thread', detail: 'Cut to your wrist size' },
 ];
 
-export function formatWristChoice(threadType, wristSize) {
+export function strandBeadCount(wristSize, beadSizeMm, { min = 8, max = 32 } = {}) {
+  const inches = parseWristInches(wristSize);
+  const mm = Number(beadSizeMm) || 8;
+  const count = Math.round((inches * 25.4) / mm);
+  return Math.max(min, Math.min(max, count));
+}
+
+export function formatWristChoice(threadType, wristSize, threadTypes) {
+  const row = (threadTypes || THREAD_TYPES).find((t) => t.key === threadType);
+  if (row) return `${row.label} · ${wristSize || '6.5"'}${row.detail ? ` (${row.detail})` : ''}`;
   if (threadType === 'steel-core') {
     return `Steel core thread · ${wristSize || '6.5"'}`;
   }
-  return 'Korean elastic thread · Free size';
+  return `Korean elastic thread · ${wristSize || '6.5"'} (free-size fit)`;
 }
 
 export const FAMILIES = [

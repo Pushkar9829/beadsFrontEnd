@@ -94,7 +94,7 @@ export default function AdminCategories() {
           </label>
           <label className={labelClass}>Sort<input type="number" className={`${fieldClass} mt-1`} value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: e.target.value })} /></label>
           <label className={labelClass}>Description<textarea className={`${fieldClass} mt-1`} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>
-          <MediaField label="Image" value={form.image} onChange={(image) => setForm({ ...form, image })} />
+          <MediaField label="Image" folder="category" value={form.image} onChange={(image) => setForm({ ...form, image })} />
           <label className={labelClass}>SEO title<input className={`${fieldClass} mt-1`} value={form.seo?.title || ''} onChange={(e) => setForm({ ...form, seo: { ...form.seo, title: e.target.value } })} /></label>
           <label className={labelClass}>Meta description<textarea className={`${fieldClass} mt-1`} value={form.seo?.description || ''} onChange={(e) => setForm({ ...form, seo: { ...form.seo, description: e.target.value } })} /></label>
           <label className="flex items-center gap-2 text-sm text-lilac">

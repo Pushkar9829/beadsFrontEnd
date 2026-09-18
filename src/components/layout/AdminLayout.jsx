@@ -264,7 +264,7 @@ export default function AdminLayout() {
             <button type="button" className="text-ivory md:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu">
               <Menu size={18} />
             </button>
-            <div className="text-sm text-lilac">Signed in as {user?.email}</div>
+            <div className="max-w-[11rem] truncate text-sm text-lilac sm:max-w-none">Signed in as {user?.email}</div>
           </div>
           <div className="flex items-center gap-4">
             <Link to="/admin/notifications" className="relative text-gold">

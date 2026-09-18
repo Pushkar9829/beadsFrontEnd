@@ -1,4 +1,5 @@
 import { useCustomizerStore } from '../../store/customizerStore';
+import { mediaUrl } from '../../api/client';
 import loveIcon from '../../assets/purposes/love-3d.png';
 import moneyIcon from '../../assets/purposes/purpose-money.png';
 import careerIcon from '../../assets/purposes/purpose-career.png';
@@ -29,16 +30,18 @@ const LOOKS = [
   { match: /balance/i, emoji: '⚖️' },
 ];
 
+// Matched against slug, name, description and theme, so the zodiac, planetary,
+// profession and numerology grids resolve to the same artwork as the purposes.
 const IMAGES = [
   { match: /love|relation/i, src: loveIcon },
-  { match: /money|abund/i, src: moneyIcon },
+  { match: /money|abund|prosper/i, src: moneyIcon },
   { match: /career|success/i, src: careerIcon },
   { match: /confidence|power/i, src: confidenceIcon },
   { match: /protect|ground/i, src: protectionIcon },
   { match: /focus|clarit/i, src: focusIcon },
   { match: /calm|emotion/i, src: calmIcon },
   { match: /sleep|relax/i, src: sleepIcon },
-  { match: /energy|vital/i, src: energyIcon },
+  { match: /energy|vital|courage|strength|passion/i, src: energyIcon },
   { match: /spirit/i, src: spiritIcon },
   { match: /begin/i, src: beginningsIcon },
   { match: /communicat|express/i, src: communicationIcon },
@@ -163,8 +166,16 @@ const FALLBACK_TONES = [
   },
 ];
 
+// Layer items (zodiac, planets, professions, numbers) carry their meaning in `theme`
+// rather than `description`, so both feed the tone match.
 function haystack(item) {
-  return `${item.slug || ''} ${item.name || ''} ${item.description || ''}`;
+  return `${item.slug || ''} ${item.name || ''} ${item.description || ''} ${item.theme || ''}`;
+}
+
+// Artwork deliberately ignores `description`: a purpose whose blurb happens to mention
+// an earlier pattern's keyword would otherwise be pulled off its own icon.
+function iconHaystack(item) {
+  return `${item.slug || ''} ${item.name || ''} ${item.theme || ''}`;
 }
 
 export function purposeToneStyle(item) {
@@ -176,14 +187,16 @@ export function purposeToneStyle(item) {
   return FALLBACK_TONES[hash % FALLBACK_TONES.length];
 }
 
-export function emojiFor(purpose) {
-  const hay = `${purpose.slug || ''} ${purpose.name || ''}`;
+function emojiFor(purpose) {
+  const hay = iconHaystack(purpose);
   return purpose.icon || LOOKS.find((item) => item.match.test(hay))?.emoji || '✨';
 }
 
 export function PurposeIcon({ purpose }) {
-  const hay = `${purpose.slug || ''} ${purpose.name || ''}`;
-  const src = IMAGES.find((item) => item.match.test(hay))?.src;
+  if (purpose?.image) {
+    return <img src={mediaUrl(purpose.image)} alt="" className="purpose-pick-icon" />;
+  }
+  const src = IMAGES.find((item) => item.match.test(iconHaystack(purpose)))?.src;
   if (src) {
     return <img src={src} alt="" className="purpose-pick-icon" />;
   }
@@ -191,8 +204,8 @@ export function PurposeIcon({ purpose }) {
 }
 
 export function purposeHasImage(purpose) {
-  const hay = `${purpose.slug || ''} ${purpose.name || ''}`;
-  return IMAGES.some((item) => item.match.test(hay));
+  if (purpose?.image) return true;
+  return IMAGES.some((item) => item.match.test(iconHaystack(purpose)));
 }
 
 export default function PurposeGrid() {
@@ -202,14 +215,12 @@ export default function PurposeGrid() {
 
   return (
     <div className="purpose-pick">
-      {purposes.map((p) => {
-        const on = selected?._id === p._id;
-        return (
+      {purposes.map((p) => (
           <button
             key={p._id}
             type="button"
             onClick={() => selectPurpose(p)}
-            className={`purpose-pick-card ${on ? 'is-on' : ''}`}
+            className={`purpose-pick-card ${String(selected?._id) === String(p._id) ? 'is-on' : ''}`}
             style={purposeToneStyle(p)}
           >
             <span className={`purpose-pick-emoji ${purposeHasImage(p) ? 'is-image' : ''}`} aria-hidden>
@@ -220,8 +231,7 @@ export default function PurposeGrid() {
               <p>{p.description}</p>
             </span>
           </button>
-        );
-      })}
+      ))}
     </div>
   );
 }

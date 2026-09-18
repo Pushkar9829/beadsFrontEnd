@@ -425,7 +425,7 @@ export default function AdminContent() {
               <Field label="Brand name" value={draft.brandName} onChange={(brandName) => setDraft({ ...draft, brandName })} />
               <Field label="Headline" value={draft.title} onChange={(title) => setDraft({ ...draft, title })} />
               <Field label="Subtitle" textarea value={draft.subtitle} onChange={(subtitle) => setDraft({ ...draft, subtitle })} />
-              <MediaField label="Hero image" value={draft.image} onChange={(image) => setDraft({ ...draft, image })} />
+              <MediaField label="Hero image" folder="banner" value={draft.image} onChange={(image) => setDraft({ ...draft, image })} />
               <Field label="Image alt text" value={draft.imageAlt} onChange={(imageAlt) => setDraft({ ...draft, imageAlt })} />
               <CtaFields legend="Primary button" value={draft.primaryCta} onChange={(primaryCta) => setDraft({ ...draft, primaryCta })} />
               <CtaFields legend="Secondary button" value={draft.secondaryCta} onChange={(secondaryCta) => setDraft({ ...draft, secondaryCta })} />
@@ -498,7 +498,7 @@ export default function AdminContent() {
                     items[i] = { ...item, cta };
                     setDraft({ ...draft, items });
                   }} />
-                  <MediaField label="House image" value={item.image} onChange={(image) => {
+                  <MediaField label="House image" folder="banner" value={item.image} onChange={(image) => {
                     const items = [...draft.items];
                     items[i] = { ...item, image };
                     setDraft({ ...draft, items });
@@ -515,7 +515,7 @@ export default function AdminContent() {
               <Field label="Body" textarea value={draft.body} onChange={(body) => setDraft({ ...draft, body })} />
               <Field label="Section link label" value={draft.action} onChange={(action) => setDraft({ ...draft, action })} />
               <Field label="Section link" value={draft.to} onChange={(to) => setDraft({ ...draft, to })} />
-              <MediaField label="Studio banner" value={draft.bannerImage} onChange={(bannerImage) => setDraft({ ...draft, bannerImage })} />
+              <MediaField label="Studio banner" folder="studio" value={draft.bannerImage} onChange={(bannerImage) => setDraft({ ...draft, bannerImage })} />
               <Field label="Banner kicker" value={draft.kicker} onChange={(kicker) => setDraft({ ...draft, kicker })} />
               <Field label="Banner heading" value={draft.heading} onChange={(heading) => setDraft({ ...draft, heading })} />
               <Field label="Banner copy" textarea value={draft.copy} onChange={(copy) => setDraft({ ...draft, copy })} />
@@ -571,7 +571,7 @@ export default function AdminContent() {
             <>
               <Field label="Header name" value={draft.name} onChange={(name) => setDraft({ ...draft, name })} />
               <Field label="Header tagline" value={draft.tagline} onChange={(tagline) => setDraft({ ...draft, tagline })} />
-              <MediaField label="Logo (optional, Settings logo wins if set)" value={draft.logo} onChange={(logo) => setDraft({ ...draft, logo })} />
+              <MediaField label="Logo (optional, Settings logo wins if set)" folder="logo" value={draft.logo} onChange={(logo) => setDraft({ ...draft, logo })} />
               <Field label="Customization nav label" value={draft.customizeLabel} onChange={(customizeLabel) => setDraft({ ...draft, customizeLabel })} />
               <Field label="Collections nav label" value={draft.collectionsLabel} onChange={(collectionsLabel) => setDraft({ ...draft, collectionsLabel })} />
               <Field label="Shop All nav label" value={draft.shopAllLabel} onChange={(shopAllLabel) => setDraft({ ...draft, shopAllLabel })} />
@@ -675,6 +675,7 @@ export default function AdminContent() {
                   }} />
                   <MediaField
                     label="Photo or video"
+                    folder="other"
                     accept="image/*,video/mp4,video/webm,video/quicktime"
                     value={t.media}
                     onChange={(media) => {
@@ -732,7 +733,7 @@ export default function AdminContent() {
 
           {section === 'finale' && draft && (
             <>
-              <MediaField label="Finale image" value={draft.image} onChange={(image) => setDraft({ ...draft, image })} />
+              <MediaField label="Finale image" folder="banner" value={draft.image} onChange={(image) => setDraft({ ...draft, image })} />
               <Field label="Kicker" value={draft.kicker} onChange={(kicker) => setDraft({ ...draft, kicker })} />
               <Field label="Title" value={draft.title} onChange={(title) => setDraft({ ...draft, title })} />
               <Field label="Copy" textarea value={draft.copy} onChange={(copy) => setDraft({ ...draft, copy })} />
@@ -826,8 +827,8 @@ export default function AdminContent() {
 
           {section === 'footer' && draft && (
             <>
-              <MediaField label="Banner image" value={draft.bannerImage} onChange={(bannerImage) => setDraft({ ...draft, bannerImage })} />
-              <MediaField label="Footer logo" value={draft.logo} onChange={(logo) => setDraft({ ...draft, logo })} />
+              <MediaField label="Banner image" folder="banner" value={draft.bannerImage} onChange={(bannerImage) => setDraft({ ...draft, bannerImage })} />
+              <MediaField label="Footer logo" folder="logo" value={draft.logo} onChange={(logo) => setDraft({ ...draft, logo })} />
               <Field label="Kicker" value={draft.kicker} onChange={(kicker) => setDraft({ ...draft, kicker })} />
               <Field label="Title" value={draft.title} onChange={(title) => setDraft({ ...draft, title })} />
               <Field label="Copy" textarea value={draft.copy} onChange={(copy) => setDraft({ ...draft, copy })} />
@@ -872,7 +873,7 @@ export default function AdminContent() {
               <Field label="Eyebrow" value={draft.eyebrow} onChange={(eyebrow) => setDraft({ ...draft, eyebrow })} />
               <Field label="Link label" value={draft.action} onChange={(action) => setDraft({ ...draft, action })} />
               <Field label="Link" value={draft.to} onChange={(to) => setDraft({ ...draft, to })} />
-              <MediaField label="Portrait image" value={draft.image} onChange={(image) => setDraft({ ...draft, image })} />
+              <MediaField label="Portrait image" folder="other" value={draft.image} onChange={(image) => setDraft({ ...draft, image })} />
             </>
           )}
 
@@ -942,6 +943,11 @@ export default function AdminContent() {
                   <Field label="Body" textarea value={step.body} onChange={(body) => {
                     const steps = [...draft.steps];
                     steps[i] = { ...step, body };
+                    setDraft({ ...draft, steps });
+                  }} />
+                  <Field label="Hint" value={step.hint} onChange={(hint) => {
+                    const steps = [...draft.steps];
+                    steps[i] = { ...step, hint };
                     setDraft({ ...draft, steps });
                   }} />
                 </div>

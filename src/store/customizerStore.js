@@ -1,11 +1,42 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
 import api from '../api/client';
-import { calibrateLocal, quoteFromBeads } from '../lib/calibration';
-import { formatWristChoice } from '../lib/format';
+import { quoteFromBeads, bhagyankFromDate, mulankFromDate } from '../lib/calibration';
+import { formatWristChoice, strandBeadCount } from '../lib/format';
+import { studioMode, studioPaths } from '../lib/studioModes';
+import {
+  REVIEW_STEP,
+  STEP_COUNT,
+  crystalLimits,
+  isLayerPath,
+  qtyOf,
+  stepAt,
+} from '../lib/studioFlow';
+
+export { qtyOf };
+
+function modeLabelOf(path, config) {
+  return studioMode(path, config).label;
+}
+
+function idOf(value) {
+  return value == null ? '' : String(value);
+}
+
+function uniqueById(beads) {
+  const seen = new Set();
+  const out = [];
+  (beads || []).forEach((bead) => {
+    const id = idOf(bead?._id);
+    if (!id || seen.has(id)) return;
+    seen.add(id);
+    out.push(bead);
+  });
+  return out;
+}
 
 function distributeQty(ids, total) {
-  const keys = (ids || []).filter(Boolean);
+  const keys = [...new Set((ids || []).map(idOf).filter(Boolean))];
   if (!keys.length || total <= 0) return {};
   const base = Math.floor(total / keys.length);
   let rem = total % keys.length;
@@ -17,35 +48,232 @@ function distributeQty(ids, total) {
   return next;
 }
 
+function strandSize(state) {
+  const count = strandBeadCount(
+    state.wristSize || state.config?.defaultWristSize,
+    state.beadSizeMm || state.config?.defaultBeadSizeMm || 8,
+    { min: Number(state.config?.minBeads) || 8, max: Number(state.config?.beadLimit) || 32 }
+  );
+  return Math.min(count, Number(state.config?.beadLimit) || 32);
+}
+
+// Beads that carry a slot, keeping the first occurrence of duplicates across layers.
+function beadsFromSlots(slots) {
+  return uniqueById((slots || []).map((slot) => slot.bead).filter(Boolean));
+}
+
+function itemNumber(item) {
+  const n = Number(item?.number ?? item?.slug);
+  return Number.isFinite(n) ? n : null;
+}
+
+function findByNumber(items, number) {
+  if (number == null) return null;
+  return (
+    (items || []).find(
+      (item) => itemNumber(item) === Number(number) || String(item.slug) === String(number)
+    ) || null
+  );
+}
+
+function joinThemes(values) {
+  return [...new Set((values || []).filter(Boolean))].join(' · ');
+}
+
+// The purpose and layer paths keep different selection state, so `layer`, `intention`
+// and `calibration` are recomputed from it here rather than being set by hand in each
+// action. Everything downstream (review, preview, cart payload) reads only these.
+function deriveSelection(state) {
+  const { path } = state;
+  if (path === 'purpose') {
+    const primary = (state.selectedIntentions || [])[0] || null;
+    return { layer: null, intention: primary, calibration: null };
+  }
+
+  const mode = studioMode(path, state.config);
+  const modeLabel = modeLabelOf(path, state.config);
+
+  if (path === 'numerology') {
+    const mItem = findByNumber(state.layerItems, state.mulankNumber);
+    const bItem = findByNumber(state.layerItems, state.bhagyankNumber);
+    if (!mItem && !bItem) return { layer: null, intention: null, calibration: null };
+    const m = mItem ? itemNumber(mItem) : null;
+    const b = bItem ? itemNumber(bItem) : null;
+    const key = m && b ? `${m}-${b}` : m ? `m${m}` : `b${b}`;
+    const name = joinThemes([mItem?.theme, bItem?.theme]);
+    const selections = {
+      mulank: mItem ? { number: m, beads: selectedSlotNames(mItem.mulank, state.quantities) } : null,
+      bhagyank: bItem
+        ? { number: b, beads: selectedSlotNames(bItem.bhagyank, state.quantities) }
+        : null,
+    };
+    const layer = {
+      kind: 'numerology',
+      key,
+      path: mode.path,
+      modeLabel,
+      name,
+      theme: name,
+      mulank: m,
+      bhagyank: b,
+      rolesById: state.rolesById || {},
+      selections,
+    };
+    return {
+      layer,
+      intention: { name, slug: key },
+      calibration: {
+        dateOfBirth: state.dateOfBirth || '',
+        mulank: m,
+        bhagyank: b,
+        layerSelections: selections,
+        explanation: name
+          ? `${name}. Traditional catalog associations, not medical claims.`
+          : '',
+      },
+    };
+  }
+
+  const item = state.layerItem;
+  if (!item) return { layer: null, intention: null, calibration: null };
+  const coreNames = new Set((item.recommended || []).map((slot) => slot.name));
+  const extraSlots = (item.suitable || []).filter((slot) => !coreNames.has(slot.name));
+  const selections =
+    path === 'zodiac'
+      ? {
+          zodiac: {
+            sign: item.name,
+            hindi: item.hindi,
+            recommended: selectedSlotNames(item.recommended, state.quantities),
+            suitable: selectedSlotNames(extraSlots, state.quantities),
+          },
+        }
+      : {
+          [path]: {
+            name: item.name,
+            hindi: item.hindi,
+            recommended: selectedSlotNames(item.recommended, state.quantities),
+            extras: selectedSlotNames(extraSlots, state.quantities),
+          },
+        };
+  const layer = {
+    kind: path,
+    key: item.slug,
+    path: mode.path,
+    modeLabel,
+    name: item.name,
+    hindi: item.hindi,
+    theme: item.theme,
+    rolesById: {},
+    selections,
+  };
+  return {
+    layer,
+    intention: { name: item.name, slug: item.slug },
+    calibration: {
+      zodiac: path === 'zodiac' ? { sign: item.name } : undefined,
+      layerSelections: selections,
+      explanation: item.theme
+        ? `${item.name}: ${item.theme}. Traditional catalog associations, not medical claims.`
+        : '',
+    },
+  };
+}
+
+function selectedSlotNames(slots, quantities) {
+  return (slots || [])
+    .filter((slot) => slot.bead && qtyOf(quantities, slot.bead._id) > 0)
+    .map((slot) => slot.bead.name);
+}
+
+export function selectCanAdvance(state) {
+  if (state.step >= REVIEW_STEP) return false;
+  return Boolean(stepAt(state.step).validate(state));
+}
+
+export function selectStepHint(state) {
+  const entry = stepAt(state.step);
+  return entry.validate(state) ? '' : entry.hint(state) || '';
+}
+
+// Derived objects must not be produced inside a store selector: Zustand caches the
+// snapshot by identity, so a fresh object each call loops forever. Subscribe to the
+// stable slices instead and memoize, the same way useCustomizerQuote does.
+export function useCrystalLimits() {
+  const path = useCustomizerStore((s) => s.path);
+  const recommended = useCustomizerStore((s) => s.recommended);
+  const quantities = useCustomizerStore((s) => s.quantities);
+  return useMemo(
+    () => crystalLimits({ path, recommended, quantities }),
+    [path, recommended, quantities]
+  );
+}
+
+// Canonical query string for the current selection, so the build stays shareable.
+export function selectUrlQuery(state) {
+  const q = new URLSearchParams({ path: state.path });
+  if (state.path === 'purpose') {
+    if (state.purpose?.slug) q.set('purpose', state.purpose.slug);
+  } else if (state.path === 'numerology') {
+    if (state.dateOfBirth) q.set('dob', state.dateOfBirth);
+    if (state.mulankNumber) q.set('mulank', String(state.mulankNumber));
+    if (state.bhagyankNumber) q.set('bhagyank', String(state.bhagyankNumber));
+  } else if (state.layerItem?.slug) {
+    q.set('key', state.layerItem.slug);
+  }
+  return q.toString();
+}
+
+const SELECTION_DEFAULTS = {
+  purpose: null,
+  intentions: [],
+  selectedIntentions: [],
+  layerItem: null,
+  mulankNumber: null,
+  bhagyankNumber: null,
+  dateOfBirth: '',
+  recommended: [],
+  quantities: {},
+  rolesById: {},
+  layer: null,
+  intention: null,
+  calibration: null,
+  stepError: '',
+};
+
 export const useCustomizerStore = create((set, get) => ({
   step: 1,
+  path: 'purpose',
   config: null,
   purposes: [],
-  intentions: [],
-  recommended: [],
-  catalogBeads: [],
   charms: [],
-  purpose: null,
-  intention: null,
-  quantities: {},
+  catalogBeads: [],
+  layerItems: [],
+  layerKindLoaded: '',
+
+  ...SELECTION_DEFAULTS,
+
   charm: null,
   finish: null,
-  wristSize: 'Free size',
+  wristSize: '6.5"',
+  beadSizeMm: 8,
+  czStyle: 'cz',
   threadType: 'korean-elastic',
-  dateOfBirth: '',
   engravingName: '',
-  calibration: null,
-  zodiacAdded: false,
+
   detailBead: null,
   previewOpen: false,
   loading: false,
   ready: false,
-  calibrating: false,
   advancing: false,
-  selectingIntention: false,
+  selecting: false,
+  layerLoading: false,
+  // Number of syncFromUrl hydrations in flight. The page must not mirror state back into
+  // the address bar while any are running, or it would rewrite the URL from the selection
+  // still being replaced. A count rather than a flag because switching paths quickly can
+  // overlap two hydrations, and the first to finish must not clear the second's guard.
+  urlSyncing: 0,
   error: null,
-  stepError: '',
-  layer: null,
 
   async init() {
     const boot = !get().ready;
@@ -61,7 +289,8 @@ export const useCustomizerStore = create((set, get) => ({
       const charms = ch.data.charms || [];
       const current = get();
       const purpose = current.purpose
-        ? purposes.find((p) => p._id === current.purpose._id || p.slug === current.purpose.slug) || current.purpose
+        ? purposes.find((p) => p._id === current.purpose._id || p.slug === current.purpose.slug) ||
+          current.purpose
         : null;
       const charm = charms.find((c) => c._id === current.charm?._id) || current.charm || charms[0] || null;
       const finish =
@@ -77,8 +306,13 @@ export const useCustomizerStore = create((set, get) => ({
         purpose,
         charm,
         finish,
-        wristSize: current.wristSize || 'Free size',
-        threadType: current.threadType || 'korean-elastic',
+        wristSize:
+          current.wristSize && current.wristSize !== 'Free size'
+            ? current.wristSize
+            : cfg.data.config?.defaultWristSize || '6.5"',
+        beadSizeMm: current.beadSizeMm || cfg.data.config?.defaultBeadSizeMm || 8,
+        threadType: current.threadType || cfg.data.config?.defaultThreadType || cfg.data.config?.threadTypes?.[0]?.key || 'korean-elastic',
+        czStyle: current.czStyle || cfg.data.config?.defaultCzStyle || cfg.data.config?.czOptions?.[0]?.key || 'cz',
         loading: false,
         ready: true,
         error: null,
@@ -88,500 +322,295 @@ export const useCustomizerStore = create((set, get) => ({
     }
   },
 
-  setStep(step) {
-    set({ step, stepError: '' });
+  // Recomputes `layer`, `intention` and `calibration` from the current selection.
+  refresh() {
+    set(deriveSelection(get()));
   },
 
-  setDateOfBirth(dateOfBirth) {
-    set({ dateOfBirth });
+  // --- navigation -----------------------------------------------------------
+
+  setStep(step) {
+    const next = Math.min(Math.max(Number(step) || 1, 1), STEP_COUNT);
+    set({ step: next, stepError: '' });
+  },
+
+  goBack() {
+    const { step } = get();
+    if (step <= 1) return;
+    set({ step: step - 1, stepError: '' });
+  },
+
+  goNext() {
+    const state = get();
+    if (state.advancing || state.step >= REVIEW_STEP) return;
+    const entry = stepAt(state.step);
+    if (!entry.validate(state)) {
+      set({ stepError: entry.hint(state) || 'Finish this step to continue.' });
+      return;
+    }
+    if (entry.id === 'crystals' || entry.id === 'fit') get().applyStrand();
+    set({ step: state.step + 1, stepError: '' });
+  },
+
+  // Steps already satisfied stay reachable so the progress rail can jump back.
+  canReachStep(step) {
+    const state = get();
+    if (step <= state.step) return true;
+    for (let n = 1; n < step; n += 1) {
+      if (!stepAt(n).validate(state)) return false;
+    }
+    return true;
+  },
+
+  // --- path & selection -----------------------------------------------------
+
+  // Drops the current pick but stays on the same path, so "Change" returns the user
+  // to the grid they came from instead of the top of the flow.
+  clearSelection() {
+    set({ ...SELECTION_DEFAULTS, path: get().path, step: 1 });
+  },
+
+  async loadLayerItems(kind) {
+    const path = kind || get().path;
+    if (!isLayerPath(path)) return;
+    if (get().layerKindLoaded === path && get().layerItems.length) return;
+    set({ layerLoading: true, stepError: '' });
+    try {
+      const { data } = await api.get(`/customizer/layers/${path}`);
+      set({
+        layerItems: data.items || [],
+        layerKindLoaded: path,
+        layerLoading: false,
+        stepError: (data.items || []).length ? '' : 'No combinations in this catalog yet.',
+      });
+    } catch (e) {
+      set({ layerLoading: false, stepError: e.message || 'Could not load this path.' });
+    }
   },
 
   async selectPurpose(purpose) {
     const current = get();
-    if (current.purpose?._id === purpose._id && current.intentions.length) {
-      set({ step: 2, stepError: '', layer: null });
-      return;
-    }
-    set({ stepError: '' });
+    if (current.purpose?._id === purpose._id && current.intentions.length) return;
+    set({ selecting: true, stepError: '' });
     try {
       const { data } = await api.get(`/customizer/purposes/${purpose.slug}/intentions`);
       set({
+        ...SELECTION_DEFAULTS,
+        path: 'purpose',
         purpose,
-        layer: null,
         intentions: data.intentions || [],
-        intention: null,
-        recommended: [],
-        quantities: {},
-        calibration: null,
-        zodiacAdded: false,
-        dateOfBirth: '',
-        step: 2,
+        selecting: false,
         stepError: data.intentions?.length ? '' : 'No intentions are mapped to this purpose yet.',
       });
     } catch (e) {
-      set({ stepError: e.message || 'Could not load intentions.' });
+      set({ selecting: false, stepError: e.message || 'Could not load intentions.' });
     }
   },
 
-  async selectIntention(intention) {
-    set({ stepError: '', selectingIntention: true, intention });
+  async toggleIntention(intention) {
+    const current = get().selectedIntentions || [];
+    const exists = current.some((it) => it._id === intention._id);
+    let next = exists ? current.filter((it) => it._id !== intention._id) : [...current, intention];
+    const cap = Number(get().config?.intentionCap) || 3;
+    if (next.length > cap) next = next.slice(-cap);
+    set({ selectedIntentions: next, stepError: '' });
+    get().refresh();
+    await get().loadIntentionBeads(next);
+  },
+
+  async loadIntentionBeads(list) {
+    const selected = list || get().selectedIntentions || [];
+    if (!selected.length) {
+      set({ recommended: [], quantities: {}, ...deriveSelection({ ...get(), selectedIntentions: [] }) });
+      return;
+    }
+    set({ selecting: true, stepError: '' });
     try {
-      const { data } = await api.get(`/customizer/intentions/${intention._id}/beads`);
-      const beads = data.beads || [];
-      const quantities = {};
-      beads.forEach((b) => {
-        quantities[b._id] = 1;
+      const packs = await Promise.all(
+        selected.map((it) => api.get(`/customizer/intentions/${it._id}/beads`))
+      );
+      const byId = new Map();
+      const bySource = packs.map(() => []);
+      packs.forEach(({ data }, index) => {
+        (data.beads || []).forEach((bead) => {
+          const id = idOf(bead._id);
+          if (byId.has(id)) return;
+          byId.set(id, { ...bead, fromPrimary: index === 0 });
+          bySource[index].push(id);
+        });
       });
+      const recommended = [...byId.values()];
+      // Seed round-robin across the chosen intentions so a second or third intention
+      // always shows up in the strand rather than being crowded out by the first.
+      const seed = [];
+      const cap = crystalLimits({ path: 'purpose', recommended, quantities: {}, config: get().config }).max;
+      for (let round = 0; seed.length < cap; round += 1) {
+        const before = seed.length;
+        bySource.forEach((ids) => {
+          if (seed.length < cap && ids[round]) seed.push(ids[round]);
+        });
+        if (seed.length === before) break;
+      }
+      get().setPool(recommended, seed, {});
       set({
-        intention,
-        recommended: beads,
-        quantities,
-        calibration: null,
-        zodiacAdded: false,
-        stepError: beads.length ? '' : 'No crystals are mapped to this intention yet.',
+        selecting: false,
+        stepError: recommended.length ? '' : 'No crystals are mapped to these intentions yet.',
       });
     } catch (e) {
       set({
         recommended: [],
         quantities: {},
+        selecting: false,
         stepError: e.message || 'Could not load crystals for this intention.',
       });
-    } finally {
-      set({ selectingIntention: false });
     }
+  },
+
+  selectLayerItem(item) {
+    if (!item) return;
+    const coreNames = new Set((item.recommended || []).map((slot) => slot.name));
+    const extraSlots = (item.suitable || []).filter((slot) => !coreNames.has(slot.name));
+    const core = beadsFromSlots(item.recommended);
+    const pool = uniqueById([...core, ...beadsFromSlots(extraSlots)]);
+    set({ layerItem: item, stepError: '' });
+    const cap = crystalLimits({ path: get().path, recommended: pool, quantities: {}, config: get().config }).max;
+    get().setPool(pool, core.slice(0, cap).map((b) => b._id), {});
+  },
+
+  setNumerology({ mulank, bhagyank } = {}) {
+    const state = get();
+    const nextM = mulank === undefined ? state.mulankNumber : mulank;
+    const nextB = bhagyank === undefined ? state.bhagyankNumber : bhagyank;
+    const mItem = findByNumber(state.layerItems, nextM);
+    const bItem = findByNumber(state.layerItems, nextB);
+    const rolesById = {};
+    const mark = (slots, role) => {
+      (slots || []).forEach((slot) => {
+        const id = idOf(slot.bead?._id);
+        if (!id) return;
+        rolesById[id] = [...new Set([...(rolesById[id] || []), role])];
+      });
+    };
+    mark(mItem?.mulank, 'Mulank');
+    mark(bItem?.bhagyank, 'Bhagyank');
+    const pool = uniqueById([...beadsFromSlots(mItem?.mulank), ...beadsFromSlots(bItem?.bhagyank)]);
+    set({ mulankNumber: nextM ?? null, bhagyankNumber: nextB ?? null, stepError: '' });
+    const cap = crystalLimits({ path: 'numerology', recommended: pool, quantities: {}, config: get().config }).max;
+    get().setPool(
+      pool.map((bead) => ({ ...bead, roles: rolesById[idOf(bead._id)] || [] })),
+      pool.slice(0, cap).map((b) => b._id),
+      rolesById
+    );
+  },
+
+  setDateOfBirth(dateOfBirth) {
+    set({ dateOfBirth: dateOfBirth || '' });
+    if (!dateOfBirth || get().path !== 'numerology') {
+      get().refresh();
+      return;
+    }
+    try {
+      get().setNumerology({
+        mulank: mulankFromDate(dateOfBirth),
+        bhagyank: bhagyankFromDate(dateOfBirth),
+      });
+    } catch {
+      get().refresh();
+    }
+  },
+
+  // --- crystals -------------------------------------------------------------
+
+  // Replaces the candidate pool and pre-selects `selectedIds`, then redistributes
+  // bead counts so the live quote is always real.
+  setPool(pool, selectedIds, rolesById) {
+    const beads = uniqueById(pool);
+    const state = get();
+    const wanted = (selectedIds || []).map(idOf).filter(Boolean);
+    const quantities = {};
+    beads.forEach((bead) => {
+      quantities[idOf(bead._id)] = 0;
+    });
+    Object.assign(quantities, distributeQty(wanted, strandSize(state)));
+    const next = {
+      recommended: beads,
+      quantities,
+      rolesById: rolesById || state.rolesById || {},
+    };
+    set({ ...next, ...deriveSelection({ ...state, ...next }) });
   },
 
   toggleBead(beadId) {
-    const { quantities } = get();
-    const on = (quantities[beadId] || 0) > 0;
-    set({ quantities: { ...quantities, [beadId]: on ? 0 : 1 } });
-  },
-
-  setBeadQty(beadId, qty) {
-    const n = Math.max(0, Math.round(Number(qty) || 0));
-    const { quantities, config } = get();
-    const limit = config?.beadLimit || 18;
-    const others = Object.entries(quantities).reduce(
-      (sum, [id, value]) => (String(id) === String(beadId) ? sum : sum + (Number(value) || 0)),
-      0
-    );
-    set({ quantities: { ...quantities, [beadId]: Math.min(n, Math.max(0, limit - others)) } });
-  },
-
-  applyBeadCount(count) {
-    const { recommended, quantities } = get();
-    const selected = recommended.filter((b) => (quantities[b._id] || 0) > 0);
-    const ids = (selected.length ? selected : recommended).map((b) => b._id);
-    const next = {};
-    recommended.forEach((b) => {
-      next[b._id] = 0;
-    });
-    set({ quantities: { ...next, ...distributeQty(ids, count) } });
+    const id = idOf(beadId);
+    if (!id) return;
+    const state = get();
+    const on = qtyOf(state.quantities, id) > 0;
+    const limits = crystalLimits(state);
+    if (!on && limits.count >= limits.max) {
+      set({ stepError: `Keep at most ${limits.max} crystals.` });
+      return;
+    }
+    if (on && limits.count <= 1) {
+      set({ stepError: 'Keep at least one crystal in the strand.' });
+      return;
+    }
+    const selected = state.recommended
+      .filter((bead) => {
+        const beadOn = qtyOf(state.quantities, bead._id) > 0;
+        return idOf(bead._id) === id ? !on : beadOn;
+      })
+      .map((bead) => bead._id);
+    get().setPool(state.recommended, selected, state.rolesById);
+    set({ stepError: '' });
   },
 
   addCatalogBead(bead) {
-    const { recommended, quantities } = get();
-    if (!bead?._id || recommended.some((b) => String(b._id) === String(bead._id))) return;
-    set({
-      recommended: [...recommended, bead],
-      quantities: { ...quantities, [bead._id]: 1 },
-    });
+    const state = get();
+    if (!bead?._id) return;
+    if (state.recommended.some((row) => idOf(row._id) === idOf(bead._id))) return;
+    const limits = crystalLimits(state);
+    if (limits.count >= limits.max) {
+      set({ stepError: `Keep at most ${limits.max} crystals.` });
+      return;
+    }
+    const selected = state.recommended
+      .filter((row) => qtyOf(state.quantities, row._id) > 0)
+      .map((row) => row._id);
+    get().setPool([...state.recommended, bead], [...selected, bead._id], state.rolesById);
+    set({ stepError: '' });
+  },
+
+  setBeadQty(beadId, qty) {
+    const id = idOf(beadId);
+    const n = Math.max(0, Math.round(Number(qty) || 0));
+    const state = get();
+    const limit = Number(state.config?.beadLimit) || 32;
+    const others = Object.entries(state.quantities).reduce(
+      (sum, [key, value]) => (idOf(key) === id ? sum : sum + (Number(value) || 0)),
+      0
+    );
+    const quantities = { ...state.quantities, [id]: Math.min(n, Math.max(0, limit - others)) };
+    set({ quantities, ...deriveSelection({ ...state, quantities }) });
+  },
+
+  applyStrand() {
+    const state = get();
+    const ids = state.recommended
+      .filter((bead) => qtyOf(state.quantities, bead._id) > 0)
+      .map((bead) => bead._id);
+    if (!ids.length) return;
+    get().setPool(state.recommended, ids, state.rolesById);
   },
 
   selectedBeads() {
-    const { recommended, quantities } = get();
-    return (recommended || []).filter((b) => (quantities[b._id] || 0) > 0);
-  },
-
-  async runCalibration({ includeZodiac = false, zodiacQty } = {}) {
-    const { intention, recommended, quantities, catalogBeads, config, charm, finish, dateOfBirth } = get();
-    if (!intention?._id) throw new Error('Choose an intention first.');
-    if (!dateOfBirth) throw new Error('Enter a date of birth.');
-    const selectedBeads = (recommended || []).filter((b) => (quantities[b._id] || 0) > 0);
-    const intentionBeads = selectedBeads.length ? selectedBeads : recommended;
-    const parsed = Number(zodiacQty);
-    const qty = Number.isFinite(parsed) && parsed > 0 ? parsed : (config?.zodiacBeadCount || 2);
-    set({ calibrating: true, stepError: '' });
-    try {
-      try {
-        const { data } = await api.post('/customizer/calibrate', {
-          intentionId: intention._id,
-          dateOfBirth,
-          includeZodiac,
-          zodiacQty: qty,
-          charmId: charm?._id,
-          finishKey: finish?.key,
-        });
-        set({
-          calibration: data,
-          zodiacAdded: Boolean(includeZodiac),
-          calibrating: false,
-        });
-        return data;
-      } catch {
-        const data = calibrateLocal({
-          dateOfBirth,
-          intentionBeads,
-          catalogBeads,
-          config,
-          finish,
-          includeZodiac,
-          zodiacQty: qty,
-        });
-        set({
-          calibration: data,
-          zodiacAdded: Boolean(includeZodiac),
-          calibrating: false,
-        });
-        return data;
-      }
-    } catch (e) {
-      set({ calibrating: false, stepError: e.message });
-      throw e;
-    }
-  },
-
-  async submitBirthDate(dateOfBirth) {
-    set({ dateOfBirth });
-    return get().runCalibration({ includeZodiac: false });
-  },
-
-  async addZodiacBeads(zodiacQty) {
-    return get().runCalibration({ includeZodiac: true, zodiacQty });
-  },
-
-  applyLayer({
-    kind,
-    key,
-    path,
-    modeLabel,
-    name,
-    hindi,
-    theme,
-    beads,
-    dateOfBirth = '',
-    mulank,
-    bhagyank,
-    rolesById = {},
-    layerSelections = null,
-  }) {
-    const config = get().config;
-    const limit = config?.beadLimit || 18;
-    const unique = [];
-    const seen = new Set();
-    (beads || []).forEach((bead) => {
-      if (!bead?._id || seen.has(String(bead._id))) return;
-      seen.add(String(bead._id));
-      unique.push(bead);
-    });
-    const quantities = distributeQty(unique.map((b) => b._id), limit);
-    const priced = unique.map((b) => ({
-      ...b,
-      beadId: b._id,
-      quantity: quantities[b._id] || 0,
-      roles: rolesById[String(b._id)] || [],
-    }));
-    const charms = get().charms || [];
-    const charm = get().charm || charms[0] || null;
-    const nextFinish =
-      get().finish ||
-      charm?.finishes?.[0] ||
-      null;
-    const quote = quoteFromBeads(config, priced, nextFinish);
-    set({
-      charm,
-      finish: nextFinish,
-      layer: {
-        kind,
-        key,
-        path,
-        modeLabel,
-        name,
-        hindi,
-        theme,
-        mulank,
-        bhagyank,
-        rolesById,
-        selections: layerSelections,
-      },
-      purpose: { name: modeLabel, slug: kind },
-      intention: { name, slug: key },
-      intentions: [],
-      recommended: unique.map((b) => ({
-        ...b,
-        roles: rolesById[String(b._id)] || [],
-      })),
-      quantities,
-      dateOfBirth: dateOfBirth || '',
-      calibration: {
-        dateOfBirth: dateOfBirth || '',
-        mulank,
-        bhagyank,
-        zodiac: kind === 'zodiac' ? { sign: name } : undefined,
-        beads: unique.map((b) => ({
-          beadId: b._id,
-          quantity: quantities[b._id],
-          roles: rolesById[String(b._id)] || [],
-        })),
-        layout: [],
-        explanation: theme
-          ? `${name}: ${theme}. Traditional catalog associations, not medical claims.`
-          : '',
-        quote,
-        layerSelections,
-      },
-      zodiacAdded: true,
-      step: 5,
-      stepError: '',
-    });
-  },
-
-  async hydrateLayerFromQuery({ kind, key, mulank, bhagyank, dateOfBirth }) {
-    if (!kind || !key) return;
-    const current = get().layer;
-    if (current?.kind === kind && String(current?.key) === String(key) && (get().recommended || []).length) {
-      if (get().step < 5) set({ step: 5 });
-      return;
-    }
-    if (!get().ready) await get().init();
-    const labels = {
-      numerology: 'Customise by numerology',
-      zodiac: 'Customise by zodiac sign',
-      planetary: 'Customise by planetary',
-      profession: 'Customise by profession',
-    };
-    try {
-      if (kind === 'numerology') {
-        const rawKey = String(key || '');
-        let m = mulank;
-        let b = bhagyank;
-        if (!m && !b) {
-          if (rawKey.startsWith('m')) m = rawKey.slice(1);
-          else if (rawKey.startsWith('b')) b = rawKey.slice(1);
-          else {
-            const parts = rawKey.split('-');
-            m = parts[0];
-            b = parts[1];
-          }
-        }
-        if (dateOfBirth && (!m || !b)) {
-          const { data } = await api.get(`/customizer/layers/numerology/${m || '1'}`, {
-            params: { dateOfBirth },
-          });
-          const mulankItem = data.mulank;
-          const bhagyankItem = data.bhagyank || data.mulank;
-          const beads = [];
-          const seen = new Set();
-          const rolesById = {};
-          const mark = (slots, role) => {
-            (slots || []).forEach((slot) => {
-              const bead = slot.bead;
-              if (!bead?._id) return;
-              const id = String(bead._id);
-              rolesById[id] = [...new Set([...(rolesById[id] || []), role])];
-              if (seen.has(id)) return;
-              seen.add(id);
-              beads.push(bead);
-            });
-          };
-          mark(mulankItem?.mulank, 'Mulank');
-          mark(bhagyankItem?.bhagyank, 'Bhagyank');
-          get().applyLayer({
-            kind: 'numerology',
-            key: `${mulankItem.number}-${bhagyankItem.number}`,
-            path: '/customize/numerology',
-            modeLabel: labels.numerology,
-            name: [mulankItem.theme, bhagyankItem.theme].filter(Boolean).filter((value, i, all) => all.indexOf(value) === i).join(' · '),
-            theme: [mulankItem.theme, bhagyankItem.theme].filter(Boolean).join(' · '),
-            beads,
-            dateOfBirth: data.dateOfBirth || dateOfBirth || '',
-            mulank: mulankItem.number,
-            bhagyank: bhagyankItem.number,
-            rolesById,
-            layerSelections: {
-              mulank: { number: mulankItem.number, beads: (mulankItem.mulank || []).map((s) => s.bead?.name).filter(Boolean) },
-              bhagyank: { number: bhagyankItem.number, beads: (bhagyankItem.bhagyank || []).map((s) => s.bead?.name).filter(Boolean) },
-            },
-          });
-          return;
-        }
-        const rolesById = {};
-        const beads = [];
-        const seen = new Set();
-        let mulankItem = null;
-        let bhagyankItem = null;
-        if (m) {
-          const { data } = await api.get(`/customizer/layers/numerology/${m}`);
-          mulankItem = data.item || data.mulank;
-          (mulankItem?.mulank || []).forEach((slot) => {
-            const bead = slot.bead;
-            if (!bead?._id) return;
-            const id = String(bead._id);
-            rolesById[id] = [...new Set([...(rolesById[id] || []), 'Mulank'])];
-            if (!seen.has(id)) {
-              seen.add(id);
-              beads.push(bead);
-            }
-          });
-        }
-        if (b) {
-          const { data } = await api.get(`/customizer/layers/numerology/${b}`);
-          bhagyankItem = data.item || data.bhagyank;
-          (bhagyankItem?.bhagyank || []).forEach((slot) => {
-            const bead = slot.bead;
-            if (!bead?._id) return;
-            const id = String(bead._id);
-            rolesById[id] = [...new Set([...(rolesById[id] || []), 'Bhagyank'])];
-            if (!seen.has(id)) {
-              seen.add(id);
-              beads.push(bead);
-            }
-          });
-        }
-        if (!beads.length) {
-          set({ stepError: 'Those numerology crystals are not in the atelier yet.' });
-          return;
-        }
-        const mNum = mulankItem?.number;
-        const bNum = bhagyankItem?.number;
-        get().applyLayer({
-          kind: 'numerology',
-          key: mNum && bNum ? `${mNum}-${bNum}` : mNum ? `m${mNum}` : `b${bNum}`,
-          path: '/customize/numerology',
-          modeLabel: labels.numerology,
-          name: [mulankItem?.theme, bhagyankItem?.theme].filter(Boolean).filter((value, i, all) => all.indexOf(value) === i).join(' · '),
-          theme: [mulankItem?.theme, bhagyankItem?.theme].filter(Boolean).join(' · '),
-          beads,
-          dateOfBirth: dateOfBirth || '',
-          mulank: mNum,
-          bhagyank: bNum,
-          rolesById,
-          layerSelections: {
-            mulank: mulankItem
-              ? { number: mNum, beads: (mulankItem.mulank || []).map((s) => s.bead?.name).filter(Boolean) }
-              : null,
-            bhagyank: bhagyankItem
-              ? { number: bNum, beads: (bhagyankItem.bhagyank || []).map((s) => s.bead?.name).filter(Boolean) }
-              : null,
-          },
-        });
-        return;
-      }
-      const { data } = await api.get(`/customizer/layers/${kind}/${key}`);
-      const item = data.item;
-      if (!item) {
-        set({ stepError: 'That combination could not be opened.' });
-        return;
-      }
-      const beads = (item.recommended || []).map((slot) => slot.bead).filter(Boolean);
-      if (!beads.length) {
-        set({ stepError: 'Those crystals are not in the atelier yet.' });
-        return;
-      }
-      get().applyLayer({
-        kind,
-        key: item.slug,
-        path: `/customize/${kind}`,
-        modeLabel: labels[kind] || 'Customization',
-        name: item.name,
-        hindi: item.hindi,
-        theme: item.theme,
-        beads,
-      });
-    } catch (e) {
-      set({ stepError: e.message || 'Could not open that customisation path.' });
-    }
-  },
-
-  async goBack() {
-    const step = get().step;
-    const layer = get().layer;
-    if (layer && step <= 5) return;
-    if (step > 1) set({ step: step - 1, stepError: '' });
-  },
-
-  async goNext() {
-    if (get().advancing) return;
     const state = get();
-    set({ advancing: true, stepError: '' });
-    try {
-      if (state.layer) {
-        if (state.step < 5) {
-          set({ step: 5 });
-          return;
-        }
-        if (state.step === 5) {
-          if (!get().charm) throw new Error('Choose a charm to continue.');
-          if (get().threadType === 'steel-core' && !get().wristSize) {
-            throw new Error('Choose a wrist size for steel core thread.');
-          }
-          set({ step: 6 });
-        }
-        return;
-      }
-      if (state.step === 1) {
-        if (!get().purpose) throw new Error('Choose a purpose to continue.');
-        set({ step: 2 });
-        return;
-      }
-      if (state.step === 2) {
-        const picked = get().selectedBeads();
-        if (!get().intention || !picked.length) {
-          throw new Error('Select an intention so its crystals are chosen.');
-        }
-        set({ step: 3 });
-        return;
-      }
-      if (state.step === 3) {
-        const dob = get().dateOfBirth;
-        if (!dob) throw new Error('Choose day, month and year to continue.');
-        const cal = get().calibration;
-        if (!cal || cal.dateOfBirth !== dob) {
-          await get().runCalibration({ includeZodiac: false });
-        }
-        set({ step: 4 });
-        return;
-      }
-      if (state.step === 4) {
-        if (!get().calibration) throw new Error('Calibrate from your date of birth first.');
-        if (!get().zodiacAdded) {
-          await get().runCalibration({ includeZodiac: true });
-        }
-        set({ step: 5 });
-        return;
-      }
-      if (state.step === 5) {
-        if (!get().charm) throw new Error('Choose a charm to continue.');
-        if (get().threadType === 'steel-core' && !get().wristSize) {
-          throw new Error('Choose a wrist size for steel core thread.');
-        }
-        set({ step: 6 });
-      }
-    } catch (e) {
-      set({ stepError: e.message || 'Could not continue.' });
-    } finally {
-      set({ advancing: false });
-    }
+    return (state.recommended || []).filter((bead) => qtyOf(state.quantities, bead._id) > 0);
   },
 
-  canAdvance() {
-    const s = get();
-    if (s.layer) {
-      if (s.step === 5) return !!s.charm && (s.threadType !== 'steel-core' || Boolean(s.wristSize));
-      return false;
-    }
-    if (s.step === 1) return !!s.purpose;
-    if (s.step === 2) return !!s.intention && get().selectedBeads().length > 0;
-    if (s.step === 3) return Boolean(s.dateOfBirth);
-    if (s.step === 4) return !!s.calibration;
-    if (s.step === 5) {
-      return !!s.charm && (s.threadType !== 'steel-core' || Boolean(s.wristSize));
-    }
-    return false;
-  },
+  // --- finishing ------------------------------------------------------------
 
   selectCharm(charm, finish) {
-    set({ charm, finish: finish || charm.finishes?.[0] });
+    set({ charm, finish: finish || charm?.finishes?.[0] || null, stepError: '' });
   },
 
   setFinish(finish) {
@@ -590,42 +619,106 @@ export const useCustomizerStore = create((set, get) => ({
 
   setWristSize(wristSize) {
     set({ wristSize });
+    get().applyStrand();
+  },
+
+  setBeadSizeMm(beadSizeMm) {
+    set({ beadSizeMm: Number(beadSizeMm) || 8 });
+    get().applyStrand();
+  },
+
+  setCzStyle(czStyle) {
+    set({ czStyle });
   },
 
   setThreadType(threadType) {
     const config = get().config;
-    if (threadType === 'korean-elastic') {
-      set({ threadType, wristSize: 'Free size' });
-      return;
-    }
     const sizes = config?.wristSizes || ['5.5"', '6"', '6.5"', '7"', '7.5"', '8"'];
     const current = get().wristSize;
-    const next = sizes.includes(current) ? current : (config?.defaultWristSize || '6.5"');
-    set({ threadType: 'steel-core', wristSize: next });
+    const next = sizes.includes(current) ? current : config?.defaultWristSize || '6.5"';
+    set({ threadType, wristSize: next });
+    get().applyStrand();
   },
 
-  setDetailBead(bead) {
-    set({ detailBead: bead });
+  setEngravingName(engravingName) {
+    set({ engravingName });
+  },
+
+  // --- ui -------------------------------------------------------------------
+
+  setDetailBead(detailBead) {
+    set({ detailBead });
   },
 
   setPreviewOpen(previewOpen) {
     set({ previewOpen });
   },
 
+  // --- url ------------------------------------------------------------------
+
+  // The only place URL params turn into state. `CustomizePage` calls this from a
+  // single effect, and reads `urlQuery()` back to keep the address bar canonical.
+  async syncFromUrl(params) {
+    set({ urlSyncing: get().urlSyncing + 1 });
+    try {
+      const requested = params.get('path') || (params.get('purpose') ? 'purpose' : '');
+      const allowed = studioPaths(get().config);
+      const path = allowed.includes(requested) ? requested : (allowed[0] || '');
+      if (!get().ready) await get().init();
+      if (path && path !== get().path) {
+        set({ ...SELECTION_DEFAULTS, path, step: 1, layerItems: [], layerKindLoaded: '' });
+      }
+      const active = get().path;
+
+      if (active === 'purpose') {
+        const slug = params.get('purpose');
+        if (!slug || get().purpose?.slug === slug) return;
+        const match = (get().purposes || []).find((p) => p.slug === slug);
+        if (match) await get().selectPurpose(match);
+        return;
+      }
+
+      await get().loadLayerItems(active);
+      const items = get().layerItems;
+      if (!items.length) return;
+
+      if (active === 'numerology') {
+        const dob = params.get('dob') || '';
+        if (dob && !get().dateOfBirth) {
+          get().setDateOfBirth(dob);
+          if (get().mulankNumber || get().bhagyankNumber) return;
+        }
+        const m = params.get('mulank');
+        const b = params.get('bhagyank');
+        if ((m || b) && !get().mulankNumber && !get().bhagyankNumber) {
+          get().setNumerology({ mulank: m ? Number(m) : null, bhagyank: b ? Number(b) : null });
+        }
+        return;
+      }
+
+      const key = params.get('key');
+      if (!key || get().layerItem?.slug === key) return;
+      const item = items.find((row) => String(row.slug) === String(key));
+      if (item) get().selectLayerItem(item);
+      else set({ stepError: 'That combination could not be opened.' });
+    } finally {
+      set({ urlSyncing: Math.max(0, get().urlSyncing - 1) });
+    }
+  },
+
   clearBuild() {
     set({
+      ...SELECTION_DEFAULTS,
       step: 1,
-      layer: null,
-      purpose: null,
-      intention: null,
-      intentions: [],
-      recommended: [],
-      quantities: {},
-      dateOfBirth: '',
-      calibration: null,
-      zodiacAdded: false,
+      path: 'purpose',
+      layerItems: [],
+      layerKindLoaded: '',
+      engravingName: '',
       detailBead: null,
-      stepError: '',
+      beadSizeMm: get().config?.defaultBeadSizeMm || 8,
+      wristSize: get().config?.defaultWristSize || '6.5"',
+      czStyle: get().config?.defaultCzStyle || 'cz',
+      threadType: get().config?.defaultThreadType || 'korean-elastic',
     });
   },
 
@@ -634,36 +727,45 @@ export const useCustomizerStore = create((set, get) => ({
       layer,
       purpose,
       intention,
+      selectedIntentions,
       recommended,
       quantities,
       charm,
       finish,
       wristSize,
+      beadSizeMm,
+      czStyle,
       threadType,
       dateOfBirth,
+      engravingName,
       calibration,
-      zodiacAdded,
     } = get();
-    if (!charm || !finish) throw new Error('Choose a charm first.');
+    if (get().config?.charmRequired !== false && (!charm || !finish)) throw new Error('Choose a charm first.');
+    const quote = buildQuote(get());
+    const beads = (recommended || [])
+      .filter((b) => qtyOf(quantities, b._id) > 0)
+      .map((b) => ({ beadId: b._id, quantity: qtyOf(quantities, b._id) }));
+    if (!beads.length) throw new Error('Choose crystals for this strand first.');
+    const wristLabel = formatWristChoice(threadType, wristSize, get().config?.threadTypes);
+    const extras = {
+      beadSizeMm,
+      czStyle: czStyle || 'cz',
+      engravingName: engravingName || '',
+    };
     if (layer) {
-      const quote = buildQuote(get());
-      const beads = (recommended || [])
-        .filter((b) => (quantities[b._id] || 0) > 0)
-        .map((b) => ({ beadId: b._id, quantity: quantities[b._id] }));
-      if (!beads.length) throw new Error('Choose crystals for this strand first.');
-      const wristLabel = formatWristChoice(threadType, wristSize);
       return {
         purpose: { name: layer.modeLabel, slug: layer.kind },
         intention: { name: layer.name, slug: layer.key },
         layer: { kind: layer.kind, key: layer.key, name: layer.name },
         beads,
-        charmId: charm._id,
-        finishKey: finish.key,
+        charmId: charm?._id,
+        finishKey: finish?.key,
         wristSize: wristLabel,
         threadType,
         dateOfBirth: dateOfBirth || undefined,
+        ...extras,
         snapshot: {
-          name: `${layer.name} · ${charm.name}`,
+          name: `${layer.name}${charm?.name ? ` · ${charm.name}` : ''}`,
           purpose: { name: layer.modeLabel },
           intention: { name: layer.name },
           layer: { kind: layer.kind, key: layer.key, name: layer.name },
@@ -672,81 +774,64 @@ export const useCustomizerStore = create((set, get) => ({
             ...line,
             roles: layer.rolesById?.[String(line.beadId)] || line.roles || [],
           })),
-          layout: calibration?.layout || [],
           mulank: calibration?.mulank,
           bhagyank: calibration?.bhagyank,
           zodiac: calibration?.zodiac,
           dateOfBirth,
           explanation: calibration?.explanation,
-          charm: { id: charm._id, name: charm.name, slug: charm.slug },
+          charm: charm ? { id: charm._id, name: charm.name, slug: charm.slug } : null,
           finish,
           threadType,
           wristSize: wristLabel,
           pricing: quote,
+          ...extras,
         },
       };
     }
-    if (!purpose || !intention) throw new Error('Choose a purpose and intention first.');
-    if (!dateOfBirth) throw new Error('Enter a date of birth first.');
-    const quote = buildQuote(get());
-    const beads = calibration?.beads
-      || recommended
-        .filter((b) => (quantities[b._id] || 0) > 0)
-        .map((b) => ({ beadId: b._id, quantity: quantities[b._id] }));
-    const wristLabel = formatWristChoice(threadType, wristSize);
+    const picked = selectedIntentions?.length ? selectedIntentions : intention ? [intention] : [];
+    if (!purpose || !picked.length) throw new Error('Choose a purpose and intention first.');
+    const primary = picked[0];
+    const braceletName = primary.braceletName || primary.name;
     return {
       purpose: { id: purpose._id, name: purpose.name, slug: purpose.slug },
-      intention: { id: intention._id, name: intention.name, slug: intention.slug },
-      intentionId: intention._id,
-      beads: (beads || []).map((b) => ({
-        beadId: b.beadId || b._id,
-        quantity: b.quantity,
-      })),
-      charmId: charm._id,
-      finishKey: finish.key,
+      intention: {
+        id: primary._id,
+        name: braceletName,
+        slug: primary.slug,
+        braceletName,
+      },
+      intentionId: primary._id,
+      beads,
+      charmId: charm?._id,
+      finishKey: finish?.key,
       wristSize: wristLabel,
       threadType,
-      dateOfBirth,
-      includeZodiac: zodiacAdded,
-      zodiacQty: calibration?.zodiacQty,
+      ...extras,
       snapshot: {
-        name: `${intention.name} · ${charm.name}`,
+        name: `${braceletName}${charm?.name ? ` · ${charm.name}` : ''}`,
         purpose: { id: purpose._id, name: purpose.name },
-        intention: { id: intention._id, name: intention.name },
+        intention: { id: primary._id, name: braceletName, braceletName },
+        intentions: picked.map((it) => ({ id: it._id, name: it.name, braceletName: it.braceletName })),
         beads: quote.lines,
-        layout: calibration?.layout || [],
-        mulank: calibration?.mulank,
-        bhagyank: calibration?.bhagyank,
-        zodiac: calibration?.zodiac,
-        dateOfBirth,
-        explanation: calibration?.explanation,
-        charm: { id: charm._id, name: charm.name, slug: charm.slug },
+        explanation: picked.map((it) => it.braceletName || it.name).join(' · '),
+        charm: charm ? { id: charm._id, name: charm.name, slug: charm.slug } : null,
         finish,
         threadType,
         wristSize: wristLabel,
         pricing: quote,
+        ...extras,
       },
     };
   },
 }));
 
 export function buildQuote(state) {
-  if (state.calibration?.quote) {
-    return {
-      ...state.calibration.quote,
-      charmPrice: state.finish?.price ?? state.calibration.quote.charmPrice,
-      total:
-        (state.calibration.quote.baseMakingPrice || 0) +
-        (state.calibration.quote.beadsTotal || 0) +
-        (state.finish?.price || 0),
-    };
-  }
   const beads = (state.recommended || []).map((b) => ({
     ...b,
     beadId: b._id,
-    quantity: state.quantities?.[b._id] || 0,
+    quantity: qtyOf(state.quantities, b._id),
   }));
-  return quoteFromBeads(state.config, beads, state.finish);
+  return quoteFromBeads(state.config, beads, state.finish, { czStyle: state.czStyle || 'cz' });
 }
 
 export function useCustomizerQuote() {
@@ -754,9 +839,9 @@ export function useCustomizerQuote() {
   const recommended = useCustomizerStore((s) => s.recommended);
   const quantities = useCustomizerStore((s) => s.quantities);
   const finish = useCustomizerStore((s) => s.finish);
-  const calibration = useCustomizerStore((s) => s.calibration);
+  const czStyle = useCustomizerStore((s) => s.czStyle);
   return useMemo(
-    () => buildQuote({ config, recommended, quantities, finish, calibration }),
-    [config, recommended, quantities, finish, calibration]
+    () => buildQuote({ config, recommended, quantities, finish, czStyle }),
+    [config, recommended, quantities, finish, czStyle]
   );
 }

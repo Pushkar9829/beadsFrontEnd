@@ -19,11 +19,12 @@ export default function StoreLayout() {
   const loadContent = useContentStore((s) => s.load);
   const loadSettings = useSettingsStore((s) => s.load);
   const purpose = useCustomizerStore((s) => s.purpose);
-  const step = useCustomizerStore((s) => s.step);
-  const purposeTone =
-    pathname === '/customize' && purpose && step > 1
-      ? purposeToneStyle(purpose)
-      : undefined;
+  const intention = useCustomizerStore((s) => s.intention);
+  const layer = useCustomizerStore((s) => s.layer);
+  // Tint the studio once a selection exists, keyed off the purpose on that path and
+  // off the layer itself everywhere else.
+  const tone = layer ? { slug: layer.kind, name: layer.name } : intention ? purpose : null;
+  const purposeTone = pathname === '/customize' && tone ? purposeToneStyle(tone) : undefined;
 
   useRefreshOnView((force) => {
     loadContent(force);

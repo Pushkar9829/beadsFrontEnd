@@ -213,7 +213,7 @@ export default function HomePage() {
         </Reveal>
         <div className="purpose-pick mt-8">
           {studioPurposes.map((p) => (
-            <Link key={p._id || p.slug} to={`/customize?purpose=${p.slug}`} className="purpose-pick-card" style={purposeToneStyle(p)}>
+            <Link key={p._id || p.slug} to={`/customize?path=purpose&purpose=${p.slug}`} className="purpose-pick-card" style={purposeToneStyle(p)}>
               <span className={`purpose-pick-emoji ${purposeHasImage(p) ? 'is-image' : ''}`} aria-hidden>
                 <PurposeIcon purpose={p} />
               </span>

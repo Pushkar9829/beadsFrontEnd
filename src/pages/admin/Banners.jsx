@@ -1,5 +1,6 @@
 import AdminCrud, { fieldClass, labelClass } from './AdminCrud';
 import { mediaUrl } from '../../api/client';
+import MediaField from '../../components/admin/MediaField';
 
 const empty = { title: '', image: '', mobileImage: '', link: '', placement: 'home', sortOrder: 0, isActive: true, startsAt: '', endsAt: '' };
 
@@ -28,8 +29,8 @@ export default function AdminBanners() {
       fields={({ form, setForm }) => (
         <>
           <label className={labelClass}>Title<input required className={`${fieldClass} mt-1`} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></label>
-          <label className={labelClass}>Image URL<input required className={`${fieldClass} mt-1`} value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} /></label>
-          <label className={labelClass}>Mobile image<input className={`${fieldClass} mt-1`} value={form.mobileImage || ''} onChange={(e) => setForm({ ...form, mobileImage: e.target.value })} /></label>
+          <MediaField label="Image" folder="banner" value={form.image} onChange={(image) => setForm({ ...form, image })} />
+          <MediaField label="Mobile image" folder="banner" value={form.mobileImage || ''} onChange={(mobileImage) => setForm({ ...form, mobileImage })} />
           <label className={labelClass}>Link<input className={`${fieldClass} mt-1`} value={form.link || ''} onChange={(e) => setForm({ ...form, link: e.target.value })} /></label>
           <label className={labelClass}>Placement
             <select className={`${fieldClass} mt-1`} value={form.placement} onChange={(e) => setForm({ ...form, placement: e.target.value })}>

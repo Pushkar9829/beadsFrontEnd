@@ -1,17 +1,29 @@
-import { NavLink } from 'react-router-dom';
-import { STUDIO_MODES } from '../../lib/studioModes';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { resolveStudioModes } from '../../lib/studioModes';
+import { useSettingsStore } from '../../store/settingsStore';
+import { useCustomizerStore } from '../../store/customizerStore';
 
 export default function StudioModeNav() {
+  const { pathname } = useLocation();
+  const [params] = useSearchParams();
+  const fromStore = useSettingsStore((s) => s.studioModes);
+  const fromCustomizer = useCustomizerStore((s) => s.config);
+  const modes = resolveStudioModes(fromCustomizer?.studioModes?.length ? fromCustomizer : { studioModes: fromStore });
+  const active =
+    pathname === '/customize/purpose'
+      ? 'purpose'
+      : params.get('path') || (params.get('purpose') ? 'purpose' : 'purpose');
+
   return (
     <nav className="studio-mode-nav" aria-label="Customization paths">
-      {STUDIO_MODES.map((mode) => (
-        <NavLink
+      {modes.map((mode) => (
+        <Link
           key={mode.slug}
-          to={mode.path}
-          className={({ isActive }) => `studio-mode-chip ${isActive ? 'is-on' : ''}`}
+          to={`/customize?path=${mode.slug}`}
+          className={`studio-mode-chip ${active === mode.slug ? 'is-on' : ''}`}
         >
           {mode.short}
-        </NavLink>
+        </Link>
       ))}
     </nav>
   );

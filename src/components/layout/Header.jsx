@@ -6,12 +6,12 @@ import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import { useWishlistStore } from '../../store/wishlistStore';
 import AccountDrawer from './AccountDrawer';
-import { useBrand } from '../../store/settingsStore';
+import { resolveStudioModes } from '../../lib/studioModes';
+import { useSettingsStore, useBrand } from '../../store/settingsStore';
 import { useSite } from '../../store/contentStore';
 import { isStaff } from '../../lib/staff';
 import FlashSaleMark from '../ui/FlashSaleMark';
 import useRefreshOnView from '../../hooks/useRefreshOnView';
-import { STUDIO_MODES } from '../../lib/studioModes';
 
 const fallbackFamilies = [
   { slug: 'crystals', name: 'Crystals' },
@@ -25,6 +25,7 @@ export default function Header() {
   const site = useSite();
   const houseItems = site.houses?.items || [];
   const brand = useBrand();
+  const studioModes = resolveStudioModes({ studioModes: useSettingsStore((s) => s.studioModes) });
   const families = houseItems.length
     ? houseItems.map((h) => ({ slug: h.slug, name: h.name }))
     : fallbackFamilies;
@@ -155,7 +156,7 @@ export default function Header() {
                   {f.name}
                   <ChevronDown
                     size={12}
-                    className={`transition duration-200 ${mega === f.slug ? 'rotate-180 text-gold' : ''}`}
+                    className={`transition duration-200 ${mega === f.slug ? 'rotate-180' : ''}`}
                   />
                 </NavLink>
                 {mega === f.slug && (
@@ -197,21 +198,19 @@ export default function Header() {
                 to="/customize"
                 className={() => {
                   const on = location.pathname.startsWith('/customize');
-                  return `flex items-center gap-1 rounded-full px-3.5 py-1.5 text-xs uppercase tracking-[0.16em] transition duration-200 ${
-                    on ? 'gold-btn' : 'border border-gold/40 hover:border-gold hover:bg-gold/10'
-                  }`;
+                  return `header-nav-link flex items-center gap-1 px-3 py-2 ${on ? 'is-active' : ''}`;
                 }}
               >
-                <span className="gold-cloud">{brand.nav.customize}</span>
+                {brand.nav.customize}
                 <ChevronDown
                   size={12}
-                  className={`transition duration-200 ${mega === 'customize' ? 'rotate-180 text-gold' : ''}`}
+                  className={`transition duration-200 ${mega === 'customize' ? 'rotate-180' : ''}`}
                 />
               </NavLink>
               {mega === 'customize' && (
                 <div className="absolute left-0 top-full w-80 pt-3">
                   <div className="animate-mega overflow-hidden rounded-2xl bg-surface/95 p-2 gold-border">
-                    {STUDIO_MODES.map((mode) => (
+                    {studioModes.map((mode) => (
                       <Link
                         key={mode.slug}
                         to={mode.path}
@@ -238,7 +237,7 @@ export default function Header() {
                 {brand.nav.collections}
                 <ChevronDown
                   size={12}
-                  className={`transition duration-200 ${mega === 'collections' ? 'rotate-180 text-gold' : ''}`}
+                  className={`transition duration-200 ${mega === 'collections' ? 'rotate-180' : ''}`}
                 />
               </NavLink>
               {mega === 'collections' && (
@@ -328,14 +327,14 @@ export default function Header() {
           <NavLink
             to="/customize"
             className={() =>
-              `shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
-                location.pathname === '/customize' ? 'gold-btn' : 'border border-gold/40'
+              `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
+                location.pathname.startsWith('/customize') ? 'is-active bg-gold/15' : ''
               }`
             }
           >
-            <span className="gold-cloud">{brand.nav.customize}</span>
+            {brand.nav.customize}
           </NavLink>
-          {STUDIO_MODES.map((mode) => (
+          {studioModes.map((mode) => (
             <NavLink
               key={mode.slug}
               to={mode.path}
