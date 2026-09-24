@@ -1,5 +1,7 @@
 import { useCustomizerStore } from '../../../store/customizerStore';
 import { mediaUrl } from '../../../api/client';
+import { useStudioLabels } from '../../../lib/studioTheme';
+import OptionArt from '../OptionArt';
 
 export default function FinishStep() {
   const charms = useCustomizerStore((s) => s.charms);
@@ -12,6 +14,7 @@ export default function FinishStep() {
   const engravingName = useCustomizerStore((s) => s.engravingName);
   const setEngravingName = useCustomizerStore((s) => s.setEngravingName);
   const config = useCustomizerStore((s) => s.config);
+  const labels = useStudioLabels();
   const finishes = charm?.finishes || [];
   const czOptions = config?.czOptions?.length ? config.czOptions : [
     { key: 'cz', label: 'CZ', detail: 'Classic cut accent.' },
@@ -22,7 +25,7 @@ export default function FinishStep() {
   return (
     <div className="studio-birth space-y-7">
       <div>
-        <p className="studio-birth-kicker">Charm at the clasp</p>
+        <p className="studio-birth-kicker">{labels.charmLabel}</p>
         {charms.length ? (
           <div className="studio-charm-row">
             {charms.map((c) => (
@@ -41,13 +44,13 @@ export default function FinishStep() {
             ))}
           </div>
         ) : (
-          <p className="mt-2 text-sm text-lilac">Charms are still loading. Stay on this step for a moment.</p>
+          <p className="mt-2 text-sm text-lilac">{labels.charmsLoading}</p>
         )}
       </div>
 
       {finishes.length > 1 ? (
         <div>
-          <p className="studio-birth-kicker">Finish</p>
+          <p className="studio-birth-kicker">{labels.finishLabel}</p>
           <div className="studio-qty studio-qty-sm mt-3">
             {finishes.map((f) => (
               <button
@@ -67,7 +70,7 @@ export default function FinishStep() {
       ) : null}
 
       <div>
-        <p className="studio-birth-kicker">CZ accent</p>
+        <p className="studio-birth-kicker">{labels.czLabel}</p>
         <div className="studio-charm-row">
           {czOptions.map((option) => (
             <button
@@ -76,6 +79,7 @@ export default function FinishStep() {
               onClick={() => setCzStyle(option.key)}
               className={`studio-charm-card ${czStyle === option.key ? 'is-on' : ''}`}
             >
+              <OptionArt option={option} />
               <strong>{option.label}</strong>
               <span>{option.detail}</span>
             </button>
@@ -84,17 +88,15 @@ export default function FinishStep() {
       </div>
 
       <div>
-        <p className="studio-birth-kicker">Name · optional</p>
-        <p className="mt-2 text-sm text-lilac">
-          A short name or dedication on the piece. Leave it blank to skip.
-        </p>
+        <p className="studio-birth-kicker">{labels.nameLabel}</p>
+        <p className="mt-2 text-sm text-lilac">{labels.nameBody}</p>
         <input
           value={engravingName || ''}
           onChange={(e) => setEngravingName(e.target.value.slice(0, maxName))}
           maxLength={maxName}
-          placeholder="Optional"
-          aria-label="Name on the piece"
-          className="mt-3 w-full rounded-xl border border-gold/30 bg-surface px-3 py-2 text-ivory"
+          placeholder={labels.namePlaceholder}
+          aria-label={labels.nameLabel}
+          className="studio-name-input mt-3 w-full rounded-xl border border-gold/30 bg-surface px-3 py-2 text-ivory"
         />
       </div>
     </div>

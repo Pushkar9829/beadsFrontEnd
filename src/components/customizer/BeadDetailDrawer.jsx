@@ -3,8 +3,10 @@ import { useCustomizerStore } from '../../store/customizerStore';
 import GemVisual from '../ui/GemVisual';
 import Price from '../ui/Price';
 import { purposeToneStyle } from './PurposeGrid';
+import { useStudioLabels } from '../../lib/studioTheme';
 
 export default function BeadDetailDrawer() {
+  const labels = useStudioLabels();
   const bead = useCustomizerStore((s) => s.detailBead);
   const close = useCustomizerStore((s) => s.setDetailBead);
   const purpose = useCustomizerStore((s) => s.purpose);
@@ -28,7 +30,7 @@ export default function BeadDetailDrawer() {
       >
         <div className="studio-modal-bar flex shrink-0 items-center justify-between border-b border-[rgba(198,167,94,0.2)] px-5 py-4">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.22em] text-gold">Crystal</p>
+            <p className="text-[10px] uppercase tracking-[0.22em] text-gold">{labels.drawerKicker}</p>
             <h2 className="font-serif text-xl gold-text">{bead.name}</h2>
           </div>
           <button
@@ -44,9 +46,9 @@ export default function BeadDetailDrawer() {
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-5">
           <GemVisual color={bead.colorHex} image={bead.image} name={bead.name} className="h-52 w-full rounded-2xl" />
           <p className="mt-4 text-lilac">{bead.shortDescriptor}</p>
-          <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">Traditional power / use</h3>
+          <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">{labels.drawerPower}</h3>
           <p className="mt-1 text-sm text-ivory/85">{bead.powerUse}</p>
-          <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">Benefits</h3>
+          <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">{labels.drawerBenefits}</h3>
           <ul className="mt-1 list-disc pl-4 text-sm text-lilac">
             {(bead.benefits || []).map((b) => (
               <li key={b}>{b}</li>
@@ -54,35 +56,35 @@ export default function BeadDetailDrawer() {
           </ul>
           {bead.chakra && (
             <>
-              <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">Chakra / energy</h3>
+              <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">{labels.drawerChakra}</h3>
               <p className="mt-1 text-sm">{bead.chakra}</p>
             </>
           )}
           {bead.reason && (
             <>
-              <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">Why it is recommended</h3>
+              <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">{labels.drawerReason}</h3>
               <p className="mt-1 text-sm text-amethyst-light">{bead.reason}</p>
             </>
           )}
           {bead.origin && (
             <>
-              <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">Origin</h3>
+              <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">{labels.drawerOrigin}</h3>
               <p className="mt-1 text-sm">{bead.origin}</p>
             </>
           )}
           {(bead.sizeMm || bead.shape || bead.grade) && (
             <>
-              <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">Specification</h3>
+              <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">{labels.drawerSpec}</h3>
               <p className="mt-1 text-sm text-lilac">
                 {[bead.sizeMm ? `${bead.sizeMm} mm` : null, bead.shape, bead.grade].filter(Boolean).join(' · ')}
               </p>
             </>
           )}
-          <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">Care</h3>
+          <h3 className="mt-5 text-[11px] uppercase tracking-[0.2em] text-gold">{labels.drawerCare}</h3>
           <p className="mt-1 text-sm text-lilac">{bead.careNotes}</p>
           <p className="mt-6 text-xs leading-relaxed text-ivory/45">{bead.disclaimer}</p>
           <p className="mt-4 text-gold">
-            <Price value={bead.pricePerBead} /> <span className="text-xs text-lilac">/ bead</span>
+            <Price value={bead.pricePerBead} /> <span className="text-xs text-lilac">{labels.perBead}</span>
           </p>
         </div>
       </aside>

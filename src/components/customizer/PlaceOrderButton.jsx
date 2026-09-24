@@ -4,6 +4,7 @@ import { useCustomizerStore, useCustomizerQuote } from '../../store/customizerSt
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import Button from '../ui/Button';
+import { useStudioLabels } from '../../lib/studioTheme';
 
 export default function PlaceOrderButton({ className = 'w-full' }) {
   const navigate = useNavigate();
@@ -15,11 +16,12 @@ export default function PlaceOrderButton({ className = 'w-full' }) {
   const addCustom = useCartStore((s) => s.addCustom);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const labels = useStudioLabels();
 
   async function place() {
     setErr('');
     if (!charm) {
-      setErr('Choose Sriyantra or Om before placing the order.');
+      setErr(labels.charmMissing);
       return;
     }
     setBusy(true);
@@ -29,7 +31,7 @@ export default function PlaceOrderButton({ className = 'w-full' }) {
       if (user) navigate('/checkout');
       else navigate('/login', { state: { from: { pathname: '/checkout' } } });
     } catch (e) {
-      setErr(e.message || 'Could not place this piece.');
+      setErr(e.message || labels.orderFailed);
     } finally {
       setBusy(false);
     }
@@ -42,7 +44,7 @@ export default function PlaceOrderButton({ className = 'w-full' }) {
         <p className="mb-3 text-xs text-lilac">{quote.errors.join(' ')}</p>
       )}
       <Button onClick={place} disabled={busy} className={className}>
-        {busy ? 'Placing…' : 'Place order'}
+        {busy ? labels.placingOrder : labels.placeOrder}
       </Button>
     </div>
   );

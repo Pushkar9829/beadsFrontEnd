@@ -2,6 +2,7 @@ import { useCustomizerStore, useCustomizerQuote } from '../../store/customizerSt
 import Price from '../ui/Price';
 import { stepIndexOf } from '../../lib/studioFlow';
 import { formatWristChoice } from '../../lib/format';
+import { useStudioLabels } from '../../lib/studioTheme';
 
 export default function ReviewStep() {
   const layer = useCustomizerStore((s) => s.layer);
@@ -17,25 +18,26 @@ export default function ReviewStep() {
   const calibration = useCustomizerStore((s) => s.calibration);
   const quote = useCustomizerQuote();
   const setStep = useCustomizerStore((s) => s.setStep);
+  const labels = useStudioLabels();
   const lines = quote.lines || [];
   const pack = quote.packaging?.lines || [];
-  const title = intention?.braceletName || intention?.name || layer?.name || 'Custom strand';
+  const title = intention?.braceletName || intention?.name || layer?.name || labels.customStrand;
   const extras = (selectedIntentions || []).slice(1);
 
   return (
     <article className="auth-card">
-      <p className="bag-summary-kicker">The composition</p>
+      <p className="bag-summary-kicker">{labels.reviewKicker}</p>
       <h2 className="bag-summary-title gold-text">{title}</h2>
 
       <dl className="bag-summary-rows">
         {layer ? (
           <div>
-            <dt>Path</dt>
+            <dt>{labels.rowPath}</dt>
             <dd>{layer.modeLabel} · {layer.name}</dd>
           </div>
         ) : (
           <div>
-            <dt>Intention</dt>
+            <dt>{labels.rowIntention}</dt>
             <dd>
               {purpose?.name} · {intention?.name}
               {extras.length ? ` · +${extras.map((it) => it.name).join(', ')}` : ''}
@@ -44,25 +46,25 @@ export default function ReviewStep() {
         )}
         {dateOfBirth ? (
           <div>
-            <dt>Date of birth</dt>
+            <dt>{labels.rowDob}</dt>
             <dd>{dateOfBirth}</dd>
           </div>
         ) : null}
         {(calibration?.mulank || layer?.selections?.mulank) ? (
           <div>
-            <dt>Mulank {calibration?.mulank || layer?.selections?.mulank?.number}</dt>
+            <dt>{labels.mulankLabel} {calibration?.mulank || layer?.selections?.mulank?.number}</dt>
             <dd>{(layer?.selections?.mulank?.beads || []).join(' · ') || calibration?.mulank}</dd>
           </div>
         ) : null}
         {(calibration?.bhagyank || layer?.selections?.bhagyank) ? (
           <div>
-            <dt>Bhagyank {calibration?.bhagyank || layer?.selections?.bhagyank?.number}</dt>
+            <dt>{labels.bhagyankLabel} {calibration?.bhagyank || layer?.selections?.bhagyank?.number}</dt>
             <dd>{(layer?.selections?.bhagyank?.beads || []).join(' · ') || calibration?.bhagyank}</dd>
           </div>
         ) : null}
         {layer?.selections?.zodiac ? (
           <div>
-            <dt>Zodiac</dt>
+            <dt>{labels.rowZodiac}</dt>
             <dd>
               {layer.selections.zodiac.hindi ? `${layer.selections.zodiac.hindi} / ` : ''}
               {layer.selections.zodiac.sign}
@@ -70,7 +72,7 @@ export default function ReviewStep() {
           </div>
         ) : null}
         <div>
-          <dt>Bead size</dt>
+          <dt>{labels.rowBeadSize}</dt>
           <dd>{beadSizeMm || 8}mm</dd>
         </div>
         {lines.map((l) => (
@@ -89,21 +91,21 @@ export default function ReviewStep() {
           </div>
         ))}
         <div>
-          <dt>Charm · {charm?.name}</dt>
+          <dt>{labels.rowCharm} · {charm?.name}</dt>
           <dd>{charm?.name}</dd>
         </div>
         <div>
-          <dt>Wrist</dt>
+          <dt>{labels.rowWrist}</dt>
           <dd>{formatWristChoice(threadType, wristSize)}</dd>
         </div>
         {engravingName ? (
           <div>
-            <dt>Personalise</dt>
+            <dt>{labels.rowPersonalise}</dt>
             <dd>{engravingName}</dd>
           </div>
         ) : null}
         <div className="bag-summary-total">
-          <dt>Total</dt>
+          <dt>{labels.totalLabel}</dt>
           <dd><Price value={quote.total} /></dd>
         </div>
       </dl>
@@ -119,14 +121,14 @@ export default function ReviewStep() {
             className="bag-summary-clear"
             onClick={() => setStep(stepIndexOf('choose'))}
           >
-            Edit selection
+            {labels.editSelection}
           </button>
           <button
             type="button"
             className="bag-summary-clear"
             onClick={() => setStep(stepIndexOf('crystals'))}
           >
-            Edit crystals
+            {labels.editCrystals}
           </button>
         </div>
       </div>

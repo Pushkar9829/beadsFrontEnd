@@ -2,6 +2,7 @@ import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { resolveStudioModes } from '../../lib/studioModes';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useCustomizerStore } from '../../store/customizerStore';
+import { ModeArt } from './OptionArt';
 
 export default function StudioModeNav() {
   const { pathname } = useLocation();
@@ -20,8 +21,9 @@ export default function StudioModeNav() {
         <Link
           key={mode.slug}
           to={`/customize?path=${mode.slug}`}
-          className={`studio-mode-chip ${active === mode.slug ? 'is-on' : ''}`}
+          className={`studio-mode-chip inline-flex items-center gap-1.5 ${active === mode.slug ? 'is-on' : ''}`}
         >
+          <ModeArt mode={mode} small />
           {mode.short}
         </Link>
       ))}

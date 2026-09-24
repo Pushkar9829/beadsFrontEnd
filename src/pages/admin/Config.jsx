@@ -20,6 +20,18 @@ function updateRow(list, index, patch) {
   return list.map((row, i) => (i === index ? { ...row, ...patch } : row));
 }
 
+function OptionArtFields({ row, onChange }) {
+  return (
+    <div className="grid gap-2 sm:grid-cols-[8rem_minmax(0,1fr)]">
+      <label className={labelClass}>
+        Icon (emoji)
+        <input className={`${fieldClass} mt-1`} value={row.icon || ''} onChange={(e) => onChange({ icon: e.target.value })} placeholder="✨" />
+      </label>
+      <MediaField label="Image (wins over icon)" folder="studio" value={row.image || ''} onChange={(image) => onChange({ image })} />
+    </div>
+  );
+}
+
 export default function AdminConfig() {
   const [config, setConfig] = useState(null);
   const [draft, setDraft] = useState(null);
@@ -197,10 +209,14 @@ export default function AdminConfig() {
 
             <p className={labelClass}>Thread types</p>
             {(draft.threadTypes || []).map((row, i) => (
-              <div key={`${row.key}-${i}`} className="grid grid-cols-3 gap-2">
-                <input className={fieldClass} value={row.key} onChange={(e) => setDraft({ ...draft, threadTypes: updateRow(draft.threadTypes, i, { key: e.target.value }) })} placeholder="key" />
-                <input className={fieldClass} value={row.label} onChange={(e) => setDraft({ ...draft, threadTypes: updateRow(draft.threadTypes, i, { label: e.target.value }) })} placeholder="label" />
-                <input className={fieldClass} value={row.detail || ''} onChange={(e) => setDraft({ ...draft, threadTypes: updateRow(draft.threadTypes, i, { detail: e.target.value }) })} placeholder="detail" />
+              <div key={i} className="space-y-2 rounded-xl border border-gold/20 p-3">
+                <div className="grid grid-cols-3 gap-2">
+                  <input className={fieldClass} value={row.key} onChange={(e) => setDraft({ ...draft, threadTypes: updateRow(draft.threadTypes, i, { key: e.target.value }) })} placeholder="key" />
+                  <input className={fieldClass} value={row.label} onChange={(e) => setDraft({ ...draft, threadTypes: updateRow(draft.threadTypes, i, { label: e.target.value }) })} placeholder="label" />
+                  <input className={fieldClass} value={row.detail || ''} onChange={(e) => setDraft({ ...draft, threadTypes: updateRow(draft.threadTypes, i, { detail: e.target.value }) })} placeholder="detail" />
+                </div>
+                <OptionArtFields row={row} onChange={(patch) => setDraft({ ...draft, threadTypes: updateRow(draft.threadTypes, i, patch) })} />
+                <button type="button" className="text-xs text-red-300" onClick={() => setDraft({ ...draft, threadTypes: draft.threadTypes.filter((_, idx) => idx !== i) })}>Remove thread</button>
               </div>
             ))}
             <Button type="button" variant="ghost" onClick={() => setDraft({ ...draft, threadTypes: [...(draft.threadTypes || []), { key: '', label: '', detail: '' }] })}>Add thread</Button>
@@ -212,11 +228,15 @@ export default function AdminConfig() {
 
             <p className={labelClass}>CZ options</p>
             {(draft.czOptions || []).map((row, i) => (
-              <div key={`${row.key}-${i}`} className="grid grid-cols-4 gap-2">
-                <input className={fieldClass} value={row.key} onChange={(e) => setDraft({ ...draft, czOptions: updateRow(draft.czOptions, i, { key: e.target.value }) })} placeholder="key" />
-                <input className={fieldClass} value={row.label} onChange={(e) => setDraft({ ...draft, czOptions: updateRow(draft.czOptions, i, { label: e.target.value }) })} placeholder="label" />
-                <input className={fieldClass} value={row.detail || ''} onChange={(e) => setDraft({ ...draft, czOptions: updateRow(draft.czOptions, i, { detail: e.target.value }) })} placeholder="detail" />
-                <input type="number" className={fieldClass} value={row.price ?? 0} onChange={(e) => setDraft({ ...draft, czOptions: updateRow(draft.czOptions, i, { price: Number(e.target.value) }) })} placeholder="price" />
+              <div key={i} className="space-y-2 rounded-xl border border-gold/20 p-3">
+                <div className="grid grid-cols-4 gap-2">
+                  <input className={fieldClass} value={row.key} onChange={(e) => setDraft({ ...draft, czOptions: updateRow(draft.czOptions, i, { key: e.target.value }) })} placeholder="key" />
+                  <input className={fieldClass} value={row.label} onChange={(e) => setDraft({ ...draft, czOptions: updateRow(draft.czOptions, i, { label: e.target.value }) })} placeholder="label" />
+                  <input className={fieldClass} value={row.detail || ''} onChange={(e) => setDraft({ ...draft, czOptions: updateRow(draft.czOptions, i, { detail: e.target.value }) })} placeholder="detail" />
+                  <input type="number" className={fieldClass} value={row.price ?? 0} onChange={(e) => setDraft({ ...draft, czOptions: updateRow(draft.czOptions, i, { price: Number(e.target.value) }) })} placeholder="price" />
+                </div>
+                <OptionArtFields row={row} onChange={(patch) => setDraft({ ...draft, czOptions: updateRow(draft.czOptions, i, patch) })} />
+                <button type="button" className="text-xs text-red-300" onClick={() => setDraft({ ...draft, czOptions: draft.czOptions.filter((_, idx) => idx !== i) })}>Remove CZ option</button>
               </div>
             ))}
             <Button type="button" variant="ghost" onClick={() => setDraft({ ...draft, czOptions: [...(draft.czOptions || []), { key: '', label: '', detail: '', price: 0 }] })}>Add CZ option</Button>
@@ -248,6 +268,7 @@ export default function AdminConfig() {
                 <textarea className={fieldClass} value={mode.body || ''} onChange={(e) => setDraft({ ...draft, studioModes: updateRow(draft.studioModes, i, { body: e.target.value }) })} placeholder="Body" />
                 <input className={fieldClass} value={mode.chooseHint || ''} onChange={(e) => setDraft({ ...draft, studioModes: updateRow(draft.studioModes, i, { chooseHint: e.target.value }) })} placeholder="Choose-step hint" />
                 <input type="number" className={fieldClass} value={mode.sortOrder ?? i + 1} onChange={(e) => setDraft({ ...draft, studioModes: updateRow(draft.studioModes, i, { sortOrder: Number(e.target.value) }) })} placeholder="Order" />
+                <OptionArtFields row={mode} onChange={(patch) => setDraft({ ...draft, studioModes: updateRow(draft.studioModes, i, patch) })} />
               </div>
             ))}
 

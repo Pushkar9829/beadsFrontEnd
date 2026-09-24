@@ -10,6 +10,7 @@ import AdminToolbar, { paginate, Pagination } from '../../components/admin/Admin
 import StatusBadge from '../../components/admin/StatusBadge';
 import { toast } from '../../lib/adminToast';
 import MediaField from '../../components/admin/MediaField';
+import ColorField from '../../components/admin/ColorField';
 
 const empty = {
   name: '', shortDescriptor: '', powerUse: '', benefits: '', chakra: '', careNotes: '',
@@ -114,7 +115,7 @@ export default function AdminBeads() {
           <label className={labelClass}>Short descriptor<input className={`${fieldClass} mt-1`} value={form.shortDescriptor} onChange={(e) => setForm({ ...form, shortDescriptor: e.target.value })} /></label>
           <label className={labelClass}>Price per bead<input type="number" className={`${fieldClass} mt-1`} value={form.pricePerBead} onChange={(e) => setForm({ ...form, pricePerBead: e.target.value })} /></label>
           <MediaField label="Image" folder="bead" value={form.image || ''} onChange={(image) => setForm({ ...form, image })} />
-          <label className={labelClass}>Color hex<input className={`${fieldClass} mt-1`} value={form.colorHex} onChange={(e) => setForm({ ...form, colorHex: e.target.value })} /></label>
+          <ColorField label="Bead colour (used when there is no image)" placeholder="#C6A75E" value={form.colorHex} onChange={(colorHex) => setForm({ ...form, colorHex })} />
           <label className={labelClass}>Chakra<input className={`${fieldClass} mt-1`} value={form.chakra} onChange={(e) => setForm({ ...form, chakra: e.target.value })} /></label>
           <label className={labelClass}>Origin<input className={`${fieldClass} mt-1`} value={form.origin} onChange={(e) => setForm({ ...form, origin: e.target.value })} /></label>
           <label className={labelClass}>Size (mm)<input type="number" className={`${fieldClass} mt-1`} value={form.sizeMm} onChange={(e) => setForm({ ...form, sizeMm: e.target.value })} /></label>

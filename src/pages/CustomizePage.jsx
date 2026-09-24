@@ -18,6 +18,7 @@ import SectionHead from '../components/home/SectionHead';
 import SeoHead from '../components/SeoHead';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
+import { studioThemeStyle } from '../lib/studioTheme';
 
 const PANE = {
   choose: ChooseStep,
@@ -29,7 +30,9 @@ const PANE = {
 
 export default function CustomizePage() {
   const brand = useBrand();
-  const cmsSteps = useSite().pages.customize.steps || [];
+  const cmsCustomize = useSite().pages.customize;
+  const cmsSteps = cmsCustomize.steps || [];
+  const themeStyle = studioThemeStyle(cmsCustomize.theme);
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const syncFromUrl = useCustomizerStore((s) => s.syncFromUrl);
@@ -95,7 +98,7 @@ export default function CustomizePage() {
   }
 
   return (
-    <div className="studio-page relative pb-36 lg:pb-0">
+    <div className="studio-page relative pb-36 lg:pb-0" style={themeStyle}>
       <div className="pointer-events-none absolute inset-0 lotus-corner" />
       <div className="relative shell py-8 sm:py-10 md:py-12">
         <SeoHead

@@ -4,8 +4,10 @@ import { intentionEmoji } from '../../../lib/studioIcons';
 import { PurposeIcon, purposeHasImage, purposeToneStyle } from '../PurposeGrid';
 import DateFields from '../DateFields';
 import Spinner from '../../ui/Spinner';
+import { studioText, useStudioLabels } from '../../../lib/studioTheme';
 
 function ChosenPill({ label, detail, onChange }) {
+  const labels = useStudioLabels();
   return (
     <div className="studio-chosen">
       <span className="studio-chosen-copy">
@@ -14,7 +16,7 @@ function ChosenPill({ label, detail, onChange }) {
       </span>
       <button type="button" onClick={onChange}>
         <Pencil size={13} strokeWidth={2.2} />
-        Change
+        {labels.changeLabel}
       </button>
     </div>
   );
@@ -30,6 +32,7 @@ function PurposeChoice() {
   const selecting = useCustomizerStore((s) => s.selecting);
   const clearSelection = useCustomizerStore((s) => s.clearSelection);
   const cap = Number(useCustomizerStore((s) => s.config?.intentionCap)) || 3;
+  const labels = useStudioLabels();
 
   if (!purpose) {
     return (
@@ -53,9 +56,7 @@ function PurposeChoice() {
           </button>
         ))}
         {!purposes.length ? (
-          <p className="sky-copy text-sm text-lilac">
-            Purposes will appear here once the studio is configured.
-          </p>
+          <p className="sky-copy text-sm text-lilac">{labels.emptyPurposes}</p>
         ) : null}
       </div>
     );
@@ -72,8 +73,8 @@ function PurposeChoice() {
       />
 
       <div className="studio-pick-count mt-6">
-        <span>{chosen.length} of {cap} intentions</span>
-        <span>{cap === 1 ? 'Pick one' : `Pick up to ${cap}`}</span>
+        <span>{studioText(labels, 'intentionCount', { count: chosen.length, cap })}</span>
+        <span>{studioText(labels, cap === 1 ? 'pickOne' : 'pickUpTo', { cap })}</span>
       </div>
 
       {selecting && !intentions.length ? <Spinner /> : null}
@@ -155,24 +156,22 @@ function NumerologyChoice() {
   const mulankNumber = useCustomizerStore((s) => s.mulankNumber);
   const bhagyankNumber = useCustomizerStore((s) => s.bhagyankNumber);
   const setNumerology = useCustomizerStore((s) => s.setNumerology);
+  const labels = useStudioLabels();
 
   if (loading && !items.length) return <Spinner />;
 
   return (
     <div className="space-y-8">
       <div className="auth-card">
-        <p className="studio-birth-kicker">Date of birth · optional</p>
-        <p className="mt-2 text-sm text-lilac">
-          Enter it and both numbers are filled in for you. Mulank is the birth-day number,
-          Bhagyank the full-date number. You can also pick either one by hand below.
-        </p>
+        <p className="studio-birth-kicker">{labels.birthKicker}</p>
+        <p className="mt-2 text-sm text-lilac">{labels.birthBody}</p>
         <div className="mt-4">
           <DateFields value={dateOfBirth} onChange={setDateOfBirth} />
         </div>
       </div>
 
       <div>
-        <p className="studio-birth-kicker">Mulank</p>
+        <p className="studio-birth-kicker">{labels.mulankLabel}</p>
         <NumberGrid
           items={items}
           slotKey="mulank"
@@ -182,10 +181,8 @@ function NumerologyChoice() {
       </div>
 
       <div>
-        <p className="studio-birth-kicker">Bhagyank</p>
-        <p className="mt-2 text-sm text-lilac">
-          Optional second layer. Stones shared with Mulank stay once in the strand, keeping both roles.
-        </p>
+        <p className="studio-birth-kicker">{labels.bhagyankLabel}</p>
+        <p className="mt-2 text-sm text-lilac">{labels.bhagyankBody}</p>
         <NumberGrid
           items={items}
           slotKey="bhagyank"
@@ -203,6 +200,7 @@ function LayerChoice() {
   const layerItem = useCustomizerStore((s) => s.layerItem);
   const selectLayerItem = useCustomizerStore((s) => s.selectLayerItem);
   const goNext = useCustomizerStore((s) => s.goNext);
+  const labels = useStudioLabels();
 
   // One pick is the whole step on these paths, so carry on without a Next click.
   // The advance lives here rather than in the action because syncFromUrl calls the
@@ -227,7 +225,7 @@ function LayerChoice() {
         />
       ))}
       {!items.length ? (
-        <p className="sky-copy text-sm text-lilac">No combinations in this catalog yet.</p>
+        <p className="sky-copy text-sm text-lilac">{labels.emptyLayer}</p>
       ) : null}
     </div>
   );

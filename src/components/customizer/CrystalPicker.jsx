@@ -5,8 +5,10 @@ import { qtyOf } from '../../lib/studioFlow';
 import GemVisual from '../ui/GemVisual';
 import Price from '../ui/Price';
 import QtyControl from '../ui/QtyControl';
+import { studioText, useStudioLabels } from '../../lib/studioTheme';
 
 function CrystalRow({ bead, selected, qty, maxQty, onToggle, onQty, onInfo, roles }) {
+  const labels = useStudioLabels();
   return (
     <div className={`studio-pick-row ${selected ? 'is-on' : ''}`}>
       <button
@@ -27,7 +29,7 @@ function CrystalRow({ bead, selected, qty, maxQty, onToggle, onQty, onInfo, role
         <span className="studio-crystal-copy">
           <span className="studio-bead-name">{bead.name}</span>
           <span className="studio-bead-price">
-            <Price value={bead.pricePerBead} /> / bead
+            <Price value={bead.pricePerBead} /> {labels.perBead}
           </span>
           {roles?.length ? <span className="studio-pick-roles">{roles.join(' + ')}</span> : null}
         </span>
@@ -50,6 +52,7 @@ function CrystalRow({ bead, selected, qty, maxQty, onToggle, onQty, onInfo, role
 }
 
 function CatalogModal({ extras, atMax, onAdd, onInfo, onClose }) {
+  const labels = useStudioLabels();
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') onClose();
@@ -79,9 +82,9 @@ function CatalogModal({ extras, atMax, onAdd, onInfo, onClose }) {
       >
         <div className="studio-modal-bar flex shrink-0 items-start justify-between gap-4 border-b border-[rgba(198,167,94,0.2)] px-5 py-4">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.22em] text-gold">Catalog</p>
+            <p className="text-[10px] uppercase tracking-[0.22em] text-gold">{labels.catalogKicker}</p>
             <h2 id="crystal-catalog-title" className="mt-1 font-serif text-xl gold-text">
-              Add another crystal
+              {labels.catalogTitle}
             </h2>
           </div>
           <button type="button" className="header-icon" aria-label="Close" onClick={onClose}>
@@ -90,9 +93,7 @@ function CatalogModal({ extras, atMax, onAdd, onInfo, onClose }) {
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto p-4">
           {atMax ? (
-            <p className="mb-3 text-sm text-lilac">
-              The strand is at its crystal limit. Remove one from the list first to add another.
-            </p>
+            <p className="mb-3 text-sm text-lilac">{labels.catalogFull}</p>
           ) : null}
           <div className="studio-crystal-list">
             {extras.map((bead) => (
@@ -125,6 +126,7 @@ export default function CrystalPicker() {
   const addCatalogBead = useCustomizerStore((s) => s.addCatalogBead);
   const setDetailBead = useCustomizerStore((s) => s.setDetailBead);
   const limits = useCrystalLimits();
+  const labels = useStudioLabels();
   const [adding, setAdding] = useState(false);
   const closeCatalog = () => setAdding(false);
 
@@ -144,19 +146,15 @@ export default function CrystalPicker() {
 
   if (!recommended?.length) {
     return (
-      <p className="text-sm text-lilac">
-        These crystals are not in the atelier yet. They need to be added under Beads first.
-      </p>
+      <p className="text-sm text-lilac">{labels.crystalsMissing}</p>
     );
   }
 
   return (
     <div className="studio-birth">
       <div className="studio-pick-count">
-        <span>
-          {limits.count} of {limits.max} crystals
-        </span>
-        <span>{beadTotal} beads on the strand</span>
+        <span>{studioText(labels, 'crystalCount', { count: limits.count, max: limits.max })}</span>
+        <span>{studioText(labels, 'beadTotal', { count: beadTotal })}</span>
       </div>
 
       <div className="studio-crystal-list mt-4">
@@ -185,7 +183,7 @@ export default function CrystalPicker() {
           onClick={() => setAdding(true)}
         >
           <Plus size={16} strokeWidth={2.2} />
-          Add another crystal
+          {labels.addCrystal}
         </button>
       ) : null}
 
@@ -199,9 +197,7 @@ export default function CrystalPicker() {
         />
       ) : null}
 
-      <p className="mt-4 text-xs leading-relaxed text-lilac">
-        Traditional catalog associations, not medical claims.
-      </p>
+      <p className="mt-4 text-xs leading-relaxed text-lilac">{labels.crystalNote}</p>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import AdminDrawer from '../../components/admin/AdminDrawer';
 import ConfirmDelete from '../../components/admin/ConfirmDelete';
 import AdminHeader, { RowActions, fieldClass, labelClass } from '../../components/admin/AdminHeader';
 import MediaField from '../../components/admin/MediaField';
+import { CardColorFields } from '../../components/admin/ColorField';
 import { toast } from '../../lib/adminToast';
 
 const TABS = [
@@ -271,6 +272,8 @@ export default function AdminStudioLayers() {
           <label className={labelClass}>Theme<input className={`${fieldClass} mt-1`} value={form.theme || ''} onChange={(e) => setForm({ ...form, theme: e.target.value })} /></label>
           <label className={labelClass}>Description<textarea className={`${fieldClass} mt-1`} value={form.description || ''} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Shown on the storefront box" /></label>
           <MediaField label="Box image" folder="studio" value={form.image || ''} onChange={(image) => setForm({ ...form, image })} />
+          <label className={labelClass}>Icon (emoji, used when no box image)<input className={`${fieldClass} mt-1`} value={form.icon || ''} onChange={(e) => setForm({ ...form, icon: e.target.value })} placeholder="♈" /></label>
+          <CardColorFields form={form} setForm={setForm} />
           <label className={labelClass}>Sort order<input type="number" className={`${fieldClass} mt-1`} value={form.sortOrder || 0} onChange={(e) => setForm({ ...form, sortOrder: e.target.value })} /></label>
           {tab === 'numerology' ? (
             <>

@@ -1,5 +1,7 @@
 import { useCustomizerStore, useCustomizerQuote } from '../../../store/customizerStore';
 import { parseWristInches } from '../../../lib/format';
+import { studioText, useStudioLabels } from '../../../lib/studioTheme';
+import OptionArt from '../OptionArt';
 
 function sameWrist(a, b) {
   return Boolean(a) && Boolean(b) && parseWristInches(a) === parseWristInches(b);
@@ -15,6 +17,7 @@ export default function FitStep() {
   const setThreadType = useCustomizerStore((s) => s.setThreadType);
   const goNext = useCustomizerStore((s) => s.goNext);
   const quote = useCustomizerQuote();
+  const labels = useStudioLabels();
   const sizes = config?.beadSizesMm?.length ? config.beadSizesMm : [6, 8, 10];
   const wristSizes = config?.wristSizes || ['5.5"', '6"', '6.5"', '7"', '7.5"', '8"'];
   const threads = config?.threadTypes?.length ? config.threadTypes : [
@@ -43,7 +46,7 @@ export default function FitStep() {
   return (
     <div className="studio-birth space-y-7">
       <div>
-        <p className="studio-birth-kicker">Bead size</p>
+        <p className="studio-birth-kicker">{labels.beadSizeLabel}</p>
         <div className="studio-qty studio-qty-sm mt-3">
           {sizes.map((mm) => (
             <button
@@ -60,7 +63,7 @@ export default function FitStep() {
 
       <div>
         <p className="studio-birth-kicker">
-          Wrist size{currentThread?.key === 'korean-elastic' ? ' · for bead count' : ''}
+          {labels.wristLabel}{currentThread?.key === 'korean-elastic' ? labels.wristElasticSuffix : ''}
         </p>
         <div className="studio-qty studio-qty-sm mt-3">
           {wristSizes.map((size) => (
@@ -77,7 +80,7 @@ export default function FitStep() {
       </div>
 
       <div>
-        <p className="studio-birth-kicker">Thread</p>
+        <p className="studio-birth-kicker">{labels.threadLabel}</p>
         <div className="studio-charm-row">
           {threads.map((t) => (
             <button
@@ -86,6 +89,7 @@ export default function FitStep() {
               onClick={() => pickThread(t.key)}
               className={`studio-charm-card ${threadType === t.key ? 'is-on' : ''}`}
             >
+              <OptionArt option={t} />
               <strong>{t.label}</strong>
               <span>{t.detail}</span>
             </button>
@@ -94,7 +98,7 @@ export default function FitStep() {
       </div>
 
       <p className="text-sm text-lilac">
-        {quote.beadCount} beads of {beadSizeMm || 8}mm on a {wristSize || '6.5"'} wrist.
+        {studioText(labels, 'fitSummary', { count: quote.beadCount, size: beadSizeMm || 8, wrist: wristSize || '6.5"' })}
         {currentThread?.detail
           ? ` ${currentThread.detail}.`
           : ''}

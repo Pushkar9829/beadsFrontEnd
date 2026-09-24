@@ -6,6 +6,7 @@ import AdminDrawer from '../../components/admin/AdminDrawer';
 import ConfirmDelete from '../../components/admin/ConfirmDelete';
 import AdminHeader, { RowActions, fieldClass, labelClass } from '../../components/admin/AdminHeader';
 import MediaField from '../../components/admin/MediaField';
+import { CardColorFields } from '../../components/admin/ColorField';
 
 const TABS = [
   { id: 'purposes', label: 'Purposes' },
@@ -25,8 +26,8 @@ export default function AdminIntentions() {
   const [zodiac, setZodiac] = useState([]);
   const [open, setOpen] = useState(false);
   const [remove, setRemove] = useState(null);
-  const [pForm, setPForm] = useState({ name: '', description: '', image: '', icon: '' });
-  const [iForm, setIForm] = useState({ name: '', braceletName: '', purposeId: '', description: '', image: '', icon: '' });
+  const [pForm, setPForm] = useState({ name: '', description: '', image: '', icon: '', cardBg: '', cardAccent: '' });
+  const [iForm, setIForm] = useState({ name: '', braceletName: '', purposeId: '', description: '', image: '', icon: '', cardBg: '', cardAccent: '' });
   const [mForm, setMForm] = useState({ intentionId: '', beadId: '', reason: '' });
   const [nForm, setNForm] = useState({ number: 1, beadId: '', reason: '' });
   const [zForm, setZForm] = useState({ sign: '', fromMonth: 1, fromDay: 1, toMonth: 1, toDay: 1, beadId: '', reason: '' });
@@ -52,8 +53,8 @@ export default function AdminIntentions() {
 
   function openCreate() {
     setEditing(null);
-    setPForm({ name: '', description: '', image: '', icon: '' });
-    setIForm({ name: '', braceletName: '', purposeId: '', description: '', image: '', icon: '' });
+    setPForm({ name: '', description: '', image: '', icon: '', cardBg: '', cardAccent: '' });
+    setIForm({ name: '', braceletName: '', purposeId: '', description: '', image: '', icon: '', cardBg: '', cardAccent: '' });
     setMForm({ intentionId: '', beadId: '', reason: '' });
     setNForm({ number: 1, beadId: '', reason: '' });
     setZForm({ sign: '', fromMonth: 1, fromDay: 1, toMonth: 1, toDay: 1, beadId: '', reason: '' });
@@ -141,7 +142,7 @@ export default function AdminIntentions() {
               align: 'right',
               render: (p) => (
                 <RowActions
-                  onEdit={() => { setEditing(p._id); setPForm({ name: p.name, description: p.description || '', image: p.image || '', icon: p.icon || '' }); setOpen(true); }}
+                  onEdit={() => { setEditing(p._id); setPForm({ name: p.name, description: p.description || '', image: p.image || '', icon: p.icon || '', cardBg: p.cardBg || '', cardAccent: p.cardAccent || '' }); setOpen(true); }}
                   onDelete={() => setRemove(p)}
                 />
               ),
@@ -166,7 +167,7 @@ export default function AdminIntentions() {
                 <RowActions
                   onEdit={() => {
                     setEditing(i._id);
-                    setIForm({ name: i.name, braceletName: i.braceletName || '', purposeId: i.purposeId?._id || i.purposeId, description: i.description || '', image: i.image || '', icon: i.icon || '' });
+                    setIForm({ name: i.name, braceletName: i.braceletName || '', purposeId: i.purposeId?._id || i.purposeId, description: i.description || '', image: i.image || '', icon: i.icon || '', cardBg: i.cardBg || '', cardAccent: i.cardAccent || '' });
                     setOpen(true);
                   }}
                   onDelete={() => setRemove(i)}
@@ -275,7 +276,8 @@ export default function AdminIntentions() {
               <label className={labelClass}>Name<input required className={`${fieldClass} mt-1`} value={pForm.name} onChange={(e) => setPForm({ ...pForm, name: e.target.value })} /></label>
               <label className={labelClass}>Description<textarea className={`${fieldClass} mt-1`} value={pForm.description} onChange={(e) => setPForm({ ...pForm, description: e.target.value })} /></label>
               <MediaField label="Box image" folder="purpose" value={pForm.image} onChange={(image) => setPForm({ ...pForm, image })} />
-              <label className={labelClass}>Icon (emoji fallback)<input className={`${fieldClass} mt-1`} value={pForm.icon} onChange={(e) => setPForm({ ...pForm, icon: e.target.value })} /></label>
+              <label className={labelClass}>Icon (emoji, used when no box image)<input className={`${fieldClass} mt-1`} value={pForm.icon} onChange={(e) => setPForm({ ...pForm, icon: e.target.value })} /></label>
+              <CardColorFields form={pForm} setForm={setPForm} />
             </>
           )}
           {tab === 'intentions' && (
@@ -290,7 +292,8 @@ export default function AdminIntentions() {
               <label className={labelClass}>Bracelet name<input className={`${fieldClass} mt-1`} value={iForm.braceletName} onChange={(e) => setIForm({ ...iForm, braceletName: e.target.value })} /></label>
               <label className={labelClass}>Description<textarea className={`${fieldClass} mt-1`} value={iForm.description} onChange={(e) => setIForm({ ...iForm, description: e.target.value })} /></label>
               <MediaField label="Box image" folder="purpose" value={iForm.image} onChange={(image) => setIForm({ ...iForm, image })} />
-              <label className={labelClass}>Icon (emoji fallback)<input className={`${fieldClass} mt-1`} value={iForm.icon} onChange={(e) => setIForm({ ...iForm, icon: e.target.value })} /></label>
+              <label className={labelClass}>Icon (emoji, used when no box image)<input className={`${fieldClass} mt-1`} value={iForm.icon} onChange={(e) => setIForm({ ...iForm, icon: e.target.value })} /></label>
+              <CardColorFields form={iForm} setForm={setIForm} />
             </>
           )}
           {tab === 'mappings' && (

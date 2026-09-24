@@ -9,6 +9,8 @@ import { CLAIM_ICON_OPTIONS } from '../../lib/claimIcons';
 import { HOME_DEFAULTS, pickHome } from '../../lib/homeContent';
 import { useContentStore } from '../../store/contentStore';
 import { publishStorefront } from '../../lib/storefrontSync';
+import { STUDIO_FLOW } from '../../lib/studioFlow';
+import ColorField from '../../components/admin/ColorField';
 
 const HOUSE_SLUGS = ['crystals', 'rudraksha', 'gemstones'];
 
@@ -39,6 +41,8 @@ const SECTIONS = [
   { key: 'pageCategory', label: 'Category pages', hint: 'Collection empty states' },
   { key: 'pageProduct', label: 'Product missing', hint: 'When a piece is gone' },
   { key: 'pageCustomize', label: 'Customization steps', hint: 'Studio wizard copy' },
+  { key: 'studioLabels', label: 'Studio text', hint: 'Headings, buttons and messages inside each step' },
+  { key: 'studioTheme', label: 'Studio colours', hint: 'Page, option cards, selected state, bottom bar' },
   { key: 'pageCart', label: 'Bag', hint: 'Cart page' },
   { key: 'pageWishlist', label: 'Wishlist', hint: 'Wishlist page' },
   { key: 'pageCheckout', label: 'Checkout', hint: 'Checkout page' },
@@ -55,6 +59,119 @@ const SECTIONS = [
   { key: 'legalMaintenance', label: 'Maintenance', hint: 'Legal page', kind: 'maintenance' },
   { key: 'legalGrievance', label: 'Contact & grievance', hint: 'Legal page', kind: 'grievance' },
 ];
+
+const STUDIO_LABEL_GROUPS = [
+  { title: 'Choose step', fields: [
+    ['changeLabel', 'Change button'],
+    ['intentionCount', 'Intention counter · {count} {cap}'],
+    ['pickOne', 'Pick one hint'],
+    ['pickUpTo', 'Pick up to hint · {cap}'],
+    ['emptyPurposes', 'No purposes message'],
+    ['emptyLayer', 'Empty catalog message'],
+  ] },
+  { title: 'Numerology', fields: [
+    ['birthKicker', 'Birth date heading'],
+    ['birthBody', 'Birth date help', true],
+    ['mulankLabel', 'Mulank heading'],
+    ['bhagyankLabel', 'Bhagyank heading'],
+    ['bhagyankBody', 'Bhagyank help', true],
+  ] },
+  { title: 'Crystals step', fields: [
+    ['crystalCount', 'Crystal counter · {count} {max}'],
+    ['beadTotal', 'Bead total · {count}'],
+    ['perBead', 'Per-bead price suffix'],
+    ['addCrystal', 'Add crystal button'],
+    ['catalogKicker', 'Catalog pop-up kicker'],
+    ['catalogTitle', 'Catalog pop-up title'],
+    ['catalogFull', 'Crystal limit reached', true],
+    ['crystalNote', 'Footnote'],
+    ['crystalsMissing', 'No crystals message', true],
+  ] },
+  { title: 'Fit step', fields: [
+    ['beadSizeLabel', 'Bead size heading'],
+    ['wristLabel', 'Wrist size heading'],
+    ['wristElasticSuffix', 'Elastic thread wrist suffix'],
+    ['threadLabel', 'Thread heading'],
+    ['fitSummary', 'Summary line · {count} {size} {wrist}'],
+  ] },
+  { title: 'Finish step', fields: [
+    ['charmLabel', 'Charm heading'],
+    ['charmsLoading', 'Charms loading message'],
+    ['finishLabel', 'Finish heading'],
+    ['czLabel', 'CZ heading'],
+    ['nameLabel', 'Name heading'],
+    ['nameBody', 'Name help', true],
+    ['namePlaceholder', 'Name placeholder'],
+  ] },
+  { title: 'Bottom bar and ordering', fields: [
+    ['backLabel', 'Back button'],
+    ['stepCounter', 'Step counter · {step} {total}'],
+    ['beadsUnit', 'Word for "beads"'],
+    ['nextChoose', 'Next button on Choose'],
+    ['nextCrystals', 'Next button on Crystals'],
+    ['nextFit', 'Next button on Fit'],
+    ['nextFinish', 'Next button on Finish'],
+    ['placeOrder', 'Place order button'],
+    ['placingOrder', 'Placing order label'],
+    ['charmMissing', 'No charm chosen error'],
+    ['orderFailed', 'Order failed error'],
+  ] },
+  { title: 'Preview and review', fields: [
+    ['previewToggle', 'Mobile preview toggle'],
+    ['previewKicker', 'Preview kicker'],
+    ['selectionPending', 'Nothing chosen yet'],
+    ['customStrand', 'Fallback bracelet name'],
+    ['liveTotal', 'Live total label'],
+    ['editSelection', 'Edit selection button'],
+    ['editCrystals', 'Edit crystals button'],
+    ['clearBuild', 'Clear button'],
+    ['reviewKicker', 'Review kicker'],
+    ['rowPath', 'Review row: path'],
+    ['rowIntention', 'Review row: intention'],
+    ['rowDob', 'Review row: date of birth'],
+    ['rowZodiac', 'Review row: zodiac'],
+    ['rowBeadSize', 'Review row: bead size'],
+    ['rowCharm', 'Review row: charm'],
+    ['rowWrist', 'Review row: wrist'],
+    ['rowPersonalise', 'Review row: name'],
+    ['totalLabel', 'Total label'],
+  ] },
+  { title: 'Crystal details drawer', fields: [
+    ['drawerKicker', 'Kicker'],
+    ['drawerPower', 'Power / use heading'],
+    ['drawerBenefits', 'Benefits heading'],
+    ['drawerChakra', 'Chakra heading'],
+    ['drawerReason', 'Why recommended heading'],
+    ['drawerOrigin', 'Origin heading'],
+    ['drawerSpec', 'Specification heading'],
+    ['drawerCare', 'Care heading'],
+  ] },
+];
+
+const STUDIO_THEME_FIELDS = [
+  ['pageBg', 'Page background'],
+  ['cardBg', 'Option card background'],
+  ['cardBorder', 'Option card border'],
+  ['cardText', 'Option card title text'],
+  ['cardMuted', 'Option card detail text'],
+  ['accent', 'Selected / accent colour'],
+  ['selectedBg', 'Selected card base'],
+  ['kicker', 'Section heading colour'],
+  ['dockBg', 'Bottom bar background'],
+];
+
+function customizeSteps(stored) {
+  return STUDIO_FLOW.map((entry) => {
+    const row = (stored || []).find((s) => s?.id === entry.id) || {};
+    return {
+      id: entry.id,
+      eyebrow: row.eyebrow || entry.eyebrow,
+      title: row.title || entry.title,
+      body: row.body || entry.body,
+      hint: row.hint || '',
+    };
+  });
+}
 
 const LEGAL_CMS = {
   legalReturns: 'returns',
@@ -230,7 +347,12 @@ function previewFor(content, key) {
   if (key === 'pageFamily') return content.pages?.family?.piecesTitle || '—';
   if (key === 'pageCategory') return content.pages?.category?.empty?.title || '—';
   if (key === 'pageProduct') return content.pages?.product?.missing?.title || '—';
-  if (key === 'pageCustomize') return `${(content.pages?.customize?.steps || []).length} steps`;
+  if (key === 'pageCustomize') return `${STUDIO_FLOW.length} steps`;
+  if (key === 'studioLabels') return content.pages?.customize?.labels?.placeOrder || '—';
+  if (key === 'studioTheme') {
+    const set = Object.values(content.pages?.customize?.theme || {}).filter(Boolean).length;
+    return set ? `${set} custom` : 'Default look';
+  }
   if (key === 'pageCart') return content.pages?.cart?.title || '—';
   if (key === 'pageWishlist') return content.pages?.wishlist?.title || '—';
   if (key === 'pageCheckout') return content.pages?.checkout?.title || '—';
@@ -310,7 +432,9 @@ export default function AdminContent() {
     if (key === 'pageFamily') setDraft({ ...home.pages.family, empty: { ...home.pages.family.empty } });
     if (key === 'pageCategory') setDraft({ ...home.pages.category, empty: { ...home.pages.category.empty }, missing: { ...home.pages.category.missing } });
     if (key === 'pageProduct') setDraft({ missing: { ...home.pages.product.missing } });
-    if (key === 'pageCustomize') setDraft({ steps: (home.pages.customize.steps || []).map((s) => ({ ...s })) });
+    if (key === 'pageCustomize') setDraft({ steps: customizeSteps(home.pages.customize.steps) });
+    if (key === 'studioLabels') setDraft({ ...(home.pages.customize.labels || {}) });
+    if (key === 'studioTheme') setDraft({ ...(home.pages.customize.theme || {}) });
     if (key === 'pageCart') setDraft({ ...home.pages.cart, empty: { ...home.pages.cart.empty } });
     if (key === 'pageWishlist') setDraft({ ...home.pages.wishlist, empty: { ...home.pages.wishlist.empty } });
     if (key === 'pageCheckout') setDraft({ ...home.pages.checkout });
@@ -355,6 +479,10 @@ export default function AdminContent() {
       if (section === 'about') next.about = draft;
       if (section === 'footer') next.footer = draft;
       if (section === 'contact') next.contact = draft;
+      if (section === 'studioLabels' || section === 'studioTheme') {
+        const field = section === 'studioLabels' ? 'labels' : 'theme';
+        next.pages = { ...next.pages, customize: { ...next.pages.customize, [field]: draft } };
+      }
       if (section.startsWith('page') || section.startsWith('legal')) {
         next.pages = { ...next.pages };
         if (section === 'pageAbout') next.pages.aboutPage = draft;
@@ -363,7 +491,7 @@ export default function AdminContent() {
         if (section === 'pageFamily') next.pages.family = draft;
         if (section === 'pageCategory') next.pages.category = draft;
         if (section === 'pageProduct') next.pages.product = draft;
-        if (section === 'pageCustomize') next.pages.customize = draft;
+        if (section === 'pageCustomize') next.pages.customize = { ...next.pages.customize, ...draft };
         if (section === 'pageCart') next.pages.cart = draft;
         if (section === 'pageWishlist') next.pages.wishlist = draft;
         if (section === 'pageCheckout') next.pages.checkout = draft;
@@ -929,7 +1057,7 @@ export default function AdminContent() {
             <>
               {(draft.steps || []).map((step, i) => (
                 <div key={i} className="space-y-2 rounded-xl p-3 gold-border">
-                  <p className="text-[10px] uppercase tracking-widest text-gold">Step {i + 1}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-gold">Step {i + 1} · {STUDIO_FLOW[i]?.label}</p>
                   <Field label="Eyebrow" value={step.eyebrow} onChange={(eyebrow) => {
                     const steps = [...draft.steps];
                     steps[i] = { ...step, eyebrow };
@@ -952,6 +1080,42 @@ export default function AdminContent() {
                   }} />
                 </div>
               ))}
+            </>
+          )}
+
+          {section === 'studioLabels' && draft && (
+            <>
+              <p className="text-xs text-lilac">Words in {'{braces}'} are filled in automatically. Leave a field empty to use the default.</p>
+              {STUDIO_LABEL_GROUPS.map((group) => (
+                <div key={group.title} className="space-y-3 rounded-xl p-3 gold-border">
+                  <p className="text-[10px] uppercase tracking-widest text-gold">{group.title}</p>
+                  {group.fields.map(([key, label, textarea]) => (
+                    <Field
+                      key={key}
+                      label={label}
+                      textarea={textarea}
+                      rows={2}
+                      value={draft[key]}
+                      onChange={(value) => setDraft({ ...draft, [key]: value })}
+                    />
+                  ))}
+                </div>
+              ))}
+            </>
+          )}
+
+          {section === 'studioTheme' && draft && (
+            <>
+              <p className="text-xs text-lilac">
+                Applies to the customization studio only. Purpose, intention and layer cards keep their own colours
+                (set on Intentions and Studio layers); the selected / accent colour still marks the chosen card.
+              </p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {STUDIO_THEME_FIELDS.map(([key, label]) => (
+                  <ColorField key={key} label={label} value={draft[key]} onChange={(value) => setDraft({ ...draft, [key]: value })} />
+                ))}
+              </div>
+              <MediaField label="Page background image" folder="studio" value={draft.pageBgImage} onChange={(pageBgImage) => setDraft({ ...draft, pageBgImage })} />
             </>
           )}
 

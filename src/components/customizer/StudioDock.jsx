@@ -8,12 +8,13 @@ import { REVIEW_STEP, STEP_COUNT, stepAt } from '../../lib/studioFlow';
 import Button from '../ui/Button';
 import Price from '../ui/Price';
 import PlaceOrderButton from './PlaceOrderButton';
+import { studioText, useStudioLabels } from '../../lib/studioTheme';
 
-const NEXT_LABEL = {
-  choose: 'Next · crystals',
-  crystals: 'Next · fit',
-  fit: 'Next · finish',
-  finish: 'Review',
+const NEXT_LABEL_KEY = {
+  choose: 'nextChoose',
+  crystals: 'nextCrystals',
+  fit: 'nextFit',
+  finish: 'nextFinish',
 };
 
 export default function StudioDock() {
@@ -24,6 +25,7 @@ export default function StudioDock() {
   const canAdvance = useCustomizerStore(selectCanAdvance);
   const hint = useCustomizerStore(selectStepHint);
   const quote = useCustomizerQuote();
+  const labels = useStudioLabels();
   const entry = stepAt(step);
   const message = stepError || hint;
 
@@ -40,19 +42,17 @@ export default function StudioDock() {
             onClick={goBack}
             disabled={step === 1}
           >
-            Back
+            {labels.backLabel}
           </button>
           <span className="studio-actions-meta">
-            <span>
-              Step {step} of {STEP_COUNT}
-            </span>
+            <span>{studioText(labels, 'stepCounter', { step, total: STEP_COUNT })}</span>
             <strong>
-              {quote.beadCount || 0} beads · <Price value={quote.total} />
+              {quote.beadCount || 0} {labels.beadsUnit} · <Price value={quote.total} />
             </strong>
           </span>
           {step < REVIEW_STEP ? (
             <Button onClick={goNext} disabled={!canAdvance} className="studio-actions-next">
-              {NEXT_LABEL[entry.id] || 'Next'}
+              {labels[NEXT_LABEL_KEY[entry.id]] || 'Next'}
             </Button>
           ) : null}
         </div>

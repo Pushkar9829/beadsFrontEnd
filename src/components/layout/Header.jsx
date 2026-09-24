@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown, Heart, ShoppingBag, User } from 'lucide-react';
 import api from '../../api/client';
+import { ModeArt } from '../customizer/OptionArt';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import { useWishlistStore } from '../../store/wishlistStore';
@@ -214,8 +215,9 @@ export default function Header() {
                       <Link
                         key={mode.slug}
                         to={mode.path}
-                        className="header-cat-link block rounded-xl px-3 py-2.5 text-sm transition hover:bg-gold/10"
+                        className="header-cat-link flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition hover:bg-gold/10"
                       >
+                        <ModeArt mode={mode} />
                         {mode.label}
                       </Link>
                     ))}
@@ -339,11 +341,12 @@ export default function Header() {
               key={mode.slug}
               to={mode.path}
               className={({ isActive }) =>
-                `header-cat-link shrink-0 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
+                `header-cat-link flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.16em] ${
                   isActive ? 'is-active bg-gold/15' : ''
                 }`
               }
             >
+              <ModeArt mode={mode} small />
               {mode.short}
             </NavLink>
           ))}

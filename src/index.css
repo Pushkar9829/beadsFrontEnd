@@ -816,11 +816,14 @@ select:-webkit-autofill {
   /* Gold on an opaque dark base — the purpose wash matches the page tint, so using
      it here made the selected tile vanish into the background. */
   background:
-    linear-gradient(rgba(198, 167, 94, 0.32), rgba(198, 167, 94, 0.32)),
-    #140c18;
-  border-color: #c6a75e;
+    linear-gradient(
+      color-mix(in srgb, var(--studio-accent, #c6a75e) 32%, transparent),
+      color-mix(in srgb, var(--studio-accent, #c6a75e) 32%, transparent)
+    ),
+    var(--studio-selected-bg, #140c18);
+  border-color: var(--studio-accent, #c6a75e);
   box-shadow:
-    0 0 0 2px rgba(198, 167, 94, 0.45),
+    0 0 0 2px color-mix(in srgb, var(--studio-accent, #c6a75e) 45%, transparent),
     0 12px 28px rgba(0, 0, 0, 0.35);
 }
 
@@ -884,7 +887,7 @@ select:-webkit-autofill {
   font-size: 0.72rem;
   font-weight: 500;
   line-height: 1.2;
-  color: #f6f1e8;
+  color: var(--studio-card-text, #f6f1e8);
 }
 
 /* Numerology picks are chosen by their number, so the numeral carries the tile. */
@@ -901,7 +904,7 @@ select:-webkit-autofill {
   -webkit-line-clamp: 1;
   font-size: 0.55rem;
   line-height: 1.25;
-  color: #b7a9c4;
+  color: var(--studio-card-muted, #b7a9c4);
 }
 
 .purpose-pick-meta {
@@ -1136,11 +1139,14 @@ main.has-purpose-tone .studio-chip {
 
 main.has-purpose-tone .studio-chip.is-on,
 main.has-purpose-tone .studio-chip.is-done {
-  border-color: #c6a75e;
+  border-color: var(--studio-accent, #c6a75e);
   color: #f6f1e8;
   background:
-    linear-gradient(rgba(198, 167, 94, 0.32), rgba(198, 167, 94, 0.32)),
-    #140c18;
+    linear-gradient(
+      color-mix(in srgb, var(--studio-accent, #c6a75e) 32%, transparent),
+      color-mix(in srgb, var(--studio-accent, #c6a75e) 32%, transparent)
+    ),
+    var(--studio-selected-bg, #140c18);
 }
 
 main.has-purpose-tone .studio-chip-rule {
@@ -1155,17 +1161,20 @@ main.has-purpose-tone .gold-border {
 
 main.has-purpose-tone .studio-select:focus,
 main.has-purpose-tone .studio-qty-btn.is-on {
-  border-color: #c6a75e;
+  border-color: var(--studio-accent, #c6a75e);
   background:
-    linear-gradient(rgba(198, 167, 94, 0.32), rgba(198, 167, 94, 0.32)),
-    #140c18;
-  color: #f6f1e8;
-  box-shadow: 0 0 0 2px rgba(198, 167, 94, 0.4);
+    linear-gradient(
+      color-mix(in srgb, var(--studio-accent, #c6a75e) 32%, transparent),
+      color-mix(in srgb, var(--studio-accent, #c6a75e) 32%, transparent)
+    ),
+    var(--studio-selected-bg, #140c18);
+  color: var(--studio-card-text, #f6f1e8);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--studio-accent, #c6a75e) 40%, transparent);
 }
 
 main.has-purpose-tone .studio-birth-kicker,
 main.has-purpose-tone .studio-birth-stat span {
-  color: color-mix(in srgb, var(--purpose-wash, #c6a75e) 35%, #c6a75e);
+  color: var(--studio-kicker, color-mix(in srgb, var(--purpose-wash, #c6a75e) 35%, #c6a75e));
 }
 
 main.has-purpose-tone .studio-birth-stat,
@@ -1184,12 +1193,12 @@ main.has-purpose-tone .studio-preview {
 
 main.has-purpose-tone .studio-actions {
   border-top-color: var(--purpose-border, rgba(198, 167, 94, 0.28));
-  background: color-mix(in srgb, var(--purpose-bg, rgba(8, 8, 10, 0.92)) 82%, rgba(8, 8, 10, 0.94) 18%);
+  background: var(--studio-dock-bg, color-mix(in srgb, var(--purpose-bg, rgba(8, 8, 10, 0.92)) 82%, rgba(8, 8, 10, 0.94) 18%));
 }
 
 @media (min-width: 1024px) {
   main.has-purpose-tone .studio-actions {
-    background: none;
+    background: var(--studio-dock-bg, none);
   }
 }
 
@@ -1292,6 +1301,16 @@ main.has-purpose-tone .studio-chosen {
 
 .studio-page {
   min-width: 0;
+  background-color: var(--studio-page-bg, transparent);
+  background-image: var(--studio-page-image, none);
+  background-size: cover;
+  background-position: center;
+}
+
+.studio-option-icon {
+  display: block;
+  font-size: 1.6rem;
+  line-height: 1;
 }
 
 .studio-head {
@@ -1346,21 +1365,25 @@ main.has-purpose-tone .studio-chosen {
 /* Current step: gold tint layered on the dark backing so it stays opaque, plus a ring
    to lift it above the rest of the rail. */
 .studio-chip.is-on {
-  border-color: #c6a75e;
+  border-color: var(--studio-accent, #c6a75e);
   color: #f6f1e8;
-  background: linear-gradient(rgba(198, 167, 94, 0.2), rgba(198, 167, 94, 0.2)),
-    rgba(10, 4, 22, 0.88);
-  box-shadow: 0 0 0 3px rgba(198, 167, 94, 0.16);
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--studio-accent, #c6a75e) 20%, transparent),
+      color-mix(in srgb, var(--studio-accent, #c6a75e) 20%, transparent)
+    ),
+    var(--studio-selected-bg, rgba(10, 4, 22, 0.88));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--studio-accent, #c6a75e) 16%, transparent);
 }
 
 .studio-chip.is-on .studio-chip-n {
-  color: #c6a75e;
+  color: var(--studio-accent, #c6a75e);
   opacity: 1;
 }
 
 .studio-chip.is-done {
-  border-color: rgba(198, 167, 94, 0.5);
-  color: #c6a75e;
+  border-color: color-mix(in srgb, var(--studio-accent, #c6a75e) 50%, transparent);
+  color: var(--studio-accent, #c6a75e);
   background: rgba(10, 4, 22, 0.78);
 }
 
@@ -1415,7 +1438,7 @@ main.has-purpose-tone .studio-chosen {
   font-size: 0.62rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #f3e0b8;
+  color: var(--studio-kicker, #f3e0b8);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
@@ -1729,8 +1752,8 @@ main.has-purpose-tone .studio-chosen {
   padding: 0.7rem 0.65rem 0.65rem;
   text-align: left;
   border-radius: 0.75rem;
-  border: 1px solid rgba(198, 167, 94, 0.22);
-  background: rgba(18, 18, 20, 0.9);
+  border: 1px solid var(--studio-card-border, rgba(198, 167, 94, 0.22));
+  background: var(--studio-card-bg, rgba(18, 18, 20, 0.9));
   color: inherit;
   cursor: pointer;
   transition: border-color 0.2s ease, background 0.2s ease;
@@ -1740,7 +1763,7 @@ main.has-purpose-tone .studio-chosen {
   font-family: var(--font-serif);
   font-size: 0.92rem;
   font-weight: 500;
-  color: #f6f1e8;
+  color: var(--studio-card-text, #f6f1e8);
 }
 
 .studio-charm-thumb {
@@ -1753,15 +1776,24 @@ main.has-purpose-tone .studio-chosen {
 .studio-charm-card span {
   font-size: 0.68rem;
   line-height: 1.35;
-  color: #b7a9c4;
+  color: var(--studio-card-muted, #b7a9c4);
+}
+
+.studio-charm-card span.studio-option-icon {
+  font-size: 1.6rem;
+  line-height: 1;
 }
 
 .studio-charm-card.is-on {
-  border-color: #c6a75e;
+  border-color: var(--studio-accent, #c6a75e);
   color: #f6f1e8;
-  background: linear-gradient(rgba(198, 167, 94, 0.2), rgba(198, 167, 94, 0.2)),
-    rgba(10, 4, 22, 0.88);
-  box-shadow: 0 0 0 3px rgba(198, 167, 94, 0.16);
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--studio-accent, #c6a75e) 20%, transparent),
+      color-mix(in srgb, var(--studio-accent, #c6a75e) 20%, transparent)
+    ),
+    var(--studio-selected-bg, rgba(10, 4, 22, 0.88));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--studio-accent, #c6a75e) 16%, transparent);
 }
 
 .studio-size-row {
@@ -1952,9 +1984,9 @@ main.has-purpose-tone .studio-chosen {
   margin-top: 0.85rem;
   padding: 0.8rem 1rem;
   border-radius: 0.95rem;
-  border: 1px dashed rgba(198, 167, 94, 0.4);
+  border: 1px dashed color-mix(in srgb, var(--studio-accent, #c6a75e) 40%, transparent);
   background: transparent;
-  color: #c6a75e;
+  color: var(--studio-accent, #c6a75e);
   font-size: 0.78rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1977,8 +2009,8 @@ main.has-purpose-tone .studio-chosen {
   gap: 1rem;
   padding: 0.85rem 1rem;
   border-radius: 1rem;
-  border: 1px solid rgba(198, 167, 94, 0.4);
-  background: rgba(198, 167, 94, 0.07);
+  border: 1px solid color-mix(in srgb, var(--studio-accent, #c6a75e) 40%, transparent);
+  background: color-mix(in srgb, var(--studio-accent, #c6a75e) 7%, transparent);
 }
 
 .studio-chosen-copy {
@@ -2042,16 +2074,19 @@ main.has-purpose-tone .studio-chosen {
   gap: 0.5rem;
   padding: 0.6rem 0.7rem;
   border-radius: 1rem;
-  border: 1px solid rgba(198, 167, 94, 0.22);
-  background: rgba(18, 18, 20, 0.9);
+  border: 1px solid var(--studio-card-border, rgba(198, 167, 94, 0.22));
+  background: var(--studio-card-bg, rgba(18, 18, 20, 0.9));
 }
 
 .studio-pick-row.is-on {
-  border-color: #c6a75e;
+  border-color: var(--studio-accent, #c6a75e);
   background:
-    linear-gradient(rgba(198, 167, 94, 0.28), rgba(198, 167, 94, 0.28)),
-    #140c18;
-  box-shadow: 0 0 0 2px rgba(198, 167, 94, 0.4);
+    linear-gradient(
+      color-mix(in srgb, var(--studio-accent, #c6a75e) 28%, transparent),
+      color-mix(in srgb, var(--studio-accent, #c6a75e) 28%, transparent)
+    ),
+    var(--studio-selected-bg, #140c18);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--studio-accent, #c6a75e) 40%, transparent);
 }
 
 .studio-pick-main {
@@ -2067,8 +2102,8 @@ main.has-purpose-tone .studio-chosen {
 }
 
 .studio-pick-row.is-on .studio-bead-box {
-  border-color: #c6a75e;
-  background: #c6a75e;
+  border-color: var(--studio-accent, #c6a75e);
+  background: var(--studio-accent, #c6a75e);
 }
 
 .studio-pick-row .studio-bead-box svg {
@@ -2177,8 +2212,8 @@ main.has-purpose-tone .studio-chosen {
   inset-inline: 0;
   bottom: 0;
   z-index: 45;
-  border-top: 1px solid rgba(198, 167, 94, 0.28);
-  background: rgba(8, 8, 10, 0.96);
+  border-top: 1px solid color-mix(in srgb, var(--studio-accent, #c6a75e) 28%, transparent);
+  background: var(--studio-dock-bg, rgba(8, 8, 10, 0.96));
   padding: 0.7rem 0 calc(0.7rem + env(safe-area-inset-bottom));
 }
 
@@ -2278,20 +2313,24 @@ main.has-purpose-tone .studio-chosen {
   height: 2.35rem;
   padding: 0 0.7rem;
   border-radius: 999px;
-  border: 1px solid rgba(198, 167, 94, 0.3);
-  background: rgba(10, 4, 22, 0.62);
-  color: #cabedc;
+  border: 1px solid var(--studio-card-border, rgba(198, 167, 94, 0.3));
+  background: var(--studio-card-bg, rgba(10, 4, 22, 0.62));
+  color: var(--studio-card-muted, #cabedc);
   font-size: 0.8rem;
   cursor: pointer;
   transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .studio-qty-btn.is-on {
-  border-color: #c6a75e;
-  color: #f6f1e8;
-  background: linear-gradient(rgba(198, 167, 94, 0.2), rgba(198, 167, 94, 0.2)),
-    rgba(10, 4, 22, 0.88);
-  box-shadow: 0 0 0 3px rgba(198, 167, 94, 0.16);
+  border-color: var(--studio-accent, #c6a75e);
+  color: var(--studio-card-text, #f6f1e8);
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--studio-accent, #c6a75e) 20%, transparent),
+      color-mix(in srgb, var(--studio-accent, #c6a75e) 20%, transparent)
+    ),
+    var(--studio-selected-bg, rgba(10, 4, 22, 0.88));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--studio-accent, #c6a75e) 16%, transparent);
 }
 
 @media (min-width: 640px) {

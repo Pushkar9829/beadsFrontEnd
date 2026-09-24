@@ -1,5 +1,6 @@
 import { useCustomizerStore } from '../../store/customizerStore';
 import { mediaUrl } from '../../api/client';
+import { customCardTone } from '../../lib/studioTheme';
 import loveIcon from '../../assets/purposes/love-3d.png';
 import moneyIcon from '../../assets/purposes/purpose-money.png';
 import careerIcon from '../../assets/purposes/purpose-career.png';
@@ -178,13 +179,18 @@ function iconHaystack(item) {
   return `${item.slug || ''} ${item.name || ''} ${item.theme || ''}`;
 }
 
-export function purposeToneStyle(item) {
+function keywordTone(item) {
   const hay = haystack(item);
   const found = TONES.find((tone) => tone.match.test(hay));
   if (found) return found.vars;
   let hash = 0;
   for (let i = 0; i < hay.length; i += 1) hash = (hash * 31 + hay.charCodeAt(i)) >>> 0;
   return FALLBACK_TONES[hash % FALLBACK_TONES.length];
+}
+
+export function purposeToneStyle(item) {
+  const custom = customCardTone(item);
+  return custom ? { ...keywordTone(item), ...custom } : keywordTone(item);
 }
 
 function emojiFor(purpose) {
@@ -196,6 +202,7 @@ export function PurposeIcon({ purpose }) {
   if (purpose?.image) {
     return <img src={mediaUrl(purpose.image)} alt="" className="purpose-pick-icon" />;
   }
+  if (purpose?.icon) return purpose.icon;
   const src = IMAGES.find((item) => item.match.test(iconHaystack(purpose)))?.src;
   if (src) {
     return <img src={src} alt="" className="purpose-pick-icon" />;
@@ -205,6 +212,7 @@ export function PurposeIcon({ purpose }) {
 
 export function purposeHasImage(purpose) {
   if (purpose?.image) return true;
+  if (purpose?.icon) return false;
   return IMAGES.some((item) => item.match.test(iconHaystack(purpose)));
 }
 
