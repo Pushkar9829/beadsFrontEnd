@@ -136,7 +136,7 @@ export const PURPOSE_FLOW = [
     label: 'Birth',
     eyebrow: 'Step 03 · Birth',
     title: 'Date of birth',
-    body: 'Your date sets Mulank and the repeating crystal pattern around the strand.',
+    body: 'Your date sets two numbers: Mulank and Bhagyank. They stay on the piece, then you continue.',
     validate: (state) => Boolean(state.dateOfBirth),
     hint: () => 'Choose day, month and year to continue.',
   },
@@ -144,10 +144,20 @@ export const PURPOSE_FLOW = [
     id: 'zodiac',
     label: 'Zodiac',
     eyebrow: 'Step 04 · Zodiac',
-    title: 'Zodiac beads',
-    body: 'The sign comes from your date. Those beads sit either side of the charm.',
-    validate: (state) => Boolean(state.calibration),
-    hint: () => 'Calibrate from your date of birth first.',
+    title: 'Beads on this strand',
+    body: 'Every crystal on the bracelet is listed here, including the zodiac stone. Select, deselect, or change a count until the total matches the strand.',
+    validate: (state) => {
+      const target = [16, 18, 22].includes(Number(state.strandCount)) ? Number(state.strandCount) : 18;
+      const total = Object.values(state.quantities || {}).reduce((sum, n) => sum + (Number(n) || 0), 0);
+      return Boolean(state.zodiacAdded) && total === target;
+    },
+    hint: (state) => {
+      const target = [16, 18, 22].includes(Number(state.strandCount)) ? Number(state.strandCount) : 18;
+      const total = Object.values(state.quantities || {}).reduce((sum, n) => sum + (Number(n) || 0), 0);
+      if (!state.calibration) return 'Calibrate from your date of birth first.';
+      if (total !== target) return `This strand is ${target} beads. You have ${total}. Adjust the counts to match.`;
+      return '';
+    },
   },
   {
     id: 'charm',
