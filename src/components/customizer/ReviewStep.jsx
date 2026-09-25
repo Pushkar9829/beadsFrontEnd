@@ -119,14 +119,14 @@ export default function ReviewStep() {
           <button
             type="button"
             className="bag-summary-clear"
-            onClick={() => setStep(stepIndexOf('choose'))}
+            onClick={() => setStep(stepIndexOf(layer ? 'choose' : 'purpose', layer ? layer.kind : 'purpose'))}
           >
             {labels.editSelection}
           </button>
           <button
             type="button"
             className="bag-summary-clear"
-            onClick={() => setStep(stepIndexOf('crystals'))}
+            onClick={() => setStep(stepIndexOf(layer ? 'crystals' : 'intention', layer ? layer.kind : 'purpose'))}
           >
             {labels.editCrystals}
           </button>

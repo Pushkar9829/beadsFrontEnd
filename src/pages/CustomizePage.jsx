@@ -5,6 +5,11 @@ import { stepAt, stepCopy } from '../lib/studioFlow';
 import { studioMode } from '../lib/studioModes';
 import Stepper from '../components/customizer/Stepper';
 import StudioDock from '../components/customizer/StudioDock';
+import PurposePick from '../components/customizer/steps/PurposePick';
+import IntentionStep from '../components/customizer/steps/IntentionStep';
+import BirthStep from '../components/customizer/steps/BirthStep';
+import ZodiacStep from '../components/customizer/steps/ZodiacStep';
+import CharmStep from '../components/customizer/steps/CharmStep';
 import ChooseStep from '../components/customizer/steps/ChooseStep';
 import CrystalPicker from '../components/customizer/CrystalPicker';
 import FitStep from '../components/customizer/steps/FitStep';
@@ -21,6 +26,11 @@ import { useBrand, pageTitle } from '../store/settingsStore';
 import { studioThemeStyle } from '../lib/studioTheme';
 
 const PANE = {
+  purpose: PurposePick,
+  intention: IntentionStep,
+  birth: BirthStep,
+  zodiac: ZodiacStep,
+  charm: CharmStep,
   choose: ChooseStep,
   crystals: CrystalPicker,
   fit: FitStep,
@@ -66,8 +76,8 @@ export default function CustomizePage() {
   }, [urlSyncing, canonical, search, navigate]);
 
   const mode = studioMode(path, config);
-  const copy = stepCopy(step, cmsSteps);
-  const entry = stepAt(step);
+  const copy = stepCopy(step, cmsSteps, path);
+  const entry = stepAt(step, path);
   // The path chips no longer sit above the flow, so step one names the path itself.
   // An admin-authored eyebrow still wins.
   const eyebrow =

@@ -1,14 +1,16 @@
 import { useCustomizerStore } from '../../store/customizerStore';
-import { STUDIO_FLOW } from '../../lib/studioFlow';
+import { flowFor } from '../../lib/studioFlow';
 
 export default function Stepper() {
   const step = useCustomizerStore((s) => s.step);
+  const path = useCustomizerStore((s) => s.path);
   const setStep = useCustomizerStore((s) => s.setStep);
   const canReachStep = useCustomizerStore((s) => s.canReachStep);
+  const flow = flowFor(path);
 
   return (
     <ol className="studio-steps no-scrollbar">
-      {STUDIO_FLOW.map((entry, i) => {
+      {flow.map((entry, i) => {
         const n = i + 1;
         const active = step === n;
         const allowed = canReachStep(n);
@@ -24,7 +26,7 @@ export default function Stepper() {
               <span className="studio-chip-n">{n}</span>
               <span>{entry.label}</span>
             </button>
-            {i < STUDIO_FLOW.length - 1 && <span className="studio-chip-rule" aria-hidden />}
+            {i < flow.length - 1 && <span className="studio-chip-rule" aria-hidden />}
           </li>
         );
       })}

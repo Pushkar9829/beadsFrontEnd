@@ -4,7 +4,7 @@ import {
   selectCanAdvance,
   selectStepHint,
 } from '../../store/customizerStore';
-import { REVIEW_STEP, STEP_COUNT, stepAt } from '../../lib/studioFlow';
+import { stepAt, stepCountFor } from '../../lib/studioFlow';
 import Button from '../ui/Button';
 import Price from '../ui/Price';
 import PlaceOrderButton from './PlaceOrderButton';
@@ -19,6 +19,8 @@ const NEXT_LABEL_KEY = {
 
 export default function StudioDock() {
   const step = useCustomizerStore((s) => s.step);
+  const path = useCustomizerStore((s) => s.path);
+  const advancing = useCustomizerStore((s) => s.advancing);
   const goBack = useCustomizerStore((s) => s.goBack);
   const goNext = useCustomizerStore((s) => s.goNext);
   const stepError = useCustomizerStore((s) => s.stepError);
@@ -26,7 +28,8 @@ export default function StudioDock() {
   const hint = useCustomizerStore(selectStepHint);
   const quote = useCustomizerQuote();
   const labels = useStudioLabels();
-  const entry = stepAt(step);
+  const total = stepCountFor(path);
+  const entry = stepAt(step, path);
   const message = stepError || hint;
 
   return (
@@ -45,18 +48,18 @@ export default function StudioDock() {
             {labels.backLabel}
           </button>
           <span className="studio-actions-meta">
-            <span>{studioText(labels, 'stepCounter', { step, total: STEP_COUNT })}</span>
+            <span>{studioText(labels, 'stepCounter', { step, total })}</span>
             <strong>
               {quote.beadCount || 0} {labels.beadsUnit} · <Price value={quote.total} />
             </strong>
           </span>
-          {step < REVIEW_STEP ? (
-            <Button onClick={goNext} disabled={!canAdvance} className="studio-actions-next">
-              {labels[NEXT_LABEL_KEY[entry.id]] || 'Next'}
+          {step < total ? (
+            <Button onClick={goNext} disabled={!canAdvance || advancing} className="studio-actions-next">
+              {advancing ? '…' : (labels[NEXT_LABEL_KEY[entry.id]] || 'Next')}
             </Button>
           ) : null}
         </div>
-        {step >= REVIEW_STEP ? (
+        {step >= total ? (
           <div className="mt-3">
             <PlaceOrderButton className="w-full" />
           </div>

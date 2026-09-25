@@ -101,22 +101,103 @@ export const STUDIO_FLOW = [
   },
 ];
 
+function intentionBeadsReady(state) {
+  return Boolean(state.intention) && selectedCrystals(state).length > 0;
+}
+
+function charmReady(state) {
+  if (state.config?.charmRequired !== false && !state.charm) return false;
+  if (state.threadType === 'steel-core' && !state.wristSize) return false;
+  return true;
+}
+
+// The purpose path keeps the earlier wizard: one intention, then birth, zodiac, and charm.
+export const PURPOSE_FLOW = [
+  {
+    id: 'purpose',
+    label: 'Purpose',
+    eyebrow: 'Step 01 · Purpose',
+    title: 'Choose a purpose',
+    body: 'Start with the feeling you want this piece to hold. Intentions appear only after you choose.',
+    validate: (state) => Boolean(state.purpose),
+    hint: () => 'Choose a purpose to continue.',
+  },
+  {
+    id: 'intention',
+    label: 'Intention',
+    eyebrow: 'Step 02 · Intention',
+    title: 'Choose an intention',
+    body: 'One intention sets the crystals. Each mapped stone starts on the strand. Turn any of them off before you continue.',
+    validate: intentionBeadsReady,
+    hint: () => 'Select an intention so its crystals are chosen.',
+  },
+  {
+    id: 'birth',
+    label: 'Birth',
+    eyebrow: 'Step 03 · Birth',
+    title: 'Date of birth',
+    body: 'Your date sets Mulank and the repeating crystal pattern around the strand.',
+    validate: (state) => Boolean(state.dateOfBirth),
+    hint: () => 'Choose day, month and year to continue.',
+  },
+  {
+    id: 'zodiac',
+    label: 'Zodiac',
+    eyebrow: 'Step 04 · Zodiac',
+    title: 'Zodiac beads',
+    body: 'The sign comes from your date. Those beads sit either side of the charm.',
+    validate: (state) => Boolean(state.calibration),
+    hint: () => 'Calibrate from your date of birth first.',
+  },
+  {
+    id: 'charm',
+    label: 'Charm',
+    eyebrow: 'Step 05 · Charm',
+    title: 'Charm and thread',
+    body: 'Pick the charm at the clasp and the thread. Steel core also needs a wrist size.',
+    validate: charmReady,
+    hint: (state) => {
+      if (state.config?.charmRequired !== false && !state.charm) return state.config?.charmHint || 'Choose a charm to continue.';
+      if (state.threadType === 'steel-core' && !state.wristSize) return 'Choose a wrist size for steel core thread.';
+      return '';
+    },
+  },
+  {
+    id: 'review',
+    label: 'Review',
+    eyebrow: 'Step 06 · Review',
+    title: 'Review & order',
+    body: 'Confirm the composition, then place the piece in your bag.',
+    validate: () => true,
+    hint: () => '',
+  },
+];
+
 export const STEP_COUNT = STUDIO_FLOW.length;
 export const REVIEW_STEP = STEP_COUNT;
 
-export function stepAt(step) {
-  return STUDIO_FLOW[Math.min(Math.max(Number(step) || 1, 1), STEP_COUNT) - 1];
+export function flowFor(path) {
+  return path === 'purpose' ? PURPOSE_FLOW : STUDIO_FLOW;
 }
 
-export function stepIndexOf(id) {
-  const index = STUDIO_FLOW.findIndex((entry) => entry.id === id);
+export function stepCountFor(path) {
+  return flowFor(path).length;
+}
+
+export function stepAt(step, path) {
+  const flow = flowFor(path);
+  return flow[Math.min(Math.max(Number(step) || 1, 1), flow.length) - 1];
+}
+
+export function stepIndexOf(id, path) {
+  const index = flowFor(path).findIndex((entry) => entry.id === id);
   return index < 0 ? 1 : index + 1;
 }
 
 // Copy can be overridden per step from the admin content panel. Entries are matched
 // by id so reordering or renaming steps never shifts the wrong copy into a step.
-export function stepCopy(step, cmsSteps) {
-  const entry = stepAt(step);
+export function stepCopy(step, cmsSteps, path) {
+  const entry = stepAt(step, path);
   const override = (cmsSteps || []).find((row) => row?.id === entry.id) || {};
   return {
     eyebrow: override.eyebrow || entry.eyebrow,

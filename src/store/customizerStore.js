@@ -1,16 +1,15 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
 import api from '../api/client';
-import { quoteFromBeads, bhagyankFromDate, mulankFromDate } from '../lib/calibration';
+import { calibrateLocal, quoteFromBeads, bhagyankFromDate, mulankFromDate } from '../lib/calibration';
 import { formatWristChoice, strandBeadCount } from '../lib/format';
 import { studioMode, studioPaths } from '../lib/studioModes';
 import {
-  REVIEW_STEP,
-  STEP_COUNT,
   crystalLimits,
   isLayerPath,
   qtyOf,
   stepAt,
+  stepCountFor,
 } from '../lib/studioFlow';
 
 export { qtyOf };
@@ -86,8 +85,8 @@ function joinThemes(values) {
 function deriveSelection(state) {
   const { path } = state;
   if (path === 'purpose') {
-    const primary = (state.selectedIntentions || [])[0] || null;
-    return { layer: null, intention: primary, calibration: null };
+    const primary = state.intention || (state.selectedIntentions || [])[0] || null;
+    return { layer: null, intention: primary, calibration: state.calibration || null };
   }
 
   const mode = studioMode(path, state.config);
@@ -187,12 +186,12 @@ function selectedSlotNames(slots, quantities) {
 }
 
 export function selectCanAdvance(state) {
-  if (state.step >= REVIEW_STEP) return false;
-  return Boolean(stepAt(state.step).validate(state));
+  if (state.step >= stepCountFor(state.path)) return false;
+  return Boolean(stepAt(state.step, state.path).validate(state));
 }
 
 export function selectStepHint(state) {
-  const entry = stepAt(state.step);
+  const entry = stepAt(state.step, state.path);
   return entry.validate(state) ? '' : entry.hint(state) || '';
 }
 
@@ -238,6 +237,10 @@ const SELECTION_DEFAULTS = {
   layer: null,
   intention: null,
   calibration: null,
+  zodiacAdded: false,
+  zodiacQty: null,
+  strandCount: 18,
+  calibrating: false,
   stepError: '',
 };
 
@@ -330,7 +333,7 @@ export const useCustomizerStore = create((set, get) => ({
   // --- navigation -----------------------------------------------------------
 
   setStep(step) {
-    const next = Math.min(Math.max(Number(step) || 1, 1), STEP_COUNT);
+    const next = Math.min(Math.max(Number(step) || 1, 1), stepCountFor(get().path));
     set({ step: next, stepError: '' });
   },
 
@@ -340,24 +343,46 @@ export const useCustomizerStore = create((set, get) => ({
     set({ step: step - 1, stepError: '' });
   },
 
-  goNext() {
+  async goNext() {
     const state = get();
-    if (state.advancing || state.step >= REVIEW_STEP) return;
-    const entry = stepAt(state.step);
+    if (state.advancing || state.step >= stepCountFor(state.path)) return;
+    const entry = stepAt(state.step, state.path);
     if (!entry.validate(state)) {
       set({ stepError: entry.hint(state) || 'Finish this step to continue.' });
+      return;
+    }
+    if (state.path === 'purpose' && entry.id === 'birth') {
+      set({ advancing: true, stepError: '' });
+      try {
+        const cal = get().calibration;
+        if (!cal || cal.dateOfBirth !== get().dateOfBirth || cal.includeZodiac) {
+          await get().runCalibration({ includeZodiac: false });
+        }
+        set({ step: state.step + 1, advancing: false, stepError: '' });
+      } catch (e) {
+        set({ advancing: false, stepError: e.message || 'Could not calibrate this date.' });
+      }
+      return;
+    }
+    if (state.path === 'purpose' && entry.id === 'zodiac' && !get().zodiacAdded) {
+      set({ advancing: true, stepError: '' });
+      try {
+        await get().runCalibration({ includeZodiac: true, zodiacQty: get().zodiacQty });
+        set({ step: state.step + 1, advancing: false, stepError: '' });
+      } catch (e) {
+        set({ advancing: false, stepError: e.message || 'Could not add the zodiac beads.' });
+      }
       return;
     }
     if (entry.id === 'crystals' || entry.id === 'fit') get().applyStrand();
     set({ step: state.step + 1, stepError: '' });
   },
 
-  // Steps already satisfied stay reachable so the progress rail can jump back.
   canReachStep(step) {
     const state = get();
     if (step <= state.step) return true;
     for (let n = 1; n < step; n += 1) {
-      if (!stepAt(n).validate(state)) return false;
+      if (!stepAt(n, state.path).validate(state)) return false;
     }
     return true;
   },
@@ -390,7 +415,10 @@ export const useCustomizerStore = create((set, get) => ({
 
   async selectPurpose(purpose) {
     const current = get();
-    if (current.purpose?._id === purpose._id && current.intentions.length) return;
+    if (current.purpose?._id === purpose._id && current.intentions.length) {
+      if (current.step < 2) set({ step: 2, stepError: '' });
+      return;
+    }
     set({ selecting: true, stepError: '' });
     try {
       const { data } = await api.get(`/customizer/purposes/${purpose.slug}/intentions`);
@@ -399,12 +427,145 @@ export const useCustomizerStore = create((set, get) => ({
         path: 'purpose',
         purpose,
         intentions: data.intentions || [],
+        step: 2,
         selecting: false,
         stepError: data.intentions?.length ? '' : 'No intentions are mapped to this purpose yet.',
       });
     } catch (e) {
       set({ selecting: false, stepError: e.message || 'Could not load intentions.' });
     }
+  },
+
+  async selectIntention(intention) {
+    set({ selecting: true, stepError: '', intention, selectedIntentions: [intention] });
+    try {
+      const { data } = await api.get(`/customizer/intentions/${intention._id}/beads`);
+      const beads = data.beads || [];
+      const quantities = {};
+      beads.forEach((bead) => {
+        quantities[idOf(bead._id)] = 1;
+      });
+      set({
+        intention,
+        selectedIntentions: [intention],
+        recommended: beads,
+        quantities,
+        calibration: null,
+        zodiacAdded: false,
+        selecting: false,
+        stepError: beads.length ? '' : 'No crystals are mapped to this intention yet.',
+      });
+      get().refresh();
+    } catch (e) {
+      set({
+        recommended: [],
+        quantities: {},
+        selecting: false,
+        stepError: e.message || 'Could not load crystals for this intention.',
+      });
+    }
+  },
+
+  setIntentionBead(beadId, on) {
+    const id = idOf(beadId);
+    if (!id) return;
+    const state = get();
+    const quantities = { ...state.quantities, [id]: on ? 1 : 0 };
+    set({
+      quantities,
+      calibration: null,
+      zodiacAdded: false,
+      stepError: '',
+      ...deriveSelection({ ...state, quantities, calibration: null, zodiacAdded: false }),
+    });
+  },
+
+  applyBeadCount(count) {
+    const n = [16, 18, 22].includes(Number(count)) ? Number(count) : 18;
+    const { recommended, quantities } = get();
+    const selected = (recommended || []).filter((bead) => qtyOf(quantities, bead._id) > 0);
+    const ids = (selected.length ? selected : recommended).map((bead) => bead._id);
+    const next = {};
+    (recommended || []).forEach((bead) => {
+      next[idOf(bead._id)] = 0;
+    });
+    Object.assign(next, distributeQty(ids, n));
+    const state = get();
+    set({
+      quantities: next,
+      strandCount: n,
+      calibration: null,
+      zodiacAdded: false,
+      stepError: '',
+      ...deriveSelection({ ...state, quantities: next, calibration: null }),
+    });
+  },
+
+  setZodiacQty(zodiacQty) {
+    const n = Math.max(1, Math.round(Number(zodiacQty) || 0));
+    set({ zodiacQty: n, zodiacAdded: false });
+  },
+
+  async runCalibration({ includeZodiac = false, zodiacQty } = {}) {
+    const { intention, recommended, quantities, catalogBeads, config, charm, finish, dateOfBirth } = get();
+    if (!intention?._id) throw new Error('Choose an intention first.');
+    if (!dateOfBirth) throw new Error('Enter a date of birth.');
+    const selectedBeads = (recommended || []).filter((b) => qtyOf(quantities, b._id) > 0);
+    const intentionBeads = selectedBeads.length ? selectedBeads : recommended;
+    const parsed = Number(zodiacQty ?? get().zodiacQty);
+    const qty = Number.isFinite(parsed) && parsed > 0 ? parsed : (config?.zodiacBeadCount || 2);
+    const beadLimit = [16, 18, 22].includes(Number(get().strandCount)) ? Number(get().strandCount) : 18;
+    set({ calibrating: true, stepError: '' });
+    try {
+      let data;
+      try {
+        const res = await api.post('/customizer/calibrate', {
+          intentionId: intention._id,
+          dateOfBirth,
+          includeZodiac,
+          zodiacQty: qty,
+          beadCount: beadLimit,
+          charmId: charm?._id,
+          finishKey: finish?.key,
+        });
+        data = res.data;
+      } catch {
+        data = calibrateLocal({
+          dateOfBirth,
+          intentionBeads,
+          catalogBeads,
+          config: { ...config, beadLimit },
+          finish,
+          includeZodiac,
+          zodiacQty: qty,
+        });
+      }
+      const beads = (data.beads || []).map((bead) => ({
+        ...bead,
+        _id: bead.beadId || bead._id,
+      }));
+      const nextQty = {};
+      beads.forEach((bead) => {
+        nextQty[idOf(bead._id)] = Number(bead.quantity) || 0;
+      });
+      const next = {
+        recommended: beads.length ? beads : recommended,
+        quantities: beads.length ? nextQty : quantities,
+        calibration: data,
+        zodiacAdded: Boolean(includeZodiac),
+        zodiacQty: qty,
+        calibrating: false,
+      };
+      set({ ...next, ...deriveSelection({ ...get(), ...next }) });
+      return data;
+    } catch (e) {
+      set({ calibrating: false, stepError: e.message || 'Could not calibrate this date.' });
+      throw e;
+    }
+  },
+
+  async addZodiacBeads(zodiacQty) {
+    return get().runCalibration({ includeZodiac: true, zodiacQty });
   },
 
   async toggleIntention(intention) {
@@ -504,7 +665,10 @@ export const useCustomizerStore = create((set, get) => ({
   },
 
   setDateOfBirth(dateOfBirth) {
-    set({ dateOfBirth: dateOfBirth || '' });
+    const purposeReset = get().path === 'purpose'
+      ? { calibration: null, zodiacAdded: false }
+      : {};
+    set({ dateOfBirth: dateOfBirth || '', ...purposeReset });
     if (!dateOfBirth || get().path !== 'numerology') {
       get().refresh();
       return;
@@ -568,6 +732,16 @@ export const useCustomizerStore = create((set, get) => ({
     const state = get();
     if (!bead?._id) return;
     if (state.recommended.some((row) => idOf(row._id) === idOf(bead._id))) return;
+    if (state.path === 'purpose') {
+      set({
+        recommended: [...state.recommended, bead],
+        quantities: { ...state.quantities, [idOf(bead._id)]: 1 },
+        calibration: null,
+        zodiacAdded: false,
+        stepError: '',
+      });
+      return;
+    }
     const limits = crystalLimits(state);
     if (limits.count >= limits.max) {
       set({ stepError: `Keep at most ${limits.max} crystals.` });
@@ -584,7 +758,9 @@ export const useCustomizerStore = create((set, get) => ({
     const id = idOf(beadId);
     const n = Math.max(0, Math.round(Number(qty) || 0));
     const state = get();
-    const limit = Number(state.config?.beadLimit) || 32;
+    const limit = state.path === 'purpose'
+      ? (Number(state.strandCount) || 18)
+      : (Number(state.config?.beadLimit) || 32);
     const others = Object.entries(state.quantities).reduce(
       (sum, [key, value]) => (idOf(key) === id ? sum : sum + (Number(value) || 0)),
       0
@@ -806,6 +982,7 @@ export const useCustomizerStore = create((set, get) => ({
       finishKey: finish?.key,
       wristSize: wristLabel,
       threadType,
+      dateOfBirth: dateOfBirth || undefined,
       ...extras,
       snapshot: {
         name: `${braceletName}${charm?.name ? ` · ${charm.name}` : ''}`,
@@ -813,7 +990,12 @@ export const useCustomizerStore = create((set, get) => ({
         intention: { id: primary._id, name: braceletName, braceletName },
         intentions: picked.map((it) => ({ id: it._id, name: it.name, braceletName: it.braceletName })),
         beads: quote.lines,
-        explanation: picked.map((it) => it.braceletName || it.name).join(' · '),
+        layout: calibration?.layout || [],
+        mulank: calibration?.mulank,
+        bhagyank: calibration?.bhagyank,
+        zodiac: calibration?.zodiac,
+        dateOfBirth,
+        explanation: calibration?.explanation || picked.map((it) => it.braceletName || it.name).join(' · '),
         charm: charm ? { id: charm._id, name: charm.name, slug: charm.slug } : null,
         finish,
         threadType,
