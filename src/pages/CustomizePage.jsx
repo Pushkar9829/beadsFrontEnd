@@ -10,8 +10,8 @@ import IntentionStep from '../components/customizer/steps/IntentionStep';
 import BirthStep from '../components/customizer/steps/BirthStep';
 import ZodiacStep from '../components/customizer/steps/ZodiacStep';
 import CharmStep from '../components/customizer/steps/CharmStep';
+import CrystalGate from '../components/customizer/steps/CrystalGate';
 import ChooseStep from '../components/customizer/steps/ChooseStep';
-import CrystalPicker from '../components/customizer/CrystalPicker';
 import FitStep from '../components/customizer/steps/FitStep';
 import FinishStep from '../components/customizer/steps/FinishStep';
 import ReviewStep from '../components/customizer/ReviewStep';
@@ -32,7 +32,8 @@ const PANE = {
   zodiac: ZodiacStep,
   charm: CharmStep,
   choose: ChooseStep,
-  crystals: CrystalPicker,
+  crystals: CrystalGate,
+  beads: ZodiacStep,
   fit: FitStep,
   finish: FinishStep,
   review: ReviewStep,

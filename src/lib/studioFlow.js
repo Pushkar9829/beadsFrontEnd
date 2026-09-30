@@ -186,8 +186,64 @@ export const PURPOSE_FLOW = [
 export const STEP_COUNT = STUDIO_FLOW.length;
 export const REVIEW_STEP = STEP_COUNT;
 
+function strandTarget(state) {
+  return [16, 18, 22].includes(Number(state.strandCount)) ? Number(state.strandCount) : 18;
+}
+
+function strandTotal(state) {
+  return Object.values(state.quantities || {}).reduce((sum, n) => sum + (Number(n) || 0), 0);
+}
+
+function strandMatched(state) {
+  return Boolean(state.zodiacAdded) && strandTotal(state) === strandTarget(state);
+}
+
+function strandHint(state) {
+  if (!state.calibration) return 'Calibrate from your date of birth first.';
+  const target = strandTarget(state);
+  const total = strandTotal(state);
+  if (total !== target) return `This strand is ${target} beads. You have ${total}. Adjust the counts to match.`;
+  return '';
+}
+
+const BIRTH_STEP = PURPOSE_FLOW.find((entry) => entry.id === 'birth');
+const CHARM_STEP = PURPOSE_FLOW.find((entry) => entry.id === 'charm');
+const REVIEW_STEP_ENTRY = PURPOSE_FLOW.find((entry) => entry.id === 'review');
+
+// Numerology, zodiac, planetary, and profession follow the purpose studio after their own choose step.
+const LAYER_FLOW = [
+  STUDIO_FLOW[0],
+  {
+    id: 'crystals',
+    label: 'Crystals',
+    eyebrow: 'Step 02 · Crystals',
+    title: 'Choose your crystals',
+    body: 'Select the stones, then choose a strand of 16, 18, or 22 beads.',
+    validate: (state) => selectedCrystals(state).length > 0 && strandTotal(state) === strandTarget(state),
+    hint: (state) => {
+      if (!selectedCrystals(state).length) return 'Select a crystal to continue.';
+      const target = strandTarget(state);
+      const total = strandTotal(state);
+      if (total !== target) return `Choose 16, 18, or 22 beads. You have ${total}.`;
+      return '';
+    },
+  },
+  BIRTH_STEP,
+  {
+    id: 'beads',
+    label: 'Beads',
+    eyebrow: 'Step 04 · Beads',
+    title: 'Beads on this strand',
+    body: 'Every crystal on the bracelet is listed here, including the zodiac stone. Select, deselect, or change a count until the total matches the strand.',
+    validate: strandMatched,
+    hint: strandHint,
+  },
+  CHARM_STEP,
+  REVIEW_STEP_ENTRY,
+];
+
 export function flowFor(path) {
-  return path === 'purpose' ? PURPOSE_FLOW : STUDIO_FLOW;
+  return path === 'purpose' ? PURPOSE_FLOW : LAYER_FLOW;
 }
 
 export function stepCountFor(path) {

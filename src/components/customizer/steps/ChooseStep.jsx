@@ -127,27 +127,6 @@ function PickCard({ item, label, detail, selected, numeral, onClick }) {
   );
 }
 
-function NumberGrid({ items, slotKey, active, onPick }) {
-  return (
-    <div className="purpose-pick mt-3">
-      {items.map((item) => {
-        const number = Number(item.number ?? item.slug);
-        return (
-          <PickCard
-            key={`${slotKey}-${item.slug}`}
-            item={item}
-            label={number}
-            detail={item.description || item.theme || item.name}
-            selected={Number(active) === number}
-            numeral
-            onClick={() => onPick(number)}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
 function NumerologyChoice() {
   const items = useCustomizerStore((s) => s.layerItems);
   const loading = useCustomizerStore((s) => s.layerLoading);
@@ -155,7 +134,6 @@ function NumerologyChoice() {
   const setDateOfBirth = useCustomizerStore((s) => s.setDateOfBirth);
   const mulankNumber = useCustomizerStore((s) => s.mulankNumber);
   const bhagyankNumber = useCustomizerStore((s) => s.bhagyankNumber);
-  const setNumerology = useCustomizerStore((s) => s.setNumerology);
   const labels = useStudioLabels();
 
   if (loading && !items.length) return <Spinner />;
@@ -170,26 +148,18 @@ function NumerologyChoice() {
         </div>
       </div>
 
-      <div>
-        <p className="studio-birth-kicker">{labels.mulankLabel}</p>
-        <NumberGrid
-          items={items}
-          slotKey="mulank"
-          active={mulankNumber}
-          onPick={(n) => setNumerology({ mulank: mulankNumber === n ? null : n })}
-        />
-      </div>
-
-      <div>
-        <p className="studio-birth-kicker">{labels.bhagyankLabel}</p>
-        <p className="mt-2 text-sm text-lilac">{labels.bhagyankBody}</p>
-        <NumberGrid
-          items={items}
-          slotKey="bhagyank"
-          active={bhagyankNumber}
-          onPick={(n) => setNumerology({ bhagyank: bhagyankNumber === n ? null : n })}
-        />
-      </div>
+      {dateOfBirth && mulankNumber ? (
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-[rgba(198,167,94,0.35)] px-4 py-5 text-center">
+            <p className="studio-birth-kicker">{labels.mulankLabel}</p>
+            <p className="mt-2 font-serif text-5xl text-gold">{mulankNumber}</p>
+          </div>
+          <div className="rounded-2xl border border-[rgba(198,167,94,0.35)] px-4 py-5 text-center">
+            <p className="studio-birth-kicker">{labels.bhagyankLabel}</p>
+            <p className="mt-2 font-serif text-5xl text-gold">{bhagyankNumber}</p>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -20,13 +20,13 @@ export default function BirthStep() {
   }
 
   return (
-    <div className="auth-card">
-      <p className="studio-birth-kicker">Date of birth</p>
-      <p className="mt-2 text-sm text-lilac">
-        Day, month and year set Mulank and Bhagyank. Next continues once both numbers are shown.
-      </p>
-      <div className="mt-4">
-        <DateFields value={dateOfBirth} onChange={setDateOfBirth} />
+    <div>
+      <div className="auth-card">
+        <p className="studio-birth-kicker">Date of birth</p>
+        <p className="mt-2 text-sm text-lilac">Choose the day, month, and year.</p>
+        <div className="mt-4">
+          <DateFields value={dateOfBirth} onChange={setDateOfBirth} />
+        </div>
       </div>
       {numbers ? (
         <div className="mt-6 grid grid-cols-2 gap-3">
