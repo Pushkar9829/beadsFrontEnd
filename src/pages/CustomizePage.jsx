@@ -7,6 +7,7 @@ import Stepper from '../components/customizer/Stepper';
 import StudioDock from '../components/customizer/StudioDock';
 import PurposePick from '../components/customizer/steps/PurposePick';
 import IntentionStep from '../components/customizer/steps/IntentionStep';
+import NumberBeadsStep from '../components/customizer/steps/NumberBeadsStep';
 import BirthStep from '../components/customizer/steps/BirthStep';
 import ZodiacStep from '../components/customizer/steps/ZodiacStep';
 import CharmStep from '../components/customizer/steps/CharmStep';
@@ -29,6 +30,7 @@ const PANE = {
   purpose: PurposePick,
   intention: IntentionStep,
   birth: BirthStep,
+  numbers: NumberBeadsStep,
   zodiac: ZodiacStep,
   charm: CharmStep,
   choose: ChooseStep,

@@ -136,25 +136,21 @@ export const PURPOSE_FLOW = [
     label: 'Birth',
     eyebrow: 'Step 03 · Birth',
     title: 'Date of birth',
-    body: 'Your date sets two numbers: Mulank and Bhagyank. They stay on the piece, then you continue.',
-    validate: (state) => Boolean(state.dateOfBirth),
-    hint: () => 'Choose day, month and year to continue.',
-  },
-  {
-    id: 'zodiac',
-    label: 'Zodiac',
-    eyebrow: 'Step 04 · Zodiac',
-    title: 'Beads on this strand',
-    body: 'Every crystal on the bracelet is listed here, including the zodiac stone. Select, deselect, or change a count until the total matches the strand.',
+    body: 'Your date sets Mulank, Bhagyank, and your zodiac sign. Then choose the number beads and the sign’s crystals.',
     validate: (state) => {
+      if (state.path !== 'purpose') return Boolean(state.dateOfBirth);
+      if (!state.dateOfBirth) return false;
+      if (state.includeNumberBeads !== true && state.includeNumberBeads !== false) return false;
       const target = [16, 18, 22].includes(Number(state.strandCount)) ? Number(state.strandCount) : 18;
       const total = Object.values(state.quantities || {}).reduce((sum, n) => sum + (Number(n) || 0), 0);
-      return Boolean(state.zodiacAdded) && total === target;
+      return total === target;
     },
     hint: (state) => {
+      if (!state.dateOfBirth) return 'Choose day, month and year to continue.';
+      if (state.path !== 'purpose') return '';
+      if (state.includeNumberBeads !== true && state.includeNumberBeads !== false) return 'Choose yes or no for the Mulank and Bhagyank beads.';
       const target = [16, 18, 22].includes(Number(state.strandCount)) ? Number(state.strandCount) : 18;
       const total = Object.values(state.quantities || {}).reduce((sum, n) => sum + (Number(n) || 0), 0);
-      if (!state.calibration) return 'Calibrate from your date of birth first.';
       if (total !== target) return `This strand is ${target} beads. You have ${total}. Adjust the counts to match.`;
       return '';
     },
@@ -162,7 +158,7 @@ export const PURPOSE_FLOW = [
   {
     id: 'charm',
     label: 'Charm',
-    eyebrow: 'Step 05 · Charm',
+    eyebrow: 'Step 04 · Charm',
     title: 'Charm and thread',
     body: 'Pick the charm at the clasp and the thread. Steel core also needs a wrist size.',
     validate: charmReady,
@@ -175,7 +171,7 @@ export const PURPOSE_FLOW = [
   {
     id: 'review',
     label: 'Review',
-    eyebrow: 'Step 06 · Review',
+    eyebrow: 'Step 05 · Review',
     title: 'Review & order',
     body: 'Confirm the composition, then place the piece in your bag.',
     validate: () => true,
@@ -207,10 +203,9 @@ function strandHint(state) {
 }
 
 const BIRTH_STEP = PURPOSE_FLOW.find((entry) => entry.id === 'birth');
-const CHARM_STEP = PURPOSE_FLOW.find((entry) => entry.id === 'charm');
-const REVIEW_STEP_ENTRY = PURPOSE_FLOW.find((entry) => entry.id === 'review');
+const PURPOSE_CHARM = PURPOSE_FLOW.find((entry) => entry.id === 'charm');
+const PURPOSE_REVIEW = PURPOSE_FLOW.find((entry) => entry.id === 'review');
 
-// Numerology, zodiac, planetary, and profession follow the purpose studio after their own choose step.
 const LAYER_FLOW = [
   STUDIO_FLOW[0],
   {
@@ -238,8 +233,8 @@ const LAYER_FLOW = [
     validate: strandMatched,
     hint: strandHint,
   },
-  CHARM_STEP,
-  REVIEW_STEP_ENTRY,
+  { ...PURPOSE_CHARM, eyebrow: 'Step 05 · Charm' },
+  { ...PURPOSE_REVIEW, eyebrow: 'Step 06 · Review' },
 ];
 
 export function flowFor(path) {

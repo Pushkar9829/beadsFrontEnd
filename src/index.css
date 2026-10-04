@@ -1971,6 +1971,40 @@ main.has-purpose-tone .studio-chosen {
   border-radius: 999px;
 }
 
+.studio-crystal-line {
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.7rem;
+}
+
+.studio-crystal-line .studio-crystal-gem {
+  width: 1.65rem;
+  height: 1.65rem;
+}
+
+.studio-crystal-line .studio-bead-name {
+  font-size: 0.82rem;
+}
+
+.studio-crystal-line .studio-bead-box {
+  width: auto;
+  height: auto;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+}
+
+.studio-crystal-line .qty-ctrl-btn {
+  width: 1.45rem;
+  height: 1.45rem;
+}
+
+.studio-crystal-line .qty-ctrl-val {
+  min-width: 1rem;
+  font-size: 0.75rem;
+}
+
 .studio-crystal-copy {
   min-width: 0;
 }

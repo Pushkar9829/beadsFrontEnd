@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
 import api from '../api/client';
-import { calibrateLocal, quoteFromBeads, bhagyankFromDate, mulankFromDate } from '../lib/calibration';
+import { calibrateLocal, quoteFromBeads, bhagyankFromDate, mulankFromDate, zodiacFromDate, MULANK_TABLE } from '../lib/calibration';
 import { formatWristChoice, strandBeadCount } from '../lib/format';
 import { studioMode, studioPaths } from '../lib/studioModes';
 import {
@@ -240,6 +240,8 @@ const SELECTION_DEFAULTS = {
   zodiacAdded: false,
   zodiacQty: null,
   strandCount: 18,
+  includeNumberBeads: null,
+  numberBeadIds: [],
   calibrating: false,
   stepError: '',
 };
@@ -351,7 +353,7 @@ export const useCustomizerStore = create((set, get) => ({
       set({ stepError: entry.hint(state) || 'Finish this step to continue.' });
       return;
     }
-    if (entry.id === 'birth') {
+    if (entry.id === 'birth' && state.path !== 'purpose') {
       set({ advancing: true, stepError: '' });
       try {
         const cal = get().calibration;
@@ -361,16 +363,6 @@ export const useCustomizerStore = create((set, get) => ({
         set({ step: state.step + 1, advancing: false, stepError: '' });
       } catch (e) {
         set({ advancing: false, stepError: e.message || 'Could not calibrate this date.' });
-      }
-      return;
-    }
-    if (entry.id === 'zodiac' && !get().zodiacAdded) {
-      set({ advancing: true, stepError: '' });
-      try {
-        await get().runCalibration({ includeZodiac: true, zodiacQty: get().zodiacQty });
-        set({ step: state.step + 1, advancing: false, stepError: '' });
-      } catch (e) {
-        set({ advancing: false, stepError: e.message || 'Could not add the zodiac beads.' });
       }
       return;
     }
@@ -498,6 +490,54 @@ export const useCustomizerStore = create((set, get) => ({
       zodiacAdded: false,
       stepError: '',
       ...deriveSelection({ ...state, quantities: next, calibration: null }),
+    });
+  },
+
+  setIncludeNumberBeads(choice) {
+    const yes = Boolean(choice);
+    const state = get();
+    const drop = new Set((state.numberBeadIds || []).map(idOf));
+    const recommended = (state.recommended || []).filter((bead) => !drop.has(idOf(bead._id)));
+    const quantities = { ...state.quantities };
+    drop.forEach((id) => {
+      delete quantities[id];
+    });
+    const added = [];
+    if (yes && state.dateOfBirth) {
+      const names = [...new Set([
+        MULANK_TABLE[mulankFromDate(state.dateOfBirth)]?.beadName,
+        MULANK_TABLE[bhagyankFromDate(state.dateOfBirth)]?.beadName,
+      ].filter(Boolean))];
+      names.forEach((name) => {
+        if (recommended.some((bead) => bead.name === name)) return;
+        const bead = (state.catalogBeads || []).find((row) => row.name === name);
+        if (!bead?._id) return;
+        recommended.push({ ...bead, roles: ['number'] });
+        quantities[idOf(bead._id)] = 1;
+        added.push(idOf(bead._id));
+      });
+    }
+    set({
+      includeNumberBeads: yes,
+      numberBeadIds: added,
+      recommended,
+      quantities,
+      stepError: '',
+    });
+  },
+
+  offerZodiacBead() {
+    const state = get();
+    if (!state.dateOfBirth) return;
+    const sign = zodiacFromDate(state.dateOfBirth);
+    const fromCal = state.calibration?.zodiac?.bead;
+    const bead = (state.catalogBeads || []).find((row) => row.name === sign.beadName) || fromCal;
+    const id = idOf(bead?._id || bead?.beadId);
+    if (!id) return;
+    if ((state.recommended || []).some((row) => idOf(row._id) === id)) return;
+    set({
+      recommended: [...(state.recommended || []), { ...bead, _id: bead._id || bead.beadId, roles: ['zodiac'] }],
+      quantities: { ...state.quantities, [id]: 0 },
     });
   },
 
@@ -696,7 +736,21 @@ export const useCustomizerStore = create((set, get) => ({
   },
 
   setDateOfBirth(dateOfBirth) {
-    set({ dateOfBirth: dateOfBirth || '', calibration: null, zodiacAdded: false });
+    const drop = new Set((get().numberBeadIds || []).map(idOf));
+    const recommended = (get().recommended || []).filter((bead) => !drop.has(idOf(bead._id)));
+    const quantities = { ...get().quantities };
+    drop.forEach((id) => {
+      delete quantities[id];
+    });
+    set({
+      dateOfBirth: dateOfBirth || '',
+      calibration: null,
+      zodiacAdded: false,
+      includeNumberBeads: null,
+      numberBeadIds: [],
+      recommended,
+      quantities,
+    });
     if (!dateOfBirth || get().path !== 'numerology') {
       get().refresh();
       return;

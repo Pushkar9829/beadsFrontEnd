@@ -1,8 +1,11 @@
+import NumberBeadsStep from './NumberBeadsStep';
+import ZodiacStep from './ZodiacStep';
 import { useCustomizerStore } from '../../../store/customizerStore';
-import { bhagyankFromDate, mulankFromDate } from '../../../lib/calibration';
+import { bhagyankFromDate, mulankFromDate, zodiacFromDate, dateRangeLabel } from '../../../lib/calibration';
 import DateFields from '../DateFields';
 
 export default function BirthStep() {
+  const path = useCustomizerStore((s) => s.path);
   const dateOfBirth = useCustomizerStore((s) => s.dateOfBirth);
   const setDateOfBirth = useCustomizerStore((s) => s.setDateOfBirth);
   const calibrating = useCustomizerStore((s) => s.calibrating);
@@ -13,37 +16,61 @@ export default function BirthStep() {
       numbers = {
         mulank: mulankFromDate(dateOfBirth),
         bhagyank: bhagyankFromDate(dateOfBirth),
+        sign: zodiacFromDate(dateOfBirth),
       };
     } catch {
       numbers = null;
     }
   }
 
+  const includeNumberBeads = useCustomizerStore((s) => s.includeNumberBeads);
+  const numbersChosen = includeNumberBeads === true || includeNumberBeads === false;
+
   return (
-    <div>
-      <div className="auth-card">
-        <p className="studio-birth-kicker">Date of birth</p>
-        <p className="mt-2 text-sm text-lilac">Choose the day, month, and year.</p>
-        <div className="mt-4">
-          <DateFields value={dateOfBirth} onChange={setDateOfBirth} />
-        </div>
-      </div>
-      {numbers ? (
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-[rgba(198,167,94,0.35)] px-4 py-5 text-center">
-            <p className="studio-birth-kicker">Mulank</p>
-            <p className="mt-2 font-serif text-5xl text-gold">{numbers.mulank}</p>
-          </div>
-          <div className="rounded-2xl border border-[rgba(198,167,94,0.35)] px-4 py-5 text-center">
-            <p className="studio-birth-kicker">Bhagyank</p>
-            <p className="mt-2 font-serif text-5xl text-gold">{numbers.bhagyank}</p>
+    <div className="space-y-10">
+      <section>
+        {path === 'purpose' ? <p className="studio-birth-kicker mb-3">3 · Birth</p> : null}
+        <div className="auth-card">
+          <p className="studio-birth-kicker">Date of birth</p>
+          <p className="mt-2 text-sm text-lilac">Choose the day, month, and year.</p>
+          <div className="mt-4">
+            <DateFields value={dateOfBirth} onChange={setDateOfBirth} />
           </div>
         </div>
+        {numbers ? (
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-[rgba(198,167,94,0.35)] px-4 py-5 text-center">
+              <p className="studio-birth-kicker">Mulank</p>
+              <p className="mt-2 font-serif text-5xl text-gold">{numbers.mulank}</p>
+            </div>
+            <div className="rounded-2xl border border-[rgba(198,167,94,0.35)] px-4 py-5 text-center">
+              <p className="studio-birth-kicker">Bhagyank</p>
+              <p className="mt-2 font-serif text-5xl text-gold">{numbers.bhagyank}</p>
+            </div>
+            <div className="rounded-2xl border border-[rgba(198,167,94,0.35)] px-4 py-5 text-center">
+              <p className="studio-birth-kicker">Zodiac</p>
+              <p className="mt-2 font-serif text-3xl text-gold">{numbers.sign.sign}</p>
+              <p className="mt-2 text-xs text-lilac">{dateRangeLabel(numbers.sign)}</p>
+            </div>
+          </div>
+        ) : null}
+      </section>
+
+      {path === 'purpose' && numbers ? (
+        <section>
+          <p className="studio-birth-kicker mb-3">4 · Numbers</p>
+          <NumberBeadsStep />
+        </section>
       ) : null}
-      {numbers ? (
-        <p className="studio-birth-note mt-4">Mulank {numbers.mulank} and Bhagyank {numbers.bhagyank} are set. Continue to the beads.</p>
+
+      {path === 'purpose' && numbers && numbersChosen ? (
+        <section>
+          <p className="studio-birth-kicker mb-3">5 · Zodiac</p>
+          <ZodiacStep />
+        </section>
       ) : null}
-      {calibrating ? <p className="studio-birth-note mt-4">Calibrating…</p> : null}
+
+      {calibrating ? <p className="studio-birth-note">Calibrating…</p> : null}
     </div>
   );
 }
