@@ -240,7 +240,8 @@ const SELECTION_DEFAULTS = {
   zodiacAdded: false,
   zodiacQty: null,
   strandCount: 18,
-  includeNumberBeads: null,
+  includeMulankBead: null,
+  includeBhagyankBead: null,
   numberBeadIds: [],
   includeZodiacBead: null,
   zodiacBeadId: '',
@@ -499,9 +500,11 @@ export const useCustomizerStore = create((set, get) => ({
     });
   },
 
-  setIncludeNumberBeads(choice) {
+  setIncludeNumberBead(kind, choice) {
     const yes = Boolean(choice);
     const state = get();
+    const includeMulankBead = kind === 'mulank' ? yes : state.includeMulankBead;
+    const includeBhagyankBead = kind === 'bhagyank' ? yes : state.includeBhagyankBead;
     const drop = new Set((state.numberBeadIds || []).map(idOf));
     const recommended = (state.recommended || []).filter((bead) => !drop.has(idOf(bead._id)));
     const quantities = { ...state.quantities };
@@ -509,22 +512,22 @@ export const useCustomizerStore = create((set, get) => ({
       delete quantities[id];
     });
     const added = [];
-    if (yes && state.dateOfBirth) {
-      const names = [...new Set([
-        MULANK_TABLE[mulankFromDate(state.dateOfBirth)]?.beadName,
-        MULANK_TABLE[bhagyankFromDate(state.dateOfBirth)]?.beadName,
-      ].filter(Boolean))];
-      names.forEach((name) => {
-        if (recommended.some((bead) => bead.name === name)) return;
-        const bead = (state.catalogBeads || []).find((row) => row.name === name);
-        if (!bead?._id) return;
-        recommended.push({ ...bead, roles: ['number'] });
-        quantities[idOf(bead._id)] = 1;
-        added.push(idOf(bead._id));
-      });
+    const names = [];
+    if (state.dateOfBirth) {
+      if (includeMulankBead === true) names.push(MULANK_TABLE[mulankFromDate(state.dateOfBirth)]?.beadName);
+      if (includeBhagyankBead === true) names.push(MULANK_TABLE[bhagyankFromDate(state.dateOfBirth)]?.beadName);
     }
+    [...new Set(names.filter(Boolean))].forEach((name) => {
+      if (recommended.some((bead) => bead.name === name)) return;
+      const bead = findBeadByName(state.catalogBeads, name);
+      if (!bead?._id) return;
+      recommended.push({ ...bead, roles: ['number'] });
+      quantities[idOf(bead._id)] = 1;
+      added.push(idOf(bead._id));
+    });
     set({
-      includeNumberBeads: yes,
+      includeMulankBead,
+      includeBhagyankBead,
       numberBeadIds: added,
       recommended,
       quantities,
@@ -826,7 +829,8 @@ export const useCustomizerStore = create((set, get) => ({
       dateOfBirth: dateOfBirth || '',
       calibration: null,
       zodiacAdded: false,
-      includeNumberBeads: null,
+      includeMulankBead: null,
+      includeBhagyankBead: null,
       includeZodiacBead: null,
       zodiacBeadId: '',
       numberBeadIds: [],

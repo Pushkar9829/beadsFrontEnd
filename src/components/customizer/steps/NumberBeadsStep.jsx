@@ -26,7 +26,7 @@ function YesNo({ value, onChange }) {
   );
 }
 
-function BeadOffer({ bead, name, detail }) {
+function BeadOffer({ bead, name, detail, value, onChange }) {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-[rgba(198,167,94,0.35)] px-3 py-2">
       <GemVisual
@@ -39,6 +39,7 @@ function BeadOffer({ bead, name, detail }) {
         <p className="studio-bead-name truncate">{name}</p>
         <p className="truncate text-xs text-lilac">{detail}</p>
       </div>
+      <YesNo value={value} onChange={onChange} />
     </div>
   );
 }
@@ -46,8 +47,9 @@ function BeadOffer({ bead, name, detail }) {
 export default function NumberBeadsStep() {
   const dateOfBirth = useCustomizerStore((s) => s.dateOfBirth);
   const catalogBeads = useCustomizerStore((s) => s.catalogBeads);
-  const includeNumberBeads = useCustomizerStore((s) => s.includeNumberBeads);
-  const setIncludeNumberBeads = useCustomizerStore((s) => s.setIncludeNumberBeads);
+  const includeMulankBead = useCustomizerStore((s) => s.includeMulankBead);
+  const includeBhagyankBead = useCustomizerStore((s) => s.includeBhagyankBead);
+  const setIncludeNumberBead = useCustomizerStore((s) => s.setIncludeNumberBead);
 
   let mulank = null;
   let bhagyank = null;
@@ -61,27 +63,23 @@ export default function NumberBeadsStep() {
   }
   const mulankBead = mulank ? MULANK_TABLE[mulank]?.beadName : '';
   const bhagyankBead = bhagyank ? MULANK_TABLE[bhagyank]?.beadName : '';
-  const sameBead = mulankBead && mulankBead === bhagyankBead;
-  const rows = sameBead
-    ? [{ name: mulankBead, detail: `Mulank ${mulank} · Bhagyank ${bhagyank}` }]
-    : [
-      mulankBead ? { name: mulankBead, detail: `Mulank ${mulank}` } : null,
-      bhagyankBead ? { name: bhagyankBead, detail: `Bhagyank ${bhagyank}` } : null,
-    ].filter(Boolean);
+  const rows = [
+    mulankBead ? { kind: 'mulank', name: mulankBead, detail: `Mulank ${mulank}`, value: includeMulankBead } : null,
+    bhagyankBead ? { kind: 'bhagyank', name: bhagyankBead, detail: `Bhagyank ${bhagyank}`, value: includeBhagyankBead } : null,
+  ].filter(Boolean);
 
   return (
     <div className="space-y-2">
       {rows.map((row) => (
         <BeadOffer
-          key={row.detail}
+          key={row.kind}
           bead={findBeadByName(catalogBeads, row.name)}
           name={row.name}
           detail={row.detail}
+          value={row.value}
+          onChange={(yes) => setIncludeNumberBead(row.kind, yes)}
         />
       ))}
-      <div className="flex items-center justify-end">
-        <YesNo value={includeNumberBeads} onChange={setIncludeNumberBeads} />
-      </div>
     </div>
   );
 }

@@ -26,8 +26,10 @@ export default function BirthStep() {
     }
   }
 
-  const includeNumberBeads = useCustomizerStore((s) => s.includeNumberBeads);
-  const numbersChosen = includeNumberBeads === true || includeNumberBeads === false;
+  const includeMulankBead = useCustomizerStore((s) => s.includeMulankBead);
+  const includeBhagyankBead = useCustomizerStore((s) => s.includeBhagyankBead);
+  const numbersChosen = (includeMulankBead === true || includeMulankBead === false)
+    && (includeBhagyankBead === true || includeBhagyankBead === false);
 
   return (
     <div className="space-y-10">

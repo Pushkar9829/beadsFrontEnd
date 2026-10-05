@@ -101,6 +101,11 @@ export const STUDIO_FLOW = [
   },
 ];
 
+function numbersChosen(state) {
+  const picked = (value) => value === true || value === false;
+  return picked(state.includeMulankBead) && picked(state.includeBhagyankBead);
+}
+
 function intentionBeadsReady(state) {
   return Boolean(state.intention) && selectedCrystals(state).length > 0;
 }
@@ -140,7 +145,7 @@ export const PURPOSE_FLOW = [
     validate: (state) => {
       if (state.path !== 'purpose') return Boolean(state.dateOfBirth);
       if (!state.dateOfBirth) return false;
-      if (state.includeNumberBeads !== true && state.includeNumberBeads !== false) return false;
+      if (!numbersChosen(state)) return false;
       const target = [16, 18, 22].includes(Number(state.strandCount)) ? Number(state.strandCount) : 18;
       const total = Object.values(state.quantities || {}).reduce((sum, n) => sum + (Number(n) || 0), 0);
       return total === target;
@@ -148,7 +153,7 @@ export const PURPOSE_FLOW = [
     hint: (state) => {
       if (!state.dateOfBirth) return 'Choose day, month and year to continue.';
       if (state.path !== 'purpose') return '';
-      if (state.includeNumberBeads !== true && state.includeNumberBeads !== false) return 'Choose yes or no for the Mulank and Bhagyank beads.';
+      if (!numbersChosen(state)) return 'Choose yes or no for the Mulank bead and the Bhagyank bead.';
       const target = [16, 18, 22].includes(Number(state.strandCount)) ? Number(state.strandCount) : 18;
       const total = Object.values(state.quantities || {}).reduce((sum, n) => sum + (Number(n) || 0), 0);
       if (total !== target) return `This strand is ${target} beads. You have ${total}. Adjust the counts to match.`;
