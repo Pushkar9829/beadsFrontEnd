@@ -18,6 +18,7 @@ export default function ReviewStep() {
   const calibration = useCustomizerStore((s) => s.calibration);
   const quote = useCustomizerQuote();
   const setStep = useCustomizerStore((s) => s.setStep);
+  const path = useCustomizerStore((s) => s.path);
   const labels = useStudioLabels();
   const lines = quote.lines || [];
   const pack = quote.packaging?.lines || [];
@@ -50,19 +51,19 @@ export default function ReviewStep() {
             <dd>{dateOfBirth}</dd>
           </div>
         ) : null}
-        {(calibration?.mulank || layer?.selections?.mulank) ? (
+        {path !== 'zodiac' && (calibration?.mulank || layer?.selections?.mulank) ? (
           <div>
             <dt>{labels.mulankLabel} {calibration?.mulank || layer?.selections?.mulank?.number}</dt>
             <dd>{(layer?.selections?.mulank?.beads || []).join(' · ') || calibration?.mulank}</dd>
           </div>
         ) : null}
-        {(calibration?.bhagyank || layer?.selections?.bhagyank) ? (
+        {path !== 'zodiac' && (calibration?.bhagyank || layer?.selections?.bhagyank) ? (
           <div>
             <dt>{labels.bhagyankLabel} {calibration?.bhagyank || layer?.selections?.bhagyank?.number}</dt>
             <dd>{(layer?.selections?.bhagyank?.beads || []).join(' · ') || calibration?.bhagyank}</dd>
           </div>
         ) : null}
-        {layer?.selections?.zodiac ? (
+        {path !== 'numerology' && layer?.selections?.zodiac ? (
           <div>
             <dt>{labels.rowZodiac}</dt>
             <dd>

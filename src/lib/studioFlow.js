@@ -191,11 +191,13 @@ function strandTotal(state) {
 }
 
 function strandMatched(state) {
-  return Boolean(state.zodiacAdded) && strandTotal(state) === strandTarget(state);
+  const matched = strandTotal(state) === strandTarget(state);
+  if (state.path === 'numerology' || state.path === 'zodiac') return matched;
+  return Boolean(state.zodiacAdded) && matched;
 }
 
 function strandHint(state) {
-  if (!state.calibration) return 'Calibrate from your date of birth first.';
+  if (!state.calibration && state.path !== 'zodiac') return 'Calibrate from your date of birth first.';
   const target = strandTarget(state);
   const total = strandTotal(state);
   if (total !== target) return `This strand is ${target} beads. You have ${total}. Adjust the counts to match.`;
@@ -229,7 +231,7 @@ const LAYER_FLOW = [
     label: 'Beads',
     eyebrow: 'Step 04 · Beads',
     title: 'Beads on this strand',
-    body: 'Every crystal on the bracelet is listed here, including the zodiac stone. Select, deselect, or change a count until the total matches the strand.',
+    body: 'Adjust each crystal until the total matches the strand.',
     validate: strandMatched,
     hint: strandHint,
   },

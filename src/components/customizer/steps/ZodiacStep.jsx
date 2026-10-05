@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useCustomizerStore } from '../../../store/customizerStore';
 import { qtyOf } from '../../../lib/studioFlow';
-import { zodiacFromDate, dateRangeLabel } from '../../../lib/calibration';
+import { zodiacFromDate, dateRangeLabel, findBeadByName } from '../../../lib/calibration';
 import GemVisual from '../../ui/GemVisual';
 import QtyControl from '../../ui/QtyControl';
 import Spinner from '../../ui/Spinner';
@@ -22,6 +22,8 @@ export default function ZodiacStep() {
   const strandCount = useCustomizerStore((s) => s.strandCount);
   const setBeadQty = useCustomizerStore((s) => s.setBeadQty);
   const path = useCustomizerStore((s) => s.path);
+  const layerItem = useCustomizerStore((s) => s.layerItem);
+  const catalogBeads = useCustomizerStore((s) => s.catalogBeads);
   const includeZodiacBead = useCustomizerStore((s) => s.includeZodiacBead);
   const setIncludeZodiacBead = useCustomizerStore((s) => s.setIncludeZodiacBead);
   const seeded = useRef(false);
@@ -35,13 +37,15 @@ export default function ZodiacStep() {
   const signBead = zodiac?.bead?.name || sign?.beadName || '';
 
   useEffect(() => {
-    if (path === 'purpose') return;
+    if (path === 'purpose' || path === 'numerology' || path === 'zodiac') return;
     if (seeded.current || !calibration || zodiacAdded || calibrating) return;
     seeded.current = true;
     addZodiacBeads(calibration.zodiacQty || 2);
   }, [path, calibration, zodiacAdded, calibrating, addZodiacBeads]);
 
-  if (path !== 'purpose' && (!calibration || calibrating)) return <Spinner label="Placing the beads" />;
+  if (path !== 'purpose' && path !== 'zodiac' && path !== 'numerology' && (!calibration || calibrating)) {
+    return <Spinner label="Placing the beads" />;
+  }
   if (path === 'purpose' && calibrating) return <Spinner label="Placing the beads" />;
 
   const rows = path === 'purpose'
@@ -54,38 +58,49 @@ export default function ZodiacStep() {
   return (
     <div className="studio-birth">
       {path === 'purpose' ? (
-        <div>
-          <p className="font-serif text-2xl text-gold">{signName || 'Zodiac'}</p>
-          <p className="mt-1 text-sm text-lilac">
-            {signRange ? `${signRange} · ` : ''}{signBead}
-          </p>
-          <p className="mt-2 text-sm text-lilac">Add this zodiac bead to the strand?</p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={() => setIncludeZodiacBead(true)}
-              className={`rounded-2xl border px-4 py-5 text-center ${includeZodiacBead === true ? 'border-[#c6a75e] bg-[#140c18] shadow-[0_0_0_2px_rgba(198,167,94,0.4)]' : 'border-[rgba(198,167,94,0.35)]'}`}
-            >
-              <span className="block font-serif text-3xl text-gold">Yes</span>
-              <span className="mt-2 block text-sm text-lilac">Add {signBead || 'the zodiac bead'} below.</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setIncludeZodiacBead(false)}
-              className={`rounded-2xl border px-4 py-5 text-center ${includeZodiacBead === false ? 'border-[#c6a75e] bg-[#140c18] shadow-[0_0_0_2px_rgba(198,167,94,0.4)]' : 'border-[rgba(198,167,94,0.35)]'}`}
-            >
-              <span className="block font-serif text-3xl text-gold">No</span>
-              <span className="mt-2 block text-sm text-lilac">Leave the zodiac bead off.</span>
-            </button>
+        <div className="flex items-center gap-3 rounded-xl border border-[rgba(198,167,94,0.35)] px-3 py-2">
+          <GemVisual
+            color={findBeadByName(catalogBeads, signBead)?.colorHex || zodiac?.bead?.colorHex || '#7B4BB3'}
+            image={findBeadByName(catalogBeads, signBead)?.image || zodiac?.bead?.image}
+            name=""
+            className="h-10 w-10 shrink-0 rounded-full"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="studio-bead-name truncate">{signBead || 'Zodiac bead'}</p>
+            <p className="truncate text-xs text-lilac">
+              {signName || 'Zodiac'}{signRange ? ` · ${signRange}` : ''}
+            </p>
+          </div>
+          <div className="flex shrink-0 gap-1.5">
+            {[
+              [true, 'Yes'],
+              [false, 'No'],
+            ].map(([next, label]) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setIncludeZodiacBead(next)}
+                className={`rounded-full border px-3 py-1 text-[11px] uppercase tracking-[0.14em] ${
+                  includeZodiacBead === next
+                    ? 'border-[#c6a75e] bg-[#140c18] text-gold'
+                    : 'border-[rgba(198,167,94,0.35)] text-lilac hover:border-[#c6a75e]'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
+      ) : path === 'numerology' ? (
+        <p className="studio-birth-kicker">Mulank and Bhagyank</p>
       ) : (
-        <p className="studio-birth-kicker">{signName || 'Zodiac'}</p>
+        <p className="studio-birth-kicker">{path === 'zodiac' ? (layerItem?.name || signName || 'Zodiac') : (signName || 'Zodiac')}</p>
       )}
-      {path !== 'purpose' ? (
+      {path !== 'purpose' && path !== 'numerology' ? (
         <p className="mt-2 text-sm text-lilac">
-          {signRange || 'From your date of birth'}
-          {signBead ? ` · ${signBead}` : ''}
+          {path === 'zodiac'
+            ? [layerItem?.dates, layerItem?.theme].filter(Boolean).join(' · ')
+            : `${signRange || 'From your date of birth'}${signBead ? ` · ${signBead}` : ''}`}
         </p>
       ) : null}
       <p className={`studio-birth-note mt-4 ${total === target ? '' : 'is-error'}`}>

@@ -356,6 +356,10 @@ export const useCustomizerStore = create((set, get) => ({
       return;
     }
     if (entry.id === 'birth' && state.path !== 'purpose') {
+      if (state.path === 'zodiac') {
+        set({ step: state.step + 1, stepError: '' });
+        return;
+      }
       set({ advancing: true, stepError: '' });
       try {
         const cal = get().calibration;
@@ -1111,9 +1115,9 @@ export const useCustomizerStore = create((set, get) => ({
             ...line,
             roles: layer.rolesById?.[String(line.beadId)] || line.roles || [],
           })),
-          mulank: calibration?.mulank,
-          bhagyank: calibration?.bhagyank,
-          zodiac: calibration?.zodiac,
+          mulank: get().path === 'zodiac' ? undefined : calibration?.mulank,
+          bhagyank: get().path === 'zodiac' ? undefined : calibration?.bhagyank,
+          zodiac: get().path === 'numerology' ? undefined : calibration?.zodiac,
           dateOfBirth,
           explanation: calibration?.explanation,
           charm: charm ? { id: charm._id, name: charm.name, slug: charm.slug } : null,

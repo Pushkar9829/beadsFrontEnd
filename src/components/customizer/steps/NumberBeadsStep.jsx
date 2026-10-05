@@ -1,25 +1,51 @@
 import { useCustomizerStore } from '../../../store/customizerStore';
-import { bhagyankFromDate, mulankFromDate, MULANK_TABLE } from '../../../lib/calibration';
+import { bhagyankFromDate, findBeadByName, mulankFromDate, MULANK_TABLE } from '../../../lib/calibration';
+import GemVisual from '../../ui/GemVisual';
 
-function Choice({ on, title, detail, onClick }) {
+function YesNo({ value, onChange }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-2xl border px-4 py-5 text-center transition ${
-        on
-          ? 'border-[#c6a75e] bg-[#140c18] shadow-[0_0_0_2px_rgba(198,167,94,0.4)]'
-          : 'border-[rgba(198,167,94,0.35)] hover:border-[#c6a75e]'
-      }`}
-    >
-      <span className="block font-serif text-3xl text-gold">{title}</span>
-      <span className="mt-2 block text-sm leading-snug text-lilac">{detail}</span>
-    </button>
+    <div className="flex shrink-0 gap-1.5">
+      {[
+        [true, 'Yes'],
+        [false, 'No'],
+      ].map(([next, label]) => (
+        <button
+          key={label}
+          type="button"
+          onClick={() => onChange(next)}
+          className={`rounded-full border px-3 py-1 text-[11px] uppercase tracking-[0.14em] ${
+            value === next
+              ? 'border-[#c6a75e] bg-[#140c18] text-gold'
+              : 'border-[rgba(198,167,94,0.35)] text-lilac hover:border-[#c6a75e]'
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function BeadOffer({ bead, name, detail }) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-[rgba(198,167,94,0.35)] px-3 py-2">
+      <GemVisual
+        color={bead?.colorHex || '#C6A75E'}
+        image={bead?.image}
+        name=""
+        className="h-10 w-10 shrink-0 rounded-full"
+      />
+      <div className="min-w-0 flex-1">
+        <p className="studio-bead-name truncate">{name}</p>
+        <p className="truncate text-xs text-lilac">{detail}</p>
+      </div>
+    </div>
   );
 }
 
 export default function NumberBeadsStep() {
   const dateOfBirth = useCustomizerStore((s) => s.dateOfBirth);
+  const catalogBeads = useCustomizerStore((s) => s.catalogBeads);
   const includeNumberBeads = useCustomizerStore((s) => s.includeNumberBeads);
   const setIncludeNumberBeads = useCustomizerStore((s) => s.setIncludeNumberBeads);
 
@@ -35,26 +61,26 @@ export default function NumberBeadsStep() {
   }
   const mulankBead = mulank ? MULANK_TABLE[mulank]?.beadName : '';
   const bhagyankBead = bhagyank ? MULANK_TABLE[bhagyank]?.beadName : '';
+  const sameBead = mulankBead && mulankBead === bhagyankBead;
+  const rows = sameBead
+    ? [{ name: mulankBead, detail: `Mulank ${mulank} · Bhagyank ${bhagyank}` }]
+    : [
+      mulankBead ? { name: mulankBead, detail: `Mulank ${mulank}` } : null,
+      bhagyankBead ? { name: bhagyankBead, detail: `Bhagyank ${bhagyank}` } : null,
+    ].filter(Boolean);
 
   return (
-    <div>
-      <p className="text-sm leading-relaxed text-lilac">
-        Mulank {mulank} is {mulankBead}. Bhagyank {bhagyank} is {bhagyankBead}.
-      </p>
-      <p className="mt-1 text-sm text-lilac">Add these beads to the strand?</p>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <Choice
-          on={includeNumberBeads === true}
-          title="Yes"
-          detail="Add the Mulank and Bhagyank beads."
-          onClick={() => setIncludeNumberBeads(true)}
+    <div className="space-y-2">
+      {rows.map((row) => (
+        <BeadOffer
+          key={row.detail}
+          bead={findBeadByName(catalogBeads, row.name)}
+          name={row.name}
+          detail={row.detail}
         />
-        <Choice
-          on={includeNumberBeads === false}
-          title="No"
-          detail="Keep only the intention crystals."
-          onClick={() => setIncludeNumberBeads(false)}
-        />
+      ))}
+      <div className="flex items-center justify-end">
+        <YesNo value={includeNumberBeads} onChange={setIncludeNumberBeads} />
       </div>
     </div>
   );
