@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
 import api from '../api/client';
-import { calibrateLocal, quoteFromBeads, bhagyankFromDate, mulankFromDate, zodiacFromDate, MULANK_TABLE } from '../lib/calibration';
+import { calibrateLocal, quoteFromBeads, bhagyankFromDate, mulankFromDate, zodiacFromDate, findBeadByName, MULANK_TABLE } from '../lib/calibration';
 import { formatWristChoice, strandBeadCount } from '../lib/format';
 import { studioMode, studioPaths } from '../lib/studioModes';
 import {
@@ -242,6 +242,8 @@ const SELECTION_DEFAULTS = {
   strandCount: 18,
   includeNumberBeads: null,
   numberBeadIds: [],
+  includeZodiacBead: null,
+  zodiacBeadId: '',
   calibrating: false,
   stepError: '',
 };
@@ -526,6 +528,80 @@ export const useCustomizerStore = create((set, get) => ({
     });
   },
 
+  async setIncludeZodiacBead(choice) {
+    const yes = Boolean(choice);
+    const state = get();
+    const sign = state.dateOfBirth ? zodiacFromDate(state.dateOfBirth) : null;
+    const name = sign?.beadName;
+    let recommended = [...(state.recommended || [])];
+    const quantities = { ...state.quantities };
+    const injected = idOf(state.zodiacBeadId);
+
+    if (!yes) {
+      if (injected) {
+        const bead = recommended.find((row) => idOf(row._id) === injected);
+        const onlyZodiac = bead && (bead.roles || []).every((role) => role === 'zodiac');
+        if (onlyZodiac) {
+          recommended = recommended.filter((row) => idOf(row._id) !== injected);
+          delete quantities[injected];
+        } else if (quantities[injected] != null) {
+          quantities[injected] = 0;
+        }
+      }
+      set({
+        includeZodiacBead: false,
+        zodiacBeadId: '',
+        recommended,
+        quantities,
+        stepError: '',
+      });
+      return;
+    }
+
+    let catalogBeads = state.catalogBeads || [];
+    let catalog = findBeadByName(catalogBeads, name)
+      || findBeadByName(recommended, name)
+      || (state.calibration?.zodiac?.bead?.name && findBeadByName([state.calibration.zodiac.bead], name)
+        ? state.calibration.zodiac.bead
+        : null);
+    if (!catalog && name) {
+      try {
+        const res = await api.get('/customizer/beads');
+        catalogBeads = res.data.beads || [];
+        catalog = findBeadByName(catalogBeads, name);
+        if (catalogBeads.length) set({ catalogBeads });
+      } catch {
+        catalog = null;
+      }
+    }
+    if (!catalog) {
+      set({ includeZodiacBead: true, stepError: 'That zodiac bead is not in the catalog yet.' });
+      return;
+    }
+    const id = idOf(catalog._id || catalog.beadId);
+    const existing = recommended.find((row) => idOf(row._id) === id || row.name === name);
+    if (existing) {
+      quantities[idOf(existing._id)] = Math.max(1, qtyOf(quantities, existing._id));
+      set({
+        includeZodiacBead: true,
+        zodiacBeadId: idOf(existing._id),
+        recommended,
+        quantities,
+        stepError: '',
+      });
+      return;
+    }
+    recommended.push({ ...catalog, _id: id, roles: ['zodiac'] });
+    quantities[id] = 1;
+    set({
+      includeZodiacBead: true,
+      zodiacBeadId: id,
+      recommended,
+      quantities,
+      stepError: '',
+    });
+  },
+
   offerZodiacBead() {
     const state = get();
     if (!state.dateOfBirth) return;
@@ -747,6 +823,8 @@ export const useCustomizerStore = create((set, get) => ({
       calibration: null,
       zodiacAdded: false,
       includeNumberBeads: null,
+      includeZodiacBead: null,
+      zodiacBeadId: '',
       numberBeadIds: [],
       recommended,
       quantities,
@@ -836,7 +914,7 @@ export const useCustomizerStore = create((set, get) => ({
     set({ stepError: '' });
   },
 
-  setBeadQty(beadId, qty) {
+  setBeadQty(beadId, qty, { force = false } = {}) {
     const id = idOf(beadId);
     const n = Math.max(0, Math.round(Number(qty) || 0));
     const state = get();
@@ -847,7 +925,8 @@ export const useCustomizerStore = create((set, get) => ({
       (sum, [key, value]) => (idOf(key) === id ? sum : sum + (Number(value) || 0)),
       0
     );
-    const quantities = { ...state.quantities, [id]: Math.min(n, Math.max(0, limit - others)) };
+    const room = Math.max(0, limit - others);
+    const quantities = { ...state.quantities, [id]: force ? n : Math.min(n, room) };
     set({ quantities, ...deriveSelection({ ...state, quantities }) });
   },
 

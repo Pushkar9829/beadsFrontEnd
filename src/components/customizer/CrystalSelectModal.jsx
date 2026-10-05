@@ -6,17 +6,44 @@ import GemVisual from '../ui/GemVisual';
 import Price from '../ui/Price';
 import Button from '../ui/Button';
 import QtyControl from '../ui/QtyControl';
+import { quoteFromBeads } from '../../lib/calibration';
 import { purposeToneStyle } from './PurposeGrid';
 
 const BEAD_COUNTS = [16, 18, 22];
 
-function estimateForCount(count, beads, quantities, config, finish) {
-  const selected = beads.filter((b) => qtyOf(quantities, b._id) > 0);
+function priceOf(beads, quantities, config, finish) {
+  return quoteFromBeads(
+    config,
+    (beads || []).map((bead) => ({ ...bead, quantity: qtyOf(quantities, bead._id) })),
+    finish
+  ).beadsTotal;
+}
+
+function evenSplit(ids, total) {
+  const keys = [...new Set((ids || []).map((id) => String(id)).filter(Boolean))];
+  if (!keys.length || total <= 0) return {};
+  const base = Math.floor(total / keys.length);
+  let rem = total % keys.length;
+  const next = {};
+  keys.forEach((id) => {
+    next[id] = base + (rem > 0 ? 1 : 0);
+    if (rem > 0) rem -= 1;
+  });
+  return next;
+}
+
+function priceForCount(count, beads, quantities, config, finish, currentCount) {
+  if (Number(count) === Number(currentCount)) {
+    return priceOf(beads, quantities, config, finish);
+  }
+  const selected = (beads || []).filter((bead) => qtyOf(quantities, bead._id) > 0);
   const pool = selected.length ? selected : beads;
-  const making = (config?.baseMakingPrice || 0) + (finish?.price || 0);
-  if (!pool.length) return making;
-  const avg = pool.reduce((sum, b) => sum + (b.pricePerBead || 0), 0) / pool.length;
-  return making + Math.round(avg * count);
+  const next = {};
+  (beads || []).forEach((bead) => {
+    next[String(bead._id)] = 0;
+  });
+  Object.assign(next, evenSplit(pool.map((bead) => bead._id), count));
+  return priceOf(beads, next, config, finish);
 }
 
 export default function CrystalSelectModal({ open, onClose, onComplete }) {
@@ -167,7 +194,7 @@ export default function CrystalSelectModal({ open, onClose, onComplete }) {
                     >
                       <span className="studio-size-count">{count} beads</span>
                       <span className="studio-size-price">
-                        <Price value={estimateForCount(count, recommended, quantities, config, finish)} />
+                        <Price value={priceForCount(count, recommended, quantities, config, finish, strandCount || 18)} />
                       </span>
                     </button>
                   );
@@ -195,6 +222,8 @@ export default function CrystalSelectModal({ open, onClose, onComplete }) {
                       <div className="studio-crystal-copy">
                         <p className="studio-bead-name">{bead.name}</p>
                         <p className="studio-bead-price">
+                          <Price value={(bead.pricePerBead || 0) * qty} />
+                          {' · '}
                           <Price value={bead.pricePerBead} /> / bead
                         </p>
                       </div>
