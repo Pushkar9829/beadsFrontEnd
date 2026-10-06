@@ -12,7 +12,7 @@ const ROLE_LABEL = {
   zodiac: 'Zodiac',
 };
 
-export default function ZodiacStep() {
+export default function ZodiacStep({ listOnly = false }) {
   const calibration = useCustomizerStore((s) => s.calibration);
   const zodiacAdded = useCustomizerStore((s) => s.zodiacAdded);
   const calibrating = useCustomizerStore((s) => s.calibrating);
@@ -57,7 +57,7 @@ export default function ZodiacStep() {
 
   return (
     <div className="studio-birth">
-      {path === 'purpose' ? (
+      {path === 'purpose' && listOnly ? null : path === 'purpose' ? (
         <div className="flex items-center gap-3 rounded-xl border border-[rgba(198,167,94,0.35)] px-3 py-2">
           <GemVisual
             color={findBeadByName(catalogBeads, signBead)?.colorHex || zodiac?.bead?.colorHex || '#7B4BB3'}

@@ -1442,6 +1442,57 @@ main.has-purpose-tone .studio-chosen {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
+.purpose-birth-table {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 0.85fr) minmax(0, 1.45fr) minmax(6.5rem, 0.9fr);
+  overflow: hidden;
+  border: 1px solid rgba(198, 167, 94, 0.35);
+  border-radius: 1rem;
+}
+
+.purpose-birth-table .studio-birth-fields {
+  display: contents;
+}
+
+.purpose-birth-table .studio-birth-fields label,
+.purpose-birth-cell {
+  min-width: 0;
+  padding: 0.7rem 0.75rem;
+  border-right: 1px solid rgba(198, 167, 94, 0.22);
+  border-bottom: 1px solid rgba(198, 167, 94, 0.22);
+}
+
+.purpose-birth-table .studio-birth-fields label:nth-child(3n),
+.purpose-birth-cell:nth-child(3n) {
+  border-right: 0;
+}
+
+.purpose-birth-table .studio-birth-fields:last-child label,
+.purpose-birth-table .purpose-birth-cell:nth-last-child(-n + 3) {
+  border-bottom: 0;
+}
+
+.purpose-birth-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+}
+
+.purpose-birth-label strong {
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c6a75e;
+}
+
+.purpose-birth-label span {
+  font-size: 1.65rem;
+  line-height: 1;
+  color: #c6a75e;
+}
+
 .studio-birth-fields {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.15fr) minmax(0, 1fr);
@@ -4477,6 +4528,10 @@ header {
 
   .studio-birth-fields {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .purpose-birth-table .studio-birth-fields {
+    display: contents;
   }
 
   .layer-pick {
