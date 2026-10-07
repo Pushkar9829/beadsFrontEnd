@@ -7041,3 +7041,17 @@ a.nx-tile:hover .nx-arrow {
     margin-top: 0;
   }
 }
+
+.nx-pbs.is-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.nx-numcard .nx-pb-v {
+  font-size: 40px;
+}
+
+@media (max-width: 767px) {
+  .nx-pbs.is-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

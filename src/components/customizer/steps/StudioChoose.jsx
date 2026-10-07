@@ -2,7 +2,6 @@
 // starts with PurposePick). Same store actions as the original ChooseStep.
 import { Check } from 'lucide-react';
 import { useCustomizerStore } from '../../../store/customizerStore';
-import { bhagyankFromDate, mulankFromDate } from '../../../lib/calibration';
 import { useStudioLabels } from '../../../lib/studioTheme';
 import { PurposeIcon, purposeToneStyle } from '../PurposeGrid';
 import DateFields from '../DateFields';
@@ -77,64 +76,45 @@ function LayerPick() {
   );
 }
 
-function NumberRow({ label, value, items, onPick, note }) {
+function NumberCard({ label, sub, value, items }) {
+  const theme = items.find((it) => Number(it.number) === Number(value))?.name || '';
   return (
-    <div className="nx-numrow">
-      <p className="nx-eb">{label}</p>
-      {note && <p className="nx-birth-hint">{note}</p>}
-      <div className="nx-nums" role="radiogroup" aria-label={label}>
-        {Array.from({ length: 9 }, (_, i) => i + 1).map((n) => (
-          <button key={n} type="button" role="radio" aria-checked={value === n} className={value === n ? 'is-on' : ''} onClick={() => onPick(value === n ? null : n)}>
-            {n}
-          </button>
-        ))}
-      </div>
-      {value ? <p className="nx-numrow-t">{items.find((it) => Number(it.number) === Number(value))?.name || ''}</p> : null}
-    </div>
+    <article className="nx-pb is-read nx-numcard">
+      <span className="nx-eb">{label}</span>
+      <p className="nx-pb-v">{value}</p>
+      <p className="nx-pb-sub">{sub}</p>
+      {theme && <p className="nx-numrow-t">{theme}</p>}
+    </article>
   );
 }
 
+// Numerology starts from the date of birth: Mulank and Bhagyank are read from it.
 function NumerologyPick() {
   const items = useCustomizerStore((s) => s.layerItems);
   const dateOfBirth = useCustomizerStore((s) => s.dateOfBirth);
   const setDateOfBirth = useCustomizerStore((s) => s.setDateOfBirth);
   const mulankNumber = useCustomizerStore((s) => s.mulankNumber);
   const bhagyankNumber = useCustomizerStore((s) => s.bhagyankNumber);
-  const setNumerology = useCustomizerStore((s) => s.setNumerology);
   const labels = useStudioLabels();
-  let fromDate = null;
-  try {
-    if (dateOfBirth) fromDate = { mulank: mulankFromDate(dateOfBirth), bhagyank: bhagyankFromDate(dateOfBirth) };
-  } catch {
-    fromDate = null;
-  }
 
   return (
     <div className="nx-birth">
       <section className="nx-birth-date">
         <div className="nx-birth-date-c">
-          <p className="nx-eb">{labels.birthKicker || 'Date of birth · optional'}</p>
-          <p className="nx-birth-hint">{labels.birthBody || 'Enter it and both numbers are filled in for you.'}</p>
+          <p className="nx-eb">Your date of birth</p>
+          <p className="nx-birth-hint">Your Mulank and Bhagyank are read from this date, and each sets crystals for the strand.</p>
         </div>
         <DateFields value={dateOfBirth} onChange={setDateOfBirth} />
-        {fromDate && (
-          <p className="nx-birth-hint nx-wrist-note">
-            From your date: Mulank {fromDate.mulank}, Bhagyank {fromDate.bhagyank}.
-          </p>
-        )}
       </section>
-      <section>
-        <div className="nx-birth-head">
-          <div>
-            <p className="nx-eb">Or choose by hand</p>
-            <p className="nx-birth-hint">Pick a Mulank, a Bhagyank, or both.</p>
+      {dateOfBirth && (mulankNumber || bhagyankNumber) ? (
+        <section>
+          <p className="nx-eb nx-opt-label">Your numbers</p>
+          <div className="nx-pbs is-2">
+            {mulankNumber ? <NumberCard label={labels.mulankLabel || 'Mulank'} sub="Your birth-day number" value={mulankNumber} items={items} /> : null}
+            {bhagyankNumber ? <NumberCard label={labels.bhagyankLabel || 'Bhagyank'} sub="Your full-date number" value={bhagyankNumber} items={items} /> : null}
           </div>
-        </div>
-        <div className="nx-numrows">
-          <NumberRow label={labels.mulankLabel || 'Mulank'} value={mulankNumber} items={items} onPick={(n) => setNumerology({ mulank: n })} />
-          <NumberRow label={labels.bhagyankLabel || 'Bhagyank'} note={labels.bhagyankBody} value={bhagyankNumber} items={items} onPick={(n) => setNumerology({ bhagyank: n })} />
-        </div>
-      </section>
+        </section>
+      ) : null}
     </div>
   );
 }
