@@ -202,17 +202,22 @@ function strandMatched(state) {
 }
 
 function strandHint(state) {
-  if (!state.calibration && state.path !== 'zodiac') return 'Calibrate from your date of birth first.';
+  // Planetary and profession strands carry the zodiac crystal from the date of birth.
+  if (state.path !== 'zodiac' && state.path !== 'numerology' && !state.zodiacAdded) {
+    return state.dateOfBirth ? 'Placing your zodiac crystal…' : 'Enter your date of birth to add your zodiac crystal.';
+  }
+  if (!state.calibration && state.path === 'numerology') return 'Placing the beads…';
   const target = strandTarget(state);
   const total = strandTotal(state);
   if (total !== target) return `This strand is ${target} beads. You have ${total}. Adjust the counts to match.`;
   return '';
 }
 
-const BIRTH_STEP = PURPOSE_FLOW.find((entry) => entry.id === 'birth');
 const PURPOSE_CHARM = PURPOSE_FLOW.find((entry) => entry.id === 'charm');
 const PURPOSE_REVIEW = PURPOSE_FLOW.find((entry) => entry.id === 'review');
 
+// Every non-purpose path takes the date of birth elsewhere (numerology on its first step,
+// planetary and profession on the beads step; zodiac needs none), so none has a birth step.
 const LAYER_FLOW = [
   STUDIO_FLOW[0],
   {
@@ -230,18 +235,17 @@ const LAYER_FLOW = [
       return '';
     },
   },
-  BIRTH_STEP,
   {
     id: 'beads',
     label: 'Beads',
-    eyebrow: 'Step 04 · Beads',
+    eyebrow: 'Step 03 · Beads',
     title: 'Beads on this strand',
     body: 'Adjust each crystal until the total matches the strand.',
     validate: strandMatched,
     hint: strandHint,
   },
-  { ...PURPOSE_CHARM, eyebrow: 'Step 05 · Charm' },
-  { ...PURPOSE_REVIEW, eyebrow: 'Step 06 · Review' },
+  { ...PURPOSE_CHARM, eyebrow: 'Step 04 · Charm' },
+  { ...PURPOSE_REVIEW, eyebrow: 'Step 05 · Review' },
 ];
 
 export function flowFor(path) {

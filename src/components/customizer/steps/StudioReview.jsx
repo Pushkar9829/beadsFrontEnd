@@ -96,7 +96,8 @@ export default function StudioReview() {
           </Block>
         )}
 
-        <Block title="Your reading" onEdit={go('birth')}>
+        {(isPurpose || reading) && (
+        <Block title="Your reading" onEdit={go(isPurpose ? 'birth' : path === 'numerology' ? 'choose' : 'beads')}>
           {reading ? (
             <>
               <p className="nx-rv-v">{readable(dateOfBirth)}</p>
@@ -125,6 +126,7 @@ export default function StudioReview() {
             <p className="nx-rv-s">No date of birth added.</p>
           )}
         </Block>
+        )}
 
         <Block title="Charm & thread" onEdit={go('charm')}>
           <p className="nx-rv-v">{charm ? `${charm.name}${finish?.label ? ` · ${finish.label}` : ''}` : 'No charm chosen'}</p>

@@ -1,9 +1,10 @@
-// "Beads" step for the layer paths: the strand after calibration, adjusted until it matches
-// the strand length. Planetary and profession strands get their zodiac beads added once the
-// calibration is in, exactly as the original ZodiacStep did.
+// "Beads" step for the non-purpose paths: the strand, adjusted until it matches the strand
+// length. Planetary and profession strands also carry the customer's zodiac crystal, so this
+// step asks for the date of birth and adds that crystal once it is in.
 import { useEffect, useRef } from 'react';
 import { useCustomizerStore } from '../../../store/customizerStore';
 import { dateRangeLabel, zodiacFromDate } from '../../../lib/calibration';
+import DateFields from '../DateFields';
 import StrandList from '../StrandList';
 
 // On these paths the core stones come from the chosen sign, planet or profession.
@@ -17,16 +18,19 @@ export default function StudioBeads() {
   const addZodiacBeads = useCustomizerStore((s) => s.addZodiacBeads);
   const layerItem = useCustomizerStore((s) => s.layerItem);
   const dateOfBirth = useCustomizerStore((s) => s.dateOfBirth);
+  const setDateOfBirth = useCustomizerStore((s) => s.setDateOfBirth);
   const recommended = useCustomizerStore((s) => s.recommended);
-  const seeded = useRef(false);
-  const seeds = path !== 'numerology' && path !== 'zodiac';
+  const zodiacBeadCount = useCustomizerStore((s) => s.config?.zodiacBeadCount);
+  const seededFor = useRef('');
+  const seeds = path === 'planetary' || path === 'profession';
 
+  // Add the zodiac crystal once per date of birth (a new date re-places it).
   useEffect(() => {
-    if (!seeds) return;
-    if (seeded.current || !calibration || zodiacAdded || calibrating) return;
-    seeded.current = true;
-    addZodiacBeads(calibration.zodiacQty || 2);
-  }, [seeds, calibration, zodiacAdded, calibrating, addZodiacBeads]);
+    if (!seeds || !dateOfBirth || zodiacAdded || calibrating) return;
+    if (seededFor.current === dateOfBirth) return;
+    seededFor.current = dateOfBirth;
+    addZodiacBeads(calibration?.zodiacQty || zodiacBeadCount || 2).catch(() => {});
+  }, [seeds, dateOfBirth, zodiacAdded, calibrating, calibration, zodiacBeadCount, addZodiacBeads]);
 
   let sign = null;
   try {
@@ -38,18 +42,29 @@ export default function StudioBeads() {
   const signName = path === 'zodiac' ? layerItem?.name : zodiac?.sign || sign?.sign;
   const signRange = path === 'zodiac' ? layerItem?.dates : zodiac?.dateRange || (sign ? dateRangeLabel(sign) : '');
   const signBead = zodiac?.bead?.name || sign?.beadName;
-  const waiting = seeds && (!calibration || calibrating);
+  const waiting = seeds && Boolean(dateOfBirth) && (!zodiacAdded || calibrating);
 
   return (
     <div className="nx-birth">
-      {path !== 'numerology' && signName && (
+      {seeds && (
+        <section className="nx-birth-date">
+          <div className="nx-birth-date-c">
+            <p className="nx-eb">Your zodiac crystal</p>
+            <p className="nx-birth-hint">
+              {signName && signBead
+                ? `${signName} (${signRange}) · ${signBead} joins the strand.`
+                : 'Enter your date of birth and the crystal for your sign joins the strand.'}
+            </p>
+          </div>
+          <DateFields value={dateOfBirth} onChange={setDateOfBirth} />
+        </section>
+      )}
+      {path === 'zodiac' && signName && (
         <div className="nx-chosen">
           <span className="nx-chosen-c">
             <span className="nx-eb">Zodiac</span>
             <span className="nx-chosen-h">{signName}</span>
-            <span className="nx-birth-hint">
-              {[signRange, seeds && signBead ? `${signBead} joins the strand` : '', path === 'zodiac' ? layerItem?.theme : ''].filter(Boolean).join(' · ')}
-            </span>
+            <span className="nx-birth-hint">{[signRange, layerItem?.theme].filter(Boolean).join(' · ')}</span>
           </span>
         </div>
       )}

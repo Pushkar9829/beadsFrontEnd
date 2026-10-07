@@ -356,11 +356,9 @@ export const useCustomizerStore = create((set, get) => ({
       set({ stepError: entry.hint(state) || 'Finish this step to continue.' });
       return;
     }
-    if (entry.id === 'birth' && state.path !== 'purpose') {
-      if (state.path === 'zodiac') {
-        set({ step: state.step + 1, stepError: '' });
-        return;
-      }
+    // Numerology takes the date on its first step, so its strand is calibrated on leaving the
+    // crystals step. (Planetary and profession calibrate on the beads step, zodiac never.)
+    if (entry.id === 'crystals' && state.path === 'numerology') {
       set({ advancing: true, stepError: '' });
       try {
         const cal = get().calibration;

@@ -20,7 +20,6 @@ import StudioCharm from '../components/customizer/steps/StudioCharm';
 import StudioReview, { ReviewSide } from '../components/customizer/steps/StudioReview';
 import StudioChoose from '../components/customizer/steps/StudioChoose';
 import StudioCrystals from '../components/customizer/steps/StudioCrystals';
-import StudioBirth from '../components/customizer/steps/StudioBirth';
 import StudioBeads from '../components/customizer/steps/StudioBeads';
 import PurposeBirth from '../components/customizer/steps/PurposeBirth';
 import StudioPaths from '../components/customizer/StudioPaths';
@@ -108,7 +107,7 @@ export default function CustomizePage() {
   const eyebrow =
     step === 1 && copy.eyebrow === entry.eyebrow ? `Step 01 · ${mode.short}` : copy.eyebrow;
   const Pane = PANE[entry.id];
-  const nocturnePane = (id) => (id === 'birth' ? (path === 'purpose' ? PurposeBirth : StudioBirth) : NOCTURNE_PANE[id]);
+  const nocturnePane = (id) => (id === 'birth' ? PurposeBirth : NOCTURNE_PANE[id]);
   const selectionName = layer?.name || purpose?.name || '';
 
   // The purpose path has moved to the Nocturne look; the other paths keep the original studio.
