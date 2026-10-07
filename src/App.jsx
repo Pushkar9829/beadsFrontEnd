@@ -7,8 +7,8 @@ import { useWishlistStore } from './store/wishlistStore';
 import { useContentStore } from './store/contentStore';
 import { useSettingsStore } from './store/settingsStore';
 import StoreLayout from './components/layout/StoreLayout';
-import AdminLayout from './components/layout/AdminLayout';
-import { RequireAdmin, RequireAuth } from './components/gates';
+import { adminRoutes } from './admin/routes';
+import { RequireAuth } from './components/gates';
 import HomePage from './pages/HomePage';
 import FamilyPage from './pages/FamilyPage';
 import ShopPage from './pages/ShopPage';
@@ -24,38 +24,6 @@ import RegisterPage from './pages/RegisterPage';
 import AccountPage from './pages/AccountPage';
 import LegalPage from './pages/LegalPage';
 import NotFoundPage from './pages/NotFoundPage';
-import AdminDashboard from './pages/admin/Dashboard';
-import AdminAnalytics from './pages/admin/Analytics';
-import AdminCategories from './pages/admin/Categories';
-import AdminProducts from './pages/admin/Products';
-import AdminBeads from './pages/admin/Beads';
-import AdminCollections from './pages/admin/Collections';
-import AdminInventory from './pages/admin/Inventory';
-import AdminIntentions from './pages/admin/Intentions';
-import AdminStudioLayers from './pages/admin/StudioLayers';
-import AdminConfig from './pages/admin/Config';
-import AdminOrders from './pages/admin/Orders';
-import AdminCustomers from './pages/admin/Customers';
-import AdminUsers from './pages/admin/Users';
-import AdminCoupons from './pages/admin/Coupons';
-import AdminOffers from './pages/admin/Offers';
-import AdminFeatured from './pages/admin/Featured';
-import AdminAbandonedCarts from './pages/admin/AbandonedCarts';
-import AdminContent from './pages/admin/Content';
-import AdminMedia from './pages/admin/Media';
-import AdminSettings from './pages/admin/Settings';
-import AdminAttributes from './pages/admin/Attributes';
-import AdminBanners from './pages/admin/Banners';
-import AdminFlashSales from './pages/admin/FlashSales';
-import AdminFaqs from './pages/admin/Faqs';
-import AdminBlog from './pages/admin/Blog';
-import AdminNewsletter from './pages/admin/Newsletter';
-import AdminNotifications from './pages/admin/Notifications';
-import AdminReturns from './pages/admin/Returns';
-import AdminShipping from './pages/admin/Shipping';
-import AdminGroups from './pages/admin/Groups';
-import AdminContacts from './pages/admin/Contacts';
-import AdminHomeLayout from './pages/admin/HomeLayout';
 import CollectionPage from './pages/CollectionPage';
 import CollectionsIndexPage from './pages/CollectionsIndexPage';
 import BlogListPage from './pages/BlogListPage';
@@ -145,50 +113,7 @@ export default function App() {
           />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
-        <Route
-          path="/admin"
-          element={
-            <RequireAdmin>
-              <AdminLayout />
-            </RequireAdmin>
-          }
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="analytics" element={<AdminAnalytics />} />
-          <Route path="categories" element={<AdminCategories />} />
-          <Route path="products" element={<AdminProducts />} />
-          <Route path="beads" element={<AdminBeads />} />
-          <Route path="collections" element={<AdminCollections />} />
-          <Route path="inventory" element={<AdminInventory />} />
-          <Route path="inventory/low" element={<AdminInventory />} />
-          <Route path="inventory/history" element={<AdminInventory />} />
-          <Route path="intentions" element={<AdminIntentions />} />
-          <Route path="studio-layers" element={<AdminStudioLayers />} />
-          <Route path="config" element={<AdminConfig />} />
-          <Route path="orders" element={<AdminOrders />} />
-          <Route path="orders/:tab" element={<AdminOrders />} />
-          <Route path="customers" element={<AdminCustomers />} />
-          <Route path="users" element={<AdminUsers />} />
-          <Route path="coupons" element={<AdminCoupons />} />
-          <Route path="offers" element={<AdminOffers />} />
-          <Route path="featured" element={<AdminFeatured />} />
-          <Route path="abandoned-carts" element={<AdminAbandonedCarts />} />
-          <Route path="content" element={<AdminContent />} />
-          <Route path="media" element={<AdminMedia />} />
-          <Route path="settings" element={<AdminSettings />} />
-          <Route path="attributes" element={<AdminAttributes />} />
-          <Route path="banners" element={<AdminBanners />} />
-          <Route path="flash-sales" element={<AdminFlashSales />} />
-          <Route path="faqs" element={<AdminFaqs />} />
-          <Route path="blog" element={<AdminBlog />} />
-          <Route path="newsletter" element={<AdminNewsletter />} />
-          <Route path="notifications" element={<AdminNotifications />} />
-          <Route path="returns" element={<AdminReturns />} />
-          <Route path="shipping" element={<AdminShipping />} />
-          <Route path="groups" element={<AdminGroups />} />
-          <Route path="contacts" element={<AdminContacts />} />
-          <Route path="home-layout" element={<AdminHomeLayout />} />
-        </Route>
+        {adminRoutes}
         <Route path="/family/:family" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
