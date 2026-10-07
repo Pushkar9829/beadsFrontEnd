@@ -6067,3 +6067,350 @@ a.nx-tile:hover .nx-arrow {
     max-height: 86svh;
   }
 }
+
+/* studio step 3 · date of birth (purpose path) */
+.nx-birth {
+  display: grid;
+  gap: 36px;
+}
+
+.nx-birth-hint {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--nx-muted);
+}
+
+.nx-birth-date {
+  padding: 24px;
+  border: 1px solid var(--nx-line);
+  border-radius: 3px;
+  background: var(--nx-bg2);
+}
+
+.nx-birth-date-c {
+  margin-bottom: 18px;
+}
+
+.nx-studio.nx-studio .studio-birth-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.nx-studio.nx-studio .studio-birth-fields label {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+.nx-studio.nx-studio .studio-birth-fields .studio-select {
+  height: 52px;
+  padding: 0 14px;
+  border: 1px solid var(--nx-line2);
+  border-radius: 2px;
+  background: var(--nx-bg);
+  font-size: 15px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--nx-ink);
+  cursor: pointer;
+}
+
+.nx-birth-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin-bottom: 16px;
+}
+
+.nx-birth-head > div:first-child {
+  max-width: 520px;
+}
+
+.nx-birth-quick {
+  display: flex;
+  gap: 8px;
+}
+
+.nx-birth-quick button {
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--nx-line2);
+  border-radius: 999px;
+  background: none;
+  font-size: 12px;
+  font-weight: 500;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.nx-birth-quick button:hover {
+  border-color: var(--nx-ink);
+  background: var(--nx-ink);
+  color: var(--nx-bg);
+}
+
+/* personal bead cards */
+.nx-pbs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.nx-pb {
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  border: 1px solid var(--nx-line);
+  border-radius: 3px;
+  background: var(--nx-tile);
+  transition: border-color 0.25s, opacity 0.25s;
+}
+
+.nx-pb.is-open {
+  border-style: dashed;
+  border-color: var(--nx-line2);
+}
+
+.nx-pb.is-on {
+  border-color: var(--nx-champ);
+  box-shadow: inset 0 0 0 1px var(--nx-champ);
+}
+
+.nx-pb.is-off .nx-pb-v,
+.nx-pb.is-off .nx-pb-bead,
+.nx-pb.is-off .nx-pb-why {
+  opacity: 0.45;
+}
+
+.nx-pb-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nx-pb-flag {
+  padding: 2px 8px;
+  border: 1px solid var(--nx-line2);
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+.nx-pb-v {
+  margin-top: 10px;
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.nx-pb-sub {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--nx-muted);
+}
+
+.nx-pb-bead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--nx-line);
+}
+
+.nx-pb-gem {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.nx-pb-bead b {
+  display: block;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.nx-pb-bead em {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-style: normal;
+  color: var(--nx-muted);
+}
+
+.nx-pb-why {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--nx-muted);
+}
+
+.nx-pb-note {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--nx-champ);
+}
+
+.nx-yn {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.nx-yn button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 42px;
+  border: 1px solid var(--nx-line2);
+  border-radius: 2px;
+  background: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--nx-muted);
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.nx-yn button:hover {
+  border-color: var(--nx-ink);
+  color: var(--nx-ink);
+}
+
+.nx-yn button.is-on {
+  border-color: var(--nx-ink);
+  background: var(--nx-ink);
+  color: var(--nx-bg);
+}
+
+.nx-yn button.is-off {
+  border-color: var(--nx-ink);
+  color: var(--nx-ink);
+}
+
+/* strand list */
+.nx-birth-count {
+  margin-top: 6px;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nx-birth-count.is-full {
+  color: var(--nx-ink);
+}
+
+.nx-birth-count.is-short {
+  color: var(--nx-champ);
+}
+
+.nx-birth-count.is-over {
+  color: #ff9c9c;
+}
+
+.nx-birth .nx-cm-lines li.is-off .nx-cm-dot,
+.nx-birth .nx-cm-lines li.is-off .nx-cm-name {
+  opacity: 0.45;
+}
+
+.nx-role {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border: 1px solid var(--nx-line2);
+  border-radius: 999px;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  vertical-align: 2px;
+  color: var(--nx-muted);
+}
+
+.nx-birth-wait {
+  margin-top: 14px;
+  color: var(--nx-champ);
+}
+
+@media (max-width: 1100px) {
+  .nx-pbs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nx-pb {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    column-gap: 18px;
+  }
+
+  .nx-pb-top,
+  .nx-pb-v,
+  .nx-pb-sub {
+    grid-column: 1;
+  }
+
+  .nx-pb-bead {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .nx-pb-why,
+  .nx-pb-note,
+  .nx-yn {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .nx-birth-date {
+    padding: 18px;
+  }
+
+  .nx-studio.nx-studio .studio-birth-fields {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .nx-studio.nx-studio .studio-birth-fields .studio-select {
+    padding: 0 8px;
+    font-size: 14px;
+  }
+
+  .nx-pb {
+    display: flex;
+  }
+
+  .nx-pb-bead {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--nx-line);
+  }
+}
+
+.nx .nx-pb-gem {
+  width: 48px;
+  height: 48px;
+}
