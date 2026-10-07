@@ -3,7 +3,7 @@ import { ArrowRight, Check } from 'lucide-react';
 import { useCustomizerStore } from '../../../store/customizerStore';
 import { qtyOf } from '../../../lib/studioFlow';
 import { PurposeIcon } from '../PurposeGrid';
-import CrystalSelectModal from '../CrystalSelectModal';
+import NCrystalModal from '../NCrystalModal';
 
 // Older seed descriptions end with "Design name: X." — the bracelet name is shown on its own line.
 function cleanDescription(it) {
@@ -106,7 +106,7 @@ export default function IntentionStep() {
         </button>
       ) : null}
 
-      <CrystalSelectModal open={open} onClose={() => setOpen(false)} onComplete={onComplete} tone={false} />
+      <NCrystalModal open={open} onClose={() => setOpen(false)} onComplete={onComplete} />
     </div>
   );
 }

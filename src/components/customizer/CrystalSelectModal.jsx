@@ -9,7 +9,7 @@ import QtyControl from '../ui/QtyControl';
 import { quoteFromBeads } from '../../lib/calibration';
 import { purposeToneStyle } from './PurposeGrid';
 
-const BEAD_COUNTS = [16, 18, 22];
+export const BEAD_COUNTS = [16, 18, 22];
 
 function priceOf(beads, quantities, config, finish) {
   return quoteFromBeads(
@@ -32,7 +32,7 @@ function evenSplit(ids, total) {
   return next;
 }
 
-function priceForCount(count, beads, quantities, config, finish, currentCount) {
+export function priceForCount(count, beads, quantities, config, finish, currentCount) {
   if (Number(count) === Number(currentCount)) {
     return priceOf(beads, quantities, config, finish);
   }
@@ -46,7 +46,7 @@ function priceForCount(count, beads, quantities, config, finish, currentCount) {
   return priceOf(beads, next, config, finish);
 }
 
-export default function CrystalSelectModal({ open, onClose, onComplete, tone = true }) {
+export default function CrystalSelectModal({ open, onClose, onComplete }) {
   const intention = useCustomizerStore((s) => s.intention);
   const recommended = useCustomizerStore((s) => s.recommended);
   const catalogBeads = useCustomizerStore((s) => s.catalogBeads);
@@ -61,8 +61,7 @@ export default function CrystalSelectModal({ open, onClose, onComplete, tone = t
   const finish = useCustomizerStore((s) => s.finish);
   const purpose = useCustomizerStore((s) => s.purpose);
   const strandCount = useCustomizerStore((s) => s.strandCount);
-  // The Nocturne studio keeps the popup neutral; the original studio tints it by purpose.
-  const purposeTone = tone && purpose ? purposeToneStyle(purpose) : undefined;
+  const purposeTone = purpose ? purposeToneStyle(purpose) : undefined;
   const quote = useCustomizerQuote();
   const [view, setView] = useState('pick');
   const [adding, setAdding] = useState(false);
