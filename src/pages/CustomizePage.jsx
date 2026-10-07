@@ -16,6 +16,8 @@ import ChooseStep from '../components/customizer/steps/ChooseStep';
 import FitStep from '../components/customizer/steps/FitStep';
 import FinishStep from '../components/customizer/steps/FinishStep';
 import ReviewStep from '../components/customizer/ReviewStep';
+import PurposeCharm from '../components/customizer/steps/PurposeCharm';
+import PurposeReview, { ReviewSide } from '../components/customizer/steps/PurposeReview';
 import PreviewPanel from '../components/customizer/PreviewPanel';
 import BeadDetailDrawer from '../components/customizer/BeadDetailDrawer';
 import Spinner from '../components/ui/Spinner';
@@ -43,6 +45,9 @@ const PANE = {
   finish: FinishStep,
   review: ReviewStep,
 };
+
+// The purpose path has its own Nocturne charm and review steps; other paths keep the originals.
+const PURPOSE_PANE = { ...PANE, charm: PurposeCharm, review: PurposeReview };
 
 export default function CustomizePage() {
   const brand = useBrand();
@@ -88,7 +93,7 @@ export default function CustomizePage() {
   // An admin-authored eyebrow still wins.
   const eyebrow =
     step === 1 && copy.eyebrow === entry.eyebrow ? `Step 01 · ${mode.short}` : copy.eyebrow;
-  const Pane = PANE[entry.id];
+  const Pane = (path === 'purpose' ? PURPOSE_PANE : PANE)[entry.id];
   const selectionName = layer?.name || purpose?.name || '';
 
   // The purpose path has moved to the Nocturne look; the other paths keep the original studio.
@@ -142,7 +147,7 @@ export default function CustomizePage() {
               {Pane ? <Pane /> : null}
               <StudioDock />
             </div>
-            <div className="hidden lg:block">{step === 1 ? <StudioGuide /> : <PreviewPanel />}</div>
+            <div className="hidden lg:block">{step === 1 ? <StudioGuide /> : entry.id === 'review' ? <ReviewSide /> : <PreviewPanel />}</div>
           </div>
         </div>
         <BeadDetailDrawer />
