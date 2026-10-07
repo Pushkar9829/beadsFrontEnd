@@ -1,16 +1,15 @@
-import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import api, { mediaUrl } from '../api/client';
-import ProductCard from '../components/ui/ProductCard';
-import Spinner from '../components/ui/Spinner';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
-import InViewGroup from '../components/ui/InViewGroup';
-import SectionHead from '../components/home/SectionHead';
-import CmsFinale from '../components/ui/CmsFinale';
 import { houseMeta } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import SeoHead from '../components/SeoHead';
+import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
+import { BannerRow, CollectionTiles, PageHero, ProductListing, StudioBand } from '../components/home/nocturne/Listing';
+import { CmsEmpty } from './FamilyPage';
+
+const clean = (s) => String(s || '').replace(/\s*→\s*$/, '');
 
 export default function CategoryPage() {
   const site = useSite();
@@ -19,87 +18,122 @@ export default function CategoryPage() {
   const { slug } = useParams();
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
+  const [siblings, setSiblings] = useState([]);
+  const [houseProducts, setHouseProducts] = useState([]);
+  const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [missing, setMissing] = useState(false);
-  const [banners, setBanners] = useState([]);
 
   useEffect(() => {
+    let alive = true;
     setLoading(true);
     setMissing(false);
-    Promise.all([api.get(`/categories/${slug}`), api.get(`/products?category=${slug}`)])
+    Promise.all([api.get(`/categories/${slug}`), api.get('/products', { params: { category: slug } })])
       .then(([c, p]) => {
+        if (!alive) return;
         setCategory(c.data.category);
         setProducts(p.data.products || []);
+        // Sibling collections in the same house, for "More from this house".
+        const family = c.data.category.family;
+        Promise.all([api.get('/categories', { params: { family } }), api.get('/products', { params: { family } })])
+          .then(([t, hp]) => {
+            if (!alive) return;
+            setSiblings((t.data.tree?.[0]?.children || []).filter((s) => s.slug !== slug));
+            setHouseProducts(hp.data.products || []);
+          })
+          .catch(() => {});
       })
-      .catch(() => setMissing(true))
-      .finally(() => setLoading(false));
-    api.get('/banners?placement=category').then(({ data }) => setBanners(data.banners || [])).catch(() => {});
+      .catch(() => alive && setMissing(true))
+      .finally(() => alive && setLoading(false));
+    api
+      .get('/banners', { params: { placement: 'category' } })
+      .then(({ data }) => alive && setBanners(data.banners || []))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
   }, [slug]);
 
   const house = houseMeta(site, category?.family);
+  const houseImage = house?.image ? mediaUrl(house.image) : HOUSE_IMAGES[category?.family];
+  const heroImage = category?.image ? mediaUrl(category.image) : products[0]?.images?.[0] ? mediaUrl(products[0].images[0]) : houseImage;
+  const crumbs = [{ label: 'Home', to: '/' }, house ? { label: house.name, to: `/${house.slug}` } : { label: 'Shop all', to: '/shop' }, { label: category?.name || 'Collection' }];
+  const ownBanners = banners.filter((b) => !b.link || String(b.link).includes(`/c/${slug}`));
 
-  const crumbs = [
-    { label: 'Home', to: '/' },
-    house ? { label: house.name, to: `/${house.slug}` } : { label: 'Shop All', to: '/shop' },
-    { label: category?.name || 'Collection' },
-  ];
+  const more = useMemo(() => {
+    // Borrow a photo from the first piece in each sibling collection.
+    const coverOf = (catSlug) => {
+      const img = houseProducts.find((p) => p.categoryId?.slug === catSlug)?.images?.[0];
+      return img ? mediaUrl(img) : null;
+    };
+    return (
+      siblings.map((c) => ({
+        key: c._id,
+        to: c.slug === 'customize-your-bracelet' ? '/customize' : `/c/${c.slug}`,
+        title: c.name,
+        body: c.description,
+        image: c.image ? mediaUrl(c.image) : coverOf(c.slug) || houseImage,
+        kicker: c.slug === 'customize-your-bracelet' ? 'Studio' : undefined,
+      }))
+    );
+  }, [siblings, houseProducts, houseImage]);
+
+  if (missing) {
+    return (
+      <div className="nx nx-page">
+        <PageHero image={HOUSE_IMAGES.crystals} crumbs={[{ label: 'Home', to: '/' }, { label: 'Not found' }]} eyebrow={page.missing?.kicker} title={page.missing?.title || 'Collection not found.'} body={page.missing?.copy} size="short" />
+        <div className="nx-w nx-sec">
+          <CmsEmpty block={{ ...page.missing, title: 'Keep exploring.', copy: '' }} />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative">
-      <div className="pointer-events-none absolute inset-0 lotus-corner" />
-      <div className="relative shell py-8 sm:py-10 md:py-12">
-        <Breadcrumbs items={crumbs} />
+    <div className="nx nx-page">
+      {category && (
+        <SeoHead
+          title={category.seo?.title || pageTitle(category.name, brand)}
+          description={category.seo?.description || category.description}
+          keywords={category.seo?.keywords}
+          image={category.seo?.ogImage || category.image}
+          noIndex={category.seo?.noIndex}
+        />
+      )}
+      <PageHero
+        size="short"
+        image={loading ? houseImage : heroImage}
+        crumbs={crumbs}
+        eyebrow={house?.name || category?.family}
+        title={category?.name || ' '}
+        body={category?.description}
+        meta={loading ? [] : [`${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`]}
+        actions={
+          page.to && (
+            <Link to={page.to} className="nx-lnk">
+              {clean(page.action) || 'Customization'} →
+            </Link>
+          )
+        }
+      />
 
-        {loading ? (
-          <Spinner />
-        ) : missing ? (
-          <CmsFinale block={page.missing} />
-        ) : (
-          <>
-            <SeoHead
-              title={category.seo?.title || pageTitle(category.name, brand)}
-              description={category.seo?.description || category.description}
-              keywords={category.seo?.keywords}
-              image={category.seo?.ogImage || category.image}
-              noIndex={category.seo?.noIndex}
-            />
-            {category.image ? (
-              <img src={mediaUrl(category.image)} alt="" className="mt-8 h-44 w-full rounded-2xl object-cover" />
-            ) : null}
-            <div className="mt-8">
-              <SectionHead
-                eyebrow={house?.name || category.family}
-                title={category.name}
-                body={category.description}
-                to={page.to}
-                action={page.action}
-              />
-            </div>
+      <BannerRow banners={ownBanners} />
 
-            {banners.filter((b) => !b.link || String(b.link).includes(`/c/${slug}`)).slice(0, 2).length > 0 && (
-              <div className="mt-6 grid gap-3 md:grid-cols-2">
-                {banners.filter((b) => !b.link || String(b.link).includes(`/c/${slug}`)).slice(0, 2).map((b) => (
-                  <Link key={b._id} to={b.link || `/c/${slug}`} className="overflow-hidden rounded-2xl border border-gold/20">
-                    <img src={mediaUrl(b.image)} alt={b.title} className="h-36 w-full object-cover" />
-                  </Link>
-                ))}
-              </div>
-            )}
+      {loading ? (
+        <div className="nx-w nx-sec">
+          <div className="nx-grid">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="nx-skel" />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <ProductListing eyebrow={house?.name ? `${house.name} · collection` : 'Collection'} title="The pieces" products={products} empty={<CmsEmpty block={page.empty} />} />
+      )}
 
-            {products.length === 0 ? (
-              <CmsFinale block={page.empty} />
-            ) : (
-              <InViewGroup className="feature-grid mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-                {products.map((p, i) => (
-                  <div key={p._id} className="feature-item h-full" style={{ '--i': i }}>
-                    <ProductCard product={p} description={p.shortDescription} />
-                  </div>
-                ))}
-              </InViewGroup>
-            )}
-          </>
-        )}
-      </div>
+      <CollectionTiles eyebrow="More from this house" title={house ? `More ${house.name.toLowerCase()}` : 'More collections'} items={more} />
+
+      <StudioBand body="Choose a purpose and an intention; the crystals are selected for you and strung to your wrist." to={page.to || '/customize'} cta={clean(page.action) || 'Open the studio'} />
     </div>
   );
 }

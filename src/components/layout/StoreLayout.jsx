@@ -2,18 +2,25 @@ import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
+import { NFooter } from '../home/nocturne/Nocturne';
+import '../home/nocturne/nocturne.css';
+import { isNocturnePath } from '../../lib/nocturne';
+import { useSite } from '../../store/contentStore';
 import Atmosphere from './Atmosphere';
 import SkyBoot from './SkyBoot';
 import { paintGoldShine } from '../../lib/paintGoldShine';
 import { useCustomizerStore } from '../../store/customizerStore';
 import { useContentStore } from '../../store/contentStore';
-import { useSettingsStore } from '../../store/settingsStore';
+import { useSettingsStore, useBrand } from '../../store/settingsStore';
 import { purposeToneStyle } from '../customizer/PurposeGrid';
 import { useBootStore } from '../../store/bootStore';
 import useRefreshOnView from '../../hooks/useRefreshOnView';
 
 export default function StoreLayout() {
   const { pathname } = useLocation();
+  const site = useSite();
+  const brand = useBrand();
+  const nocturne = isNocturnePath(pathname, (site.houses?.items || []).map((h) => h.slug));
   const [skyReady, setSkyReady] = useState(false);
   const markPageReady = useBootStore((s) => s.markPageReady);
   const loadContent = useContentStore((s) => s.load);
@@ -59,8 +66,8 @@ export default function StoreLayout() {
         >
           <Outlet />
         </main>
-        {/* The home page renders its own Nocturne footer from the same CMS footer content. */}
-        {pathname !== '/' && <Footer />}
+        {/* Nocturne pages use the Nocturne footer, built from the same CMS footer content. */}
+        {nocturne ? <NFooter footer={site.footer} brandName={brand.display || 'KUBERSTONES'} /> : <Footer />}
       </div>
     </div>
   );

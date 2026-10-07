@@ -15,7 +15,7 @@ import rudrakshaImg from '../../../assets/home/house-rudraksha.jpg';
 import gemstonesImg from '../../../assets/home/house-gemstones.jpg';
 import studioImg from '../../../assets/home/finale-banner.jpg';
 
-const HOUSE_IMAGES = { crystals: crystalsImg, rudraksha: rudrakshaImg, gemstones: gemstonesImg };
+export const HOUSE_IMAGES = { crystals: crystalsImg, rudraksha: rudrakshaImg, gemstones: gemstonesImg };
 const pad = (n) => String(n).padStart(2, '0');
 const clean = (s) => String(s || '').replace(/\s*→\s*$/, '');
 const img = (src, fallback = '') => (src ? mediaUrl(src) : fallback);
@@ -63,7 +63,7 @@ function useCountdown(endsAt) {
 }
 
 /** "Wear your intention." → bold upper first part + gold italic last word. */
-function Display({ text, as: Tag = 'h2', className = '' }) {
+export function Display({ text, as: Tag = 'h2', className = '' }) {
   const value = String(text || '').trim();
   const cut = value.lastIndexOf(' ');
   return (
@@ -926,6 +926,7 @@ export function NFooter({ footer = {}, brandName = 'KUBERSTONES' }) {
     ['House', footer.legalLinks || []],
   ].filter(([, links]) => links.length);
   return (
+    <div className="nx">
     <footer className="nx-footer">
       <div className="nx-w">
         <div className="nx-footer-cols">
@@ -966,5 +967,6 @@ export function NFooter({ footer = {}, brandName = 'KUBERSTONES' }) {
         </div>
       </div>
     </footer>
+    </div>
   );
 }

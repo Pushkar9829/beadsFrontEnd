@@ -13,7 +13,6 @@ import {
   NFinale,
   NFinder,
   NFlash,
-  NFooter,
   NHero,
   NHouses,
   NJournal,
@@ -147,7 +146,6 @@ export default function HomePage() {
         noIndex={brand.seo?.noIndex}
       />
       {order.map((key) => blocks[key]).filter(Boolean)}
-      <NFooter footer={home.footer} brandName={brand.display || 'KUBERSTONES'} />
     </div>
   );
 }

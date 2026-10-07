@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useContentStore } from '../../store/contentStore';
 import { useBrand, useSettingsStore } from '../../store/settingsStore';
 import { useBootStore } from '../../store/bootStore';
+import { isNocturnePath } from '../../lib/nocturne';
 
 export default function SkyBoot({ skyReady }) {
   const contentReady = useContentStore((s) => s.loadedAt > 0);
@@ -9,7 +10,7 @@ export default function SkyBoot({ skyReady }) {
   const pageReady = useBootStore((s) => s.pageReady);
   const brand = useBrand();
   // The home page covers the animated sky with its own solid backdrop, so it never waits for it.
-  const [isHome] = useState(() => window.location.pathname === '/');
+  const [isHome] = useState(() => isNocturnePath(window.location.pathname));
   const [open, setOpen] = useState(true);
   const [leaving, setLeaving] = useState(false);
   const [fontsReady, setFontsReady] = useState(typeof document === 'undefined' || !document.fonts || document.fonts.status === 'loaded');

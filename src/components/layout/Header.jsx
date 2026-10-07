@@ -14,6 +14,7 @@ import { isStaff } from '../../lib/staff';
 import FlashSaleMark from '../ui/FlashSaleMark';
 import useRefreshOnView from '../../hooks/useRefreshOnView';
 import HomeHeaderBar from './HomeHeaderBar';
+import { isNocturnePath } from '../../lib/nocturne';
 
 const fallbackFamilies = [
   { slug: 'crystals', name: 'Crystals' },
@@ -116,9 +117,9 @@ export default function Header() {
     navigate('/cart');
   };
 
-  const isHome = location.pathname === '/';
+  const isHome = isNocturnePath(location.pathname, families.map((f) => f.slug));
 
-  // Home page: Nocturne header that floats over the full-bleed hero until the visitor scrolls.
+  // Nocturne pages (home, houses, categories): header floats over the page hero until the visitor scrolls.
   if (isHome) {
     return (
       <>
