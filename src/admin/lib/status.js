@@ -52,7 +52,3 @@ export const RETURN_STATUS_META = {
   restocked: { label: 'Restocked', tone: 'accent' },
   rejected: { label: 'Rejected', tone: 'danger' },
 };
-
-export function statusMeta(map, value) {
-  return map[value] || { label: value ? String(value).replace(/_/g, ' ') : '—', tone: 'neutral' };
-}

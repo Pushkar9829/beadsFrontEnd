@@ -85,14 +85,6 @@ export function normalizePhone(phone) {
   return digits.slice(0, 10);
 }
 
-export function isValidPhone(phone) {
-  return /^[6-9]\d{9}$/.test(normalizePhone(phone));
-}
-
-export function isValidPincode(pincode) {
-  return /^\d{6}$/.test(String(pincode || '').replace(/\D/g, ''));
-}
-
 export function phoneError(phone) {
   const digits = normalizePhone(phone);
   if (!digits) return 'Enter a 10-digit mobile number.';
