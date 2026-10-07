@@ -60,6 +60,89 @@ const CHOOSE_STEP = {
   hint: (state) => selectionHint(state.path, state.config),
 };
 
+function numbersChosen(state) {
+  const picked = (value) => value === true || value === false;
+  return picked(state.includeMulankBead) && picked(state.includeBhagyankBead) && picked(state.includeZodiacBead);
+}
+
+function intentionBeadsReady(state) {
+  return Boolean(state.intention) && selectedCrystals(state).length > 0;
+}
+
+function charmReady(state) {
+  if (state.config?.charmRequired !== false && !state.charm) return false;
+  if (state.threadType === 'steel-core' && !state.wristSize) return false;
+  return true;
+}
+
+// The purpose path keeps the earlier wizard: one intention, then birth, zodiac, and charm.
+export const PURPOSE_FLOW = [
+  {
+    id: 'purpose',
+    label: 'Purpose',
+    eyebrow: 'Step 01 · Purpose',
+    title: 'Choose a purpose',
+    body: 'Start with the feeling you want this piece to hold. Intentions appear only after you choose.',
+    validate: (state) => Boolean(state.purpose),
+    hint: () => 'Choose a purpose to continue.',
+  },
+  {
+    id: 'intention',
+    label: 'Intention',
+    eyebrow: 'Step 02 · Intention',
+    title: 'Choose an intention',
+    body: 'One intention sets the crystals. Each mapped stone starts on the strand. Turn any of them off before you continue.',
+    validate: intentionBeadsReady,
+    hint: () => 'Select an intention so its crystals are chosen.',
+  },
+  {
+    id: 'birth',
+    label: 'Birth',
+    eyebrow: 'Step 03 · Birth',
+    title: 'Date of birth',
+    body: 'Your date sets Mulank, Bhagyank, and your zodiac sign. Then choose the number beads and the sign’s crystals.',
+    validate: (state) => {
+      if (state.path !== 'purpose') return Boolean(state.dateOfBirth);
+      if (!state.dateOfBirth) return false;
+      if (!numbersChosen(state)) return false;
+      const target = [16, 18, 22].includes(Number(state.strandCount)) ? Number(state.strandCount) : 18;
+      const total = Object.values(state.quantities || {}).reduce((sum, n) => sum + (Number(n) || 0), 0);
+      return total === target;
+    },
+    hint: (state) => {
+      if (!state.dateOfBirth) return 'Choose day, month and year to continue.';
+      if (state.path !== 'purpose') return '';
+      if (!numbersChosen(state)) return 'Choose yes or no for the Mulank bead, the Bhagyank bead, and the zodiac bead.';
+      const target = [16, 18, 22].includes(Number(state.strandCount)) ? Number(state.strandCount) : 18;
+      const total = Object.values(state.quantities || {}).reduce((sum, n) => sum + (Number(n) || 0), 0);
+      if (total !== target) return `This strand is ${target} beads. You have ${total}. Adjust the counts to match.`;
+      return '';
+    },
+  },
+  {
+    id: 'charm',
+    label: 'Charm',
+    eyebrow: 'Step 04 · Charm',
+    title: 'Charm and thread',
+    body: 'Pick the charm at the clasp and the thread. Steel core also needs a wrist size.',
+    validate: charmReady,
+    hint: (state) => {
+      if (state.config?.charmRequired !== false && !state.charm) return state.config?.charmHint || 'Choose a charm to continue.';
+      if (state.threadType === 'steel-core' && !state.wristSize) return 'Choose a wrist size for steel core thread.';
+      return '';
+    },
+  },
+  {
+    id: 'review',
+    label: 'Review',
+    eyebrow: 'Step 05 · Review',
+    title: 'Review & order',
+    body: 'Confirm the composition, then place the piece in your bag.',
+    validate: () => true,
+    hint: () => '',
+  },
+];
+
 function strandTarget(state) {
   return [16, 18, 22].includes(Number(state.strandCount)) ? Number(state.strandCount) : 18;
 }
