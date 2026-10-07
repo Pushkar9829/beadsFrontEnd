@@ -6763,3 +6763,138 @@ a.nx-tile:hover .nx-arrow {
   font-weight: 400;
   font-variant-numeric: tabular-nums;
 }
+
+/* studio · other paths */
+.nx-paths {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 22px;
+}
+
+.nx-paths-l {
+  margin-right: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--nx-soft);
+}
+
+.nx-paths a {
+  padding: 8px 16px;
+  border: 1px solid var(--nx-line2);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--nx-muted);
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.nx-paths a:hover {
+  border-color: var(--nx-ink);
+  color: var(--nx-ink);
+}
+
+.nx-paths a.is-on {
+  border-color: var(--nx-ink);
+  background: var(--nx-ink);
+  color: var(--nx-bg);
+}
+
+.nx-ptile-art.is-sym {
+  border: 1px solid var(--nx-line);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--purpose-wash, transparent) 45%, transparent), transparent);
+}
+
+.nx-glyph {
+  font-family: 'Segoe UI Symbol', 'Noto Sans Symbols', 'Apple Symbols', var(--nx-serif), serif;
+  font-size: 46px;
+  line-height: 1;
+  color: var(--nx-champ);
+  transition: color 0.3s, transform 0.4s ease;
+}
+
+.nx-ptile:hover .nx-glyph,
+.nx-ptile.is-on .nx-glyph {
+  color: #f0e2c2;
+  transform: scale(1.06);
+}
+
+.nx-ptile-hi {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--nx-champ);
+}
+
+.nx-ptile-skel {
+  aspect-ratio: auto;
+  min-height: 268px;
+}
+
+.nx-numrows {
+  display: grid;
+  gap: 22px;
+}
+
+.nx-nums {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.nx-nums button {
+  aspect-ratio: 1;
+  max-height: 64px;
+  border: 1px solid var(--nx-line2);
+  border-radius: 3px;
+  background: var(--nx-tile);
+  font-size: 22px;
+  font-weight: 400;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.nx-nums button:hover {
+  border-color: var(--nx-ink);
+}
+
+.nx-nums button.is-on {
+  border-color: var(--nx-champ);
+  background: var(--nx-champ);
+  color: var(--nx-bg);
+}
+
+.nx-numrow-t {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--nx-champ);
+}
+
+.nx-pb.is-read .nx-pb-v {
+  margin-top: 8px;
+}
+
+@media (max-width: 767px) {
+  .nx-nums {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .nx-paths {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .nx-paths a {
+    flex: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .nx-paths-l {
+    display: none;
+  }
+}

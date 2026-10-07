@@ -1,15 +1,13 @@
 import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
-import SectionHead from '../components/home/SectionHead';
 import SeoHead from '../components/SeoHead';
-import Spinner from '../components/ui/Spinner';
 import { PurposeIcon, purposeHasImage, purposeToneStyle } from '../components/customizer/PurposeGrid';
-import StudioModeNav from '../components/customizer/StudioModeNav';
+import StudioPaths from '../components/customizer/StudioPaths';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import useRefreshOnView from '../hooks/useRefreshOnView';
+import { PageIntro } from '../components/home/nocturne/Listing';
 
 export default function ShopByPurposePage() {
   const site = useSite();
@@ -19,37 +17,43 @@ export default function ShopByPurposePage() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(() => {
-    api.get('/customizer/purposes')
+    api
+      .get('/customizer/purposes')
       .then(({ data }) => setPurposes(data.purposes || []))
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
   useRefreshOnView(load);
 
+  const title = copy.pageTitle || copy.title || 'Customise by purpose';
+
   return (
-    <div className="relative">
-      <SeoHead title={pageTitle(copy.pageTitle || copy.title || 'Shop by purpose', brand)} description={copy.pageBody || copy.body} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
-      <div className="pointer-events-none absolute inset-0 lotus-corner" />
-      <div className="relative shell py-8 sm:py-10 md:py-12">
-        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: brand.nav.customize, to: '/customize' }, { label: copy.title || 'By purpose' }]} />
-        <div className="mt-8">
-          <SectionHead eyebrow={copy.pageEyebrow || copy.eyebrow} title={copy.pageTitle || copy.title || 'Customise by purpose'} body={copy.pageBody || copy.body} />
-        </div>
-        <StudioModeNav />
-        {loading ? <Spinner /> : (
-          <div className="purpose-pick mt-10">
-            {purposes.map((p) => (
-              <Link key={p._id || p.slug} to={`/customize?path=purpose&purpose=${p.slug}`} className="purpose-pick-card" style={purposeToneStyle(p)}>
-                <span className={`purpose-pick-emoji ${purposeHasImage(p) ? 'is-image' : ''}`} aria-hidden>
+    <div className="nx nx-page nx-studio">
+      <SeoHead title={pageTitle(title, brand)} description={copy.pageBody || copy.body} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
+      <PageIntro compact crumbs={[{ label: 'Home', to: '/' }, { label: brand.nav.customize, to: '/customize' }, { label: copy.title || 'By purpose' }]} title={title} body={copy.pageBody || copy.body} />
+      <div className="nx-w nx-studio-body">
+        <StudioPaths />
+        {loading ? (
+          <div className="nx-ptiles">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="nx-skel nx-ptile-skel" />
+            ))}
+          </div>
+        ) : purposes.length ? (
+          <div className="nx-ptiles">
+            {purposes.map((p, i) => (
+              <Link key={p._id || p.slug} to={`/customize?path=purpose&purpose=${p.slug}`} className="nx-ptile" style={purposeToneStyle(p)}>
+                <span className="nx-ptile-n">{String(i + 1).padStart(2, '0')}</span>
+                <span className={`nx-ptile-art${purposeHasImage(p) ? ' is-photo' : ' is-glyph'}`} aria-hidden>
                   <PurposeIcon purpose={p} />
                 </span>
-                <span className="purpose-pick-copy">
-                  <h3>{p.name}</h3>
-                  <p>{p.description}</p>
-                </span>
+                <span className="nx-ptile-h">{p.name}</span>
+                {p.description && <span className="nx-ptile-p">{p.description}</span>}
               </Link>
             ))}
-            {!purposes.length && <p className="sky-copy">Purposes will appear here once the studio is configured.</p>}
           </div>
+        ) : (
+          <p className="nx-lede">Purposes will appear here once the studio is configured.</p>
         )}
       </div>
     </div>

@@ -1,8 +1,8 @@
-// Step 5 of the purpose path: the whole composition on one page, each part with a link
-// back to the step that sets it, then the price. ReviewStep still serves the other paths.
+// Review step for every studio path: the whole composition on one page, each part with a
+// link back to the step that sets it, then the price.
 import { useCustomizerStore, useCustomizerQuote } from '../../../store/customizerStore';
 import { stepIndexOf } from '../../../lib/studioFlow';
-import { bhagyankFromDate, mulankFromDate, zodiacFromDate, MULANK_TABLE } from '../../../lib/calibration';
+import { bhagyankFromDate, dateRangeLabel, mulankFromDate, zodiacFromDate, MULANK_TABLE } from '../../../lib/calibration';
 import { formatInr, formatWristChoice } from '../../../lib/format';
 import { useStudioLabels } from '../../../lib/studioTheme';
 import { PurposeIcon } from '../PurposeGrid';
@@ -33,7 +33,7 @@ function Block({ title, onEdit, children }) {
   );
 }
 
-export default function PurposeReview() {
+export default function StudioReview() {
   const purpose = useCustomizerStore((s) => s.purpose);
   const intention = useCustomizerStore((s) => s.intention);
   const charm = useCustomizerStore((s) => s.charm);
@@ -47,9 +47,12 @@ export default function PurposeReview() {
   const includeZodiacBead = useCustomizerStore((s) => s.includeZodiacBead);
   const config = useCustomizerStore((s) => s.config);
   const setStep = useCustomizerStore((s) => s.setStep);
+  const path = useCustomizerStore((s) => s.path);
+  const layer = useCustomizerStore((s) => s.layer);
   const quote = useCustomizerQuote();
   const labels = useStudioLabels();
-  const go = (id) => () => setStep(stepIndexOf(id, 'purpose'));
+  const go = (id) => () => setStep(stepIndexOf(id, path));
+  const isPurpose = path === 'purpose';
   const lines = quote.lines || [];
   const pack = quote.packaging?.lines || [];
   const beadsTotal = lines.reduce((sum, l) => sum + (Number(l.subtotal) || 0), 0);
@@ -65,26 +68,33 @@ export default function PurposeReview() {
   return (
     <div className="nx-rv">
       <div className="nx-rv-hero">
-        {purpose && (
+        {isPurpose && purpose && (
           <span className="nx-chosen-art" aria-hidden>
             <PurposeIcon purpose={purpose} />
           </span>
         )}
         <div>
           <p className="nx-eb">{labels.reviewKicker || 'The composition'}</p>
-          <h2 className="nx-rv-t">{intention?.braceletName || intention?.name || labels.customStrand || 'Custom strand'}</h2>
+          <h2 className="nx-rv-t">{isPurpose ? intention?.braceletName || intention?.name || labels.customStrand || 'Custom strand' : layer?.name || labels.customStrand || 'Custom strand'}</h2>
           <p className="nx-birth-hint">
-            {purpose?.name}
-            {intention?.name ? ` · ${intention.name}` : ''}
+            {isPurpose ? `${purpose?.name || ''}${intention?.name ? ` · ${intention.name}` : ''}` : layer?.modeLabel}
           </p>
         </div>
       </div>
 
       <div className="nx-rv-grid">
-        <Block title="Purpose & intention" onEdit={go('intention')}>
-          <p className="nx-rv-v">{purpose?.name}</p>
-          <p className="nx-rv-s">{intention?.name}</p>
-        </Block>
+        {isPurpose ? (
+          <Block title="Purpose & intention" onEdit={go('intention')}>
+            <p className="nx-rv-v">{purpose?.name}</p>
+            <p className="nx-rv-s">{intention?.name}</p>
+          </Block>
+        ) : (
+          <Block title={layer?.modeLabel || 'Your path'} onEdit={go('choose')}>
+            <p className="nx-rv-v">{layer?.name}</p>
+            {layer?.selections?.mulank && <p className="nx-rv-s">Mulank {layer.selections.mulank.number}{layer.selections.mulank.beads?.length ? ` · ${layer.selections.mulank.beads.join(', ')}` : ''}</p>}
+            {layer?.selections?.bhagyank && <p className="nx-rv-s">Bhagyank {layer.selections.bhagyank.number}{layer.selections.bhagyank.beads?.length ? ` · ${layer.selections.bhagyank.beads.join(', ')}` : ''}</p>}
+          </Block>
+        )}
 
         <Block title="Your reading" onEdit={go('birth')}>
           {reading ? (
@@ -94,19 +104,19 @@ export default function PurposeReview() {
                 <li>
                   <span>Mulank {reading.mulank}</span>
                   <span>
-                    {MULANK_TABLE[reading.mulank]?.beadName} · {choice(includeMulankBead)}
+                    {isPurpose ? `${MULANK_TABLE[reading.mulank]?.beadName} · ${choice(includeMulankBead)}` : ''}
                   </span>
                 </li>
                 <li>
                   <span>Bhagyank {reading.bhagyank}</span>
                   <span>
-                    {MULANK_TABLE[reading.bhagyank]?.beadName} · {choice(includeBhagyankBead)}
+                    {isPurpose ? `${MULANK_TABLE[reading.bhagyank]?.beadName} · ${choice(includeBhagyankBead)}` : ''}
                   </span>
                 </li>
                 <li>
                   <span>{reading.sign.sign}</span>
                   <span>
-                    {reading.sign.beadName} · {choice(includeZodiacBead)}
+                    {isPurpose ? `${reading.sign.beadName} · ${choice(includeZodiacBead)}` : dateRangeLabel(reading.sign)}
                   </span>
                 </li>
               </ul>
@@ -123,7 +133,7 @@ export default function PurposeReview() {
         </Block>
       </div>
 
-      <Block title={`Crystals · ${quote.beadCount || 0} beads`} onEdit={go('birth')}>
+      <Block title={`Crystals · ${quote.beadCount || 0} beads`} onEdit={go(isPurpose ? 'birth' : 'beads')}>
         <ul className="nx-cm-lines nx-rv-lines">
           {lines.map((l) => {
             const roles = [...new Set((l.roles || []).map((r) => ROLE_LABEL[r] || r))];

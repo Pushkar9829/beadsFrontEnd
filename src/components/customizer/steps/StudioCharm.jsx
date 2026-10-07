@@ -1,5 +1,5 @@
-// Step 4 of the purpose path: charm at the clasp, its finish, the thread and (for steel
-// core) the wrist size. Same store actions as CharmStep, which the other paths still use.
+// Charm step for every studio path: charm at the clasp, its finish, the thread and (for
+// steel core) the wrist size. Same store actions as the original CharmStep.
 import { Check } from 'lucide-react';
 import { useCustomizerStore, useCustomizerQuote } from '../../../store/customizerStore';
 import { mediaUrl } from '../../../api/client';
@@ -40,7 +40,7 @@ function ThreadMark({ steel }) {
   );
 }
 
-export default function PurposeCharm() {
+export default function StudioCharm() {
   const charms = useCustomizerStore((s) => s.charms);
   const charm = useCustomizerStore((s) => s.charm);
   const finish = useCustomizerStore((s) => s.finish);

@@ -16,8 +16,14 @@ import ChooseStep from '../components/customizer/steps/ChooseStep';
 import FitStep from '../components/customizer/steps/FitStep';
 import FinishStep from '../components/customizer/steps/FinishStep';
 import ReviewStep from '../components/customizer/ReviewStep';
-import PurposeCharm from '../components/customizer/steps/PurposeCharm';
-import PurposeReview, { ReviewSide } from '../components/customizer/steps/PurposeReview';
+import StudioCharm from '../components/customizer/steps/StudioCharm';
+import StudioReview, { ReviewSide } from '../components/customizer/steps/StudioReview';
+import StudioChoose from '../components/customizer/steps/StudioChoose';
+import StudioCrystals from '../components/customizer/steps/StudioCrystals';
+import StudioBirth from '../components/customizer/steps/StudioBirth';
+import StudioBeads from '../components/customizer/steps/StudioBeads';
+import PurposeBirth from '../components/customizer/steps/PurposeBirth';
+import StudioPaths from '../components/customizer/StudioPaths';
 import PreviewPanel from '../components/customizer/PreviewPanel';
 import BeadDetailDrawer from '../components/customizer/BeadDetailDrawer';
 import Spinner from '../components/ui/Spinner';
@@ -46,8 +52,16 @@ const PANE = {
   review: ReviewStep,
 };
 
-// The purpose path has its own Nocturne charm and review steps; other paths keep the originals.
-const PURPOSE_PANE = { ...PANE, charm: PurposeCharm, review: PurposeReview };
+// Nocturne screens for each step id; the purpose and layer paths differ only at birth.
+const NOCTURNE_PANE = {
+  purpose: PurposePick,
+  intention: IntentionStep,
+  choose: StudioChoose,
+  crystals: StudioCrystals,
+  beads: StudioBeads,
+  charm: StudioCharm,
+  review: StudioReview,
+};
 
 export default function CustomizePage() {
   const brand = useBrand();
@@ -93,7 +107,8 @@ export default function CustomizePage() {
   // An admin-authored eyebrow still wins.
   const eyebrow =
     step === 1 && copy.eyebrow === entry.eyebrow ? `Step 01 · ${mode.short}` : copy.eyebrow;
-  const Pane = (path === 'purpose' ? PURPOSE_PANE : PANE)[entry.id];
+  const Pane = PANE[entry.id];
+  const nocturnePane = (id) => (id === 'birth' ? (path === 'purpose' ? PurposeBirth : StudioBirth) : NOCTURNE_PANE[id]);
   const selectionName = layer?.name || purpose?.name || '';
 
   // The purpose path has moved to the Nocturne look; the other paths keep the original studio.
@@ -120,6 +135,7 @@ export default function CustomizePage() {
   }
 
   if (nocturne) {
+    const NPane = nocturnePane(entry.id);
     return (
       <div className="nx nx-page nx-skin nx-studio" style={themeStyle}>
         <SeoHead
@@ -136,6 +152,7 @@ export default function CustomizePage() {
           body={selectionName && step > 1 ? `${mode.short} · ${selectionName}` : copy.body}
         />
         <div className="nx-w nx-studio-body">
+          {step === 1 && <StudioPaths />}
           <Stepper />
           {step > 1 && (
             <div className="mt-6 lg:hidden">
@@ -144,7 +161,7 @@ export default function CustomizePage() {
           )}
           <div className="studio-stage">
             <div className="studio-pane">
-              {Pane ? <Pane /> : null}
+              {NPane ? <NPane /> : null}
               <StudioDock />
             </div>
             <div className="hidden lg:block">{step === 1 ? <StudioGuide /> : entry.id === 'review' ? <ReviewSide /> : <PreviewPanel />}</div>

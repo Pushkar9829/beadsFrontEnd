@@ -31,7 +31,7 @@ export default function StudioDock() {
   const total = stepCountFor(path);
   const entry = stepAt(step, path);
   // Steps without an admin label name the step they lead to ("Next · Intention").
-  const upcoming = path === 'purpose' ? flowFor(path)[step]?.label : '';
+  const upcoming = flowFor(path)[step]?.label;
   const message = stepError || hint;
 
   return (

@@ -10,6 +10,7 @@ import { BEAD_COUNTS, priceForCount } from './CrystalSelectModal';
 
 export default function NCrystalModal({ open, onClose, onComplete }) {
   const intention = useCustomizerStore((s) => s.intention);
+  const layer = useCustomizerStore((s) => s.layer);
   const recommended = useCustomizerStore((s) => s.recommended);
   const catalogBeads = useCustomizerStore((s) => s.catalogBeads);
   const quantities = useCustomizerStore((s) => s.quantities);
@@ -78,7 +79,7 @@ export default function NCrystalModal({ open, onClose, onComplete }) {
         <div className="nx-cm-head">
           <div className="nx-cm-head-row">
             <div className="min-w-0">
-              <p className="nx-eb">{intention?.name || 'Intention'}</p>
+              <p className="nx-eb">{intention?.name || layer?.name || 'Your crystals'}</p>
               <h2 id="nx-cm-title" className="nx-cm-t">
                 {building ? 'Build your bracelet' : 'Recommended crystals'}
               </h2>
@@ -116,7 +117,7 @@ export default function NCrystalModal({ open, onClose, onComplete }) {
 
           {!selecting && recommended.length > 0 && !building && (
             <>
-              <p className="nx-cm-lede">These are the traditional stones for this intention. All start on the strand; tap one to leave it out.</p>
+              <p className="nx-cm-lede">These are the traditional stones for your choice. All start on the strand; tap one to leave it out.</p>
               <div className="nx-cm-grid">
                 {recommended.map((bead) => {
                   const on = qtyOf(quantities, bead._id) > 0;

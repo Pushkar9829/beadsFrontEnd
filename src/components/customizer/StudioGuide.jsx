@@ -9,12 +9,20 @@ import { PurposeIcon } from './PurposeGrid';
 export default function StudioGuide() {
   const path = useCustomizerStore((s) => s.path);
   const purpose = useCustomizerStore((s) => s.purpose);
+  const layer = useCustomizerStore((s) => s.layer);
   const cmsSteps = useSite().pages.customize?.steps || [];
   const flow = flowFor(path);
 
   return (
     <aside className="nx-guide">
-      {purpose ? (
+      {path !== 'purpose' && layer ? (
+        <div className="nx-guide-pick">
+          <span>
+            <span className="nx-eb">{layer.modeLabel || 'Your choice'}</span>
+            <span className="nx-guide-name">{layer.name}</span>
+          </span>
+        </div>
+      ) : path === 'purpose' && purpose ? (
         <div className="nx-guide-pick">
           <span className="nx-guide-art" aria-hidden>
             <PurposeIcon purpose={purpose} />
