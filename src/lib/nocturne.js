@@ -5,7 +5,8 @@ const HOUSES = ['crystals', 'rudraksha', 'gemstones'];
 export function isNocturnePath(pathname = '', houseSlugs = HOUSES) {
   const path = String(pathname).replace(/\/+$/, '') || '/';
   if (path === '/') return true;
-  if (/^\/c\/[^/]+$/.test(path)) return true;
+  if (path === '/shop' || path === '/collections') return true;
+  if (/^\/(c|p|collection)\/[^/]+$/.test(path)) return true;
   const slug = path.slice(1);
   return [...new Set([...HOUSES, ...houseSlugs])].includes(slug);
 }

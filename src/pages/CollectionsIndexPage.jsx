@@ -1,14 +1,25 @@
 import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import api, { mediaUrl } from '../api/client';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
-import SectionHead from '../components/home/SectionHead';
 import SeoHead from '../components/SeoHead';
-import Spinner from '../components/ui/Spinner';
-import CmsFinale from '../components/ui/CmsFinale';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import useRefreshOnView from '../hooks/useRefreshOnView';
+import { HOUSE_IMAGES, useReveal } from '../components/home/nocturne/Nocturne';
+import { CmsEmpty, PageHero, StudioBand } from '../components/home/nocturne/Listing';
+
+const RULE_LABELS = {
+  manual: 'Curated',
+  bestsellers: 'Best sellers',
+  new_arrivals: 'New in',
+  trending: 'Trending',
+  featured: 'Editor’s pick',
+  under_price: 'By price',
+};
+
+// Skip the kind label when the collection's name already says it ("Best sellers").
+const sameAs = (name = '', label = '') => Boolean(label) && name.toLowerCase().includes(label.toLowerCase());
 
 export default function CollectionsIndexPage() {
   const site = useSite();
@@ -16,41 +27,69 @@ export default function CollectionsIndexPage() {
   const copy = site.pages.collections || {};
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
+  const ref = useReveal();
 
   const load = useCallback(() => {
-    api.get('/collections').then(({ data }) => setCollections(data.collections || [])).finally(() => setLoading(false));
+    api
+      .get('/collections')
+      .then(({ data }) => setCollections(data.collections || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
   useRefreshOnView(load);
 
+  const action = String(copy.action || 'Enter').replace(/\s*→\s*$/, '');
+
   return (
-    <div className="relative">
+    <div className="nx nx-page">
       <SeoHead title={pageTitle(copy.title || 'Collections', brand)} description={copy.body} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
-      <div className="pointer-events-none absolute inset-0 lotus-corner" />
-      <div className="relative shell py-8 sm:py-10 md:py-12">
-        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: copy.title || 'Collections' }]} />
-        <div className="mt-8">
-          <SectionHead eyebrow={copy.eyebrow} title={copy.title} body={copy.body} />
+      <PageHero
+        size="short"
+        image={HOUSE_IMAGES.rudraksha}
+        crumbs={[{ label: 'Home', to: '/' }, { label: copy.title || 'Collections' }]}
+        eyebrow={copy.eyebrow}
+        title={copy.title || 'Collections'}
+        body={copy.body}
+        meta={loading ? [] : [`${collections.length} ${collections.length === 1 ? 'collection' : 'collections'}`]}
+      />
+
+      <section ref={ref} className="nx-sec nx-reveal">
+        <div className="nx-w">
+          {loading ? (
+            <div className="nx-rooms">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="nx-skel nx-room-skel" />
+              ))}
+            </div>
+          ) : collections.length === 0 ? (
+            <CmsEmpty block={copy.empty} />
+          ) : (
+            <ol className="nx-rooms">
+              {collections.map((c, i) => (
+                <li key={c._id}>
+                  <Link to={`/collection/${c.slug}`} className={`nx-room${c.image ? ' has-img' : ''}`}>
+                    <span className="nx-room-n">{String(i + 1).padStart(2, '0')}</span>
+                    {c.image && <img src={mediaUrl(c.image)} alt="" loading="lazy" className="nx-room-img" />}
+                    <span className="nx-room-c">
+                      {!sameAs(c.name, RULE_LABELS[c.ruleType]) && <span className="nx-room-k">{RULE_LABELS[c.ruleType] || 'Collection'}</span>}
+                      <span className="nx-d nx-room-h">{c.name}</span>
+                      {c.description && <span className="nx-room-p">{c.description}</span>}
+                    </span>
+                    <span className="nx-room-go">
+                      <span>{action}</span>
+                      <span className="nx-arrow" aria-hidden>
+                        <ArrowRight size={16} strokeWidth={1.5} />
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          )}
         </div>
-        {loading ? <Spinner /> : collections.length === 0 ? (
-          <CmsFinale block={copy.empty} />
-        ) : (
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {collections.map((c) => (
-              <Link key={c._id} to={`/collection/${c.slug}`} className="overflow-hidden rounded-2xl border border-gold/20 bg-surface transition hover:border-gold/45">
-                {c.image ? (
-                  <img src={mediaUrl(c.image)} alt="" className="h-40 w-full object-cover" />
-                ) : null}
-                <div className="p-5">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-gold">{c.ruleType === 'manual' ? 'Curated' : 'Rule'}</p>
-                  <h2 className="mt-2 font-serif text-xl gold-text">{c.name}</h2>
-                  {c.description && <p className="mt-2 text-sm text-lilac">{c.description}</p>}
-                  <p className="mt-4 text-[11px] uppercase tracking-widest text-gold">{copy.action || 'Enter →'}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
+      </section>
+
+      <StudioBand />
     </div>
   );
 }

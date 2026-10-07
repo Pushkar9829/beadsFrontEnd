@@ -1,15 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import api, { mediaUrl } from '../api/client';
-import ProductCard from '../components/ui/ProductCard';
-import Spinner from '../components/ui/Spinner';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
-import InViewGroup from '../components/ui/InViewGroup';
-import SectionHead from '../components/home/SectionHead';
-import CmsFinale from '../components/ui/CmsFinale';
 import SeoHead from '../components/SeoHead';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
+import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
+import { BannerRow, CmsEmpty, GridSkeleton, PageHero, ProductListing, StudioBand } from '../components/home/nocturne/Listing';
 
 export default function CollectionPage() {
   const site = useSite();
@@ -17,62 +13,102 @@ export default function CollectionPage() {
   const { slug } = useParams();
   const [collection, setCollection] = useState(null);
   const [products, setProducts] = useState([]);
+  const [others, setOthers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [missing, setMissing] = useState(false);
   const [banners, setBanners] = useState([]);
 
   useEffect(() => {
+    let alive = true;
     setLoading(true);
-    api.get(`/collections/${slug}`)
+    setMissing(false);
+    api
+      .get(`/collections/${slug}`)
       .then(({ data }) => {
+        if (!alive) return;
         setCollection(data.collection);
         setProducts(data.products || []);
-        setMissing(false);
       })
-      .catch(() => setMissing(true))
-      .finally(() => setLoading(false));
-    api.get('/banners?placement=collection').then(({ data }) => setBanners(data.banners || [])).catch(() => {});
+      .catch(() => alive && setMissing(true))
+      .finally(() => alive && setLoading(false));
+    api
+      .get('/banners?placement=collection')
+      .then(({ data }) => alive && setBanners(data.banners || []))
+      .catch(() => {});
+    api
+      .get('/collections')
+      .then(({ data }) => alive && setOthers((data.collections || []).filter((c) => c.slug !== slug)))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
   }, [slug]);
 
-  return (
-    <div className="relative">
-      <SeoHead title={pageTitle(collection?.name || 'Collection', brand)} description={collection?.description} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
-      <div className="pointer-events-none absolute inset-0 lotus-corner" />
-      <div className="relative shell py-8 sm:py-10 md:py-12">
-        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Shop All', to: '/shop' }, { label: collection?.name || 'Collection' }]} />
-        {loading ? <Spinner /> : missing ? (
-          <CmsFinale block={site.pages.category.missing} />
-        ) : (
-          <>
-            <div className="mt-8">
-              {collection.image ? (
-                <img src={mediaUrl(collection.image)} alt="" className="mb-8 h-44 w-full rounded-2xl object-cover" />
-              ) : null}
-              <SectionHead eyebrow="Collection" title={collection.name} body={collection.description} to="/collections" action="All collections →" />
-            </div>
-            {banners.filter((b) => !b.link || String(b.link).includes(`/collection/${slug}`)).slice(0, 2).length > 0 && (
-              <div className="mt-6 grid gap-3 md:grid-cols-2">
-                {banners.filter((b) => !b.link || String(b.link).includes(`/collection/${slug}`)).slice(0, 2).map((b) => (
-                  <Link key={b._id} to={b.link || `/collection/${slug}`} className="overflow-hidden rounded-2xl border border-gold/20">
-                    <img src={mediaUrl(b.image)} alt={b.title} className="h-36 w-full object-cover" />
-                  </Link>
-                ))}
-              </div>
-            )}
-            {products.length === 0 ? (
-              <CmsFinale block={site.pages.category.empty} />
-            ) : (
-              <InViewGroup className="feature-grid mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-                {products.map((p, i) => (
-                  <div key={p._id} className="feature-item h-full" style={{ '--i': i }}>
-                    <ProductCard product={p} description={p.shortDescription} />
-                  </div>
-                ))}
-              </InViewGroup>
-            )}
-          </>
-        )}
+  const houses = useMemo(() => site.houses?.items || [], [site.houses]);
+  const chips = useMemo(
+    () =>
+      houses
+        .map((h) => ({ value: h.slug, label: h.name, count: products.filter((p) => p.family === h.slug).length }))
+        .filter((c) => c.count > 0),
+    [houses, products]
+  );
+  const filterBy = useCallback((p, family) => p.family === family, []);
+  const ownBanners = banners.filter((b) => !b.link || String(b.link).includes(`/collection/${slug}`));
+  const heroImage = collection?.image ? mediaUrl(collection.image) : products[0]?.images?.[0] ? mediaUrl(products[0].images[0]) : HOUSE_IMAGES.crystals;
+  const crumbs = [{ label: 'Home', to: '/' }, { label: 'Collections', to: '/collections' }, { label: collection?.name || 'Collection' }];
+
+  if (missing) {
+    const block = site.pages.category.missing;
+    return (
+      <div className="nx nx-page">
+        <PageHero size="short" image={HOUSE_IMAGES.crystals} crumbs={crumbs} eyebrow={block?.kicker} title={block?.title || 'Collection not found.'} body={block?.copy} />
+        <div className="nx-w nx-sec">
+          <CmsEmpty block={{ ...block, title: 'Keep exploring.', copy: '' }} />
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="nx nx-page">
+      <SeoHead title={pageTitle(collection?.name || 'Collection', brand)} description={collection?.description} keywords={brand.seo?.keywords} image={collection?.image || brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
+      <PageHero
+        size="short"
+        image={loading ? null : heroImage}
+        crumbs={crumbs}
+        eyebrow="Collection"
+        title={collection?.name || ' '}
+        body={collection?.description}
+        meta={loading ? [] : [`${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`]}
+        actions={
+          <Link to="/collections" className="nx-lnk">
+            All collections →
+          </Link>
+        }
+      />
+
+      <BannerRow banners={ownBanners} />
+
+      {loading ? (
+        <GridSkeleton />
+      ) : (
+        <ProductListing eyebrow="In this collection" title="The pieces" products={products} chips={chips} filterBy={filterBy} empty={<CmsEmpty block={site.pages.category.empty} />} />
+      )}
+
+      {others.length > 0 && (
+        <div className="nx-w nx-more">
+          <p className="nx-eb">More collections</p>
+          <div className="nx-more-row">
+            {others.map((c) => (
+              <Link key={c._id} to={`/collection/${c.slug}`}>
+                {c.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <StudioBand />
     </div>
   );
 }

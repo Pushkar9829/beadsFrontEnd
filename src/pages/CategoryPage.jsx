@@ -6,8 +6,7 @@ import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import SeoHead from '../components/SeoHead';
 import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
-import { BannerRow, CollectionTiles, PageHero, ProductListing, StudioBand } from '../components/home/nocturne/Listing';
-import { CmsEmpty } from './FamilyPage';
+import { BannerRow, CmsEmpty, CollectionTiles, GridSkeleton, PageHero, ProductListing, StudioBand } from '../components/home/nocturne/Listing';
 
 const clean = (s) => String(s || '').replace(/\s*→\s*$/, '');
 
@@ -120,13 +119,7 @@ export default function CategoryPage() {
       <BannerRow banners={ownBanners} />
 
       {loading ? (
-        <div className="nx-w nx-sec">
-          <div className="nx-grid">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="nx-skel" />
-            ))}
-          </div>
-        </div>
+        <GridSkeleton />
       ) : (
         <ProductListing eyebrow={house?.name ? `${house.name} · collection` : 'Collection'} title="The pieces" products={products} empty={<CmsEmpty block={page.empty} />} />
       )}

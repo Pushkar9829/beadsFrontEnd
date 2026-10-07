@@ -1,7 +1,7 @@
 // Nocturne building blocks for listing pages (house and category pages).
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
 import { mediaUrl } from '../../../api/client';
 import { NCard, useReveal } from './Nocturne';
 
@@ -67,14 +67,18 @@ function sortProducts(list, sort) {
  * Product grid with an optional chip filter (e.g. by sub-collection) and a sort menu.
  * chips: [{ value, label, count }] ; filterBy(product, value) → boolean
  */
-export function ProductListing({ products = [], chips = [], filterBy, empty, title = 'The pieces', eyebrow }) {
+export function ProductListing({ products = [], chips = [], filterBy, empty, title = 'The pieces', eyebrow, activeChip, onChip, extra, total, footer }) {
   const ref = useReveal();
-  const [chip, setChip] = useState('all');
+  const [ownChip, setOwnChip] = useState('all');
+  // Controlled chips (onChip) filter on the server; otherwise filter the list we were given.
+  const chip = onChip ? activeChip || 'all' : ownChip;
+  const setChip = onChip || setOwnChip;
   const [sort, setSort] = useState('featured');
   const shown = useMemo(() => {
-    const filtered = chip === 'all' || !filterBy ? products : products.filter((p) => filterBy(p, chip));
+    const filtered = onChip || chip === 'all' || !filterBy ? products : products.filter((p) => filterBy(p, chip));
     return sortProducts(filtered, sort);
-  }, [products, chip, sort, filterBy]);
+  }, [products, chip, sort, filterBy, onChip]);
+  const count = total ?? shown.length;
 
   return (
     <section ref={ref} className="nx-sec nx-reveal">
@@ -88,7 +92,7 @@ export function ProductListing({ products = [], chips = [], filterBy, empty, tit
         <div className="nx-toolbar">
           <div className="nx-chips-row" role="tablist" aria-label="Filter">
             {chips.length > 1 &&
-              [{ value: 'all', label: 'All', count: products.length }, ...chips].map((c) => (
+              [{ value: 'all', label: 'All', count: onChip ? undefined : products.length }, ...chips].map((c) => (
                 <button key={c.value} type="button" role="tab" aria-selected={chip === c.value} className={chip === c.value ? 'is-on' : ''} onClick={() => setChip(c.value)}>
                   {c.label}
                   {c.count != null && <span>{c.count}</span>}
@@ -96,8 +100,9 @@ export function ProductListing({ products = [], chips = [], filterBy, empty, tit
               ))}
           </div>
           <div className="nx-toolbar-r">
+            {extra}
             <span className="nx-count">
-              {shown.length} {shown.length === 1 ? 'piece' : 'pieces'}
+              {count} {count === 1 ? 'piece' : 'pieces'}
             </span>
             <label className="nx-sort">
               <span className="sr-only">Sort by</span>
@@ -123,8 +128,66 @@ export function ProductListing({ products = [], chips = [], filterBy, empty, tit
             ))}
           </div>
         )}
+        {footer}
       </div>
     </section>
+  );
+}
+
+/** Prev / next pager for server-paginated lists. */
+export function NPager({ page = 1, pages = 1, onPage }) {
+  if (pages <= 1) return null;
+  return (
+    <nav className="nx-pager" aria-label="Pages">
+      <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)}>
+        <ArrowLeft size={14} strokeWidth={1.6} /> Previous
+      </button>
+      <span>
+        Page {page} of {pages}
+      </span>
+      <button type="button" disabled={page >= pages} onClick={() => onPage(page + 1)}>
+        Next <ArrowRight size={14} strokeWidth={1.6} />
+      </button>
+    </nav>
+  );
+}
+
+/** Skeleton grid while a listing loads. */
+export function GridSkeleton({ n = 4, bare = false }) {
+  const grid = (
+    <div className="nx-grid">
+      {Array.from({ length: n }).map((_, i) => (
+        <div key={i} className="nx-skel" />
+      ))}
+    </div>
+  );
+  return bare ? grid : <div className="nx-w nx-sec">{grid}</div>;
+}
+
+const cleanLabel = (s) => String(s || '').replace(/\s*→\s*$/, '');
+
+/** CMS empty / missing block ({ title, copy, primaryCta, secondaryCta }) as a Nocturne empty state. */
+export function CmsEmpty({ block }) {
+  if (!block?.title) return null;
+  return (
+    <EmptyBlock
+      title={block.title}
+      body={block.copy}
+      actions={
+        <>
+          {block.primaryCta?.label && (
+            <Link to={block.primaryCta.to || '/'} className="nx-btn">
+              {cleanLabel(block.primaryCta.label)}
+            </Link>
+          )}
+          {block.secondaryCta?.label && (
+            <Link to={block.secondaryCta.to || '/'} className="nx-btn nx-btn-o">
+              {cleanLabel(block.secondaryCta.label)}
+            </Link>
+          )}
+        </>
+      }
+    />
   );
 }
 

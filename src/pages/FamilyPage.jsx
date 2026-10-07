@@ -7,34 +7,9 @@ import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import SeoHead from '../components/SeoHead';
 import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
-import { CollectionTiles, EmptyBlock, PageHero, ProductListing, StudioBand } from '../components/home/nocturne/Listing';
+import { CmsEmpty, CollectionTiles, GridSkeleton, PageHero, ProductListing, StudioBand } from '../components/home/nocturne/Listing';
 
 const clean = (s) => String(s || '').replace(/\s*→\s*$/, '');
-
-/** CMS empty block → Nocturne empty state. */
-export function CmsEmpty({ block }) {
-  if (!block?.title) return null;
-  return (
-    <EmptyBlock
-      title={block.title}
-      body={block.copy}
-      actions={
-        <>
-          {block.primaryCta?.label && (
-            <Link to={block.primaryCta.to || '/'} className="nx-btn">
-              {clean(block.primaryCta.label)}
-            </Link>
-          )}
-          {block.secondaryCta?.label && (
-            <Link to={block.secondaryCta.to || '/'} className="nx-btn nx-btn-o">
-              {clean(block.secondaryCta.label)}
-            </Link>
-          )}
-        </>
-      }
-    />
-  );
-}
 
 export default function FamilyPage() {
   const site = useSite();
@@ -117,13 +92,7 @@ export default function FamilyPage() {
       <CollectionTiles eyebrow={`Inside the house`} title={`${title} collections`} items={subs} />
 
       {loading ? (
-        <div className="nx-w nx-sec">
-          <div className="nx-grid">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="nx-skel" />
-            ))}
-          </div>
-        </div>
+        <GridSkeleton />
       ) : (
         <ProductListing
           eyebrow={page.piecesEyebrow}

@@ -46,7 +46,7 @@ export function useReveal() {
   }, []);
 }
 
-function useCountdown(endsAt) {
+export function useCountdown(endsAt) {
   const calc = useCallback(() => {
     const ms = Math.max(0, new Date(endsAt).getTime() - Date.now());
     const s = Math.floor(ms / 1000);
