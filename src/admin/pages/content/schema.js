@@ -9,7 +9,10 @@
 //   links('shopLinks', 'Shop links')        [{ label, to }]
 //   group('Title', fields, key?)            visual group (nested under key when given)
 //   row(fields)                             fields side by side on wide screens
-//   note('text')                            help text
+//   note('text', { to, linkLabel })         help text, optionally with an admin link
+//   toggle('showSummary', 'Label')          on/off switch (boolean)
+//   number('limit', 'Label', { min, max })  number input
+//   custom('hotspot', 'Label', Component)   custom control: <Component value onChange parent field />
 
 export const text = (k, label, opts = {}) => ({ type: 'text', k, label, ...opts });
 export const area = (k, label, opts = {}) => ({ type: 'textarea', k, label, rows: 3, ...opts });
@@ -29,7 +32,10 @@ export const links = (k, label) =>
   });
 export const group = (title, fields, k = '') => ({ type: 'group', title, fields, k });
 export const row = (fields) => ({ type: 'row', fields });
-export const note = (textValue) => ({ type: 'note', text: textValue });
+export const note = (textValue, opts = {}) => ({ type: 'note', text: textValue, ...opts });
+export const toggle = (k, label, opts = {}) => ({ type: 'switch', k, label, ...opts });
+export const number = (k, label, opts = {}) => ({ type: 'number', k, label, ...opts });
+export const custom = (k, label, component, opts = {}) => ({ type: 'custom', k, label, component, ...opts });
 
 /** Home / link pair used by most copy blocks. */
 export const linkPair = (labelKey = 'action', toKey = 'to', prefix = '') =>

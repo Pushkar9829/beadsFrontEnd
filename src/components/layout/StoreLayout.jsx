@@ -59,7 +59,8 @@ export default function StoreLayout() {
         >
           <Outlet />
         </main>
-        <Footer />
+        {/* The home page renders its own Nocturne footer from the same CMS footer content. */}
+        {pathname !== '/' && <Footer />}
       </div>
     </div>
   );

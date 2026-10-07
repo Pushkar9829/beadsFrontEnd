@@ -8,32 +8,30 @@ import { Badge, Button, Card, ErrorState, IconButton, Input, PageHeader, Skeleto
 
 const CONTENT_INVALIDATE = ['/admin/content', '/content'];
 
-// Where the copy for each homepage block is edited on the Site pages screen.
-const COPY_SECTION = {
-  hero: 'hero',
-  flash_sale: 'flash',
-  marquee: 'marquee',
-  houses: 'houses',
-  studio: 'studio',
-  shop_by_purpose: 'purpose',
-  ritual: 'ritual',
-  featured: 'featured',
-  bestsellers: 'rails',
-  new_arrivals: 'rails',
-  trending: 'rails',
-  testimonials: 'testimonials',
-  trust: 'trust',
-  faq: 'faq',
-  journal: 'journal',
-  newsletter: 'newsletter',
-  finale: 'finale',
+// v2 home layout (docs/home-nocturne-spec.md §1): friendly label, what the block shows, and the
+// Site pages section where its copy is edited.
+const SECTION_META = {
+  hero: { label: 'Hero', description: 'Headline, buttons, hero image with a product hotspot, optional extra slides.', copy: 'hero' },
+  facts: { label: 'Facts strip', description: 'Short live numbers — stones, purposes, rating — under the hero.', copy: 'facts' },
+  houses: { label: 'Houses & studio', description: 'The three house tiles plus the customization tile with ritual steps as chips.', copy: ['houses', 'studio'] },
+  collection: { label: 'Collection carousel', description: 'Featured products with best seller, new arrival and trending tabs.', copy: 'collection' },
+  flash_sale: { label: 'Flash sale', description: 'Countdown and products of the running flash sale. Hidden when none is active.', copy: 'flash' },
+  look: { label: 'Shop the look', description: 'Styled photos with numbered product tags. Hidden until a look has a product.', copy: 'look' },
+  finder: { label: 'Stone finder', description: 'Suggests stones from a purpose or a birth date, then links to compose them.', copy: 'finder' },
+  purposes: { label: 'Shop by purpose', description: 'Purpose cards that open the customizer on that purpose.', copy: 'purpose' },
+  craft: { label: 'The craft', description: 'How each piece is made, with the first four trust claims as tiles.', copy: 'craft' },
+  reviews: { label: 'Reviews', description: 'Average rating, customer notes and a short FAQ.', copy: 'reviews' },
+  journal: { label: 'Journal', description: 'Latest journal posts.', copy: 'journal' },
+  newsletter: { label: 'Newsletter', description: 'Email sign-up block.', copy: 'newsletter' },
+  finale: { label: 'Closing banner', description: 'Last image banner with two buttons.', copy: 'finale' },
 };
 
 /** Form rows keep schedule times as local datetime-local strings; converted to ISO only on save. */
 function toRows(layout) {
   return mergeHomeLayout(layout).map((s) => ({
     key: s.key,
-    label: s.label,
+    label: SECTION_META[s.key]?.label || s.label || s.key,
+    description: SECTION_META[s.key]?.description || '',
     enabled: s.enabled !== false,
     startsAt: toLocalInput(s.startsAt),
     endsAt: toLocalInput(s.endsAt),
@@ -175,12 +173,15 @@ function LayoutEditor({ serverLayout }) {
                   <IconButton icon={ArrowDown} size="sm" label={`Move ${r.label} down`} disabled={i === rows.length - 1} onClick={() => move(i, i + 1)} />
                 </div>
                 <div className="min-w-0">
-                  <p className={cx('truncate text-sm font-medium', r.enabled ? 'text-ivory' : 'text-lilac line-through decoration-lilac/40')}>{r.label}</p>
-                  {COPY_SECTION[r.key] && (
-                    <Link to={`/admin/content?section=${COPY_SECTION[r.key]}`} className="inline-flex items-center gap-1 text-[11px] text-lilac hover:text-gold">
-                      <PencilLine size={11} /> Edit copy
-                    </Link>
-                  )}
+                  <p className={cx('text-sm font-medium', r.enabled ? 'text-ivory' : 'text-lilac line-through decoration-lilac/40')}>{r.label}</p>
+                  {r.description && <p className="text-xs text-lilac">{r.description}</p>}
+                  <div className="flex flex-wrap gap-x-3">
+                    {[].concat(SECTION_META[r.key]?.copy || []).map((section, _i, all) => (
+                      <Link key={section} to={`/admin/content?section=${section}`} className="inline-flex items-center gap-1 text-[11px] text-lilac hover:text-gold">
+                        <PencilLine size={11} /> {all.length > 1 ? `Edit ${section} copy` : 'Edit copy'}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
                 <Badge tone={status.tone} dot className="ml-auto lg:ml-2">
                   {status.label}

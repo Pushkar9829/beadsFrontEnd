@@ -5,12 +5,47 @@ export const HOME_DEFAULTS = {
   hero: {
     eyebrow: 'Energy · Abundance · Wellness',
     brandName: 'Kuberstones',
-    title: 'Heal. Align. Attract abundance.',
-    subtitle: 'Build a personal bracelet from purpose and intention — every crystal chosen with a reason.',
+    title: 'Wear your intention.',
+    subtitle: 'Crystal, rudraksha and gemstone bracelets composed for a reason — strung to your wrist and finished by hand in India.',
     image: '',
     imageAlt: 'Handmade crystal bracelet on the wrist',
-    primaryCta: { label: 'Customization', to: '/customize' },
-    secondaryCta: { label: 'Shop All', to: '/shop' },
+    primaryCta: { label: 'Compose yours', to: '/customize' },
+    secondaryCta: { label: 'Shop the collection', to: '/shop' },
+    hotspot: { productSlug: '', x: 31, y: 45 },
+    slides: [],
+  },
+  facts: {
+    items: [
+      { value: '{stones}', label: 'Natural stones in our library' },
+      { value: '{purposes}', label: 'Purposes to compose for' },
+      { value: '{rating} ★', label: 'Average from {reviews} reviews' },
+      { value: '5–8 days', label: 'From composition to your door' },
+    ],
+  },
+  look: {
+    eyebrow: 'Shop the look',
+    title: 'The calm stack.',
+    body: 'Amethyst for stillness, rose quartz for tenderness — layered on one wrist, worn every day.',
+    looks: [],
+  },
+  finder: {
+    eyebrow: 'Stone finder',
+    title: 'Find your stone.',
+    body: 'Tell us what you are asking for, or your birth date. We suggest the stones traditionally linked to it — then compose them for your wrist.',
+    purposeLimit: 6,
+    cta: 'Compose with these',
+  },
+  craft: {
+    eyebrow: 'The craft',
+    title: 'Made slowly, by hand.',
+    body: 'Crystal associations are traditional and spiritual — not medical claims. The making, however, is exact.',
+    image: '',
+  },
+  reviews: {
+    eyebrow: 'Reviews',
+    title: 'Worn every day.',
+    showSummary: true,
+    faqTitle: 'Before you buy',
   },
   marquee: [
     'Energy',
@@ -211,24 +246,21 @@ function mergeDeep(fallback, stored) {
   return stored;
 }
 
+// Nocturne home (layout v2). Keep in sync with backend/src/data/homeLayout.js.
 export const HOME_LAYOUT_DEFAULTS = [
-  { key: 'hero', label: 'Hero banner', enabled: true, sortOrder: 0 },
-  { key: 'flash_sale', label: 'Flash sale', enabled: true, sortOrder: 1 },
-  { key: 'marquee', label: 'Marquee', enabled: true, sortOrder: 2 },
-  { key: 'houses', label: 'Featured categories', enabled: true, sortOrder: 3 },
-  { key: 'studio', label: 'Studio invite', enabled: true, sortOrder: 4 },
-  { key: 'shop_by_purpose', label: 'Shop by purpose', enabled: true, sortOrder: 5 },
-  { key: 'ritual', label: 'Ritual steps', enabled: true, sortOrder: 6 },
-  { key: 'featured', label: 'Featured products', enabled: true, sortOrder: 7 },
-  { key: 'bestsellers', label: 'Best sellers', enabled: true, sortOrder: 8 },
-  { key: 'new_arrivals', label: 'New arrivals', enabled: true, sortOrder: 9 },
-  { key: 'trending', label: 'Trending bracelets', enabled: true, sortOrder: 10 },
-  { key: 'testimonials', label: 'Testimonials', enabled: true, sortOrder: 11 },
-  { key: 'trust', label: 'Trust claims', enabled: true, sortOrder: 12 },
-  { key: 'faq', label: 'FAQ', enabled: true, sortOrder: 13 },
-  { key: 'journal', label: 'Journal', enabled: true, sortOrder: 14 },
-  { key: 'newsletter', label: 'Newsletter', enabled: true, sortOrder: 15 },
-  { key: 'finale', label: 'Finale', enabled: true, sortOrder: 16 },
+  { key: 'hero', label: 'Hero', enabled: true, sortOrder: 0 },
+  { key: 'facts', label: 'Facts strip', enabled: true, sortOrder: 1 },
+  { key: 'houses', label: 'Houses & studio', enabled: true, sortOrder: 2 },
+  { key: 'collection', label: 'Collection carousel', enabled: true, sortOrder: 3 },
+  { key: 'flash_sale', label: 'Flash sale', enabled: true, sortOrder: 4 },
+  { key: 'look', label: 'Shop the look', enabled: true, sortOrder: 5 },
+  { key: 'finder', label: 'Stone finder', enabled: true, sortOrder: 6 },
+  { key: 'purposes', label: 'Shop by purpose', enabled: true, sortOrder: 7 },
+  { key: 'craft', label: 'The craft', enabled: true, sortOrder: 8 },
+  { key: 'reviews', label: 'Reviews', enabled: true, sortOrder: 9 },
+  { key: 'journal', label: 'Journal', enabled: true, sortOrder: 10 },
+  { key: 'newsletter', label: 'Newsletter', enabled: true, sortOrder: 11 },
+  { key: 'finale', label: 'Closing banner', enabled: true, sortOrder: 12 },
 ];
 
 export function mergeHomeLayout(stored) {

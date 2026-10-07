@@ -1,7 +1,8 @@
 import { useRef } from 'react';
-import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowRight, Plus, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { CLAIM_ICON_OPTIONS } from '../../../lib/claimIcons';
-import { Button, Field, FormGrid, IconButton, Input, MediaInput, Select, Textarea, cx, getPath, setPath } from '../../ui';
+import { Button, Field, FormGrid, IconButton, Input, MediaInput, NumberInput, Select, Switch, Textarea, cx, getPath, setPath } from '../../ui';
 import { joinPath } from './schema';
 
 export function readPath(obj, path) {
@@ -87,7 +88,28 @@ function SchemaField({ field: f, values, onChange, base }) {
         </section>
       );
     case 'note':
-      return <p className="text-xs text-lilac">{f.text}</p>;
+      return (
+        <p className="text-xs text-lilac">
+          {f.text}
+          {f.to && (
+            <Link to={f.to} className="ml-1.5 inline-flex items-center gap-1 text-gold hover:text-gold-light">
+              {f.linkLabel || 'Open'} <ArrowRight size={12} />
+            </Link>
+          )}
+        </p>
+      );
+    case 'switch':
+      return <Switch checked={Boolean(value)} onChange={set} label={f.label} description={f.hint} />;
+    case 'number':
+      return (
+        <Field label={f.label} hint={f.hint}>
+          {({ id }) => <NumberInput id={id} value={value ?? ''} min={f.min} max={f.max} step={f.step} onChange={set} />}
+        </Field>
+      );
+    case 'custom': {
+      const Control = f.component;
+      return <Control field={f} value={value} onChange={set} parent={readPath(values, base)} />;
+    }
     case 'strings':
       return <StringList label={f.label} hint={f.hint} items={Array.isArray(value) ? value : []} onChange={set} multiline={f.multiline} itemLabel={f.itemLabel} />;
     case 'list':
@@ -98,7 +120,7 @@ function SchemaField({ field: f, values, onChange, base }) {
 }
 
 /** Stable React keys for a list that can be reordered, without storing ids in the data. */
-function useRowKeys(length) {
+export function useRowKeys(length) {
   const seq = useRef(0);
   const keys = useRef([]);
   if (keys.current.length !== length) {
@@ -122,7 +144,7 @@ function useRowKeys(length) {
   };
 }
 
-function moveItem(arr, from, to) {
+export function moveItem(arr, from, to) {
   const next = [...arr];
   const [item] = next.splice(from, 1);
   next.splice(to, 0, item);

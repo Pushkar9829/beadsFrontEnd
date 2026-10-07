@@ -1,43 +1,109 @@
 // Homepage and site-wide copy blocks of the SiteContent document.
-import { area, cta, group, icon, linkPair, links, list, media, note, row, select, strings, text } from './schema';
+// Homepage sections follow the v2 home layout order (see docs/home-nocturne-spec.md §1, §4).
+import { cleanPoint, HeroHotspotField, LookPointsField } from './HotspotEditor';
+import { area, cta, custom, group, icon, linkPair, links, list, media, note, number, row, select, text, toggle } from './schema';
 
 const HOUSE_SLUGS = ['crystals', 'rudraksha', 'gemstones'].map((s) => ({ value: s, label: s[0].toUpperCase() + s.slice(1) }));
 
 const eyebrowTitle = () => row([text('eyebrow', 'Eyebrow'), text('title', 'Title')]);
 
+const heroHotspot = () =>
+  custom('hotspot', 'Product hotspot', HeroHotspotField, { hint: 'Places a product tag on the image. Without a product the tag is not shown.' });
+
+const cleanHotspot = (h) => cleanPoint(h, { x: 31, y: 45 });
+
+const FACT_TOKENS =
+  'Tokens filled in live: {stones} natural stones, {purposes} purposes, {rating} average rating, {reviews} review count, {products} products, {minPrice} lowest price. ' +
+  'An item whose token has no data yet (for example no reviews) is hidden automatically.';
+
 export const HOME_SECTIONS = [
   {
     key: 'hero',
-    label: 'Hero banner',
+    label: 'Hero',
     group: 'Homepage',
-    hint: 'Top of the home page',
+    hint: 'Top of the home page + product hotspot',
     preview: '/',
     base: 'hero',
     fields: [
       row([text('eyebrow', 'Eyebrow'), text('brandName', 'Brand name')]),
-      text('title', 'Headline'),
+      text('title', 'Headline', { hint: 'The last word is shown in gold italics.' }),
       area('subtitle', 'Subtitle'),
       media('image', 'Hero image', { folder: 'banner' }),
       text('imageAlt', 'Image alt text', { hint: 'Describe the image for screen readers and search engines.' }),
       cta('primaryCta', 'Primary button'),
       cta('secondaryCta', 'Secondary button'),
+      heroHotspot(),
+      list(
+        'slides',
+        'Extra slides',
+        [
+          media('image', 'Image', { folder: 'banner' }),
+          text('imageAlt', 'Image alt text'),
+          row([text('eyebrow', 'Eyebrow'), text('title', 'Headline')]),
+          area('subtitle', 'Subtitle', { rows: 2 }),
+          cta('primaryCta', 'Primary button'),
+          cta('secondaryCta', 'Secondary button'),
+          heroHotspot(),
+        ],
+        {
+          itemLabel: 'Slide',
+          max: 6,
+          hint: 'Optional. With extra slides the hero rotates; the first slide is the one above.',
+          summary: (s) => s.title,
+          newItem: {
+            image: '',
+            imageAlt: '',
+            eyebrow: '',
+            title: '',
+            subtitle: '',
+            primaryCta: { label: '', to: '' },
+            secondaryCta: { label: '', to: '' },
+            hotspot: { productSlug: '', x: 31, y: 45 },
+          },
+        }
+      ),
     ],
+    clean: (values) => {
+      const hero = values.hero || {};
+      return {
+        ...values,
+        hero: {
+          ...hero,
+          hotspot: cleanHotspot(hero.hotspot),
+          slides: (hero.slides || []).map((s) => ({ ...s, hotspot: cleanHotspot(s.hotspot) })),
+        },
+      };
+    },
   },
   {
-    key: 'marquee',
-    label: 'Marquee strip',
+    key: 'facts',
+    label: 'Facts strip',
     group: 'Homepage',
-    hint: 'Scrolling words under the hero',
+    hint: 'Live numbers under the hero',
     preview: '/',
-    base: 'marquee',
-    fields: [strings('', 'Words', { itemLabel: 'Word', hint: 'Empty lines are dropped when you save.' })],
-    clean: (values) => ({ ...values, marquee: (values.marquee || []).map((w) => String(w).trim()).filter(Boolean) }),
+    base: 'facts',
+    fields: [
+      note(FACT_TOKENS),
+      list('items', 'Facts', [row([text('value', 'Value', { placeholder: '{stones}' }), text('label', 'Label', { placeholder: 'Natural stones in our library' })])], {
+        itemLabel: 'Fact',
+        compact: true,
+        max: 6,
+        newItem: { value: '', label: '' },
+      }),
+    ],
+    clean: (values) => ({
+      ...values,
+      facts: {
+        ...(values.facts || {}),
+        items: (values.facts?.items || []).filter((f) => String(f.value || '').trim() || String(f.label || '').trim()),
+      },
+    }),
   },
   {
     key: 'houses',
-    label: 'Three houses',
+    label: 'Houses',
     group: 'Homepage',
-    hint: 'Home cards + header/footer house names',
+    hint: 'House tiles + header/footer house names',
     preview: '/',
     base: 'houses',
     fields: [
@@ -59,135 +125,53 @@ export const HOME_SECTIONS = [
   },
   {
     key: 'studio',
-    label: 'Studio banner',
+    label: 'Studio tile',
     group: 'Homepage',
-    hint: 'Customization invite',
-    preview: '/',
-    base: 'studio',
-    fields: [
-      eyebrowTitle(),
-      area('body', 'Body'),
-      linkPair('action', 'to', 'Section '),
-      group('Banner', [
-        media('bannerImage', 'Banner image', { folder: 'studio' }),
-        row([text('kicker', 'Kicker'), text('heading', 'Heading')]),
-        area('copy', 'Copy'),
-        text('cta', 'Button label'),
-      ]),
-    ],
-  },
-  {
-    key: 'ritual',
-    label: 'Ritual steps',
-    group: 'Homepage',
-    hint: 'How a strand is made',
-    preview: '/',
-    base: 'ritual',
-    fields: [
-      eyebrowTitle(),
-      area('body', 'Body'),
-      list('steps', 'Steps', [row([text('n', 'Number'), text('title', 'Title')]), area('body', 'Body', { rows: 2 })], {
-        itemLabel: 'Step',
-        summary: (s) => s.title,
-        newItem: (items) => ({ n: String(items.length + 1).padStart(2, '0'), title: '', body: '' }),
-      }),
-    ],
-  },
-  {
-    key: 'featured',
-    label: 'Featured section',
-    group: 'Homepage',
-    hint: 'Heading above featured products',
-    preview: '/',
-    base: 'featured',
-    fields: [eyebrowTitle(), area('body', 'Body'), linkPair(), note('The featured products themselves are chosen on the Featured page.')],
-  },
-  {
-    key: 'purpose',
-    label: 'Shop by purpose',
-    group: 'Homepage',
-    hint: 'Home block + purpose page',
-    preview: '/customize/purpose',
-    base: 'purpose',
-    fields: [
-      group('On the home page', [eyebrowTitle(), area('body', 'Body'), linkPair()]),
-      group('On the purpose page', [row([text('pageEyebrow', 'Eyebrow'), text('pageTitle', 'Title')]), area('pageBody', 'Body')]),
-    ],
-  },
-  {
-    key: 'rails',
-    label: 'Product rails',
-    group: 'Homepage',
-    hint: 'Best sellers, new arrivals, trending',
-    preview: '/',
-    base: 'rails',
-    fields: ['bestsellers:Best sellers', 'newArrivals:New arrivals', 'trending:Trending'].map((s) => {
-      const [k, title] = s.split(':');
-      return group(title, [eyebrowTitle(), linkPair()], k);
-    }),
-  },
-  {
-    key: 'testimonials',
-    label: 'Testimonials',
-    group: 'Homepage',
-    hint: 'Voices from customers',
+    hint: 'Customization tile next to the houses',
     preview: '/',
     base: '',
-    paths: ['voices', 'testimonials'],
+    paths: ['studio', 'ritual'],
     fields: [
-      group('Heading', [eyebrowTitle(), area('body', 'Body')], 'voices'),
-      list(
-        'testimonials',
-        'Notes',
+      group(
+        'Tile',
         [
-          area('quote', 'Quote'),
-          row([text('name', 'Name'), text('place', 'City'), text('piece', 'Piece')]),
-          media('media', 'Photo or video', { allowVideo: true, aspect: 'aspect-square' }),
+          media('bannerImage', 'Image', { folder: 'studio' }),
+          row([text('eyebrow', 'Eyebrow'), text('heading', 'Heading')]),
+          area('copy', 'Copy'),
+          row([text('cta', 'Button label'), text('to', 'Button link', { placeholder: '/customize' })]),
         ],
-        { itemLabel: 'Note', summary: (t) => t.name, newItem: { quote: '', name: '', place: '', piece: '', media: '' } }
+        'studio'
+      ),
+      group(
+        'Ritual steps',
+        [
+          list('steps', 'Steps', [row([text('n', 'Number'), text('title', 'Title')]), area('body', 'Body', { rows: 2 })], {
+            itemLabel: 'Step',
+            hint: 'Step titles are shown as chips on the tile.',
+            summary: (s) => s.title,
+            newItem: (items) => ({ n: String(items.length + 1).padStart(2, '0'), title: '', body: '' }),
+          }),
+        ],
+        'ritual'
       ),
     ],
   },
   {
-    key: 'trust',
-    label: 'Trust claims',
+    key: 'collection',
+    label: 'Collection',
     group: 'Homepage',
-    hint: 'Why Kuberstones (home + about)',
+    hint: 'Carousel heading + tab titles',
     preview: '/',
     base: '',
-    paths: ['trust', 'trustClaims'],
+    paths: ['featured', 'rails'],
     fields: [
-      group('Heading', [eyebrowTitle(), area('body', 'Body')], 'trust'),
-      list('trustClaims', 'Claims', [icon('icon'), text('title', 'Title'), area('body', 'Body', { rows: 2 })], {
-        itemLabel: 'Claim',
-        summary: (c) => c.title,
-        newItem: { icon: 'sparkles', title: '', body: '' },
-      }),
-    ],
-  },
-  {
-    key: 'faq',
-    label: 'FAQ copy',
-    group: 'Homepage',
-    hint: 'Home block + FAQ page',
-    preview: '/faq',
-    base: 'faq',
-    fields: [
-      group('On the home page', [eyebrowTitle(), linkPair()]),
-      group('On the FAQ page', [row([text('pageEyebrow', 'Eyebrow'), text('pageTitle', 'Title')]), area('pageBody', 'Body'), area('emptyBody', 'When there are no questions', { rows: 2 })]),
-      note('The questions themselves are managed on the FAQs page.'),
-    ],
-  },
-  {
-    key: 'journal',
-    label: 'Journal copy',
-    group: 'Homepage',
-    hint: 'Home block + journal page',
-    preview: '/journal',
-    base: 'journal',
-    fields: [
-      group('On the home page', [eyebrowTitle(), linkPair()]),
-      group('On the journal page', [row([text('pageEyebrow', 'Eyebrow'), text('pageTitle', 'Title')]), area('pageBody', 'Body'), area('emptyBody', 'When there are no posts', { rows: 2 })]),
+      group('Heading', [eyebrowTitle(), area('body', 'Body'), linkPair()], 'featured'),
+      note('The first tab shows the featured products. The other tabs fill themselves from sales, new arrivals and trends.'),
+      ...[
+        ['bestsellers', 'Best sellers tab'],
+        ['newArrivals', 'New arrivals tab'],
+        ['trending', 'Trending tab'],
+      ].map(([k, title]) => group(title, [eyebrowTitle(), linkPair()], `rails.${k}`)),
     ],
   },
   {
@@ -205,6 +189,151 @@ export const HOME_SECTIONS = [
         area('emptyBody', 'No sale running — body', { rows: 2 }),
         text('emptyProducts', 'Sale without products — line'),
       ]),
+      note('The home block only shows while a flash sale is running.'),
+    ],
+  },
+  {
+    key: 'look',
+    label: 'Shop the look',
+    group: 'Homepage',
+    hint: 'Styled photos with numbered product tags',
+    preview: '/',
+    base: 'look',
+    fields: [
+      eyebrowTitle(),
+      area('body', 'Body'),
+      list(
+        'looks',
+        'Looks',
+        [
+          media('image', 'Look image', { folder: 'banner', aspect: 'aspect-[4/5]' }),
+          text('title', 'Title'),
+          area('body', 'Body', { rows: 2 }),
+          custom('items', 'Products on this look', LookPointsField, { max: 8 }),
+        ],
+        {
+          itemLabel: 'Look',
+          max: 6,
+          hint: 'The block stays hidden until a look has at least one active product.',
+          summary: (l) => l.title,
+          newItem: { image: '', title: '', body: '', items: [] },
+        }
+      ),
+    ],
+    clean: (values) => ({
+      ...values,
+      look: {
+        ...(values.look || {}),
+        looks: (values.look?.looks || []).map((l) => ({ ...l, items: (l.items || []).map((p) => cleanPoint(p)) })),
+      },
+    }),
+  },
+  {
+    key: 'finder',
+    label: 'Stone finder',
+    group: 'Homepage',
+    hint: 'Find your stone by purpose or birth date',
+    preview: '/',
+    base: 'finder',
+    fields: [
+      eyebrowTitle(),
+      area('body', 'Body'),
+      row([number('purposeLimit', 'Purposes shown', { min: 1, max: 12, hint: 'How many purpose chips to offer.' }), text('cta', 'Button label')]),
+      note('Suggested stones come from the customizer mappings (purpose → intention → beads, and Mulank → crystals).'),
+    ],
+    clean: (values) => {
+      const limit = Number(values.finder?.purposeLimit);
+      return { ...values, finder: { ...(values.finder || {}), purposeLimit: Number.isFinite(limit) && limit > 0 ? Math.min(12, Math.round(limit)) : 6 } };
+    },
+  },
+  {
+    key: 'purpose',
+    label: 'Shop by purpose',
+    group: 'Homepage',
+    hint: 'Home block + purpose page',
+    preview: '/customize/purpose',
+    base: 'purpose',
+    fields: [
+      group('On the home page', [eyebrowTitle(), area('body', 'Body'), linkPair()]),
+      group('On the purpose page', [row([text('pageEyebrow', 'Eyebrow'), text('pageTitle', 'Title')]), area('pageBody', 'Body')]),
+    ],
+  },
+  {
+    key: 'craft',
+    label: 'The craft',
+    group: 'Homepage',
+    hint: 'How it is made + four trust tiles',
+    preview: '/',
+    base: 'craft',
+    fields: [
+      eyebrowTitle(),
+      area('body', 'Body'),
+      media('image', 'Image', { folder: 'banner' }),
+      note('Optional image. Without one, the Rudraksha house image is used.'),
+      note('The four tiles are the first four Trust claims.', { to: '/admin/content?section=trust', linkLabel: 'Edit trust claims' }),
+    ],
+  },
+  {
+    key: 'trust',
+    label: 'Trust claims',
+    group: 'Homepage',
+    hint: 'Craft tiles (first four) + about page',
+    preview: '/',
+    base: '',
+    paths: ['trust', 'trustClaims'],
+    fields: [
+      group('Heading (about page)', [eyebrowTitle(), area('body', 'Body')], 'trust'),
+      list('trustClaims', 'Claims', [icon('icon'), text('title', 'Title'), area('body', 'Body', { rows: 2 })], {
+        itemLabel: 'Claim',
+        hint: 'The first four appear as tiles in “The craft” on the home page.',
+        summary: (c) => c.title,
+        newItem: { icon: 'sparkles', title: '', body: '' },
+      }),
+    ],
+  },
+  {
+    key: 'reviews',
+    label: 'Reviews',
+    group: 'Homepage',
+    hint: 'Rating, customer notes and FAQ',
+    preview: '/',
+    base: '',
+    paths: ['reviews', 'voices', 'testimonials', 'faq'],
+    fields: [
+      group('Heading', [eyebrowTitle(), toggle('showSummary', 'Show the average rating', { hint: 'Hidden automatically while there are no reviews.' })], 'reviews'),
+      group('Customer notes', [eyebrowTitle(), area('body', 'Body')], 'voices'),
+      list(
+        'testimonials',
+        'Notes',
+        [
+          area('quote', 'Quote'),
+          row([text('name', 'Name'), text('place', 'City'), text('piece', 'Piece')]),
+          media('media', 'Photo or video', { allowVideo: true, aspect: 'aspect-square' }),
+        ],
+        { itemLabel: 'Note', summary: (t) => t.name, newItem: { quote: '', name: '', place: '', piece: '', media: '' } }
+      ),
+      group('FAQ on the home page', [
+        text('reviews.faqTitle', 'FAQ title'),
+        row([text('faq.action', 'Link label'), text('faq.to', 'Link', { placeholder: '/faq' })]),
+        note('The questions themselves are managed on the FAQs page.'),
+      ]),
+      group(
+        'On the FAQ page',
+        [row([text('pageEyebrow', 'Eyebrow'), text('pageTitle', 'Title')]), area('pageBody', 'Body'), area('emptyBody', 'When there are no questions', { rows: 2 })],
+        'faq'
+      ),
+    ],
+  },
+  {
+    key: 'journal',
+    label: 'Journal',
+    group: 'Homepage',
+    hint: 'Home block + journal page',
+    preview: '/journal',
+    base: 'journal',
+    fields: [
+      group('On the home page', [eyebrowTitle(), linkPair()]),
+      group('On the journal page', [row([text('pageEyebrow', 'Eyebrow'), text('pageTitle', 'Title')]), area('pageBody', 'Body'), area('emptyBody', 'When there are no posts', { rows: 2 })]),
     ],
   },
   {
@@ -218,9 +347,9 @@ export const HOME_SECTIONS = [
   },
   {
     key: 'finale',
-    label: 'Finale banner',
+    label: 'Closing banner',
     group: 'Homepage',
-    hint: 'Closing banner (home, about, legal)',
+    hint: 'Last block (home, about, legal)',
     preview: '/',
     base: 'finale',
     fields: [

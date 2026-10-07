@@ -111,14 +111,19 @@ export default function Header() {
     navigate('/cart');
   };
 
+  // On the home page the header floats over the full-bleed hero until the visitor scrolls.
+  const overHero = location.pathname === '/' && !scrolled && !mega;
+
   return (
     <>
       <header
         ref={headerRef}
         className={`fixed inset-x-0 top-0 z-40 border-b transition-[background,box-shadow,border-color] duration-300 ${
-          scrolled
-            ? 'border-[rgba(198,167,94,0.32)] bg-black/92 shadow-[0_12px_40px_rgba(0,0,0,0.45)]'
-            : 'border-[rgba(198,167,94,0.18)] bg-black/90'
+          overHero
+            ? 'border-transparent bg-linear-to-b from-black/60 to-transparent'
+            : scrolled
+              ? 'border-[rgba(198,167,94,0.32)] bg-black/92 shadow-[0_12px_40px_rgba(0,0,0,0.45)]'
+              : 'border-[rgba(198,167,94,0.18)] bg-black/90'
         }`}
       >
         <div className="shell flex items-center justify-between gap-2 py-2 sm:gap-3 sm:py-2.5">
@@ -377,7 +382,7 @@ export default function Header() {
           )}
         </nav>
       </header>
-      <div className="shrink-0" style={{ height: headerH }} aria-hidden />
+      <div className="shrink-0" style={{ height: location.pathname === '/' ? 0 : headerH }} aria-hidden />
 
       <AccountDrawer open={accountOpen && !!user} onClose={() => setAccountOpen(false)} />
     </>
