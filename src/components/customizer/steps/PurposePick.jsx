@@ -1,6 +1,7 @@
 import { Check } from 'lucide-react';
 import { useCustomizerStore } from '../../../store/customizerStore';
-import { PurposeIcon, purposeHasImage, purposeToneStyle } from '../PurposeGrid';
+import { purposeToneStyle } from '../PurposeGrid';
+import PurposeArt, { hasCustomArt } from '../PurposeEmblem';
 import { useStudioLabels } from '../../../lib/studioTheme';
 
 // Step 1 of the purpose path: one tile per purpose. The purpose's tone tints only the
@@ -37,8 +38,8 @@ export default function PurposePick() {
                 <Check size={13} strokeWidth={2.4} />
               </span>
             )}
-            <span className={`nx-ptile-art${purposeHasImage(p) ? '' : ' is-glyph'}`} aria-hidden>
-              <PurposeIcon purpose={p} />
+            <span className={`nx-ptile-art${hasCustomArt(p) ? ' is-photo' : ''}`} aria-hidden>
+              <PurposeArt item={p} />
             </span>
             <span className="nx-ptile-h">{p.name}</span>
             {p.description && <span className="nx-ptile-p">{p.description}</span>}

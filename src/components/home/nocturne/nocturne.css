@@ -5256,9 +5256,68 @@ a.nx-tile:hover .nx-arrow {
   }
 }
 
-/* The purpose artwork ships with a rough cut-out edge; a soft round fade hides the fringe. */
-.nx-ptile-art img,
+
+/* gold line emblems */
+.nx-emblem {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  color: var(--nx-champ);
+  transition: color 0.3s, transform 0.4s ease;
+}
+
+.nx-emblem-ring {
+  opacity: 0.3;
+}
+
+.nx-ptile-art:not(.is-photo) {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 14px 0 22px;
+}
+
+.nx-ptile-art:not(.is-photo)::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--purpose-wash, transparent) 55%, transparent), transparent);
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.nx-ptile {
+  isolation: isolate;
+}
+
+.nx-ptile:hover .nx-emblem,
+.nx-ptile.is-on .nx-emblem {
+  color: #f0e2c2;
+  transform: scale(1.04);
+}
+
+.nx-ptile:hover .nx-ptile-art::before,
+.nx-ptile.is-on .nx-ptile-art::before {
+  opacity: 1;
+}
+
+.nx-ptile-art.is-photo img,
 .nx-guide-art img {
   -webkit-mask-image: radial-gradient(closest-side, #000 76%, transparent 90%);
   mask-image: radial-gradient(closest-side, #000 76%, transparent 90%);
+}
+
+.nx-guide-art .nx-emblem {
+  width: 48px;
+  height: 48px;
+}
+
+@media (max-width: 767px) {
+  .nx-ptile-art:not(.is-photo) {
+    width: 76px;
+    height: 76px;
+    margin: 10px 0 18px;
+  }
 }

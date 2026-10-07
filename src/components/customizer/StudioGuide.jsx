@@ -4,7 +4,7 @@
 import { useCustomizerStore } from '../../store/customizerStore';
 import { flowFor, stepCopy } from '../../lib/studioFlow';
 import { useSite } from '../../store/contentStore';
-import { PurposeIcon } from './PurposeGrid';
+import PurposeArt from './PurposeEmblem';
 
 export default function StudioGuide() {
   const path = useCustomizerStore((s) => s.path);
@@ -17,7 +17,7 @@ export default function StudioGuide() {
       {purpose ? (
         <div className="nx-guide-pick">
           <span className="nx-guide-art" aria-hidden>
-            <PurposeIcon purpose={purpose} />
+            <PurposeArt item={purpose} />
           </span>
           <span>
             <span className="nx-eb">Your purpose</span>
