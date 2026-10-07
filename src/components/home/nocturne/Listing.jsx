@@ -25,7 +25,7 @@ export function PageHero({ image, crumbs = [], eyebrow, title, body, meta = [], 
         )}
         <div className="nx-phero-copy">
           {eyebrow && <p className="nx-eb nx-rise">{eyebrow}</p>}
-          <h1 className="nx-d nx-phero-t nx-rise">{title}</h1>
+          <h1 className={`nx-d nx-phero-t nx-rise${String(title || '').length > 26 ? ' is-long' : ''}`}>{title}</h1>
           {body && <p className="nx-phero-sub nx-rise">{body}</p>}
           {(meta.length > 0 || actions) && (
             <div className="nx-phero-row nx-rise">
@@ -271,5 +271,33 @@ export function StudioBand({ title = 'Compose your own strand.', body, to = '/cu
         </Link>
       </div>
     </section>
+  );
+}
+
+/** Text-only page header (no photo) for utility pages: bag, checkout, account, policies, journal. */
+export function PageIntro({ crumbs = [], eyebrow, title, body, actions, children, narrow = false }) {
+  return (
+    <div className={`nx-intro${narrow ? ' is-narrow' : ''}`}>
+      <div className="nx-w">
+        {crumbs.length > 0 && (
+          <nav className="nx-crumbs" aria-label="Breadcrumb">
+            <ol>
+              {crumbs.map((c, i) => (
+                <li key={`${c.label}-${i}`}>{c.to && i < crumbs.length - 1 ? <Link to={c.to}>{c.label}</Link> : <span aria-current="page">{c.label}</span>}</li>
+              ))}
+            </ol>
+          </nav>
+        )}
+        <div className="nx-intro-row">
+          <div className="nx-intro-copy">
+            {eyebrow && <p className="nx-eb nx-rise">{eyebrow}</p>}
+            <h1 className="nx-d nx-intro-t nx-rise">{title}</h1>
+            {body && <p className="nx-intro-sub nx-rise">{body}</p>}
+            {children}
+          </div>
+          {actions && <div className="nx-intro-a nx-rise">{actions}</div>}
+        </div>
+      </div>
+    </div>
   );
 }

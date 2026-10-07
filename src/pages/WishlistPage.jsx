@@ -1,109 +1,47 @@
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingBag } from 'lucide-react';
-import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
-import GemVisual from '../components/ui/GemVisual';
-import Price from '../components/ui/Price';
-import ProductRating from '../components/ui/ProductRating';
-import InViewGroup from '../components/ui/InViewGroup';
-import SectionHead from '../components/home/SectionHead';
-import CmsFinale from '../components/ui/CmsFinale';
 import { fillCopy } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
+import { NCard } from '../components/home/nocturne/Nocturne';
+import { CmsEmpty, PageIntro } from '../components/home/nocturne/Listing';
 
-const CRUMBS = [
-  { label: 'Home', to: '/' },
-  { label: 'Wishlist' },
-];
+const clean = (s) => String(s || '').replace(/\s*→\s*$/, '');
 
 export default function WishlistPage() {
   const page = useSite().pages.wishlist;
   const items = useWishlistStore((s) => s.items);
-  const remove = useWishlistStore((s) => s.remove);
-  const addProduct = useCartStore((s) => s.addProduct);
+  const body = items.length ? fillCopy(page.filledBody, { count: items.length, pieces: items.length === 1 ? 'piece' : 'pieces' }) : page.emptyBody;
 
   return (
-    <div className="relative">
-      <div className="pointer-events-none absolute inset-0 lotus-corner" />
-      <div className="relative shell py-8 sm:py-10 md:py-12">
-        <Breadcrumbs items={CRUMBS} />
-
-        <div className="mt-8">
-          <SectionHead
-            eyebrow={page.eyebrow}
-            title={page.title}
-            body={
-              items.length
-                ? fillCopy(page.filledBody, {
-                    count: items.length,
-                    pieces: items.length === 1 ? 'piece' : 'pieces',
-                  })
-                : page.emptyBody
-            }
-            to={page.to}
-            action={page.action}
-          />
+    <div className="nx nx-page">
+      <PageIntro
+        crumbs={[{ label: 'Home', to: '/' }, { label: page.title || 'Wishlist' }]}
+        eyebrow={page.eyebrow}
+        title={page.title || 'Wishlist'}
+        body={body}
+        actions={
+          page.to && (
+            <Link to={page.to} className="nx-lnk">
+              {clean(page.action) || 'Shop all'} →
+            </Link>
+          )
+        }
+      />
+      <section className="nx-sec">
+        <div className="nx-w">
+          {items.length === 0 ? (
+            <CmsEmpty block={page.empty} />
+          ) : (
+            <div className="nx-grid">
+              {items.map((item, i) => (
+                <div key={item._id} className="nx-grid-item" style={{ '--i': Math.min(i, 12) }}>
+                  <NCard product={item} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-
-        {items.length === 0 ? (
-          <CmsFinale block={page.empty} />
-        ) : (
-          <InViewGroup className="feature-grid mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-            {items.map((item, i) => (
-              <div key={item._id} className="feature-item h-full" style={{ '--i': i }}>
-                <article className="wish-card">
-                  <Link to={`/p/${item.slug}`} className="block">
-                    <div className="wish-card-media">
-                      <GemVisual
-                        color={item.colorHex}
-                        image={item.images?.[0]}
-                        className="h-44 w-full sm:h-52"
-                        name={item.name}
-                      />
-                    </div>
-                  </Link>
-                  <div className="product-card-body">
-                    <Link to={`/p/${item.slug}`} className="product-card-copy">
-                      {item.family && (
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-gold">{item.family}</p>
-                      )}
-                      <h3 className="mt-2 font-serif text-xl leading-snug">{item.name}</h3>
-                      <ProductRating product={item} />
-                    </Link>
-                    <div className="product-card-split">
-                      <div className="product-card-left">
-                        {item.shortDescription && <p className="product-card-desc">{item.shortDescription}</p>}
-                        <p className="product-card-price">
-                          <Price value={item.price} />
-                        </p>
-                      </div>
-                      <div className="product-card-tools">
-                        <button
-                          type="button"
-                          aria-label="Remove from wishlist"
-                          onClick={() => remove(item._id)}
-                          className="product-tool is-on"
-                        >
-                          <Heart size={15} fill="currentColor" />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="Add to bag"
-                          onClick={() => addProduct(item, 1)}
-                          className="product-tool"
-                        >
-                          <ShoppingBag size={15} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              </div>
-            ))}
-          </InViewGroup>
-        )}
-      </div>
+      </section>
     </div>
   );
 }

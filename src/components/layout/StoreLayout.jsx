@@ -20,7 +20,7 @@ export default function StoreLayout() {
   const { pathname } = useLocation();
   const site = useSite();
   const brand = useBrand();
-  const nocturne = isNocturnePath(pathname, (site.houses?.items || []).map((h) => h.slug));
+  const nocturne = isNocturnePath(pathname);
   const [skyReady, setSkyReady] = useState(false);
   const markPageReady = useBootStore((s) => s.markPageReady);
   const loadContent = useContentStore((s) => s.load);

@@ -5,9 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import Button from '../components/ui/Button';
 import Price from '../components/ui/Price';
-import EmptyState from '../components/ui/EmptyState';
 import GemVisual from '../components/ui/GemVisual';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
 import InViewGroup from '../components/ui/InViewGroup';
 import { useSite } from '../store/contentStore';
 import { startCashfreeCheckout } from '../lib/cashfree';
@@ -16,6 +14,7 @@ import AddressFormModal from '../components/checkout/AddressFormModal';
 import CouponPicker from '../components/cart/CouponPicker';
 import { detectCurrentAddress } from '../lib/location';
 import { itemMeta, itemTitle } from '../lib/cartItems';
+import { EmptyBlock, PageIntro } from '../components/home/nocturne/Listing';
 import { addressId, addressReady, checkoutFromAddress, defaultAddress, digitsOnly, emptyAddress, normalizePhone, upsertAddress, validateAddress } from '../lib/addresses';
 
 const CRUMBS = [
@@ -107,7 +106,27 @@ export default function CheckoutPage() {
   }, [items.length, form.pincode, amount]);
 
   if (!items.length) {
-    return <EmptyState title={page.emptyTitle} body={page.emptyBody} />;
+    return (
+      <div className="nx nx-page">
+        <PageIntro crumbs={CRUMBS} eyebrow="Secure checkout" title={page.title} />
+        <div className="nx-w nx-sec">
+          <EmptyBlock
+            title={page.emptyTitle}
+            body={page.emptyBody}
+            actions={
+              <>
+                <Link to="/shop" className="nx-btn">
+                  Shop all
+                </Link>
+                <Link to="/customize" className="nx-btn nx-btn-o">
+                  Customization
+                </Link>
+              </>
+            }
+          />
+        </div>
+      </div>
+    );
   }
 
   function applySaved(row, contactName = user?.name) {
@@ -299,15 +318,9 @@ export default function CheckoutPage() {
   const canContinue = Boolean(selected && addressReady(form));
 
   return (
-    <div className="cart-page checkout-page relative is-filled">
-      <div className="pointer-events-none absolute inset-0 lotus-corner" />
-      <div className="relative shell cart-shell">
-        <Breadcrumbs items={CRUMBS} />
-        <div className="cart-head">
-          <p className="text-[11px] uppercase tracking-[0.22em] text-gold">{page.title}</p>
-          <h1 className="mt-2 font-serif text-2xl gold-text sm:text-3xl">{page.title}</h1>
-          {page.body ? <p className="mt-2 max-w-xl text-sm sky-copy">{page.body}</p> : null}
-        </div>
+    <div className="nx nx-page nx-skin cart-page checkout-page is-filled">
+      <PageIntro crumbs={CRUMBS} eyebrow="Secure checkout" title={page.title} body={page.body} />
+      <div className="nx-w nx-skin-body">
 
         <div className="bag-stage">
           <section>

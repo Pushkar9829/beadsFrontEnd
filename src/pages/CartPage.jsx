@@ -7,13 +7,11 @@ import Button from '../components/ui/Button';
 import QtyControl from '../components/ui/QtyControl';
 import Price from '../components/ui/Price';
 import GemVisual from '../components/ui/GemVisual';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
 import InViewGroup from '../components/ui/InViewGroup';
-import SectionHead from '../components/home/SectionHead';
-import CmsFinale from '../components/ui/CmsFinale';
 import { fillCopy } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
 import CouponPicker from '../components/cart/CouponPicker';
+import { CmsEmpty, PageIntro } from '../components/home/nocturne/Listing';
 import { itemMeta, itemTitle } from '../lib/cartItems';
 
 const CRUMBS = [
@@ -43,30 +41,30 @@ export default function CartPage() {
   }, [user, items.length, amount]);
 
   return (
-    <div className={`cart-page relative ${items.length ? 'is-filled' : 'is-empty'}`}>
-      <div className="pointer-events-none absolute inset-0 lotus-corner" />
-      <div className="relative shell cart-shell">
-        <Breadcrumbs items={CRUMBS} />
-
-        <div className="cart-head">
-          <SectionHead
-            eyebrow={page.eyebrow}
-            title={page.title}
-            body={
-              items.length
-                ? fillCopy(page.filledBody, {
-                    count,
-                    pieces: count === 1 ? 'piece' : 'pieces',
-                  })
-                : page.emptyBody
-            }
-            to={page.to}
-            action={page.action}
-          />
-        </div>
-
+    <div className={`nx nx-page nx-skin cart-page ${items.length ? 'is-filled' : 'is-empty'}`}>
+      <PageIntro
+        crumbs={CRUMBS}
+        eyebrow={page.eyebrow}
+        title={page.title}
+        body={
+          items.length
+            ? fillCopy(page.filledBody, {
+                count,
+                pieces: count === 1 ? 'piece' : 'pieces',
+              })
+            : page.emptyBody
+        }
+        actions={
+          page.to && (
+            <Link to={page.to} className="nx-lnk">
+              {String(page.action || 'Shop all').replace(/\s*→\s*$/, '')} →
+            </Link>
+          )
+        }
+      />
+      <div className="nx-w nx-skin-body">
         {items.length === 0 ? (
-          <CmsFinale block={page.empty} className="mt-8 sm:mt-10" />
+          <CmsEmpty block={page.empty} />
         ) : (
           <div className="bag-stage">
             <InViewGroup className="bag-list">

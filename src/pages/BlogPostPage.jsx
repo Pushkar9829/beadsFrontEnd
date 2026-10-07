@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import api, { mediaUrl } from '../api/client';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
-import Spinner from '../components/ui/Spinner';
 import SeoHead from '../components/SeoHead';
 import { useBrand, pageTitle } from '../store/settingsStore';
+import { EmptyBlock, PageIntro, StudioBand } from '../components/home/nocturne/Listing';
+import { postDate } from './BlogListPage';
 
 export default function BlogPostPage() {
   const { slug } = useParams();
@@ -13,14 +14,48 @@ export default function BlogPostPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get(`/blog/${slug}`).then(({ data }) => setPost(data.post)).catch(() => setPost(null)).finally(() => setLoading(false));
+    let alive = true;
+    setLoading(true);
+    api
+      .get(`/blog/${slug}`)
+      .then(({ data }) => alive && setPost(data.post))
+      .catch(() => alive && setPost(null))
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
   }, [slug]);
 
-  if (loading) return <Spinner />;
-  if (!post) return <div className="shell py-16 text-lilac">This note is not published.</div>;
+  const crumbs = [{ label: 'Home', to: '/' }, { label: 'Journal', to: '/journal' }, { label: post?.title || 'Note' }];
+
+  if (loading) {
+    return (
+      <div className="nx nx-page">
+        <div className="nx-w nx-article">
+          <div className="nx-skel nx-post-skel" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!post) {
+    return (
+      <div className="nx nx-page">
+        <PageIntro crumbs={crumbs} eyebrow="Journal" title="Note not found." />
+        <div className="nx-w nx-sec">
+          <EmptyBlock title="This note is not published." actions={<Link to="/journal" className="nx-btn">All notes</Link>} />
+        </div>
+      </div>
+    );
+  }
+
+  const paragraphs = String(post.body || '')
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
 
   return (
-    <div className="shell py-10">
+    <div className="nx nx-page">
       <SeoHead
         title={post.seo?.title || pageTitle(post.title, brand)}
         description={post.seo?.description || post.excerpt}
@@ -28,13 +63,23 @@ export default function BlogPostPage() {
         image={post.seo?.ogImage || post.image}
         noIndex={post.seo?.noIndex}
       />
-      <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Journal', to: '/journal' }, { label: post.title }]} />
-      <article className="mx-auto mt-8 max-w-2xl">
-        {post.image && <img src={mediaUrl(post.image)} alt="" className="mb-6 w-full rounded-2xl object-cover" />}
-        <p className="text-[10px] uppercase tracking-[0.22em] text-gold">{post.author}</p>
-        <h1 className="mt-2 font-serif text-3xl gold-text">{post.title}</h1>
-        <div className="mt-6 whitespace-pre-wrap leading-relaxed text-ivory/80">{post.body}</div>
+      <PageIntro crumbs={crumbs} eyebrow={[post.author, postDate(post)].filter(Boolean).join(' · ')} title={post.title} body={post.excerpt} narrow />
+      <article className="nx-w nx-article">
+        {post.image && (
+          <figure className="nx-article-ph">
+            <img src={mediaUrl(post.image)} alt="" />
+          </figure>
+        )}
+        <div className="nx-prose">
+          {paragraphs.map((p, i) => (
+            <p key={i}>{p}</p>
+          ))}
+        </div>
+        <Link to="/journal" className="nx-lnk nx-article-back">
+          <ArrowLeft size={13} style={{ display: 'inline', verticalAlign: '-2px' }} /> All notes
+        </Link>
       </article>
+      <StudioBand />
     </div>
   );
 }

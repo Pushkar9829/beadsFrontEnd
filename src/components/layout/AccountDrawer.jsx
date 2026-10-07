@@ -93,7 +93,7 @@ export default function AccountDrawer({ open, onClose }) {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <div className="nx-skin fixed inset-0 z-50 flex justify-end">
       <button
         type="button"
         aria-label="Close account panel"

@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import api from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import Button from '../components/ui/Button';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
 import Price from '../components/ui/Price';
 import Spinner from '../components/ui/Spinner';
 import InViewGroup from '../components/ui/InViewGroup';
 import SectionHead from '../components/home/SectionHead';
-import CmsFinale from '../components/ui/CmsFinale';
+import { CmsEmpty, PageIntro } from '../components/home/nocturne/Listing';
 import { fillCopy } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
 import { isStaff } from '../lib/staff';
@@ -71,40 +70,33 @@ export default function AccountPage() {
   }, [user]);
 
   return (
-    <div className="relative">
-      <div className="pointer-events-none absolute inset-0 lotus-corner" />
-      <div className="relative shell py-8 sm:py-10 md:py-12">
-        <Breadcrumbs items={CRUMBS} />
-
-        <div className="mt-8 grid items-start gap-8 lg:mt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-12">
-          <SectionHead
-            eyebrow={page.eyebrow}
-            title={page.title}
-            body={user ? `${user.name} · ${user.email}` : page.guestBody}
-            to={page.to}
-            action={page.action}
-          />
-          <article className="auth-card">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-gold">{page.cardKicker}</p>
-            <h2 className="mt-2 font-serif text-2xl gold-text">{page.cardTitle}</h2>
-            <div className="mt-6 flex flex-col gap-3">
-              {isStaff(user) && (
-                <Button to="/admin" variant="ghost" className="w-full">Admin</Button>
-              )}
-              <Button
-                variant="ghost"
-                className="w-full"
-                onClick={async () => {
-                  await logout();
-                  onLogout();
-                }}
-              >
-                Sign out
-              </Button>
-            </div>
-          </article>
-        </div>
-
+    <div className="nx nx-page nx-skin">
+      <PageIntro
+        crumbs={CRUMBS}
+        eyebrow={page.eyebrow}
+        title={page.title}
+        body={user ? `${user.name} · ${user.email}` : page.guestBody}
+        actions={
+          <div className="nx-intro-btns">
+            {isStaff(user) && (
+              <Link to="/admin" className="nx-btn nx-btn-o">
+                Admin
+              </Link>
+            )}
+            <button
+              type="button"
+              className="nx-btn nx-btn-o"
+              onClick={async () => {
+                await logout();
+                onLogout();
+              }}
+            >
+              Sign out
+            </button>
+          </div>
+        }
+      />
+      <div className="nx-w nx-skin-body">
         {placed && (
           <article className="auth-card mt-8">
             <p className="text-[11px] uppercase tracking-[0.22em] text-gold">{page.placedKicker}</p>
@@ -138,7 +130,7 @@ export default function AccountPage() {
         {loading ? (
           <Spinner />
         ) : orders.length === 0 ? (
-          <CmsFinale block={page.empty} />
+          <CmsEmpty block={page.empty} />
         ) : (
           <InViewGroup className="bag-list mt-8 space-y-4 sm:mt-10">
             {orders.map((o, i) => (

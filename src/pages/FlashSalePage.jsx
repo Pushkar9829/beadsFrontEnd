@@ -1,17 +1,33 @@
 import { useCallback, useState } from 'react';
-import api from '../api/client';
-import ProductCard from '../components/ui/ProductCard';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
-import SectionHead from '../components/home/SectionHead';
+import api, { mediaUrl } from '../api/client';
 import SeoHead from '../components/SeoHead';
-import Spinner from '../components/ui/Spinner';
-import FlashCountdown from '../components/FlashCountdown';
-import FlashSaleMark from '../components/ui/FlashSaleMark';
-import InViewGroup from '../components/ui/InViewGroup';
-import CmsFinale from '../components/ui/CmsFinale';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import useRefreshOnView from '../hooks/useRefreshOnView';
+import { HOUSE_IMAGES, useCountdown } from '../components/home/nocturne/Nocturne';
+import { CmsEmpty, EmptyBlock, GridSkeleton, PageHero, ProductListing } from '../components/home/nocturne/Listing';
+
+const pad = (n) => String(n).padStart(2, '0');
+
+function Clock({ endsAt }) {
+  const t = useCountdown(endsAt);
+  if (!t || t.done) return null;
+  return (
+    <div className="nx-clock" role="timer" aria-label="Time left">
+      {[
+        [t.d, 'Days'],
+        [pad(t.h), 'Hours'],
+        [pad(t.m), 'Min'],
+        [pad(t.s), 'Sec'],
+      ].map(([v, l]) => (
+        <span key={l}>
+          <b>{v}</b>
+          {l}
+        </span>
+      ))}
+    </div>
+  );
+}
 
 export default function FlashSalePage() {
   const site = useSite();
@@ -22,51 +38,48 @@ export default function FlashSalePage() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(() => {
-    api.get('/flash-sales/active')
+    api
+      .get('/flash-sales/active')
       .then(({ data }) => {
         setSale(data.sale);
         setProducts(data.products || []);
       })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
   useRefreshOnView(load);
 
+  const label = copy.label || 'Flash sale';
+  const crumbs = [{ label: 'Home', to: '/' }, { label }];
+  const image = products[0]?.images?.[0] ? mediaUrl(products[0].images[0]) : HOUSE_IMAGES.gemstones;
+
   return (
-    <div className="relative">
-      <SeoHead title={pageTitle(sale?.name || copy.label || 'Flash sale', brand)} description={copy.pageBody || copy.body} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
-      <div className="pointer-events-none absolute inset-0 lotus-corner" />
-      <div className="relative shell py-8 sm:py-10 md:py-12">
-        <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: copy.label || 'Flash sale' }]} />
-        {loading ? <Spinner /> : !sale ? (
-          <CmsFinale block={{
-            kicker: copy.label || 'Flash sale',
-            title: copy.emptyTitle || 'No sale is running.',
-            copy: copy.emptyBody || copy.pageBody,
-            primaryCta: { label: copy.action || 'Shop All', to: '/shop' },
-          }} />
-        ) : (
-          <>
-            <div className="mt-8">
-              <SectionHead eyebrow={<FlashSaleMark size="md" label={copy.label || 'Flash sale'} />} title={sale.name} body={copy.pageBody || copy.body} />
+    <div className="nx nx-page">
+      <SeoHead title={pageTitle(sale?.name || label, brand)} description={copy.pageBody || copy.body} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
+      {loading ? (
+        <>
+          <PageHero size="short" crumbs={crumbs} eyebrow={label} title=" " />
+          <GridSkeleton />
+        </>
+      ) : !sale ? (
+        <>
+          <PageHero size="short" image={HOUSE_IMAGES.gemstones} crumbs={crumbs} eyebrow={label} title={copy.emptyTitle || 'No sale is running.'} body={copy.emptyBody || copy.pageBody} />
+          <div className="nx-w nx-sec">
+            <CmsEmpty block={{ title: 'Keep exploring.', primaryCta: { label: 'Shop all', to: '/shop' }, secondaryCta: { label: 'Customization', to: '/customize' } }} />
+          </div>
+        </>
+      ) : (
+        <>
+          <PageHero size="short" image={image} crumbs={crumbs} eyebrow={label} title={sale.name} body={copy.pageBody || copy.body} actions={<Clock endsAt={sale.endsAt} />} />
+          {products.length === 0 ? (
+            <div className="nx-w nx-sec">
+              <EmptyBlock title={copy.emptyProducts || 'Products for this sale are being placed.'} />
             </div>
-            <div className="mt-6 max-w-md">
-              <FlashCountdown sale={sale} />
-            </div>
-            {products.length === 0 ? (
-              <p className="mt-10 text-lilac">{copy.emptyProducts || 'Products for this sale are being placed.'}</p>
-            ) : (
-              <InViewGroup className="feature-grid mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-                {products.map((p, i) => (
-                  <div key={p._id} className="feature-item h-full" style={{ '--i': i }}>
-                    <ProductCard product={p} description={p.shortDescription} />
-                  </div>
-                ))}
-              </InViewGroup>
-            )}
-          </>
-        )}
-      </div>
+          ) : (
+            <ProductListing eyebrow="On the tray" title="Timed prices" products={products} />
+          )}
+        </>
+      )}
     </div>
   );
 }
-
