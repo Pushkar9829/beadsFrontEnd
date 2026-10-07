@@ -102,7 +102,7 @@ export default function CustomizePage() {
   if (nocturne && (loading || error)) {
     return (
       <div className="nx nx-page nx-studio">
-        <PageIntro compact crumbs={crumbs} eyebrow={eyebrow} title={copy.title} />
+        <PageIntro compact crumbs={crumbs} title={copy.title} />
         {error ? (
           <div className="nx-w nx-sec">
             <p className="nx-error">{error}</p>
@@ -127,7 +127,6 @@ export default function CustomizePage() {
         <PageIntro
           compact
           crumbs={crumbs}
-          eyebrow={eyebrow}
           title={copy.title}
           body={selectionName && step > 1 ? `${mode.short} · ${selectionName}` : copy.body}
         />
