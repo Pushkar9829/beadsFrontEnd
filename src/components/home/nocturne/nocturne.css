@@ -5702,7 +5702,7 @@ a.nx-tile:hover .nx-arrow {
   transition: opacity 0.25s, filter 0.25s, transform 0.5s ease;
 }
 
-.nx-cm-tile:not(.is-on) .nx-cm-img {
+.nx-cm-tile:not(.is-on):not(.is-catalog) .nx-cm-img {
   opacity: 0.4;
   filter: grayscale(0.6);
 }
@@ -5744,7 +5744,7 @@ a.nx-tile:hover .nx-arrow {
   color: var(--nx-ink);
 }
 
-.nx-cm-tile:not(.is-on) .nx-cm-name {
+.nx-cm-tile:not(.is-on):not(.is-catalog) .nx-cm-name {
   color: var(--nx-muted);
 }
 
@@ -5877,54 +5877,6 @@ a.nx-tile:hover .nx-arrow {
   width: 36px;
 }
 
-.nx-cm-more {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  margin-top: 16px;
-  padding: 13px;
-  border: 1px dashed var(--nx-line2);
-  border-radius: 3px;
-  background: none;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.nx-cm-more:hover:not(:disabled) {
-  border-color: var(--nx-champ);
-  background: rgba(214, 194, 154, 0.05);
-}
-
-.nx-cm-more:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.nx-cm-lines.is-extra {
-  margin-top: 6px;
-}
-
-.nx-cm-add {
-  padding: 8px 16px;
-  border: 1px solid var(--nx-line2);
-  border-radius: 999px;
-  background: none;
-  font-size: 12px;
-  font-weight: 500;
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.nx-cm-add:hover {
-  border-color: var(--nx-ink);
-  background: var(--nx-ink);
-  color: var(--nx-bg);
-}
-
 .nx-cm-foot {
   display: flex;
   flex: none;
@@ -6029,5 +5981,89 @@ a.nx-tile:hover .nx-arrow {
   .nx-cm,
   .nx-cm-scrim {
     animation: none;
+  }
+}
+
+/* strand view: add-crystal row and the catalog popup stacked above the main one */
+.nx-cm-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--nx-line);
+}
+
+.nx-cm-top p {
+  font-size: 14px;
+  color: var(--nx-muted);
+}
+
+.nx-cm-addbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 18px;
+  border: 1px solid var(--nx-champ);
+  border-radius: 999px;
+  background: rgba(214, 194, 154, 0.06);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--nx-ink);
+  transition: background 0.2s, color 0.2s;
+}
+
+.nx-cm-addbtn:hover:not(:disabled) {
+  background: var(--nx-champ);
+  color: var(--nx-bg);
+}
+
+.nx-cm-addbtn:disabled {
+  border-color: var(--nx-line2);
+  background: none;
+  color: var(--nx-soft);
+  cursor: not-allowed;
+}
+
+.nx-cm-count p.is-over {
+  color: #ff9c9c;
+}
+
+.nx-cm-sub {
+  max-width: 520px;
+  margin-top: 8px;
+  padding-bottom: 18px;
+  font-size: 14px;
+  color: var(--nx-muted);
+}
+
+.nx-cm-layer.is-inner {
+  z-index: 61;
+}
+
+.nx-cm.is-picker {
+  width: min(760px, 100%);
+  max-height: min(84vh, 720px);
+}
+
+.nx-cm-tile:disabled {
+  cursor: default;
+}
+
+@media (max-width: 767px) {
+  .nx-cm-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nx-cm-addbtn {
+    justify-content: center;
+  }
+
+  .nx-cm.is-picker {
+    max-height: 86svh;
   }
 }

@@ -25,10 +25,22 @@ export default function NCrystalModal({ open, onClose, onComplete }) {
   const quote = useCustomizerQuote();
   const [view, setView] = useState('pick');
   const [adding, setAdding] = useState(false);
+  const [offerIds, setOfferIds] = useState([]);
   const picked = recommended.filter((b) => qtyOf(quantities, b._id) > 0);
   const placed = quote.beadCount || 0;
   const remaining = Math.max(0, strandCount - placed);
+  const over = Math.max(0, placed - strandCount);
   const extras = (catalogBeads || []).filter((bead) => !recommended.some((r) => String(r._id) === String(bead._id)));
+  // The picker keeps showing a crystal after it is added (marked "Added") instead of
+  // dropping it from the list mid-click.
+  const offer = (catalogBeads || []).filter((bead) => offerIds.includes(String(bead._id)));
+  const isAdded = (bead) => recommended.some((r) => String(r._id) === String(bead._id));
+  const addedCount = offer.filter(isAdded).length;
+
+  function openPicker() {
+    setOfferIds(extras.map((bead) => String(bead._id)));
+    setAdding(true);
+  }
   const building = view === 'build';
 
   useEffect(() => {
@@ -40,14 +52,16 @@ export default function NCrystalModal({ open, onClose, onComplete }) {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const onKey = (e) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key !== 'Escape') return;
+      if (adding) setAdding(false);
+      else onClose();
     };
     window.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = prev;
       window.removeEventListener('keydown', onKey);
     };
-  }, [open, onClose]);
+  }, [open, onClose, adding]);
 
   function goBuild() {
     applyBeadCount(strandCount);
@@ -132,6 +146,13 @@ export default function NCrystalModal({ open, onClose, onComplete }) {
 
           {!selecting && recommended.length > 0 && building && (
             <>
+              <div className="nx-cm-top">
+                <p>Set the strand length, then how many of each crystal.</p>
+                <button type="button" className="nx-cm-addbtn" onClick={openPicker} disabled={!extras.length}>
+                  <Plus size={14} strokeWidth={1.8} />
+                  {extras.length ? 'Add another crystal' : 'No other crystals'}
+                </button>
+              </div>
               <p className="nx-cm-label">Strand length</p>
               <div className="nx-cm-sizes" role="radiogroup" aria-label="Strand length">
                 {BEAD_COUNTS.map((count) => {
@@ -147,9 +168,9 @@ export default function NCrystalModal({ open, onClose, onComplete }) {
 
               <div className="nx-cm-count">
                 <p className="nx-cm-label">Beads on the strand</p>
-                <p className={remaining ? 'is-short' : 'is-full'}>
+                <p className={over ? 'is-over' : remaining ? 'is-short' : 'is-full'}>
                   {placed} of {strandCount}
-                  {remaining ? ` · ${remaining} to place` : ' · complete'}
+                  {over ? ` · ${over} over, lower a crystal` : remaining ? ` · ${remaining} to place` : ' · complete'}
                 </p>
               </div>
               <div className="nx-cm-bar" aria-hidden>
@@ -182,27 +203,6 @@ export default function NCrystalModal({ open, onClose, onComplete }) {
                 })}
               </ul>
 
-              <button type="button" className="nx-cm-more" onClick={() => setAdding((v) => !v)} disabled={!extras.length} aria-expanded={adding}>
-                <Plus size={14} strokeWidth={1.8} />
-                {extras.length ? (adding ? 'Hide other crystals' : 'Add another crystal') : 'No other crystals available'}
-              </button>
-
-              {adding && extras.length > 0 && (
-                <ul className="nx-cm-lines is-extra">
-                  {extras.map((bead) => (
-                    <li key={bead._id}>
-                      <GemVisual color={bead.colorHex} image={bead.image} name={bead.name} className="nx-cm-dot" />
-                      <span className="nx-cm-line-c">
-                        <span className="nx-cm-name">{bead.name}</span>
-                        <span className="nx-cm-price">{formatInr(bead.pricePerBead)} / bead</span>
-                      </span>
-                      <button type="button" className="nx-cm-add" onClick={() => addCatalogBead(bead)}>
-                        Add
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </>
           )}
         </div>
@@ -230,6 +230,64 @@ export default function NCrystalModal({ open, onClose, onComplete }) {
           </div>
         </div>
       </div>
+
+      {adding && (
+        <div className="nx-cm-layer is-inner">
+          <button type="button" className="nx-cm-scrim" aria-label="Close crystal catalog" onClick={() => setAdding(false)} />
+          <div className="nx-cm is-picker" role="dialog" aria-modal="true" aria-labelledby="nx-cm-pick-title">
+            <div className="nx-cm-head">
+              <div className="nx-cm-head-row">
+                <div className="min-w-0">
+                  <p className="nx-eb">Catalog</p>
+                  <h2 id="nx-cm-pick-title" className="nx-cm-t">
+                    Add another crystal
+                  </h2>
+                  <p className="nx-cm-sub">Each one joins the strand with a single bead. Adjust the counts afterwards.</p>
+                </div>
+                <button type="button" className="nx-cm-x" onClick={() => setAdding(false)} aria-label="Close">
+                  <X size={18} strokeWidth={1.5} />
+                </button>
+              </div>
+            </div>
+            <div className="nx-cm-body">
+              <div className="nx-cm-grid">
+                {offer.map((bead) => {
+                  const added = isAdded(bead);
+                  return (
+                    <button
+                      key={bead._id}
+                      type="button"
+                      disabled={added}
+                      onClick={() => addCatalogBead(bead)}
+                      className={`nx-cm-tile is-catalog${added ? ' is-on' : ''}`}
+                      aria-label={added ? `${bead.name} added` : `Add ${bead.name}`}
+                    >
+                      <span className="nx-cm-ph">
+                        <GemVisual color={bead.colorHex} image={bead.image} name={bead.name} className="nx-cm-img" />
+                        <span className="nx-cm-mark" aria-hidden>
+                          {added ? <Check size={13} strokeWidth={2.4} /> : <Plus size={13} strokeWidth={2} />}
+                        </span>
+                      </span>
+                      <span className="nx-cm-name">{bead.name}</span>
+                      <span className="nx-cm-price">{added ? 'Added to the strand' : `${formatInr(bead.pricePerBead)} / bead`}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="nx-cm-foot">
+              <p className="nx-cm-sum">
+                <span>{addedCount ? `${addedCount} added` : 'Tap a crystal to add it'}</span>
+              </p>
+              <div className="nx-cm-actions">
+                <button type="button" className="nx-btn" onClick={() => setAdding(false)}>
+                  {addedCount ? 'Done' : 'Close'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
