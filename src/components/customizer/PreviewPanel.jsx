@@ -37,19 +37,27 @@ export default function PreviewPanel({ mobile }) {
         {layer ? `${layer.modeLabel} · ${layer.name}` : purpose?.name || labels.selectionPending}
         {!layer && intention ? ` · ${intention.braceletName || intention.name}` : ''}
       </p>
+      {/* Line-by-line prices fold away so the column stays shorter than the screen. */}
+      {(quote.lines?.length || quote.packaging?.lines?.length) ? (
+        <details className="nx-price-more">
+          <summary>Price breakdown</summary>
+          <dl className="bag-summary-rows">
+            {(quote.lines || []).map((l) => (
+              <div key={l.beadId}>
+                <dt>{l.name} × {l.quantity}</dt>
+                <dd><Price value={l.subtotal} /></dd>
+              </div>
+            ))}
+            {(quote.packaging?.lines || []).map((row) => (
+              <div key={row.key}>
+                <dt>{row.label}</dt>
+                <dd><Price value={row.amount} /></dd>
+              </div>
+            ))}
+          </dl>
+        </details>
+      ) : null}
       <dl className="bag-summary-rows">
-        {(quote.lines || []).map((l) => (
-          <div key={l.beadId}>
-            <dt>{l.name} × {l.quantity}</dt>
-            <dd><Price value={l.subtotal} /></dd>
-          </div>
-        ))}
-        {(quote.packaging?.lines || []).map((row) => (
-          <div key={row.key}>
-            <dt>{row.label}</dt>
-            <dd><Price value={row.amount} /></dd>
-          </div>
-        ))}
         <div>
           <dt>{formatWristChoice(threadType, wristSize)}</dt>
           <dd>{quote.beadCount} {labels.beadsUnit}</dd>

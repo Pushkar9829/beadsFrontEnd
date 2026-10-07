@@ -44,14 +44,18 @@ function PersonalCard({ kicker, value, sub, bead, beadName, reason, note, choice
         <span className="nx-eb">{kicker}</span>
         {choice == null && <span className="nx-pb-flag">Choose</span>}
       </div>
-      <p className="nx-pb-v">{value}</p>
-      {sub && <p className="nx-pb-sub">{sub}</p>}
-      <div className="nx-pb-bead">
-        <GemVisual color={bead?.colorHex || '#C6A75E'} image={bead?.image} name="" className="nx-pb-gem" />
-        <span>
-          <b>{beadName || 'Crystal'}</b>
-          {bead?.pricePerBead != null && <em>{formatInr(bead.pricePerBead)} / bead</em>}
-        </span>
+      <div className="nx-pb-mid">
+        <div>
+          <p className="nx-pb-v">{value}</p>
+          {sub && <p className="nx-pb-sub">{sub}</p>}
+        </div>
+        <div className="nx-pb-bead">
+          <GemVisual color={bead?.colorHex || '#C6A75E'} image={bead?.image} name="" className="nx-pb-gem" />
+          <span>
+            <b>{beadName || 'Crystal'}</b>
+            {bead?.pricePerBead != null && <em>{formatInr(bead.pricePerBead)} / bead</em>}
+          </span>
+        </div>
       </div>
       {reason && <p className="nx-pb-why">{reason}</p>}
       {note && <p className="nx-pb-note">{note}</p>}

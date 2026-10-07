@@ -67,7 +67,8 @@ body,
 html {
   color-scheme: dark;
   scroll-behavior: auto;
-  overflow-x: hidden;
+  /* clip, not hidden: hidden turns the page into its own scroll box and breaks position: sticky */
+  overflow-x: clip;
   scrollbar-width: none;
   font-size: 15.5px;
 }
@@ -82,7 +83,7 @@ body {
   color: #f6f1e8;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  overflow-x: clip;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }

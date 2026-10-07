@@ -89,8 +89,6 @@ export default function FamilyPage() {
         }
       />
 
-      <CollectionTiles eyebrow={`Inside the house`} title={`${title} collections`} items={subs} />
-
       {loading ? (
         <GridSkeleton />
       ) : (
@@ -104,6 +102,8 @@ export default function FamilyPage() {
         />
       )}
       {!loading && products.length > 0 && piecesBody && <p className="sr-only">{piecesBody}</p>}
+
+      <CollectionTiles eyebrow="Inside the house" title={`${title} collections`} items={subs} />
 
       <StudioBand
         title="Compose your own strand."

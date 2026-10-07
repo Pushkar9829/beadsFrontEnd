@@ -15,7 +15,7 @@
   --nx-sans: 'Inter Tight', 'Outfit', ui-sans-serif, system-ui, sans-serif;
   --nx-serif: 'Cormorant Garamond', Georgia, serif;
   --nx-pad: clamp(18px, 4vw, 56px);
-  --nx-sec: clamp(76px, 9vw, 120px);
+  --nx-sec: clamp(56px, 6vw, 84px);
 
   position: relative;
   isolation: isolate;
@@ -76,7 +76,7 @@
 
 /* type */
 .nx-eb {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.24em;
   text-transform: uppercase;
@@ -105,12 +105,12 @@
 }
 
 .nx-h2 {
-  margin-top: 14px;
-  font-size: clamp(38px, 4.6vw, 64px);
+  margin-top: 12px;
+  font-size: clamp(30px, 3vw, 44px);
 }
 
 .nx-h2-s {
-  font-size: clamp(36px, 3.9vw, 54px);
+  font-size: clamp(28px, 2.7vw, 40px);
 }
 
 .nx-lede {
@@ -173,7 +173,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 40px;
-  margin-bottom: 52px;
+  margin-bottom: 32px;
 }
 
 .nx-pill {
@@ -374,11 +374,11 @@
 /* Sized by width AND height so the headline, copy and buttons always fit on screen. */
 .nx-hero-t {
   margin-top: 18px;
-  font-size: clamp(46px, min(8.4vw, 12.5vh), 124px);
+  font-size: clamp(40px, min(5.6vw, 10vh), 80px);
 }
 
 .nx-hero-t.is-long {
-  font-size: clamp(42px, min(6.4vw, 10vh), 100px);
+  font-size: clamp(36px, min(4.8vw, 8.6vh), 68px);
 }
 
 .nx-hero-sub {
@@ -502,7 +502,7 @@
 .nx-bento {
   display: grid;
   grid-template-columns: 1.25fr 1fr 1fr;
-  grid-template-rows: 340px 340px;
+  grid-template-rows: 220px 220px;
   gap: 16px;
 }
 
@@ -558,11 +558,11 @@ a.nx-tile:hover > img {
 
 .nx-tile-h {
   display: block;
-  font-size: clamp(34px, 3.2vw, 44px);
+  font-size: clamp(26px, 2.4vw, 34px);
 }
 
 .is-big .nx-tile-h {
-  font-size: clamp(48px, 4.8vw, 68px);
+  font-size: clamp(34px, 3.4vw, 50px);
 }
 
 .nx-tile-p {
@@ -1115,7 +1115,7 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-finder-l {
-  padding: clamp(28px, 4vw, 56px);
+  padding: clamp(24px, 3vw, 40px);
   background: linear-gradient(160deg, #17121e, #0e0c11);
 }
 
@@ -1379,7 +1379,7 @@ a.nx-tile:hover .nx-arrow {
 .nx-craft {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  min-height: 720px;
+  min-height: 540px;
   background: var(--nx-bg2);
 }
 
@@ -1398,13 +1398,13 @@ a.nx-tile:hover .nx-arrow {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: clamp(60px, 8vw, 110px) clamp(24px, 6vw, 80px);
+  padding: clamp(40px, 4.5vw, 64px) clamp(24px, 5vw, 64px);
 }
 
 .nx-craft-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  margin-top: 44px;
+  margin-top: 28px;
   padding: 0;
   list-style: none;
   border-top: 1px solid var(--nx-line);
@@ -1455,7 +1455,7 @@ a.nx-tile:hover .nx-arrow {
 .nx-score > b {
   display: block;
   margin-top: 14px;
-  font-size: clamp(88px, 9vw, 128px);
+  font-size: clamp(60px, 6vw, 88px);
   font-weight: 400;
   line-height: 0.9;
   letter-spacing: -0.05em;
@@ -1480,7 +1480,7 @@ a.nx-tile:hover .nx-arrow {
 
 .nx-q {
   margin: 0;
-  padding: 30px;
+  padding: 22px 24px;
   border: 1px solid var(--nx-line);
   border-radius: 4px;
   background: var(--nx-bg2);
@@ -1492,10 +1492,10 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-q blockquote {
-  margin: 14px 0 22px;
+  margin: 10px 0 16px;
   font-family: var(--nx-serif);
   font-style: italic;
-  font-size: 24px;
+  font-size: 19px;
   line-height: 1.3;
 }
 
@@ -1559,7 +1559,7 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-journal.is-2 {
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 1fr 1fr;
 }
 
 .nx-post {
@@ -1569,7 +1569,7 @@ a.nx-tile:hover .nx-arrow {
 
 .nx-post-ph {
   display: block;
-  aspect-ratio: 16 / 11;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   margin-bottom: 16px;
   border-radius: 3px;
@@ -1661,7 +1661,7 @@ a.nx-tile:hover .nx-arrow {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 660px;
+  min-height: 460px;
   overflow: hidden;
   text-align: center;
 }
@@ -1686,7 +1686,7 @@ a.nx-tile:hover .nx-arrow {
 
 .nx-end-h {
   margin: 18px 0 22px;
-  font-size: clamp(54px, 7.8vw, 112px);
+  font-size: clamp(40px, 5vw, 68px);
 }
 
 .nx-end .nx-lede {
@@ -2471,13 +2471,13 @@ a.nx-tile:hover .nx-arrow {
   position: relative;
   display: flex;
   align-items: flex-end;
-  min-height: max(560px, min(78svh, 820px));
+  min-height: max(380px, min(54svh, 520px));
   overflow: hidden;
   background: var(--nx-tile);
 }
 
 .nx-phero.is-short {
-  min-height: max(460px, min(60svh, 640px));
+  min-height: max(320px, min(42svh, 420px));
 }
 
 .nx-phero > img {
@@ -2509,10 +2509,10 @@ a.nx-tile:hover .nx-arrow {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 48px;
+  gap: 24px;
   min-height: inherit;
-  padding-top: 112px;
-  padding-bottom: clamp(40px, 5vw, 64px);
+  padding-top: 100px;
+  padding-bottom: clamp(28px, 3vw, 40px);
 }
 
 .nx-crumbs ol {
@@ -2549,17 +2549,17 @@ a.nx-tile:hover .nx-arrow {
 
 .nx .nx-phero-t {
   margin-top: 16px;
-  font-size: clamp(48px, min(8vw, 13vh), 120px);
+  font-size: clamp(38px, min(5vw, 9vh), 64px);
   overflow-wrap: anywhere;
 }
 
 .nx-phero.is-short .nx-phero-t {
-  font-size: clamp(40px, min(6.4vw, 11vh), 96px);
+  font-size: clamp(34px, min(4.2vw, 8vh), 56px);
 }
 
 .nx-phero-sub {
   max-width: 520px;
-  margin-top: 22px;
+  margin-top: 14px;
   font-size: 16px;
   color: #cfc8d2;
 }
@@ -2568,8 +2568,8 @@ a.nx-tile:hover .nx-arrow {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 14px 28px;
-  margin-top: 30px;
+  gap: 12px 24px;
+  margin-top: 20px;
 }
 
 .nx-phero-meta {
@@ -2592,7 +2592,7 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-head-tight {
-  margin-bottom: 32px;
+  margin-bottom: 22px;
 }
 
 /* sub-collection tiles */
@@ -2619,8 +2619,8 @@ a.nx-tile:hover .nx-arrow {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 380px;
-  padding: 22px;
+  min-height: 260px;
+  padding: 18px;
   overflow: hidden;
   border-radius: 3px;
   background: var(--nx-tile);
@@ -2628,7 +2628,7 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-subs.is-1 .nx-sub {
-  min-height: 300px;
+  min-height: 220px;
 }
 
 .nx-sub > img,
@@ -2866,7 +2866,7 @@ a.nx-tile:hover .nx-arrow {
   display: grid;
   grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr));
   gap: 14px;
-  padding-top: clamp(40px, 5vw, 64px);
+  padding-top: clamp(24px, 3vw, 36px);
 }
 
 .nx-banners.is-2 {
@@ -2876,15 +2876,13 @@ a.nx-tile:hover .nx-arrow {
 .nx-banner {
   position: relative;
   display: block;
-  aspect-ratio: 16 / 5;
+  height: clamp(110px, 12vw, 170px);
   overflow: hidden;
   border-radius: 3px;
   background: var(--nx-tile);
 }
 
-.nx-banners.is-2 .nx-banner {
-  aspect-ratio: 16 / 7;
-}
+
 
 .nx-banner img {
   height: 100%;
@@ -2923,7 +2921,7 @@ a.nx-tile:hover .nx-arrow {
 
 .nx .nx-band-t {
   margin-top: 12px;
-  font-size: clamp(32px, 3.6vw, 52px);
+  font-size: clamp(26px, 2.4vw, 36px);
 }
 
 .nx-back {
@@ -2944,12 +2942,12 @@ a.nx-tile:hover .nx-arrow {
 @media (max-width: 767px) {
   .nx-phero,
   .nx-phero.is-short {
-    min-height: 520px;
+    min-height: 400px;
   }
 
   .nx-phero-in {
-    padding-top: 92px;
-    gap: 32px;
+    padding-top: 84px;
+    gap: 20px;
   }
 
   .nx-phero-shade {
@@ -2963,7 +2961,7 @@ a.nx-tile:hover .nx-arrow {
   }
 
   .nx-sub {
-    min-height: 260px;
+    min-height: 200px;
   }
 
   .nx-toolbar {
@@ -2984,9 +2982,8 @@ a.nx-tile:hover .nx-arrow {
     --cols: 1;
   }
 
-  .nx-banner,
-  .nx-banners.is-2 .nx-banner {
-    aspect-ratio: 16 / 8;
+  .nx-banner {
+    height: 120px;
   }
 }
 
@@ -3094,7 +3091,7 @@ a.nx-tile:hover .nx-arrow {
 .nx .nx-room-h {
   display: block;
   margin-top: 10px;
-  font-size: clamp(28px, 3.4vw, 48px);
+  font-size: clamp(24px, 2.4vw, 34px);
   transition: color 0.3s;
 }
 
@@ -3160,7 +3157,7 @@ a.nx-tile:hover .nx-arrow {
 
 /* product page */
 .nx-pd {
-  padding-top: 112px;
+  padding-top: 96px;
 }
 
 .nx-pd-grid {
@@ -3183,6 +3180,7 @@ a.nx-tile:hover .nx-arrow {
 .nx-pd-main {
   position: relative;
   aspect-ratio: 4 / 5;
+  max-height: calc(100svh - 150px);
   overflow: hidden;
   border-radius: 3px;
   background: var(--nx-tile);
@@ -3239,7 +3237,7 @@ a.nx-tile:hover .nx-arrow {
 
 .nx .nx-pd-t {
   margin-top: 16px;
-  font-size: clamp(38px, 4.4vw, 64px);
+  font-size: clamp(30px, 2.8vw, 40px);
 }
 
 .nx-pd-stones {
@@ -3266,13 +3264,13 @@ a.nx-tile:hover .nx-arrow {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 8px 14px;
-  margin-top: 30px;
-  padding-top: 26px;
+  margin-top: 22px;
+  padding-top: 20px;
   border-top: 1px solid var(--nx-line);
 }
 
 .nx-pd-price > span {
-  font-size: 30px;
+  font-size: 26px;
   font-weight: 400;
   letter-spacing: -0.01em;
 }
@@ -3509,8 +3507,13 @@ a.nx-tile:hover .nx-arrow {
   }
 
   .nx-pd-main {
+    aspect-ratio: 1;
     margin-inline: calc(var(--nx-pad) * -1);
     border-radius: 0;
+  }
+
+  .nx .nx-pd-t {
+    font-size: 28px;
   }
 
   .nx-pd-buy {
@@ -3593,7 +3596,7 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-intro {
-  padding: 136px 0 48px;
+  padding: 100px 0 22px;
   border-bottom: 1px solid var(--nx-line);
   background: radial-gradient(ellipse 45% 100% at 8% 0%, rgba(167, 139, 255, 0.045), transparent 70%);
 }
@@ -3603,8 +3606,8 @@ a.nx-tile:hover .nx-arrow {
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 28px 48px;
-  margin-top: 40px;
+  gap: 20px 40px;
+  margin-top: 18px;
 }
 
 .nx-intro-copy {
@@ -3618,17 +3621,17 @@ a.nx-tile:hover .nx-arrow {
 
 .nx .nx-intro-t {
   margin-top: 16px;
-  font-size: clamp(44px, 6vw, 88px);
+  font-size: clamp(32px, 3.4vw, 50px);
   overflow-wrap: anywhere;
 }
 
 .nx-intro.is-narrow .nx-intro-t {
-  font-size: clamp(38px, 4.8vw, 72px);
+  font-size: clamp(30px, 3vw, 46px);
 }
 
 .nx-intro-sub {
   max-width: 560px;
-  margin-top: 20px;
+  margin-top: 12px;
   font-size: 16px;
   color: #cfc8d2;
 }
@@ -3688,7 +3691,7 @@ a.nx-tile:hover .nx-arrow {
 .nx .nx-post-lh {
   display: block;
   margin-top: 16px;
-  font-size: clamp(32px, 3.6vw, 54px);
+  font-size: clamp(28px, 2.6vw, 40px);
 }
 
 .nx-post-p {
@@ -3997,7 +4000,7 @@ a.nx-tile:hover .nx-arrow {
 .nx .nx-close-t {
   max-width: 920px;
   margin: 16px auto 0;
-  font-size: clamp(36px, 5vw, 72px);
+  font-size: clamp(30px, 3.2vw, 46px);
 }
 
 .nx-close .nx-lede {
@@ -4211,7 +4214,7 @@ a.nx-tile:hover .nx-arrow {
 
 .nx .nx-auth-t {
   margin-top: 14px;
-  font-size: clamp(48px, 6vw, 96px);
+  font-size: clamp(38px, 4vw, 60px);
 }
 
 .nx-auth-art-c .nx-lede {
@@ -4352,8 +4355,8 @@ a.nx-tile:hover .nx-arrow {
   }
 
   .nx-auth-art {
-    min-height: 420px;
-    padding-top: 110px;
+    min-height: 300px;
+    padding-top: 96px;
   }
 
   .nx-auth-form {
@@ -4830,20 +4833,20 @@ a.nx-tile:hover .nx-arrow {
 
 .nx .nx-phero-t.is-long,
 .nx-phero.is-short .nx-phero-t.is-long {
-  font-size: clamp(36px, min(5vw, 9vh), 76px);
+  font-size: clamp(32px, min(3.8vw, 7.5vh), 52px);
 }
 
 /* =====================================================================
    Customization studio · purpose path
    ===================================================================== */
 .nx-intro.is-compact {
-  padding: 104px 0 8px;
+  padding: 96px 0 4px;
   border-bottom: 0;
   background: none;
 }
 
 .nx-intro.is-compact .nx-intro-row {
-  margin-top: 14px;
+  margin-top: 0;
 }
 
 .nx-intro.is-compact .nx-intro-copy {
@@ -4852,24 +4855,24 @@ a.nx-tile:hover .nx-arrow {
 
 .nx .nx-intro.is-compact .nx-intro-t {
   margin-top: 0;
-  font-size: clamp(28px, 2.8vw, 40px);
+  font-size: clamp(26px, 2.3vw, 34px);
 }
 
 .nx-intro.is-compact .nx-intro-sub {
   max-width: 720px;
-  margin-top: 8px;
+  margin-top: 6px;
   font-size: 14px;
   color: var(--nx-muted);
 }
 
 .nx-studio-body {
-  padding-bottom: 96px;
+  padding-bottom: 48px;
 }
 
 /* step rail */
 .nx-studio.nx-studio .studio-steps {
   gap: 0;
-  margin: 0 0 36px;
+  margin: 0 0 22px;
   padding: 0;
   border-bottom: 1px solid var(--nx-line);
 }
@@ -4881,8 +4884,8 @@ a.nx-tile:hover .nx-arrow {
 .nx-studio.nx-studio .studio-chip,
 .nx-studio.nx-studio .studio-chip:not(.is-on):not(.is-done) {
   gap: 10px;
-  margin: 0 32px -1px 0;
-  padding: 18px 0 16px;
+  margin: 0 28px -1px 0;
+  padding: 12px 0 11px;
   border: 0;
   border-bottom: 2px solid transparent;
   border-radius: 0;
@@ -4944,8 +4947,8 @@ a.nx-tile:hover .nx-arrow {
 /* purpose tiles */
 .nx-ptiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(188px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
 }
 
 .nx-ptile {
@@ -4953,8 +4956,7 @@ a.nx-tile:hover .nx-arrow {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  min-height: 268px;
-  padding: 18px 18px 20px;
+  padding: 12px 14px 14px;
   border: 1px solid var(--nx-line);
   border-radius: 3px;
   background:
@@ -5007,9 +5009,9 @@ a.nx-tile:hover .nx-arrow {
   display: grid;
   place-items: center;
   align-self: center;
-  width: 104px;
-  height: 104px;
-  margin: 10px 0 18px;
+  width: 68px;
+  height: 68px;
+  margin: 2px 0 10px;
 }
 
 .nx-ptile-art img {
@@ -5034,7 +5036,7 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-ptile-h {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: -0.01em;
   line-height: 1.15;
@@ -5044,12 +5046,12 @@ a.nx-tile:hover .nx-arrow {
 
 .nx-ptile-p {
   display: -webkit-box;
-  margin-top: 8px;
+  margin-top: 4px;
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.45;
   color: var(--nx-muted);
 }
 
@@ -5246,14 +5248,13 @@ a.nx-tile:hover .nx-arrow {
   }
 
   .nx-ptile {
-    min-height: 220px;
-    padding: 14px 14px 16px;
+    padding: 12px;
   }
 
   .nx-ptile-art {
-    width: 80px;
-    height: 80px;
-    margin: 6px 0 14px;
+    width: 56px;
+    height: 56px;
+    margin: 2px 0 8px;
   }
 
   .nx-ptile-h {
@@ -5276,9 +5277,9 @@ a.nx-tile:hover .nx-arrow {
 .nx-chosen {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 28px;
-  padding: 14px 18px;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 10px 16px;
   border: 1px solid var(--nx-line);
   border-radius: 3px;
   background: var(--nx-bg2);
@@ -5288,8 +5289,8 @@ a.nx-tile:hover .nx-arrow {
   display: grid;
   place-items: center;
   flex: none;
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   font-size: 28px;
 }
 
@@ -5346,8 +5347,8 @@ a.nx-tile:hover .nx-arrow {
 
 .nx-itiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px;
 }
 
 .nx-itile {
@@ -5355,8 +5356,7 @@ a.nx-tile:hover .nx-arrow {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  min-height: 176px;
-  padding: 16px 18px 18px;
+  padding: 12px 14px;
   border: 1px solid var(--nx-line);
   border-radius: 3px;
   background: var(--nx-tile);
@@ -5403,8 +5403,8 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-itile-h {
-  margin-top: 14px;
-  font-size: 16px;
+  margin-top: 6px;
+  font-size: 14px;
   font-weight: 500;
   line-height: 1.15;
   text-transform: uppercase;
@@ -5412,9 +5412,9 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-itile-b {
-  margin-top: 6px;
+  margin-top: 3px;
   font-family: var(--nx-serif);
-  font-size: 17px;
+  font-size: 15px;
   font-style: italic;
   line-height: 1.2;
   color: var(--nx-champ);
@@ -5422,11 +5422,11 @@ a.nx-tile:hover .nx-arrow {
 
 .nx-itile-p {
   display: -webkit-box;
-  margin-top: 8px;
+  margin-top: 4px;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  font-size: 13px;
+  -webkit-line-clamp: 1;
+  font-size: 12px;
   line-height: 1.5;
   color: var(--nx-muted);
 }
@@ -5436,7 +5436,7 @@ a.nx-tile:hover .nx-arrow {
   align-items: center;
   gap: 6px;
   margin-top: auto;
-  padding-top: 14px;
+  padding-top: 8px;
   font-size: 12px;
   font-weight: 500;
   color: var(--nx-soft);
@@ -5559,7 +5559,7 @@ a.nx-tile:hover .nx-arrow {
 
 .nx-cm-head {
   flex: none;
-  padding: 22px 28px 0;
+  padding: 16px 24px 0;
   border-bottom: 1px solid var(--nx-line);
 }
 
@@ -5573,7 +5573,7 @@ a.nx-tile:hover .nx-arrow {
 .nx .nx-cm-t {
   margin-top: 8px;
   font-family: var(--nx-sans);
-  font-size: clamp(24px, 2.4vw, 32px);
+  font-size: clamp(22px, 2vw, 26px);
   font-weight: 500;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -5600,7 +5600,7 @@ a.nx-tile:hover .nx-arrow {
 .nx-cm-tabs {
   display: flex;
   gap: 28px;
-  margin: 18px 0 0;
+  margin: 12px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -5609,7 +5609,7 @@ a.nx-tile:hover .nx-arrow {
   display: flex;
   gap: 8px;
   margin-bottom: -1px;
-  padding: 0 0 12px;
+  padding: 0 0 10px;
   border: 0;
   border-bottom: 2px solid transparent;
   background: none;
@@ -5641,7 +5641,7 @@ a.nx-tile:hover .nx-arrow {
 .nx-cm-body {
   flex: 1;
   min-height: 0;
-  padding: 22px 28px 26px;
+  padding: 16px 24px 20px;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -5774,10 +5774,11 @@ a.nx-tile:hover .nx-arrow {
 
 .nx-cm-sizes button {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 14px 8px;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 8px;
   border: 1px solid var(--nx-line);
   border-radius: 3px;
   background: var(--nx-tile);
@@ -5809,7 +5810,7 @@ a.nx-tile:hover .nx-arrow {
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 26px;
+  margin-top: 16px;
 }
 
 .nx-cm-count .nx-cm-label {
@@ -5854,7 +5855,7 @@ a.nx-tile:hover .nx-arrow {
   grid-template-columns: 44px minmax(0, 1fr) auto;
   align-items: center;
   gap: 14px;
-  padding: 12px 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--nx-line);
 }
 
@@ -5883,7 +5884,7 @@ a.nx-tile:hover .nx-arrow {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 28px;
+  padding: 12px 24px;
   border-top: 1px solid var(--nx-line);
   background: var(--nx-bg2);
 }
@@ -5913,7 +5914,7 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-cm-actions .nx-btn {
-  height: 50px;
+  height: 46px;
   padding: 0 26px;
 }
 
@@ -5990,9 +5991,9 @@ a.nx-tile:hover .nx-arrow {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px 20px;
-  margin-bottom: 22px;
-  padding-bottom: 18px;
+  gap: 10px 20px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--nx-line);
 }
 
@@ -6071,7 +6072,7 @@ a.nx-tile:hover .nx-arrow {
 /* studio step 3 · date of birth (purpose path) */
 .nx-birth {
   display: grid;
-  gap: 36px;
+  gap: 24px;
 }
 
 .nx-birth-hint {
@@ -6081,14 +6082,14 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-birth-date {
-  padding: 24px;
+  padding: 18px 20px;
   border: 1px solid var(--nx-line);
   border-radius: 3px;
   background: var(--nx-bg2);
 }
 
 .nx-birth-date-c {
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .nx-studio.nx-studio .studio-birth-fields {
@@ -6115,7 +6116,7 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-studio.nx-studio .studio-birth-fields .studio-select {
-  height: 52px;
+  height: 46px;
   padding: 0 14px;
   border: 1px solid var(--nx-line2);
   border-radius: 2px;
@@ -6172,7 +6173,7 @@ a.nx-tile:hover .nx-arrow {
 .nx-pb {
   display: flex;
   flex-direction: column;
-  padding: 18px;
+  padding: 14px;
   border: 1px solid var(--nx-line);
   border-radius: 3px;
   background: var(--nx-tile);
@@ -6212,8 +6213,8 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-pb-v {
-  margin-top: 10px;
-  font-size: 40px;
+  margin-top: 4px;
+  font-size: 28px;
   font-weight: 400;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -6228,9 +6229,9 @@ a.nx-tile:hover .nx-arrow {
 .nx-pb-bead {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 16px;
-  padding-top: 16px;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px solid var(--nx-line);
 }
 
@@ -6257,9 +6258,13 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-pb-why {
-  margin-top: 12px;
-  font-size: 13px;
-  line-height: 1.5;
+  display: -webkit-box;
+  margin-top: 8px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 12px;
+  line-height: 1.45;
   color: var(--nx-muted);
 }
 
@@ -6274,7 +6279,7 @@ a.nx-tile:hover .nx-arrow {
   grid-template-columns: 1.4fr 1fr;
   gap: 6px;
   margin-top: auto;
-  padding-top: 16px;
+  padding-top: 12px;
 }
 
 .nx-yn button {
@@ -6282,7 +6287,7 @@ a.nx-tile:hover .nx-arrow {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 42px;
+  height: 38px;
   border: 1px solid var(--nx-line2);
   border-radius: 2px;
   background: none;
@@ -6356,32 +6361,6 @@ a.nx-tile:hover .nx-arrow {
   .nx-pbs {
     grid-template-columns: minmax(0, 1fr);
   }
-
-  .nx-pb {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-    column-gap: 18px;
-  }
-
-  .nx-pb-top,
-  .nx-pb-v,
-  .nx-pb-sub {
-    grid-column: 1;
-  }
-
-  .nx-pb-bead {
-    grid-column: 2;
-    grid-row: 1 / span 3;
-    margin-top: 0;
-    padding-top: 0;
-    border-top: 0;
-  }
-
-  .nx-pb-why,
-  .nx-pb-note,
-  .nx-yn {
-    grid-column: 1 / -1;
-  }
 }
 
 @media (max-width: 767px) {
@@ -6399,20 +6378,12 @@ a.nx-tile:hover .nx-arrow {
     font-size: 14px;
   }
 
-  .nx-pb {
-    display: flex;
-  }
 
-  .nx-pb-bead {
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid var(--nx-line);
-  }
 }
 
 .nx .nx-pb-gem {
-  width: 48px;
-  height: 48px;
+  width: 38px;
+  height: 38px;
 }
 
 /* studio step 4 · charm and thread (purpose path) */
@@ -6769,8 +6740,8 @@ a.nx-tile:hover .nx-arrow {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin: 0 0 22px;
+  gap: 6px;
+  margin: 14px 0 6px;
 }
 
 .nx-paths-l {
@@ -6783,7 +6754,7 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-paths a {
-  padding: 8px 16px;
+  padding: 6px 14px;
   border: 1px solid var(--nx-line2);
   border-radius: 999px;
   font-size: 13px;
@@ -6811,7 +6782,7 @@ a.nx-tile:hover .nx-arrow {
 
 .nx-glyph {
   font-family: 'Segoe UI Symbol', 'Noto Sans Symbols', 'Apple Symbols', var(--nx-serif), serif;
-  font-size: 46px;
+  font-size: 32px;
   line-height: 1;
   color: var(--nx-champ);
   transition: color 0.3s, transform 0.4s ease;
@@ -6831,7 +6802,7 @@ a.nx-tile:hover .nx-arrow {
 
 .nx-ptile-skel {
   aspect-ratio: auto;
-  min-height: 268px;
+  min-height: 190px;
 }
 
 .nx-numrows {
@@ -6896,5 +6867,177 @@ a.nx-tile:hover .nx-arrow {
 @media (max-width: 767px) {
   .nx-paths-l {
     display: none;
+  }
+}
+
+/* Bag: the total and Checkout come straight after the heading; coupons follow. */
+.nx-skin.nx-skin.cart-page:not(.checkout-page) .bag-summary {
+  display: flex;
+  flex-direction: column;
+}
+
+.nx-skin.nx-skin.cart-page:not(.checkout-page) .bag-summary > * {
+  order: 3;
+}
+
+.nx-skin.nx-skin.cart-page:not(.checkout-page) .bag-summary > .bag-summary-kicker,
+.nx-skin.nx-skin.cart-page:not(.checkout-page) .bag-summary > .bag-summary-title {
+  order: 0;
+}
+
+.nx-skin.nx-skin.cart-page:not(.checkout-page) .bag-summary > .bag-summary-rows {
+  order: 1;
+  margin: 0 0 4px;
+}
+
+.nx-skin.nx-skin.cart-page:not(.checkout-page) .bag-summary > .bag-summary-actions {
+  order: 2;
+  margin: 12px 0 22px;
+}
+
+.nx-skin.nx-skin .bag-summary-title {
+  margin: 8px 0 12px;
+  font-size: 26px;
+}
+
+/* Studio action bar stays in view on laptops too (it is already pinned on phones). */
+@media (min-width: 1024px) {
+  .nx-studio.nx-studio .studio-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    margin-top: 20px;
+    padding: 12px 0;
+    border-top: 1px solid var(--nx-line2);
+    background: rgba(9, 8, 10, 0.94);
+    backdrop-filter: blur(12px);
+  }
+
+  .nx-studio.nx-studio .studio-actions-hint {
+    margin-bottom: 6px;
+  }
+}
+
+/* Folded price lines in the bracelet preview. */
+.nx-price-more {
+  margin-top: 12px;
+  border-top: 1px solid var(--nx-line);
+}
+
+.nx-price-more summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+  list-style: none;
+  cursor: pointer;
+}
+
+.nx-price-more summary::-webkit-details-marker {
+  display: none;
+}
+
+.nx-price-more summary::after {
+  content: '+';
+  font-size: 16px;
+  font-weight: 300;
+  transition: transform 0.25s;
+}
+
+.nx-price-more[open] summary::after {
+  transform: rotate(45deg);
+}
+
+.nx-price-more .bag-summary-rows {
+  margin-top: 0;
+}
+
+/* The home journal keeps its wide photos (the Journal page sets its own 4:3 crop). */
+.nx-journal .nx-post-ph {
+  aspect-ratio: 2 / 1;
+  margin-bottom: 14px;
+}
+
+.nx-skin.nx-skin .bag-summary-rows > div {
+  padding: 8px 0;
+}
+
+.nx-skin-body {
+  padding-top: 24px;
+}
+
+/* Personal-bead cards: number beside its crystal, Add / Skip pinned to the card bottom. */
+.nx-pb-mid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.nx-pb-mid .nx-pb-bead {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.nx-pb-sub {
+  font-size: 11px;
+}
+
+.nx-birth-date-c {
+  margin-bottom: 10px;
+}
+
+.nx-birth-date .nx-birth-hint {
+  margin-top: 2px;
+}
+
+.nx-birth-head {
+  margin-bottom: 12px;
+}
+
+@media (min-width: 1024px) {
+  /* One line on laptops: hint on the left, Back / step / Next on the right. */
+  .nx-studio.nx-studio .studio-actions {
+    padding: 10px 0;
+  }
+
+  .nx-studio.nx-studio .studio-actions-shell {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 24px;
+  }
+
+  .nx-studio.nx-studio .studio-actions-hint {
+    flex: 1 1 220px;
+    order: 0;
+    margin: 0;
+    font-size: 13px;
+  }
+
+  .nx-studio.nx-studio .studio-actions-row {
+    flex: 1 1 auto;
+    order: 1;
+    justify-content: flex-end;
+    gap: 20px;
+  }
+
+  .nx-studio.nx-studio .studio-actions-next {
+    min-height: 46px;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Last step: Place order sits at the right end of the bar. */
+  .nx-studio.nx-studio .studio-actions-shell > div:not(.studio-actions-row) {
+    order: 2;
+    margin-top: 0;
   }
 }
