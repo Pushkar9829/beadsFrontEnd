@@ -13,6 +13,7 @@ import { useSite } from '../../store/contentStore';
 import { isStaff } from '../../lib/staff';
 import FlashSaleMark from '../ui/FlashSaleMark';
 import useRefreshOnView from '../../hooks/useRefreshOnView';
+import HomeHeaderBar from './HomeHeaderBar';
 
 const fallbackFamilies = [
   { slug: 'crystals', name: 'Crystals' },
@@ -111,17 +112,44 @@ export default function Header() {
     navigate('/cart');
   };
 
-  // On the home page the header floats over the full-bleed hero until the visitor scrolls.
-  const overHero = location.pathname === '/' && !scrolled && !mega;
+  const isHome = location.pathname === '/';
+
+  // Home page: Nocturne header that floats over the full-bleed hero until the visitor scrolls.
+  if (isHome) {
+    return (
+      <>
+        <header ref={headerRef} className={`nxh fixed inset-x-0 top-0 z-40${scrolled || mega ? ' is-solid' : ''}`}>
+          <HomeHeaderBar
+            brandName={String(brand.display || brand.name || 'KUBERSTONES').toUpperCase()}
+            families={families}
+            childrenOf={childrenOf}
+            studioModes={studioModes}
+            collections={collections}
+            nav={brand.nav}
+            mega={mega}
+            openMega={openMega}
+            closeMega={closeMega}
+            emptyCopy={site.pages?.collections?.empty?.copy || site.pages?.category?.empty?.copy || 'No collections in this house yet.'}
+            wishCount={wishCount}
+            cartCount={cartCount}
+            user={user}
+            staff={isStaff(user)}
+            accountOpen={accountOpen}
+            onCart={onCart}
+            onProfile={onProfile}
+          />
+        </header>
+        <AccountDrawer open={accountOpen && !!user} onClose={() => setAccountOpen(false)} />
+      </>
+    );
+  }
 
   return (
     <>
       <header
         ref={headerRef}
         className={`fixed inset-x-0 top-0 z-40 border-b transition-[background,box-shadow,border-color] duration-300 ${
-          overHero
-            ? 'border-transparent bg-linear-to-b from-black/60 to-transparent'
-            : scrolled
+          scrolled
               ? 'border-[rgba(198,167,94,0.32)] bg-black/92 shadow-[0_12px_40px_rgba(0,0,0,0.45)]'
               : 'border-[rgba(198,167,94,0.18)] bg-black/90'
         }`}
@@ -382,7 +410,7 @@ export default function Header() {
           )}
         </nav>
       </header>
-      <div className="shrink-0" style={{ height: location.pathname === '/' ? 0 : headerH }} aria-hidden />
+      <div className="shrink-0" style={{ height: headerH }} aria-hidden />
 
       <AccountDrawer open={accountOpen && !!user} onClose={() => setAccountOpen(false)} />
     </>

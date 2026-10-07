@@ -8,6 +8,8 @@ export default function SkyBoot({ skyReady }) {
   const settingsReady = useSettingsStore((s) => s.loadedAt > 0);
   const pageReady = useBootStore((s) => s.pageReady);
   const brand = useBrand();
+  // The home page covers the animated sky with its own solid backdrop, so it never waits for it.
+  const [isHome] = useState(() => window.location.pathname === '/');
   const [open, setOpen] = useState(true);
   const [leaving, setLeaving] = useState(false);
   const [fontsReady, setFontsReady] = useState(typeof document === 'undefined' || !document.fonts || document.fonts.status === 'loaded');
@@ -53,15 +55,26 @@ export default function SkyBoot({ skyReady }) {
 
     const tryFinish = () => {
       if (performance.now() - started.current < minMs) return;
-      if (skyReady && contentReady && settingsReady && fontsReady && pageReady) finish();
+      if ((skyReady || isHome) && contentReady && settingsReady && fontsReady && pageReady) finish();
     };
 
     tryFinish();
     const waitMin = window.setTimeout(tryFinish, minMs);
     return () => window.clearTimeout(waitMin);
-  }, [skyReady, contentReady, settingsReady, fontsReady, pageReady, leaving]);
+  }, [skyReady, isHome, contentReady, settingsReady, fontsReady, pageReady, leaving]);
 
   if (!open) return null;
+
+  if (isHome) {
+    return (
+      <div className={`sky-boot sky-boot-nx${leaving ? ' is-out' : ''}`} aria-busy="true" aria-live="polite">
+        <div className="sky-boot-nx-mark">
+          <p>{String(brand.display || 'Kuberstones').toUpperCase()}</p>
+          <span aria-hidden />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`sky-boot${leaving ? ' is-out' : ''}`} aria-busy="true" aria-live="polite">
