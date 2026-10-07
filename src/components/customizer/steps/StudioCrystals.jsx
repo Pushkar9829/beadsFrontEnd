@@ -1,9 +1,9 @@
-// Crystals step for the layer paths: opens the crystal popup straight away and keeps a
-// summary bar to reopen it. Same flow as the original CrystalGate.
+// Crystals step for the non-purpose paths: opens the crystal popup straight away and keeps a
+// summary bar to reopen it.
 import { useState } from 'react';
 import { useCustomizerStore } from '../../../store/customizerStore';
 import { qtyOf } from '../../../lib/studioFlow';
-import NCrystalModal from '../NCrystalModal';
+import CrystalModal from '../CrystalModal';
 
 export default function StudioCrystals() {
   const recommended = useCustomizerStore((s) => s.recommended);
@@ -32,7 +32,7 @@ export default function StudioCrystals() {
         </span>
         <span className="nx-chosen-edit">{picked.length ? 'Edit' : 'Open'}</span>
       </button>
-      <NCrystalModal open={open} onClose={() => setOpen(false)} onComplete={onComplete} />
+      <CrystalModal open={open} onClose={() => setOpen(false)} onComplete={onComplete} />
     </div>
   );
 }

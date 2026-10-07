@@ -33,9 +33,6 @@ export function crystalLimits(state) {
 }
 
 export function selectionReady(state) {
-  if (state.path === 'purpose') {
-    return Boolean(state.purpose) && (state.selectedIntentions || []).length > 0;
-  }
   if (state.path === 'numerology') {
     return Boolean(state.mulankNumber || state.bhagyankNumber);
   }
@@ -45,147 +42,23 @@ export function selectionReady(state) {
 export function selectionHint(path, config) {
   const mode = (config?.studioModes || []).find((row) => row.slug === path);
   if (mode?.chooseHint) return mode.chooseHint;
-  if (path === 'numerology') return 'Choose a Mulank or Bhagyank number to continue.';
+  if (path === 'numerology') return 'Enter your date of birth to continue.';
   if (path === 'zodiac') return 'Choose your zodiac sign to continue.';
   if (path === 'planetary') return 'Choose a planet to continue.';
   if (path === 'profession') return 'Choose the work you do to continue.';
-  const cap = Number(config?.intentionCap) || 3;
-  return `Choose a purpose, then up to ${cap} intention${cap === 1 ? '' : 's'}.`;
+  return 'Choose an option to continue.';
 }
 
-export const STUDIO_FLOW = [
-  {
-    id: 'choose',
-    label: 'Choose',
-    eyebrow: 'Step 01 · Choose',
-    title: 'What is this bracelet for?',
-    body: 'Begin with why you wear it. Your choice sets the crystals we suggest next.',
-    validate: selectionReady,
-    hint: (state) => selectionHint(state.path, state.config),
-  },
-  {
-    id: 'crystals',
-    label: 'Crystals',
-    eyebrow: 'Step 02 · Crystals',
-    title: 'Choose your crystals',
-    body: 'We have pre-selected the traditional stones. Add or remove any of them.',
-    validate: (state) => crystalLimits(state).ok,
-    hint: (state) => crystalLimits(state).message,
-  },
-  {
-    id: 'fit',
-    label: 'Fit',
-    eyebrow: 'Step 03 · Fit',
-    title: 'How it should fit',
-    body: 'Bead size and wrist size together set how many beads the strand carries.',
-    validate: (state) => Boolean(state.wristSize && state.beadSizeMm),
-    hint: () => 'Choose a bead size and a wrist size.',
-  },
-  {
-    id: 'finish',
-    label: 'Finish',
-    eyebrow: 'Step 04 · Finish',
-    title: 'Finish the piece',
-    body: 'Pick the charm at the clasp, the accent, the thread, and an optional name.',
-    validate: (state) => state.config?.charmRequired === false || Boolean(state.charm),
-    hint: (state) => (state.config?.charmRequired === false ? '' : (state.config?.charmHint || 'Choose a charm to continue.')),
-  },
-  {
-    id: 'review',
-    label: 'Review',
-    eyebrow: 'Step 05 · Review',
-    title: 'Review & order',
-    body: 'Confirm the composition, then place the piece in your bag.',
-    validate: () => true,
-    hint: () => '',
-  },
-];
-
-function numbersChosen(state) {
-  const picked = (value) => value === true || value === false;
-  return picked(state.includeMulankBead) && picked(state.includeBhagyankBead) && picked(state.includeZodiacBead);
-}
-
-function intentionBeadsReady(state) {
-  return Boolean(state.intention) && selectedCrystals(state).length > 0;
-}
-
-function charmReady(state) {
-  if (state.config?.charmRequired !== false && !state.charm) return false;
-  if (state.threadType === 'steel-core' && !state.wristSize) return false;
-  return true;
-}
-
-// The purpose path keeps the earlier wizard: one intention, then birth, zodiac, and charm.
-export const PURPOSE_FLOW = [
-  {
-    id: 'purpose',
-    label: 'Purpose',
-    eyebrow: 'Step 01 · Purpose',
-    title: 'Choose a purpose',
-    body: 'Start with the feeling you want this piece to hold. Intentions appear only after you choose.',
-    validate: (state) => Boolean(state.purpose),
-    hint: () => 'Choose a purpose to continue.',
-  },
-  {
-    id: 'intention',
-    label: 'Intention',
-    eyebrow: 'Step 02 · Intention',
-    title: 'Choose an intention',
-    body: 'One intention sets the crystals. Each mapped stone starts on the strand. Turn any of them off before you continue.',
-    validate: intentionBeadsReady,
-    hint: () => 'Select an intention so its crystals are chosen.',
-  },
-  {
-    id: 'birth',
-    label: 'Birth',
-    eyebrow: 'Step 03 · Birth',
-    title: 'Date of birth',
-    body: 'Your date sets Mulank, Bhagyank, and your zodiac sign. Then choose the number beads and the sign’s crystals.',
-    validate: (state) => {
-      if (state.path !== 'purpose') return Boolean(state.dateOfBirth);
-      if (!state.dateOfBirth) return false;
-      if (!numbersChosen(state)) return false;
-      const target = [16, 18, 22].includes(Number(state.strandCount)) ? Number(state.strandCount) : 18;
-      const total = Object.values(state.quantities || {}).reduce((sum, n) => sum + (Number(n) || 0), 0);
-      return total === target;
-    },
-    hint: (state) => {
-      if (!state.dateOfBirth) return 'Choose day, month and year to continue.';
-      if (state.path !== 'purpose') return '';
-      if (!numbersChosen(state)) return 'Choose yes or no for the Mulank bead, the Bhagyank bead, and the zodiac bead.';
-      const target = [16, 18, 22].includes(Number(state.strandCount)) ? Number(state.strandCount) : 18;
-      const total = Object.values(state.quantities || {}).reduce((sum, n) => sum + (Number(n) || 0), 0);
-      if (total !== target) return `This strand is ${target} beads. You have ${total}. Adjust the counts to match.`;
-      return '';
-    },
-  },
-  {
-    id: 'charm',
-    label: 'Charm',
-    eyebrow: 'Step 04 · Charm',
-    title: 'Charm and thread',
-    body: 'Pick the charm at the clasp and the thread. Steel core also needs a wrist size.',
-    validate: charmReady,
-    hint: (state) => {
-      if (state.config?.charmRequired !== false && !state.charm) return state.config?.charmHint || 'Choose a charm to continue.';
-      if (state.threadType === 'steel-core' && !state.wristSize) return 'Choose a wrist size for steel core thread.';
-      return '';
-    },
-  },
-  {
-    id: 'review',
-    label: 'Review',
-    eyebrow: 'Step 05 · Review',
-    title: 'Review & order',
-    body: 'Confirm the composition, then place the piece in your bag.',
-    validate: () => true,
-    hint: () => '',
-  },
-];
-
-export const STEP_COUNT = STUDIO_FLOW.length;
-export const REVIEW_STEP = STEP_COUNT;
+// Step one of the numerology, zodiac, planetary and profession paths.
+const CHOOSE_STEP = {
+  id: 'choose',
+  label: 'Choose',
+  eyebrow: 'Step 01 · Choose',
+  title: 'What is this bracelet for?',
+  body: 'Begin with why you wear it. Your choice sets the crystals we suggest next.',
+  validate: selectionReady,
+  hint: (state) => selectionHint(state.path, state.config),
+};
 
 function strandTarget(state) {
   return [16, 18, 22].includes(Number(state.strandCount)) ? Number(state.strandCount) : 18;
@@ -219,7 +92,7 @@ const PURPOSE_REVIEW = PURPOSE_FLOW.find((entry) => entry.id === 'review');
 // Every non-purpose path takes the date of birth elsewhere (numerology on its first step,
 // planetary and profession on the beads step; zodiac needs none), so none has a birth step.
 const LAYER_FLOW = [
-  STUDIO_FLOW[0],
+  CHOOSE_STEP,
   {
     id: 'crystals',
     label: 'Crystals',
@@ -247,6 +120,9 @@ const LAYER_FLOW = [
   { ...PURPOSE_CHARM, eyebrow: 'Step 04 · Charm' },
   { ...PURPOSE_REVIEW, eyebrow: 'Step 05 · Review' },
 ];
+
+// Every step that appears on any path, once, in first-seen order (the admin edits their copy).
+export const STUDIO_STEPS = [...PURPOSE_FLOW, ...LAYER_FLOW].filter((entry, i, all) => all.findIndex((e) => e.id === entry.id) === i);
 
 export function flowFor(path) {
   return path === 'purpose' ? PURPOSE_FLOW : LAYER_FLOW;

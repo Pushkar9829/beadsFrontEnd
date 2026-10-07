@@ -1,4 +1,3 @@
-import { useCustomizerStore } from '../../store/customizerStore';
 import { mediaUrl } from '../../api/client';
 import { customCardTone } from '../../lib/studioTheme';
 import loveIcon from '../../assets/purposes/love-3d.png';
@@ -214,32 +213,4 @@ export function purposeHasImage(purpose) {
   if (purpose?.image) return true;
   if (purpose?.icon) return false;
   return IMAGES.some((item) => item.match.test(iconHaystack(purpose)));
-}
-
-export default function PurposeGrid() {
-  const purposes = useCustomizerStore((s) => s.purposes);
-  const selected = useCustomizerStore((s) => s.purpose);
-  const selectPurpose = useCustomizerStore((s) => s.selectPurpose);
-
-  return (
-    <div className="purpose-pick">
-      {purposes.map((p) => (
-          <button
-            key={p._id}
-            type="button"
-            onClick={() => selectPurpose(p)}
-            className={`purpose-pick-card ${String(selected?._id) === String(p._id) ? 'is-on' : ''}`}
-            style={purposeToneStyle(p)}
-          >
-            <span className={`purpose-pick-emoji ${purposeHasImage(p) ? 'is-image' : ''}`} aria-hidden>
-              <PurposeIcon purpose={p} />
-            </span>
-            <span className="purpose-pick-copy">
-              <h3>{p.name}</h3>
-              <p>{p.description}</p>
-            </span>
-          </button>
-      ))}
-    </div>
-  );
 }

@@ -198,16 +198,6 @@ export function selectStepHint(state) {
 // Derived objects must not be produced inside a store selector: Zustand caches the
 // snapshot by identity, so a fresh object each call loops forever. Subscribe to the
 // stable slices instead and memoize, the same way useCustomizerQuote does.
-export function useCrystalLimits() {
-  const path = useCustomizerStore((s) => s.path);
-  const recommended = useCustomizerStore((s) => s.recommended);
-  const quantities = useCustomizerStore((s) => s.quantities);
-  return useMemo(
-    () => crystalLimits({ path, recommended, quantities }),
-    [path, recommended, quantities]
-  );
-}
-
 // Canonical query string for the current selection, so the build stays shareable.
 export function selectUrlQuery(state) {
   const q = new URLSearchParams({ path: state.path });
@@ -269,7 +259,6 @@ export const useCustomizerStore = create((set, get) => ({
   threadType: 'korean-elastic',
   engravingName: '',
 
-  detailBead: null,
   previewOpen: false,
   loading: false,
   ready: false,
@@ -385,12 +374,6 @@ export const useCustomizerStore = create((set, get) => ({
   },
 
   // --- path & selection -----------------------------------------------------
-
-  // Drops the current pick but stays on the same path, so "Change" returns the user
-  // to the grid they came from instead of the top of the flow.
-  clearSelection() {
-    set({ ...SELECTION_DEFAULTS, path: get().path, step: 1 });
-  },
 
   async loadLayerItems(kind) {
     const path = kind || get().path;
@@ -607,26 +590,6 @@ export const useCustomizerStore = create((set, get) => ({
     });
   },
 
-  offerZodiacBead() {
-    const state = get();
-    if (!state.dateOfBirth) return;
-    const sign = zodiacFromDate(state.dateOfBirth);
-    const fromCal = state.calibration?.zodiac?.bead;
-    const bead = (state.catalogBeads || []).find((row) => row.name === sign.beadName) || fromCal;
-    const id = idOf(bead?._id || bead?.beadId);
-    if (!id) return;
-    if ((state.recommended || []).some((row) => idOf(row._id) === id)) return;
-    set({
-      recommended: [...(state.recommended || []), { ...bead, _id: bead._id || bead.beadId, roles: ['zodiac'] }],
-      quantities: { ...state.quantities, [id]: 0 },
-    });
-  },
-
-  setZodiacQty(zodiacQty) {
-    const n = Math.max(1, Math.round(Number(zodiacQty) || 0));
-    set({ zodiacQty: n, zodiacAdded: false });
-  },
-
   async runCalibration({ includeZodiac = false, zodiacQty } = {}) {
     const { intention, recommended, quantities, catalogBeads, config, charm, finish, dateOfBirth } = get();
     if (!dateOfBirth) throw new Error('Enter a date of birth.');
@@ -699,17 +662,6 @@ export const useCustomizerStore = create((set, get) => ({
 
   async addZodiacBeads(zodiacQty) {
     return get().runCalibration({ includeZodiac: true, zodiacQty });
-  },
-
-  async toggleIntention(intention) {
-    const current = get().selectedIntentions || [];
-    const exists = current.some((it) => it._id === intention._id);
-    let next = exists ? current.filter((it) => it._id !== intention._id) : [...current, intention];
-    const cap = Number(get().config?.intentionCap) || 3;
-    if (next.length > cap) next = next.slice(-cap);
-    set({ selectedIntentions: next, stepError: '' });
-    get().refresh();
-    await get().loadIntentionBeads(next);
   },
 
   async loadIntentionBeads(list) {
@@ -870,30 +822,6 @@ export const useCustomizerStore = create((set, get) => ({
     set({ ...next, ...deriveSelection({ ...state, ...next }) });
   },
 
-  toggleBead(beadId) {
-    const id = idOf(beadId);
-    if (!id) return;
-    const state = get();
-    const on = qtyOf(state.quantities, id) > 0;
-    const limits = crystalLimits(state);
-    if (!on && limits.count >= limits.max) {
-      set({ stepError: `Keep at most ${limits.max} crystals.` });
-      return;
-    }
-    if (on && limits.count <= 1) {
-      set({ stepError: 'Keep at least one crystal in the strand.' });
-      return;
-    }
-    const selected = state.recommended
-      .filter((bead) => {
-        const beadOn = qtyOf(state.quantities, bead._id) > 0;
-        return idOf(bead._id) === id ? !on : beadOn;
-      })
-      .map((bead) => bead._id);
-    get().setPool(state.recommended, selected, state.rolesById);
-    set({ stepError: '' });
-  },
-
   addCatalogBead(bead) {
     const state = get();
     if (!bead?._id) return;
@@ -965,15 +893,6 @@ export const useCustomizerStore = create((set, get) => ({
     get().applyStrand();
   },
 
-  setBeadSizeMm(beadSizeMm) {
-    set({ beadSizeMm: Number(beadSizeMm) || 8 });
-    get().applyStrand();
-  },
-
-  setCzStyle(czStyle) {
-    set({ czStyle });
-  },
-
   setThreadType(threadType) {
     const config = get().config;
     const sizes = config?.wristSizes || ['5.5"', '6"', '6.5"', '7"', '7.5"', '8"'];
@@ -983,15 +902,7 @@ export const useCustomizerStore = create((set, get) => ({
     get().applyStrand();
   },
 
-  setEngravingName(engravingName) {
-    set({ engravingName });
-  },
-
   // --- ui -------------------------------------------------------------------
-
-  setDetailBead(detailBead) {
-    set({ detailBead });
-  },
 
   setPreviewOpen(previewOpen) {
     set({ previewOpen });
@@ -1057,8 +968,7 @@ export const useCustomizerStore = create((set, get) => ({
       layerItems: [],
       layerKindLoaded: '',
       engravingName: '',
-      detailBead: null,
-      beadSizeMm: get().config?.defaultBeadSizeMm || 8,
+          beadSizeMm: get().config?.defaultBeadSizeMm || 8,
       wristSize: get().config?.defaultWristSize || '6.5"',
       czStyle: get().config?.defaultCzStyle || 'cz',
       threadType: get().config?.defaultThreadType || 'korean-elastic',

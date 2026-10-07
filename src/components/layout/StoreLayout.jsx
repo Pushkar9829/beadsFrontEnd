@@ -1,38 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
-import Footer from './Footer';
+import BootScreen from './BootScreen';
 import { NFooter } from '../home/nocturne/Nocturne';
 import '../home/nocturne/nocturne.css';
-import { isNocturnePath } from '../../lib/nocturne';
-import { useSite } from '../../store/contentStore';
-import Atmosphere from './Atmosphere';
-import SkyBoot from './SkyBoot';
-import { paintGoldShine } from '../../lib/paintGoldShine';
-import { useCustomizerStore } from '../../store/customizerStore';
-import { useContentStore } from '../../store/contentStore';
+import { useSite, useContentStore } from '../../store/contentStore';
 import { useSettingsStore, useBrand } from '../../store/settingsStore';
-import { purposeToneStyle } from '../customizer/PurposeGrid';
 import { useBootStore } from '../../store/bootStore';
 import useRefreshOnView from '../../hooks/useRefreshOnView';
 
 export default function StoreLayout() {
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const site = useSite();
   const brand = useBrand();
-  const nocturne = isNocturnePath(pathname, search);
-  const [skyReady, setSkyReady] = useState(false);
   const markPageReady = useBootStore((s) => s.markPageReady);
   const loadContent = useContentStore((s) => s.load);
   const loadSettings = useSettingsStore((s) => s.load);
-  const purpose = useCustomizerStore((s) => s.purpose);
-  const intention = useCustomizerStore((s) => s.intention);
-  const layer = useCustomizerStore((s) => s.layer);
-  // Tint the studio once a selection exists, keyed off the purpose on that path and
-  // off the layer itself everywhere else.
-  const tone = layer ? { slug: layer.kind, name: layer.name } : intention ? purpose : null;
-  // Nocturne pages keep their own neutral backdrop, so the tint only applies to the original studio.
-  const purposeTone = pathname === '/customize' && tone && !nocturne ? purposeToneStyle(tone) : undefined;
 
   useRefreshOnView((force) => {
     loadContent(force);
@@ -44,32 +27,19 @@ export default function StoreLayout() {
     loadSettings();
   }, [pathname, loadContent, loadSettings]);
 
+  // The home page reports ready once its data is in; every other page is ready on arrival.
   useEffect(() => {
     if (pathname !== '/') markPageReady();
   }, [pathname, markPageReady]);
 
-  useEffect(() => {
-    paintGoldShine();
-    const mo = new MutationObserver(() => paintGoldShine());
-    mo.observe(document.body, { childList: true, subtree: true });
-    return () => mo.disconnect();
-  }, [pathname]);
-
   return (
-    <div className="store-canvas relative flex min-h-screen flex-col text-ivory">
-      <Atmosphere onReady={() => setSkyReady(true)} />
-      <SkyBoot skyReady={skyReady} />
-      <div className="relative z-[1] flex min-h-screen flex-col">
-        <Header />
-        <main
-          className={`flex-1${purposeTone ? ' has-purpose-tone' : ''}`}
-          style={purposeTone}
-        >
-          <Outlet />
-        </main>
-        {/* Nocturne pages use the Nocturne footer, built from the same CMS footer content. */}
-        {nocturne ? <NFooter footer={site.footer} brandName={brand.display || 'KUBERSTONES'} /> : <Footer />}
-      </div>
+    <div className="relative flex min-h-screen flex-col text-ivory">
+      <BootScreen />
+      <Header />
+      <main className="flex-1">
+        <Outlet />
+      </main>
+      <NFooter footer={site.footer} brandName={brand.display || 'KUBERSTONES'} />
     </div>
   );
 }

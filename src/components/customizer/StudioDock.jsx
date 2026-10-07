@@ -13,8 +13,6 @@ import { studioText, useStudioLabels } from '../../lib/studioTheme';
 const NEXT_LABEL_KEY = {
   choose: 'nextChoose',
   crystals: 'nextCrystals',
-  fit: 'nextFit',
-  finish: 'nextFinish',
 };
 
 export default function StudioDock() {

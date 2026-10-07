@@ -1,14 +1,51 @@
-// Crystal popup for the purpose studio (Nocturne). Same store actions and pricing as
-// CrystalSelectModal, which the other studio paths still use.
+// Crystal popup used by every studio path: pick the recommended stones, then build the
+// strand (length, counts, extra crystals from the catalog).
 import { useEffect, useState } from 'react';
 import { Check, Minus, Plus, X } from 'lucide-react';
 import { useCustomizerStore, useCustomizerQuote } from '../../store/customizerStore';
 import { qtyOf } from '../../lib/studioFlow';
 import { formatInr } from '../../lib/format';
 import GemVisual from '../ui/GemVisual';
-import { BEAD_COUNTS, priceForCount } from './CrystalSelectModal';
+import { quoteFromBeads } from '../../lib/calibration';
 
-export default function NCrystalModal({ open, onClose, onComplete }) {
+const BEAD_COUNTS = [16, 18, 22];
+
+function priceOf(beads, quantities, config, finish) {
+  return quoteFromBeads(
+    config,
+    (beads || []).map((bead) => ({ ...bead, quantity: qtyOf(quantities, bead._id) })),
+    finish
+  ).beadsTotal;
+}
+
+function evenSplit(ids, total) {
+  const keys = [...new Set((ids || []).map((id) => String(id)).filter(Boolean))];
+  if (!keys.length || total <= 0) return {};
+  const base = Math.floor(total / keys.length);
+  let rem = total % keys.length;
+  const next = {};
+  keys.forEach((id) => {
+    next[id] = base + (rem > 0 ? 1 : 0);
+    if (rem > 0) rem -= 1;
+  });
+  return next;
+}
+
+function priceForCount(count, beads, quantities, config, finish, currentCount) {
+  if (Number(count) === Number(currentCount)) {
+    return priceOf(beads, quantities, config, finish);
+  }
+  const selected = (beads || []).filter((bead) => qtyOf(quantities, bead._id) > 0);
+  const pool = selected.length ? selected : beads;
+  const next = {};
+  (beads || []).forEach((bead) => {
+    next[String(bead._id)] = 0;
+  });
+  Object.assign(next, evenSplit(pool.map((bead) => bead._id), count));
+  return priceOf(beads, next, config, finish);
+}
+
+export default function CrystalModal({ open, onClose, onComplete }) {
   const intention = useCustomizerStore((s) => s.intention);
   const layer = useCustomizerStore((s) => s.layer);
   const recommended = useCustomizerStore((s) => s.recommended);

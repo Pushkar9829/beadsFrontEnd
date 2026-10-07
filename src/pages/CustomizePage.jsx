@@ -7,54 +7,25 @@ import Stepper from '../components/customizer/Stepper';
 import StudioDock from '../components/customizer/StudioDock';
 import PurposePick from '../components/customizer/steps/PurposePick';
 import IntentionStep from '../components/customizer/steps/IntentionStep';
-import NumberBeadsStep from '../components/customizer/steps/NumberBeadsStep';
-import BirthStep from '../components/customizer/steps/BirthStep';
-import ZodiacStep from '../components/customizer/steps/ZodiacStep';
-import CharmStep from '../components/customizer/steps/CharmStep';
-import CrystalGate from '../components/customizer/steps/CrystalGate';
-import ChooseStep from '../components/customizer/steps/ChooseStep';
-import FitStep from '../components/customizer/steps/FitStep';
-import FinishStep from '../components/customizer/steps/FinishStep';
-import ReviewStep from '../components/customizer/ReviewStep';
-import StudioCharm from '../components/customizer/steps/StudioCharm';
-import StudioReview, { ReviewSide } from '../components/customizer/steps/StudioReview';
+import PurposeBirth from '../components/customizer/steps/PurposeBirth';
 import StudioChoose from '../components/customizer/steps/StudioChoose';
 import StudioCrystals from '../components/customizer/steps/StudioCrystals';
 import StudioBeads from '../components/customizer/steps/StudioBeads';
-import PurposeBirth from '../components/customizer/steps/PurposeBirth';
+import StudioCharm from '../components/customizer/steps/StudioCharm';
+import StudioReview, { ReviewSide } from '../components/customizer/steps/StudioReview';
 import StudioPaths from '../components/customizer/StudioPaths';
+import StudioGuide from '../components/customizer/StudioGuide';
 import PreviewPanel from '../components/customizer/PreviewPanel';
-import BeadDetailDrawer from '../components/customizer/BeadDetailDrawer';
-import Spinner from '../components/ui/Spinner';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
-import SectionHead from '../components/home/SectionHead';
 import SeoHead from '../components/SeoHead';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
-import { studioThemeStyle } from '../lib/studioTheme';
-import StudioGuide from '../components/customizer/StudioGuide';
-import { isNocturneStudio } from '../lib/nocturne';
 import { GridSkeleton, PageIntro } from '../components/home/nocturne/Listing';
 
+// One screen per step id (see lib/studioFlow.js for the order on each path).
 const PANE = {
   purpose: PurposePick,
   intention: IntentionStep,
-  birth: BirthStep,
-  numbers: NumberBeadsStep,
-  zodiac: ZodiacStep,
-  charm: CharmStep,
-  choose: ChooseStep,
-  crystals: CrystalGate,
-  beads: ZodiacStep,
-  fit: FitStep,
-  finish: FinishStep,
-  review: ReviewStep,
-};
-
-// Nocturne screens for each step id; the purpose and layer paths differ only at birth.
-const NOCTURNE_PANE = {
-  purpose: PurposePick,
-  intention: IntentionStep,
+  birth: PurposeBirth,
   choose: StudioChoose,
   crystals: StudioCrystals,
   beads: StudioBeads,
@@ -64,9 +35,7 @@ const NOCTURNE_PANE = {
 
 export default function CustomizePage() {
   const brand = useBrand();
-  const cmsCustomize = useSite().pages.customize;
-  const cmsSteps = cmsCustomize.steps || [];
-  const themeStyle = studioThemeStyle(cmsCustomize.theme);
+  const cmsSteps = useSite().pages.customize?.steps || [];
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const syncFromUrl = useCustomizerStore((s) => s.syncFromUrl);
@@ -102,23 +71,10 @@ export default function CustomizePage() {
   const mode = studioMode(path, config);
   const copy = stepCopy(step, cmsSteps, path);
   const entry = stepAt(step, path);
-  // The path chips no longer sit above the flow, so step one names the path itself.
-  // An admin-authored eyebrow still wins.
-  const eyebrow =
-    step === 1 && copy.eyebrow === entry.eyebrow ? `Step 01 · ${mode.short}` : copy.eyebrow;
   const Pane = PANE[entry.id];
-  const nocturnePane = (id) => (id === 'birth' ? PurposeBirth : NOCTURNE_PANE[id]);
   const selectionName = layer?.name || purpose?.name || '';
 
-  // The purpose path has moved to the Nocturne look; the other paths keep the original studio.
-  const nocturne = isNocturneStudio(search);
-  const crumbs = [
-    { label: 'Home', to: '/' },
-    { label: brand.nav.customize, to: '/customize' },
-    { label: mode.short },
-  ];
-
-  if (nocturne && (loading || error)) {
+  if (loading || error) {
     return (
       <div className="nx nx-page nx-studio">
         <PageIntro compact title={copy.title} />
@@ -133,108 +89,32 @@ export default function CustomizePage() {
     );
   }
 
-  if (nocturne) {
-    const NPane = nocturnePane(entry.id);
-    return (
-      <div className="nx nx-page nx-skin nx-studio" style={themeStyle}>
-        <SeoHead
-          title={pageTitle(copy.title || brand.nav.customize, brand)}
-          description={copy.body || mode.body}
-          keywords={brand.seo?.keywords}
-          image={brand.seo?.ogImage}
-          noIndex={brand.seo?.noIndex}
-        />
-        <PageIntro
-          compact
-          title={copy.title}
-          body={selectionName && step > 1 ? `${mode.short} · ${selectionName}` : copy.body}
-        />
-        <div className="nx-w nx-studio-body">
-          {step === 1 && <StudioPaths />}
-          <Stepper />
-          {step > 1 && (
-            <div className="mt-6 lg:hidden">
-              <PreviewPanel mobile />
-            </div>
-          )}
-          <div className="studio-stage">
-            <div className="studio-pane">
-              {NPane ? <NPane /> : null}
-              <StudioDock />
-            </div>
-            <div className="hidden lg:block">{step === 1 ? <StudioGuide /> : entry.id === 'review' ? <ReviewSide /> : <PreviewPanel />}</div>
-          </div>
-        </div>
-        <BeadDetailDrawer />
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="relative">
-        <div className="pointer-events-none absolute inset-0 lotus-corner" />
-        <div className="relative shell py-10">
-          <Spinner label="Opening the atelier" />
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="relative">
-        <div className="pointer-events-none absolute inset-0 lotus-corner" />
-        <div className="relative shell py-10">
-          <p className="text-center text-sm text-red-300">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="studio-page relative pb-36 lg:pb-0" style={themeStyle}>
-      <div className="pointer-events-none absolute inset-0 lotus-corner" />
-      <div className="relative shell py-8 sm:py-10 md:py-12">
-        <SeoHead
-          title={pageTitle(copy.title || brand.nav.customize, brand)}
-          description={copy.body || mode.body}
-          keywords={brand.seo?.keywords}
-          image={brand.seo?.ogImage}
-          noIndex={brand.seo?.noIndex}
-        />
-        <Breadcrumbs
-          items={[
-            { label: 'Home', to: '/' },
-            { label: brand.nav.customize, to: '/customize' },
-            { label: mode.short },
-          ]}
-        />
-
-        <div className="studio-head">
-          <SectionHead
-            eyebrow={eyebrow}
-            title={copy.title}
-            body={selectionName && step > 1 ? `${mode.short} · ${selectionName}` : copy.body}
-          />
-        </div>
+    <div className="nx nx-page nx-skin nx-studio">
+      <SeoHead
+        title={pageTitle(copy.title || brand.nav.customize, brand)}
+        description={copy.body || mode.body}
+        keywords={brand.seo?.keywords}
+        image={brand.seo?.ogImage}
+        noIndex={brand.seo?.noIndex}
+      />
+      <PageIntro compact title={copy.title} body={selectionName && step > 1 ? `${mode.short} · ${selectionName}` : copy.body} />
+      <div className="nx-w nx-studio-body">
+        {step === 1 && <StudioPaths />}
         <Stepper />
-
-        <div className="mt-6 lg:hidden">
-          <PreviewPanel mobile />
-        </div>
-
+        {step > 1 && (
+          <div className="mt-6 lg:hidden">
+            <PreviewPanel mobile />
+          </div>
+        )}
         <div className="studio-stage">
           <div className="studio-pane">
             {Pane ? <Pane /> : null}
             <StudioDock />
           </div>
-          <div className="hidden lg:block">
-            <PreviewPanel />
-          </div>
+          <div className="hidden lg:block">{step === 1 ? <StudioGuide /> : entry.id === 'review' ? <ReviewSide /> : <PreviewPanel />}</div>
         </div>
       </div>
-      <BeadDetailDrawer />
     </div>
   );
 }

@@ -1,5 +1,4 @@
-// Nocturne header used on the home page only. Same data and handlers as the regular header
-// (mega menus, wishlist, cart, account); only the layout and styling differ.
+// Header bar: house menus, studio and collection mega menus, wishlist, bag and account.
 import { Link, NavLink } from 'react-router-dom';
 import { Heart, Menu, ShoppingBag, User, X } from 'lucide-react';
 import { useState } from 'react';

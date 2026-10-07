@@ -1,5 +1,5 @@
 // Step 1 for the numerology, zodiac, planetary and profession paths (the purpose path
-// starts with PurposePick). Same store actions as the original ChooseStep.
+// starts with PurposePick).
 import { Check } from 'lucide-react';
 import { useCustomizerStore } from '../../../store/customizerStore';
 import { useStudioLabels } from '../../../lib/studioTheme';

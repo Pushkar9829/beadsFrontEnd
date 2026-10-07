@@ -1,5 +1,5 @@
 // Charm step for every studio path: charm at the clasp, its finish, the thread and (for
-// steel core) the wrist size. Same store actions as the original CharmStep.
+// steel core) the wrist size.
 import { Check } from 'lucide-react';
 import { useCustomizerStore, useCustomizerQuote } from '../../../store/customizerStore';
 import { mediaUrl } from '../../../api/client';

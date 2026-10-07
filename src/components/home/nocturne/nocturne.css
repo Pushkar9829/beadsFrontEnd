@@ -2061,16 +2061,6 @@ a.nx-tile:hover .nx-arrow {
   transition: background 0.35s ease, border-color 0.35s ease, backdrop-filter 0.35s ease;
 }
 
-/* The site-wide `.store-canvas header` rule forces a navy !important background; the home header
-   needs its own transparent-to-solid treatment instead. */
-.store-canvas header.nxh {
-  background: linear-gradient(180deg, rgba(9, 8, 10, 0.5) 0%, rgba(9, 8, 10, 0.18) 65%, rgba(9, 8, 10, 0) 100%) !important;
-}
-
-.store-canvas header.nxh.is-solid {
-  background: rgba(9, 8, 10, 0.96) !important;
-}
-
 .nxh.is-solid {
   background: rgba(9, 8, 10, 0.96);
   border-bottom-color: rgba(237, 232, 225, 0.08);
@@ -4453,8 +4443,7 @@ a.nx-tile:hover .nx-arrow {
   color: var(--nx-ink);
 }
 
-.nx-skin.nx-skin .text-lilac,
-.nx-skin.nx-skin .sky-copy {
+.nx-skin.nx-skin .text-lilac {
   color: var(--nx-muted);
   text-shadow: none;
 }
@@ -4527,7 +4516,6 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-skin.nx-skin .border-gold\/20,
-.nx-skin.nx-skin .border-gold\/25,
 .nx-skin.nx-skin .border-gold\/30,
 .nx-skin.nx-skin .border-t,
 .nx-skin.nx-skin .border-b,
@@ -4536,8 +4524,7 @@ a.nx-tile:hover .nx-arrow {
 }
 
 .nx-skin.nx-skin .rounded-xl,
-.nx-skin.nx-skin .rounded-2xl,
-.nx-skin.nx-skin .rounded-3xl {
+.nx-skin.nx-skin .rounded-2xl {
   border-radius: 3px;
 }
 
@@ -5505,11 +5492,6 @@ a.nx-tile:hover .nx-arrow {
    header, so they cannot be trapped in the page's own stacking layer. */
 .nx.nx-skin {
   isolation: auto;
-}
-
-.nx-studio.nx-studio .studio-bead-name {
-  font-family: var(--nx-sans);
-  text-transform: none;
 }
 
 @media (max-width: 1023px) {
@@ -6805,39 +6787,6 @@ a.nx-tile:hover .nx-arrow {
   min-height: 190px;
 }
 
-.nx-numrows {
-  display: grid;
-  gap: 22px;
-}
-
-.nx-nums {
-  display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.nx-nums button {
-  aspect-ratio: 1;
-  max-height: 64px;
-  border: 1px solid var(--nx-line2);
-  border-radius: 3px;
-  background: var(--nx-tile);
-  font-size: 22px;
-  font-weight: 400;
-  transition: border-color 0.2s, background 0.2s, color 0.2s;
-}
-
-.nx-nums button:hover {
-  border-color: var(--nx-ink);
-}
-
-.nx-nums button.is-on {
-  border-color: var(--nx-champ);
-  background: var(--nx-champ);
-  color: var(--nx-bg);
-}
-
 .nx-numrow-t {
   margin-top: 10px;
   font-size: 14px;
@@ -6849,9 +6798,6 @@ a.nx-tile:hover .nx-arrow {
 }
 
 @media (max-width: 767px) {
-  .nx-nums {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
 
   .nx-paths {
     flex-wrap: nowrap;

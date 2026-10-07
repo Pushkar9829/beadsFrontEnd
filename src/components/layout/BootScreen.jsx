@@ -1,16 +1,15 @@
+// First-load screen: the wordmark until content, settings, fonts and the page are ready
+// (capped so a slow request never holds the site back).
 import { useEffect, useRef, useState } from 'react';
 import { useContentStore } from '../../store/contentStore';
 import { useBrand, useSettingsStore } from '../../store/settingsStore';
 import { useBootStore } from '../../store/bootStore';
-import { isNocturnePath } from '../../lib/nocturne';
 
-export default function SkyBoot({ skyReady }) {
+export default function BootScreen() {
   const contentReady = useContentStore((s) => s.loadedAt > 0);
   const settingsReady = useSettingsStore((s) => s.loadedAt > 0);
   const pageReady = useBootStore((s) => s.pageReady);
   const brand = useBrand();
-  // The home page covers the animated sky with its own solid backdrop, so it never waits for it.
-  const [isHome] = useState(() => isNocturnePath(window.location.pathname, window.location.search));
   const [open, setOpen] = useState(true);
   const [leaving, setLeaving] = useState(false);
   const [fontsReady, setFontsReady] = useState(typeof document === 'undefined' || !document.fonts || document.fonts.status === 'loaded');
@@ -56,34 +55,21 @@ export default function SkyBoot({ skyReady }) {
 
     const tryFinish = () => {
       if (performance.now() - started.current < minMs) return;
-      if ((skyReady || isHome) && contentReady && settingsReady && fontsReady && pageReady) finish();
+      if (contentReady && settingsReady && fontsReady && pageReady) finish();
     };
 
     tryFinish();
     const waitMin = window.setTimeout(tryFinish, minMs);
     return () => window.clearTimeout(waitMin);
-  }, [skyReady, isHome, contentReady, settingsReady, fontsReady, pageReady, leaving]);
+  }, [contentReady, settingsReady, fontsReady, pageReady, leaving]);
 
   if (!open) return null;
 
-  if (isHome) {
-    return (
-      <div className={`sky-boot sky-boot-nx${leaving ? ' is-out' : ''}`} aria-busy="true" aria-live="polite">
-        <div className="sky-boot-nx-mark">
-          <p>{String(brand.display || 'Kuberstones').toUpperCase()}</p>
-          <span aria-hidden />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={`sky-boot${leaving ? ' is-out' : ''}`} aria-busy="true" aria-live="polite">
-      <div className="sky-boot-mist" aria-hidden />
-      <div className="sky-boot-mark">
-        <span className="sky-boot-ring" aria-hidden />
-        <p className="sky-boot-name gold-text">{brand.display || 'Kuberstones'}</p>
-        <p className="sky-boot-kicker">{brand.tagline || 'Personalized With Purpose'}</p>
+    <div className={`sky-boot sky-boot-nx${leaving ? ' is-out' : ''}`} aria-busy="true" aria-live="polite">
+      <div className="sky-boot-nx-mark">
+        <p>{String(brand.display || 'Kuberstones').toUpperCase()}</p>
+        <span aria-hidden />
       </div>
     </div>
   );

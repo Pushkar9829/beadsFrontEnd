@@ -1,6 +1,5 @@
 // Step 3 of the purpose path: date of birth, the three personal beads it unlocks
-// (Mulank, Bhagyank, zodiac), and the strand count. Same store actions as before;
-// the other studio paths keep BirthStep's original layout.
+// (Mulank, Bhagyank, zodiac), and the strand count.
 import { Check } from 'lucide-react';
 import { useCustomizerStore } from '../../../store/customizerStore';
 import { qtyOf } from '../../../lib/studioFlow';

@@ -1,6 +1,6 @@
 // Storefront pages, studio copy and legal pages (all live under `about` / `pages.*`).
-import { STUDIO_FLOW } from '../../../lib/studioFlow';
-import { area, color, emptyState, group, linkPair, list, media, note, row, strings, text } from './schema';
+import { STUDIO_STEPS } from '../../../lib/studioFlow';
+import { area, emptyState, group, linkPair, list, media, note, row, strings, text } from './schema';
 import { getPath, setPath } from '../../ui';
 
 const eyebrowTitle = () => row([text('eyebrow', 'Eyebrow'), text('title', 'Title')]);
@@ -180,24 +180,8 @@ export const PAGE_SECTIONS = [
 // ---- Studio -----------------------------------------------------------------------------------
 
 const STUDIO_LABEL_GROUPS = [
-  ['Choose step', [['changeLabel', 'Change button'], ['intentionCount', 'Intention counter · {count} {cap}'], ['pickOne', 'Pick one hint'], ['pickUpTo', 'Pick up to hint · {cap}'], ['emptyPurposes', 'No purposes message'], ['emptyLayer', 'Empty catalog message']]],
-  ['Numerology', [['birthKicker', 'Birth date heading'], ['birthBody', 'Birth date help', true], ['mulankLabel', 'Mulank heading'], ['bhagyankLabel', 'Bhagyank heading'], ['bhagyankBody', 'Bhagyank help', true]]],
-  [
-    'Crystals step',
-    [
-      ['crystalCount', 'Crystal counter · {count} {max}'],
-      ['beadTotal', 'Bead total · {count}'],
-      ['perBead', 'Per-bead price suffix'],
-      ['addCrystal', 'Add crystal button'],
-      ['catalogKicker', 'Catalog pop-up kicker'],
-      ['catalogTitle', 'Catalog pop-up title'],
-      ['catalogFull', 'Crystal limit reached', true],
-      ['crystalNote', 'Footnote'],
-      ['crystalsMissing', 'No crystals message', true],
-    ],
-  ],
-  ['Fit step', [['beadSizeLabel', 'Bead size heading'], ['wristLabel', 'Wrist size heading'], ['wristElasticSuffix', 'Elastic thread wrist suffix'], ['threadLabel', 'Thread heading'], ['fitSummary', 'Summary line · {count} {size} {wrist}']]],
-  ['Finish step', [['charmLabel', 'Charm heading'], ['charmsLoading', 'Charms loading message'], ['finishLabel', 'Finish heading'], ['czLabel', 'CZ heading'], ['nameLabel', 'Name heading'], ['nameBody', 'Name help', true], ['namePlaceholder', 'Name placeholder']]],
+  ['First step', [['emptyPurposes', 'No purposes message'], ['emptyLayer', 'Empty catalog message'], ['mulankLabel', 'Mulank heading'], ['bhagyankLabel', 'Bhagyank heading']]],
+  ['Charm and thread', [['charmLabel', 'Charm heading'], ['charmsLoading', 'Charms loading message'], ['finishLabel', 'Finish heading'], ['threadLabel', 'Thread heading'], ['wristLabel', 'Wrist size heading']]],
   [
     'Bottom bar and ordering',
     [
@@ -206,8 +190,6 @@ const STUDIO_LABEL_GROUPS = [
       ['beadsUnit', 'Word for "beads"'],
       ['nextChoose', 'Next button on Choose'],
       ['nextCrystals', 'Next button on Crystals'],
-      ['nextFit', 'Next button on Fit'],
-      ['nextFinish', 'Next button on Finish'],
       ['placeOrder', 'Place order button'],
       ['placingOrder', 'Placing order label'],
       ['charmMissing', 'No charm chosen error'],
@@ -223,50 +205,18 @@ const STUDIO_LABEL_GROUPS = [
       ['customStrand', 'Fallback bracelet name'],
       ['liveTotal', 'Live total label'],
       ['editSelection', 'Edit selection button'],
-      ['editCrystals', 'Edit crystals button'],
       ['clearBuild', 'Clear button'],
       ['reviewKicker', 'Review kicker'],
-      ['rowPath', 'Review row: path'],
-      ['rowIntention', 'Review row: intention'],
-      ['rowDob', 'Review row: date of birth'],
-      ['rowZodiac', 'Review row: zodiac'],
-      ['rowBeadSize', 'Review row: bead size'],
-      ['rowCharm', 'Review row: charm'],
-      ['rowWrist', 'Review row: wrist'],
-      ['rowPersonalise', 'Review row: name'],
+      ['rowBeadSize', 'Bead size label'],
       ['totalLabel', 'Total label'],
     ],
   ],
-  [
-    'Crystal details drawer',
-    [
-      ['drawerKicker', 'Kicker'],
-      ['drawerPower', 'Power / use heading'],
-      ['drawerBenefits', 'Benefits heading'],
-      ['drawerChakra', 'Chakra heading'],
-      ['drawerReason', 'Why recommended heading'],
-      ['drawerOrigin', 'Origin heading'],
-      ['drawerSpec', 'Specification heading'],
-      ['drawerCare', 'Care heading'],
-    ],
-  ],
 ];
 
-const STUDIO_THEME_FIELDS = [
-  ['pageBg', 'Page background'],
-  ['cardBg', 'Option card background'],
-  ['cardBorder', 'Option card border'],
-  ['cardText', 'Option card title text'],
-  ['cardMuted', 'Option card detail text'],
-  ['accent', 'Selected / accent colour'],
-  ['selectedBg', 'Selected card base'],
-  ['kicker', 'Section heading colour'],
-  ['dockBg', 'Bottom bar background'],
-];
 
 /** CMS step copy is matched to the studio flow by id, so steps never shift onto the wrong screen. */
 function customizeSteps(stored) {
-  return STUDIO_FLOW.map((entry) => {
+  return STUDIO_STEPS.map((entry) => {
     const r = (Array.isArray(stored) ? stored : []).find((s) => s?.id === entry.id) || {};
     return { id: entry.id, eyebrow: r.eyebrow || entry.eyebrow || '', title: r.title || entry.title || '', body: r.body || entry.body || '', hint: r.hint || '' };
   });
@@ -291,7 +241,7 @@ export const STUDIO_SECTIONS = [
       list('', 'Steps', [row([text('eyebrow', 'Eyebrow'), text('title', 'Title')]), area('body', 'Body', { rows: 2 }), text('hint', 'Hint')], {
         fixed: true,
         reorder: false,
-        itemTitle: (s, i) => `Step ${i + 1} · ${STUDIO_FLOW.find((f) => f.id === s.id)?.label || s.id}`,
+        itemTitle: (s) => STUDIO_STEPS.find((f) => f.id === s.id)?.label || s.id,
       }),
     ],
   },
@@ -305,19 +255,6 @@ export const STUDIO_SECTIONS = [
     fields: [
       note('Words in {braces} are filled in automatically. Leave a field empty to use the default.'),
       ...STUDIO_LABEL_GROUPS.map(([title, fields]) => group(title, pairs(fields.map(([k, label, long]) => (long ? area(k, label, { rows: 2 }) : text(k, label)))))),
-    ],
-  },
-  {
-    key: 'studioTheme',
-    label: 'Studio colours',
-    group: 'Studio',
-    hint: 'Page, cards, selected state, bottom bar',
-    preview: '/customize',
-    base: 'pages.customize.theme',
-    fields: [
-      note('Applies to the customization studio only. Purpose, intention and layer cards keep their own colours (set on Intentions and Studio layers); the accent colour still marks the chosen card. Empty means the built-in look.'),
-      ...pairs(STUDIO_THEME_FIELDS.map(([k, label]) => color(k, label))),
-      media('pageBgImage', 'Page background image', { folder: 'studio' }),
     ],
   },
 ];
