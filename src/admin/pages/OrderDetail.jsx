@@ -480,8 +480,8 @@ export default function OrderDetail() {
         </div>
       </div>
 
-      <AddressDrawer key={editAddress ? `edit-${order.__v}` : 'closed'} open={editAddress} order={order} onClose={() => setEditAddress(false)} base={base} onConflict={query.refetch} />
-      <RefundModal key={refundOpen ? 'open' : 'closed'} open={refundOpen} onClose={() => setRefundOpen(false)} order={order} refundable={refundable} isCashfree={isCashfree} base={base} onFailure={query.refetch} />
+      <AddressDrawer key={editAddress ? `edit-${order.__v}` : 'address-closed'} open={editAddress} order={order} onClose={() => setEditAddress(false)} base={base} onConflict={query.refetch} />
+      <RefundModal key={refundOpen ? 'refund-open' : 'refund-closed'} open={refundOpen} onClose={() => setRefundOpen(false)} order={order} refundable={refundable} isCashfree={isCashfree} base={base} onFailure={query.refetch} />
       <PackingSlip order={order} />
     </div>
   );
