@@ -10,7 +10,7 @@ export default function SkyBoot({ skyReady }) {
   const pageReady = useBootStore((s) => s.pageReady);
   const brand = useBrand();
   // The home page covers the animated sky with its own solid backdrop, so it never waits for it.
-  const [isHome] = useState(() => isNocturnePath(window.location.pathname));
+  const [isHome] = useState(() => isNocturnePath(window.location.pathname, window.location.search));
   const [open, setOpen] = useState(true);
   const [leaving, setLeaving] = useState(false);
   const [fontsReady, setFontsReady] = useState(typeof document === 'undefined' || !document.fonts || document.fonts.status === 'loaded');

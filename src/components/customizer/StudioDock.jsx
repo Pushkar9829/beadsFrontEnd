@@ -4,7 +4,7 @@ import {
   selectCanAdvance,
   selectStepHint,
 } from '../../store/customizerStore';
-import { stepAt, stepCountFor } from '../../lib/studioFlow';
+import { flowFor, stepAt, stepCountFor } from '../../lib/studioFlow';
 import Button from '../ui/Button';
 import Price from '../ui/Price';
 import PlaceOrderButton from './PlaceOrderButton';
@@ -30,6 +30,8 @@ export default function StudioDock() {
   const labels = useStudioLabels();
   const total = stepCountFor(path);
   const entry = stepAt(step, path);
+  // Steps without an admin label name the step they lead to ("Next · Intention").
+  const upcoming = path === 'purpose' ? flowFor(path)[step]?.label : '';
   const message = stepError || hint;
 
   return (
@@ -55,7 +57,7 @@ export default function StudioDock() {
           </span>
           {step < total ? (
             <Button onClick={goNext} disabled={!canAdvance || advancing} className="studio-actions-next">
-              {advancing ? '…' : (labels[NEXT_LABEL_KEY[entry.id]] || 'Next')}
+              {advancing ? '…' : (labels[NEXT_LABEL_KEY[entry.id]] || (upcoming ? `Next · ${upcoming}` : 'Next'))}
             </Button>
           ) : null}
         </div>

@@ -117,7 +117,7 @@ export default function Header() {
     navigate('/cart');
   };
 
-  const isHome = isNocturnePath(location.pathname);
+  const isHome = isNocturnePath(location.pathname, location.search);
 
   // Nocturne pages (home, houses, categories): header floats over the page hero until the visitor scrolls.
   if (isHome) {

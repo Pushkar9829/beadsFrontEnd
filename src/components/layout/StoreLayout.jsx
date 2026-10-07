@@ -17,10 +17,10 @@ import { useBootStore } from '../../store/bootStore';
 import useRefreshOnView from '../../hooks/useRefreshOnView';
 
 export default function StoreLayout() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const site = useSite();
   const brand = useBrand();
-  const nocturne = isNocturnePath(pathname);
+  const nocturne = isNocturnePath(pathname, search);
   const [skyReady, setSkyReady] = useState(false);
   const markPageReady = useBootStore((s) => s.markPageReady);
   const loadContent = useContentStore((s) => s.load);
@@ -31,7 +31,8 @@ export default function StoreLayout() {
   // Tint the studio once a selection exists, keyed off the purpose on that path and
   // off the layer itself everywhere else.
   const tone = layer ? { slug: layer.kind, name: layer.name } : intention ? purpose : null;
-  const purposeTone = pathname === '/customize' && tone ? purposeToneStyle(tone) : undefined;
+  // Nocturne pages keep their own neutral backdrop, so the tint only applies to the original studio.
+  const purposeTone = pathname === '/customize' && tone && !nocturne ? purposeToneStyle(tone) : undefined;
 
   useRefreshOnView((force) => {
     loadContent(force);

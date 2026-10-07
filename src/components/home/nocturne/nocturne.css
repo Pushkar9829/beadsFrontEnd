@@ -4832,3 +4832,433 @@ a.nx-tile:hover .nx-arrow {
 .nx-phero.is-short .nx-phero-t.is-long {
   font-size: clamp(36px, min(5vw, 9vh), 76px);
 }
+
+/* =====================================================================
+   Customization studio · purpose path
+   ===================================================================== */
+.nx-intro.is-compact {
+  padding-bottom: 32px;
+  border-bottom: 0;
+}
+
+.nx-intro.is-compact .nx-intro-row {
+  margin-top: 28px;
+}
+
+.nx .nx-intro.is-compact .nx-intro-t {
+  font-size: clamp(36px, 4.4vw, 64px);
+}
+
+.nx-intro.is-compact .nx-intro-sub {
+  margin-top: 14px;
+}
+
+.nx-studio-body {
+  padding-bottom: 96px;
+}
+
+/* step rail */
+.nx-studio.nx-studio .studio-steps {
+  gap: 0;
+  margin: 0 0 36px;
+  padding: 0;
+  border-bottom: 1px solid var(--nx-line);
+}
+
+.nx-studio.nx-studio .studio-steps > li {
+  gap: 0;
+}
+
+.nx-studio.nx-studio .studio-chip,
+.nx-studio.nx-studio .studio-chip:not(.is-on):not(.is-done) {
+  gap: 10px;
+  margin: 0 32px -1px 0;
+  padding: 18px 0 16px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--nx-soft);
+  font-family: var(--nx-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-shadow: none;
+}
+
+.nx-studio.nx-studio .studio-chip-n {
+  font-family: var(--nx-sans);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 1;
+}
+
+.nx-studio.nx-studio .studio-chip-n::before {
+  content: '0';
+}
+
+.nx-studio.nx-studio .studio-chip.is-on {
+  border-bottom-color: var(--nx-champ);
+  background: none;
+  box-shadow: none;
+  color: var(--nx-ink);
+}
+
+.nx-studio.nx-studio .studio-chip.is-on .studio-chip-n,
+.nx-studio.nx-studio .studio-chip.is-done {
+  color: var(--nx-champ);
+}
+
+.nx-studio.nx-studio .studio-chip.is-done {
+  background: none;
+  box-shadow: none;
+}
+
+.nx-studio.nx-studio .studio-chip:not(:disabled):hover {
+  color: var(--nx-ink);
+}
+
+.nx-studio.nx-studio .studio-chip:disabled {
+  opacity: 1;
+  color: #4f4a54;
+}
+
+.nx-studio.nx-studio .studio-chip-rule {
+  display: none;
+}
+
+.nx-studio.nx-studio .studio-stage {
+  margin-top: 0;
+}
+
+/* purpose tiles */
+.nx-ptiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(188px, 1fr));
+  gap: 12px;
+}
+
+.nx-ptile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 268px;
+  padding: 18px 18px 20px;
+  border: 1px solid var(--nx-line);
+  border-radius: 3px;
+  background:
+    radial-gradient(110% 62% at 50% 0%, color-mix(in srgb, var(--purpose-wash, transparent) 32%, transparent), transparent 72%),
+    var(--nx-tile);
+  text-align: left;
+  transition: border-color 0.25s, transform 0.25s, background-color 0.25s;
+}
+
+.nx-ptile:hover:not(:disabled) {
+  border-color: var(--nx-line2);
+  transform: translateY(-2px);
+}
+
+.nx-ptile:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.nx-ptile.is-on {
+  border-color: var(--nx-champ);
+  box-shadow: inset 0 0 0 1px var(--nx-champ);
+}
+
+.nx-ptile-n {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--nx-soft);
+}
+
+.nx-ptile.is-on .nx-ptile-n {
+  color: var(--nx-champ);
+}
+
+.nx-ptile-check {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--nx-champ);
+  color: var(--nx-bg);
+}
+
+.nx-ptile-art {
+  display: grid;
+  place-items: center;
+  align-self: center;
+  width: 104px;
+  height: 104px;
+  margin: 10px 0 18px;
+}
+
+.nx-ptile-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
+  transition: transform 0.4s ease;
+}
+
+.nx-ptile:hover .nx-ptile-art img,
+.nx-ptile.is-on .nx-ptile-art img {
+  transform: scale(1.05);
+}
+
+.nx-ptile-art.is-glyph {
+  border: 1px solid var(--nx-line);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--purpose-well, transparent) 60%, transparent);
+  font-size: 40px;
+  line-height: 1;
+}
+
+.nx-ptile-h {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  color: var(--nx-ink);
+}
+
+.nx-ptile-p {
+  display: -webkit-box;
+  margin-top: 8px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--nx-muted);
+}
+
+/* side guide (step one) */
+.nx-guide {
+  position: sticky;
+  top: 100px;
+  padding: 28px;
+  border: 1px solid var(--nx-line);
+  border-radius: 3px;
+  background: var(--nx-bg2);
+}
+
+.nx-guide-pick {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--nx-line);
+}
+
+.nx-guide-art {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  font-size: 28px;
+}
+
+.nx-guide-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.nx-guide-name {
+  display: block;
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.nx-guide-steps {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nx-guide-steps li {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  padding: 13px 0;
+  border-top: 1px solid var(--nx-line);
+}
+
+.nx-guide-steps li > span:first-child {
+  padding-top: 2px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--nx-soft);
+}
+
+.nx-guide-steps b {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+.nx-guide-steps em {
+  display: block;
+  margin-top: 3px;
+  font-size: 13.5px;
+  font-style: normal;
+  color: var(--nx-soft);
+}
+
+.nx-guide-steps li.is-on > span:first-child,
+.nx-guide-steps li.is-on b {
+  color: var(--nx-champ);
+}
+
+.nx-guide-steps li.is-on em {
+  color: var(--nx-ink);
+}
+
+.nx-guide-note {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--nx-line);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--nx-soft);
+}
+
+/* action dock: fixed to the bottom on phones, inline under the pane on desktop */
+.nx-studio.nx-studio .studio-actions {
+  border-top: 1px solid var(--nx-line2);
+  background: rgba(9, 8, 10, 0.96);
+  backdrop-filter: blur(12px);
+}
+
+.nx-studio.nx-studio .studio-actions-hint {
+  font-size: 13px;
+  color: var(--nx-muted);
+}
+
+.nx-studio.nx-studio .studio-actions-hint.is-error {
+  color: #ff9c9c;
+}
+
+.nx-studio.nx-studio .studio-actions-back {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--nx-muted);
+}
+
+.nx-studio.nx-studio .studio-actions-back:hover:not(:disabled) {
+  color: var(--nx-ink);
+}
+
+.nx-studio.nx-studio .studio-actions-meta span {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--nx-soft);
+}
+
+.nx-studio.nx-studio .studio-actions-meta strong {
+  font-family: var(--nx-sans);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--nx-ink);
+}
+
+.nx-studio.nx-studio .studio-actions-next {
+  min-width: 190px;
+}
+
+@media (min-width: 1024px) {
+  .nx-studio.nx-studio .studio-stage {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+    gap: 40px;
+  }
+
+  .nx-studio.nx-studio .studio-actions {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--nx-line);
+    background: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .nx-studio {
+    padding-bottom: 120px;
+  }
+
+  .nx-studio-body {
+    padding-bottom: 24px;
+  }
+
+  .nx-studio.nx-studio .studio-actions-next {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .nx-intro.is-compact {
+    padding-bottom: 24px;
+  }
+
+  .nx-studio.nx-studio .studio-steps {
+    margin-bottom: 24px;
+  }
+
+  .nx-studio.nx-studio .studio-chip,
+  .nx-studio.nx-studio .studio-chip:not(.is-on):not(.is-done) {
+    margin-right: 22px;
+    padding: 14px 0 12px;
+    font-size: 11px;
+  }
+
+  .nx-ptiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .nx-ptile {
+    min-height: 220px;
+    padding: 14px 14px 16px;
+  }
+
+  .nx-ptile-art {
+    width: 80px;
+    height: 80px;
+    margin: 6px 0 14px;
+  }
+
+  .nx-ptile-h {
+    font-size: 14px;
+  }
+
+  .nx-ptile-p {
+    font-size: 12px;
+  }
+}
+
+/* The purpose artwork ships with a rough cut-out edge; a soft round fade hides the fringe. */
+.nx-ptile-art img,
+.nx-guide-art img {
+  -webkit-mask-image: radial-gradient(closest-side, #000 76%, transparent 90%);
+  mask-image: radial-gradient(closest-side, #000 76%, transparent 90%);
+}

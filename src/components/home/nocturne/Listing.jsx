@@ -275,9 +275,9 @@ export function StudioBand({ title = 'Compose your own strand.', body, to = '/cu
 }
 
 /** Text-only page header (no photo) for utility pages: bag, checkout, account, policies, journal. */
-export function PageIntro({ crumbs = [], eyebrow, title, body, actions, children, narrow = false }) {
+export function PageIntro({ crumbs = [], eyebrow, title, body, actions, children, narrow = false, compact = false }) {
   return (
-    <div className={`nx-intro${narrow ? ' is-narrow' : ''}`}>
+    <div className={`nx-intro${narrow ? ' is-narrow' : ''}${compact ? ' is-compact' : ''}`}>
       <div className="nx-w">
         {crumbs.length > 0 && (
           <nav className="nx-crumbs" aria-label="Breadcrumb">

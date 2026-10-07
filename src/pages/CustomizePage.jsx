@@ -25,6 +25,9 @@ import SeoHead from '../components/SeoHead';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import { studioThemeStyle } from '../lib/studioTheme';
+import StudioGuide from '../components/customizer/StudioGuide';
+import { isNocturneStudio } from '../lib/nocturne';
+import { GridSkeleton, PageIntro } from '../components/home/nocturne/Listing';
 
 const PANE = {
   purpose: PurposePick,
@@ -87,6 +90,66 @@ export default function CustomizePage() {
     step === 1 && copy.eyebrow === entry.eyebrow ? `Step 01 · ${mode.short}` : copy.eyebrow;
   const Pane = PANE[entry.id];
   const selectionName = layer?.name || purpose?.name || '';
+
+  // The purpose path has moved to the Nocturne look; the other paths keep the original studio.
+  const nocturne = isNocturneStudio(search);
+  const crumbs = [
+    { label: 'Home', to: '/' },
+    { label: brand.nav.customize, to: '/customize' },
+    { label: mode.short },
+  ];
+
+  if (nocturne && (loading || error)) {
+    return (
+      <div className="nx nx-page nx-studio">
+        <PageIntro compact crumbs={crumbs} eyebrow={eyebrow} title={copy.title} />
+        {error ? (
+          <div className="nx-w nx-sec">
+            <p className="nx-error">{error}</p>
+          </div>
+        ) : (
+          <GridSkeleton n={8} />
+        )}
+      </div>
+    );
+  }
+
+  if (nocturne) {
+    return (
+      <div className="nx nx-page nx-skin nx-studio" style={themeStyle}>
+        <SeoHead
+          title={pageTitle(copy.title || brand.nav.customize, brand)}
+          description={copy.body || mode.body}
+          keywords={brand.seo?.keywords}
+          image={brand.seo?.ogImage}
+          noIndex={brand.seo?.noIndex}
+        />
+        <PageIntro
+          compact
+          crumbs={crumbs}
+          eyebrow={eyebrow}
+          title={copy.title}
+          body={selectionName && step > 1 ? `${mode.short} · ${selectionName}` : copy.body}
+        />
+        <div className="nx-w nx-studio-body">
+          <Stepper />
+          {step > 1 && (
+            <div className="mt-6 lg:hidden">
+              <PreviewPanel mobile />
+            </div>
+          )}
+          <div className="studio-stage">
+            <div className="studio-pane">
+              {Pane ? <Pane /> : null}
+              <StudioDock />
+            </div>
+            <div className="hidden lg:block">{step === 1 ? <StudioGuide /> : <PreviewPanel />}</div>
+          </div>
+        </div>
+        <BeadDetailDrawer />
+      </div>
+    );
+  }
 
   if (loading) {
     return (
