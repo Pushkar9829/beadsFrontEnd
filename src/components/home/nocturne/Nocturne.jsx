@@ -221,7 +221,11 @@ export function NHero({ hero = {}, products = {}, sale, flashCopy = {} }) {
         <div className="nx-w nx-hero-row">
           <div className="nx-hero-blk" key={index}>
             {slide.eyebrow && <p className="nx-eb nx-rise">{slide.eyebrow}</p>}
-            <Display as="h1" text={slide.title || hero.brandName || 'Kuberstones'} className="nx-hero-t nx-rise" />
+            <Display
+              as="h1"
+              text={slide.title || hero.brandName || 'Kuberstones'}
+              className={`nx-hero-t nx-rise${String(slide.title || '').length > 22 ? ' is-long' : ''}`}
+            />
             {slide.subtitle && <p className="nx-hero-sub nx-rise">{slide.subtitle}</p>}
             <div className="nx-hero-cta nx-rise">
               {primary.label && (

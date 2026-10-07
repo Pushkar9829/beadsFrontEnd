@@ -41,6 +41,7 @@ export default function Header() {
   const [flash, setFlash] = useState(null);
   const [mega, setMega] = useState(null);
   const [scrolled, setScrolled] = useState(false);
+  const [scrolledFar, setScrolledFar] = useState(false);
   const [headerH, setHeaderH] = useState(0);
   const megaTimer = useRef(null);
   const headerRef = useRef(null);
@@ -74,7 +75,10 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 12);
+      setScrolledFar(window.scrollY > 80);
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -118,7 +122,7 @@ export default function Header() {
   if (isHome) {
     return (
       <>
-        <header ref={headerRef} className={`nxh fixed inset-x-0 top-0 z-40${scrolled || mega ? ' is-solid' : ''}`}>
+        <header ref={headerRef} className={`nxh fixed inset-x-0 top-0 z-40${scrolledFar || mega ? ' is-solid' : ''}`}>
           <HomeHeaderBar
             brandName={String(brand.display || brand.name || 'KUBERSTONES').toUpperCase()}
             families={families}
