@@ -16,7 +16,8 @@
   --nx-g1: #f5dc93;
   --nx-g2: #d9ae4f;
   --nx-g3: #a97a28;
-  --nx-gold: linear-gradient(135deg, #f5dc93 0%, #d9ae4f 48%, #a97a28 100%);
+  /* a wide band of gold that drifts across the element (see "dancing gold") */
+  --nx-gold: linear-gradient(110deg, #a97a28 0%, #d9ae4f 16%, #f7e2a0 30%, #d9ae4f 44%, #a97a28 58%, #d9ae4f 74%, #f7e2a0 88%, #d9ae4f 100%);
   --nx-a1: #c39af0;
   --nx-a2: #7b43b8;
   --nx-a3: #3b1a5e;

@@ -17,7 +17,8 @@
   --nx-g1: #f5dc93;
   --nx-g2: #d9ae4f;
   --nx-g3: #a97a28;
-  --nx-gold: linear-gradient(135deg, #f5dc93 0%, #d9ae4f 48%, #a97a28 100%);
+  /* a wide band of gold that drifts across the element (see "dancing gold") */
+  --nx-gold: linear-gradient(110deg, #a97a28 0%, #d9ae4f 16%, #f7e2a0 30%, #d9ae4f 44%, #a97a28 58%, #d9ae4f 74%, #f7e2a0 88%, #d9ae4f 100%);
   --nx-a1: #c39af0;
   --nx-a2: #7b43b8;
   --nx-a3: #3b1a5e;
@@ -112,7 +113,7 @@
   letter-spacing: -0.01em;
   color: var(--nx-champ);
   /* gold leaf, like the logo wordmark */
-  background: linear-gradient(100deg, var(--nx-g1) 0%, var(--nx-g2) 45%, var(--nx-g3) 100%);
+  background: var(--nx-gold);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -163,7 +164,8 @@
 }
 
 .nx-btn:hover {
-  background: linear-gradient(135deg, #fbe7ad 0%, #e4bb5c 48%, #b8892f 100%);
+  filter: brightness(1.08);
+  animation-duration: 2.6s;
 }
 
 .nx-btn-o {
@@ -520,7 +522,7 @@
 
 .nx-facts b {
   display: block;
-  background: linear-gradient(180deg, var(--nx-g1), var(--nx-g2));
+  background: var(--nx-gold);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -6829,4 +6831,105 @@ a.nx-tile:hover .nx-arrow {
 
 .nx-cm.is-picker {
   max-height: min(calc(84vh / var(--nx-z)), 720px);
+}
+
+/* =====================================================================
+   Dancing gold: every gold fill and gold-leaf word carries a wide gradient
+   that drifts back and forth, like light moving over polished metal.
+   ===================================================================== */
+.nx-btn:not(.nx-btn-o),
+.nx-btn-c,
+.nx .nx-it,
+.nx-facts b,
+.nx-slides-bar i,
+.nx-prog-bar i,
+.nxh-count,
+.nx-seg button.is-on,
+.nx-chips-row button.is-on,
+.nx-view-tabs button.is-on,
+.nx-yn button.is-on,
+.nx-chips-pick button.is-on,
+.nx-paths a.is-on,
+.nx-side-nav a.is-on,
+.nx-dob button,
+a.nx-tile:hover .nx-arrow,
+.nx-arrows button:hover,
+.nx-sub:hover .nx-sub-arrow,
+.nx-room:hover .nx-arrow,
+.nx-more-row a:hover,
+.nx-birth-quick button:hover {
+  background-size: 320% 100%;
+  animation: nx-gold-dance 6.5s ease-in-out infinite alternate;
+}
+
+/* the hero hotspot keeps its pulse while the gold moves */
+.nx-spot > i {
+  background-size: 320% 100%;
+  animation: nx-pulse 2.6s ease-in-out infinite, nx-gold-dance 6.5s ease-in-out infinite alternate;
+}
+
+@keyframes nx-gold-dance {
+  from {
+    background-position: 0% 50%;
+  }
+
+  to {
+    background-position: 100% 50%;
+  }
+}
+
+/* The logo wordmark: a soft sheen glides across the letters now and then. */
+.nx-brand-wordw {
+  position: relative;
+  display: block;
+  line-height: 0;
+}
+
+.nx-brand-wordw::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 244, 205, 0.9) 50%, transparent 62%);
+  background-size: 300% 100%;
+  -webkit-mask: var(--wm) center / 100% 100% no-repeat;
+  mask: var(--wm) center / 100% 100% no-repeat;
+  animation: nx-sheen 5.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes nx-sheen {
+  0% {
+    background-position: 120% 0;
+  }
+
+  45%,
+  100% {
+    background-position: -20% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nx-btn:not(.nx-btn-o),
+  .nx-btn-c,
+  .nx .nx-it,
+  .nx-facts b,
+  .nx-spot > i,
+  .nx-slides-bar i,
+  .nx-prog-bar i,
+  .nxh-count,
+  .nx-seg button.is-on,
+  .nx-chips-row button.is-on,
+  .nx-view-tabs button.is-on,
+  .nx-yn button.is-on,
+  .nx-chips-pick button.is-on,
+  .nx-paths a.is-on,
+  .nx-side-nav a.is-on,
+  .nx-dob button,
+  .nx-brand-wordw::after {
+    animation: none;
+  }
+
+  .nx-brand-wordw::after {
+    display: none;
+  }
 }
