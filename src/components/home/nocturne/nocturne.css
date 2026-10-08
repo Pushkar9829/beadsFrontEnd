@@ -297,6 +297,17 @@
   color: var(--nx-ink);
 }
 
+.nx-ann em {
+  font-style: normal;
+}
+
+/* "·" between the parts; the sentence part ("timed … end in") joins the time without one. */
+.nx-ann > b::after,
+.nx-ann > span::after {
+  content: ' ·';
+  color: var(--nx-soft);
+}
+
 .nx-spot {
   position: absolute;
   z-index: 3;
@@ -331,6 +342,14 @@
   backdrop-filter: blur(10px);
   white-space: nowrap;
   transition: background 0.2s;
+}
+
+/* Tablets: not enough room beside the dot, so a dot on the left half opens its card to the right. */
+@media (max-width: 1100px) {
+  .nx-spot:not(.is-r) .nx-spot-card {
+    right: auto;
+    left: 40px;
+  }
 }
 
 .nx-spot:hover .nx-spot-card {
@@ -1842,9 +1861,22 @@ a.nx-tile:hover .nx-arrow {
     background: linear-gradient(180deg, rgba(9, 8, 10, 0.55) 0%, rgba(9, 8, 10, 0) 30%, rgba(9, 8, 10, 0) 60%, rgba(9, 8, 10, 1) 100%);
   }
 
+  /* Phones: one short line (name · time · link); the sentence part is dropped. */
   .nx-ann {
+    flex-wrap: nowrap;
+    gap: 6px;
+    padding: 6px 14px;
     font-size: 11px;
-    white-space: normal;
+    white-space: nowrap;
+  }
+
+  .nx-ann em {
+    display: none;
+  }
+
+  .nx-ann b {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .nx-spot-card {
@@ -2956,9 +2988,27 @@ a.nx-tile:hover .nx-arrow {
     top: 64px;
   }
 
+  /* Phones: the dropdowns share the row and shrink; the count drops below them. */
   .nx-toolbar-r {
+    flex-wrap: wrap;
+    gap: 10px;
     width: 100%;
-    justify-content: space-between;
+  }
+
+  .nx-toolbar-r .nx-sort {
+    flex: 1 1 130px;
+    min-width: 0;
+  }
+
+  .nx-toolbar-r .nx-sort select {
+    width: 100%;
+    min-width: 0;
+    text-overflow: ellipsis;
+  }
+
+  .nx-toolbar-r .nx-count {
+    order: 3;
+    flex-basis: 100%;
   }
 
   .nx-grid {
@@ -3479,7 +3529,8 @@ a.nx-tile:hover .nx-arrow {
   display: none;
 }
 
-@media (max-width: 900px) {
+/* Photo and details stay side by side on tablets; only phones stack them. */
+@media (max-width: 767px) {
   .nx-pd-grid {
     grid-template-columns: minmax(0, 1fr);
   }

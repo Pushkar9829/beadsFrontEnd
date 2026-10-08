@@ -199,11 +199,14 @@ export function NHero({ hero = {}, products = {}, sale, flashCopy = {} }) {
       <div className="nx-hero-shade" />
       {sale && t && !t.done && (
         <Link to={flashCopy.to || '/sale'} className="nx-ann">
-          <b>{sale.name}</b> · timed atelier prices end in <span>{t.d}d {pad(t.h)}h {pad(t.m)}m</span> · <u>{clean(flashCopy.action || 'Shop the sale')}</u>
+          <b>{sale.name}</b>
+          <em>timed atelier prices end in</em>
+          <span>{t.d}d {pad(t.h)}h {pad(t.m)}m</span>
+          <u>{clean(flashCopy.action || 'Shop the sale')}</u>
         </Link>
       )}
       {spotProduct && (
-        <Link to={`/p/${spotProduct.slug}`} className="nx-spot" style={{ left: `${spot.x ?? 31}%`, top: `${spot.y ?? 45}%` }}>
+        <Link to={`/p/${spotProduct.slug}`} className={`nx-spot${(spot.x ?? 31) > 50 ? ' is-r' : ''}`} style={{ left: `${spot.x ?? 31}%`, top: `${spot.y ?? 45}%` }}>
           <i aria-hidden />
           <span className="nx-spot-card">
             {spotProduct.images?.[0] && <img src={mediaUrl(spotProduct.images[0])} alt="" />}

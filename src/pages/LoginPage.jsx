@@ -52,7 +52,8 @@ export default function LoginPage() {
           {page.footerLink}
         </Link>
       </p>
-      <p className="nx-auth-note">Demo customer demo@kuberstones.com / Demo@123</p>
+      {/* Local development only: the demo account is never created in production. */}
+      {import.meta.env.DEV && <p className="nx-auth-note">Demo customer demo@kuberstones.com / Demo@123</p>}
     </AuthShell>
   );
 }
