@@ -871,7 +871,8 @@ a.nx-tile:hover .nx-arrow {
 .nx-rail {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: calc((100% - 3 * 18px) / 4.3);
+  /* four whole cards; the arrows and progress bar show there are more */
+  grid-auto-columns: calc((100% - 3 * 18px) / 4);
   gap: 18px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -1808,12 +1809,47 @@ a.nx-tile:hover .nx-arrow {
 
 /* ---------- tablet ---------- */
 @media (max-width: 1100px) {
+  /* Tablets and phones: the row runs to the screen edge so the next card peeks in from it. */
   .nx-rail {
-    grid-auto-columns: calc((100% - 2 * 16px) / 2.6);
+    grid-auto-columns: calc((100% - 2 * 16px - var(--nx-pad)) / 2.6);
+    margin-inline: calc(var(--nx-pad) * -1);
+    padding-inline: var(--nx-pad);
+    scroll-padding-inline: var(--nx-pad);
   }
 
   .nx-purposes {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Houses: Crystals across the top, Rudraksha and Gemstones side by side, studio below. */
+  .nx-bento {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 360px 240px auto;
+  }
+
+  .nx-tile.is-big {
+    grid-column: span 2;
+    grid-row: auto;
+  }
+
+  .nx-tile.is-studio {
+    min-height: 260px;
+  }
+
+  /* Finder stacked to one column: keep the stone photos at a sensible size. */
+  .nx-res .nx-orb {
+    width: min(100%, 180px);
+  }
+
+  /* Craft: photo on top, the copy and four claims get the full width below. */
+  .nx-craft {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .nx-craft-ph {
+    height: 360px;
+    min-height: 0;
   }
 
   .nx-reviews {
@@ -2016,8 +2052,28 @@ a.nx-tile:hover .nx-arrow {
     grid-template-columns: 1fr 1fr;
   }
 
+  /* Phones: one stone per row, photo beside its name and note. */
   .nx-res {
-    gap: 10px;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .nx-res > div {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    column-gap: 16px;
+    align-items: center;
+  }
+
+  .nx-res .nx-orb {
+    grid-row: span 2;
+    width: 64px;
+    margin: 0;
+    box-shadow: 0 0 0 1px var(--nx-line2);
+  }
+
+  .nx-res span:not(.nx-orb) {
+    align-self: start;
   }
 
   .nx-match img {
@@ -6631,4 +6687,71 @@ a.nx-tile:hover .nx-arrow {
   .nx-pbs.is-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* =====================================================================
+   Large screens (and zoomed-out browsers): the content columns, the header row
+   and the hero sale pill scale up with the screen, so the design keeps its
+   proportions instead of shrinking to a narrow strip. Full-width photos and
+   backgrounds are untouched. CSS zoom also scales vh/vw inside, so the few
+   screen-height rules in zoomed areas divide by --nx-z.
+   ===================================================================== */
+:root {
+  --nx-z: 1;
+}
+
+@media (min-width: 1800px) {
+  :root {
+    --nx-z: 1.12;
+  }
+}
+
+@media (min-width: 2100px) {
+  :root {
+    --nx-z: 1.3;
+  }
+}
+
+@media (min-width: 2500px) {
+  :root {
+    --nx-z: 1.5;
+  }
+}
+
+@media (min-width: 3000px) {
+  :root {
+    --nx-z: 1.75;
+  }
+}
+
+@media (min-width: 3600px) {
+  :root {
+    --nx-z: 2.1;
+  }
+}
+
+.nx-w,
+.nxh-row,
+.nx-ann,
+.nx-spot-card,
+.nx-craft-tx,
+.nx-end-in {
+  zoom: var(--nx-z);
+}
+
+/* The hero grows with its scaled content, but never past the screen. */
+.nx-hero {
+  height: max(600px, min(100svh, calc(980px * var(--nx-z))));
+}
+
+.nx-pd-main {
+  max-height: calc((100svh - 150px) / var(--nx-z));
+}
+
+.nx-cm {
+  max-height: min(calc(90vh / var(--nx-z)), 820px);
+}
+
+.nx-cm.is-picker {
+  max-height: min(calc(84vh / var(--nx-z)), 720px);
 }
