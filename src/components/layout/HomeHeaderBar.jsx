@@ -3,6 +3,7 @@ import { Link, NavLink } from 'react-router-dom';
 import { Heart, Menu, ShoppingBag, User, X } from 'lucide-react';
 import { useState } from 'react';
 import { ModeArt } from '../customizer/OptionArt';
+import BrandMark from './BrandMark';
 
 function Count({ n }) {
   if (!n) return null;
@@ -86,7 +87,7 @@ export default function HomeHeaderBar({
         </nav>
 
         <Link to="/" className="nxh-mark" aria-label={`${brandName} home`}>
-          {brandName}
+          <BrandMark name={brandName} />
         </Link>
 
         <div className="nxh-right">
@@ -139,7 +140,9 @@ export default function HomeHeaderBar({
       {menuOpen && (
         <div className="nxh-sheet" role="dialog" aria-modal="true" aria-label="Menu">
           <div className="nxh-sheet-top">
-            <span className="nxh-mark">{brandName}</span>
+            <span className="nxh-mark">
+              <BrandMark name={brandName} />
+            </span>
             <button type="button" className="nxh-icon" aria-label="Close menu" onClick={() => setMenuOpen(false)}>
               <X size={20} strokeWidth={1.4} />
             </button>

@@ -14,6 +14,7 @@ import crystalsImg from '../../../assets/home/house-crystals.jpg';
 import rudrakshaImg from '../../../assets/home/house-rudraksha.jpg';
 import gemstonesImg from '../../../assets/home/house-gemstones.jpg';
 import studioImg from '../../../assets/home/finale-banner.jpg';
+import BrandMark from '../../layout/BrandMark';
 
 export const HOUSE_IMAGES = { crystals: crystalsImg, rudraksha: rudrakshaImg, gemstones: gemstonesImg };
 const pad = (n) => String(n).padStart(2, '0');
@@ -934,8 +935,8 @@ export function NFooter({ footer = {}, brandName = 'KUBERSTONES' }) {
       <div className="nx-w">
         <div className="nx-footer-cols">
           <div>
-            <Link to="/" className="nx-logo">
-              {String(footer.brandName || brandName).toUpperCase()}
+            <Link to="/" className="nx-logo" aria-label={`${footer.brandName || brandName} home`}>
+              <BrandMark name={footer.brandName || brandName} stack />
             </Link>
             {footer.blurb && <p className="nx-footer-blurb">{footer.blurb}</p>}
             <div className="nx-pay" aria-label="Secure payments">

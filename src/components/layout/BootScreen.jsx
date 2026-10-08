@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useContentStore } from '../../store/contentStore';
 import { useBrand, useSettingsStore } from '../../store/settingsStore';
 import { useBootStore } from '../../store/bootStore';
+import BrandMark from './BrandMark';
 
 export default function BootScreen() {
   const contentReady = useContentStore((s) => s.loadedAt > 0);
@@ -68,7 +69,7 @@ export default function BootScreen() {
   return (
     <div className={`sky-boot sky-boot-nx${leaving ? ' is-out' : ''}`} aria-busy="true" aria-live="polite">
       <div className="sky-boot-nx-mark">
-        <p>{String(brand.display || 'Kuberstones').toUpperCase()}</p>
+        <BrandMark name={brand.display || 'Kuberstones'} stack />
         <span aria-hidden />
       </div>
     </div>
