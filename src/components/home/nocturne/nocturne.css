@@ -1820,6 +1820,14 @@ a.nx-tile:hover .nx-arrow {
   color: var(--nx-soft);
 }
 
+.nx-footer-note {
+  max-width: 760px;
+  margin-top: 14px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--nx-soft);
+}
+
 .nx-footer-legal > span:first-child {
   display: inline-flex;
   align-items: center;

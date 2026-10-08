@@ -1,12 +1,13 @@
 // Split sign-in / register layout: photo with the brand line on one side, the form on the other.
 import { Link } from 'react-router-dom';
+import { mediaUrl } from '../../../api/client';
 import { HOUSE_IMAGES } from './Nocturne';
 
 export default function AuthShell({ page, image = HOUSE_IMAGES.crystals, children }) {
   return (
     <div className="nx nx-page nx-auth">
       <div className="nx-auth-art">
-        <img src={image} alt="" />
+        <img src={page.image ? mediaUrl(page.image) : image} alt="" />
         <div className="nx-auth-art-c">
           {page.eyebrow && <p className="nx-eb">{page.eyebrow}</p>}
           <h1 className="nx-d nx-auth-t">{page.title}</h1>

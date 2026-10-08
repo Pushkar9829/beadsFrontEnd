@@ -45,7 +45,7 @@ export default function CollectionsIndexPage() {
       <SeoHead title={pageTitle(copy.title || 'Collections', brand)} description={copy.body} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
       <PageHero
         size="short"
-        image={HOUSE_IMAGES.rudraksha}
+        image={copy.image ? mediaUrl(copy.image) : HOUSE_IMAGES.rudraksha}
         crumbs={[{ label: 'Home', to: '/' }, { label: copy.title || 'Collections' }]}
         eyebrow={copy.eyebrow}
         title={copy.title || 'Collections'}

@@ -51,7 +51,7 @@ export default function FlashSalePage() {
 
   const label = copy.label || 'Flash sale';
   const crumbs = [{ label: 'Home', to: '/' }, { label }];
-  const image = products[0]?.images?.[0] ? mediaUrl(products[0].images[0]) : HOUSE_IMAGES.gemstones;
+  const image = copy.pageImage ? mediaUrl(copy.pageImage) : products[0]?.images?.[0] ? mediaUrl(products[0].images[0]) : HOUSE_IMAGES.gemstones;
 
   return (
     <div className="nx nx-page">
@@ -63,7 +63,7 @@ export default function FlashSalePage() {
         </>
       ) : !sale ? (
         <>
-          <PageHero size="short" image={HOUSE_IMAGES.gemstones} crumbs={crumbs} eyebrow={label} title={copy.emptyTitle || 'No sale is running.'} body={copy.emptyBody || copy.pageBody} />
+          <PageHero size="short" image={copy.pageImage ? mediaUrl(copy.pageImage) : HOUSE_IMAGES.gemstones} crumbs={crumbs} eyebrow={label} title={copy.emptyTitle || 'No sale is running.'} body={copy.emptyBody || copy.pageBody} />
           <div className="nx-w nx-sec">
             <CmsEmpty block={{ title: 'Keep exploring.', primaryCta: { label: 'Shop all', to: '/shop' }, secondaryCta: { label: 'Customization', to: '/customize' } }} />
           </div>

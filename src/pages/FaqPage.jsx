@@ -29,15 +29,15 @@ export default function FaqPage() {
   return (
     <div className="nx nx-page">
       <SeoHead title={pageTitle(title, brand)} description={copy.pageBody} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
-      <PageIntro crumbs={[{ label: 'Home', to: '/' }, { label: copy.title || 'FAQ' }]} eyebrow={copy.pageEyebrow || copy.eyebrow} title={title} body={copy.pageBody} />
+      <PageIntro crumbs={[{ label: 'Home', to: '/' }, { label: copy.pageTitle || copy.title || 'FAQ' }]} eyebrow={copy.pageEyebrow || copy.eyebrow} title={title} body={copy.pageBody} />
 
       <section ref={ref} className="nx-sec nx-reveal">
         <div className="nx-w nx-split">
           <aside className="nx-split-side">
-            <p className="nx-eb">Still unsure?</p>
-            <p className="nx-lede">Write to us and the atelier will answer personally.</p>
+            <p className="nx-eb">{copy.helpKicker || 'Still unsure?'}</p>
+            <p className="nx-lede">{copy.helpBody || 'Write to us and the atelier will answer personally.'}</p>
             <Link to="/grievance" className="nx-lnk nx-mt">
-              Contact us →
+              {copy.helpAction || 'Contact us →'}
             </Link>
           </aside>
           <div>

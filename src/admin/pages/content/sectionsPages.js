@@ -11,6 +11,7 @@ const authFields = [
   row([text('cardKicker', 'Card kicker'), text('cardTitle', 'Card title')]),
   row([text('submitLabel', 'Submit label'), text('submitBusy', 'Busy label')]),
   row([text('footer', 'Footer text'), text('footerLink', 'Footer link text')]),
+  media('image', 'Side photo', { folder: 'banner', aspect: 'aspect-[4/5]', hint: 'Leave empty to use the built-in photo.' }),
 ];
 const bagFields = [
   eyebrowTitle(),
@@ -80,7 +81,13 @@ export const PAGE_SECTIONS = [
     hint: 'Collections listing page',
     preview: '/collections',
     base: 'pages.collections',
-    fields: [eyebrowTitle(), area('body', 'Body'), text('action', 'Card link label'), emptyState()],
+    fields: [
+      eyebrowTitle(),
+      area('body', 'Body'),
+      text('action', 'Card link label'),
+      media('image', 'Banner image', { folder: 'banner', hint: 'Leave empty to use the built-in photo.' }),
+      emptyState(),
+    ],
   },
   {
     key: 'pageShop',
@@ -89,7 +96,14 @@ export const PAGE_SECTIONS = [
     hint: 'Shop page',
     preview: '/shop',
     base: 'pages.shop',
-    fields: [eyebrowTitle(), area('body', 'Body'), area('familyBody', 'Body when filtered by house', { hint: '{house} is filled in automatically.' }), linkPair(), emptyState()],
+    fields: [
+      eyebrowTitle(),
+      area('body', 'Body'),
+      area('familyBody', 'Body when filtered by house', { hint: '{house} is filled in automatically.' }),
+      linkPair(),
+      media('image', 'Banner image', { folder: 'banner', hint: 'Used for "all pieces". A house filter shows the image of that house (set under Homepage → Houses).' }),
+      emptyState(),
+    ],
   },
   {
     key: 'pageFamily',
@@ -117,14 +131,25 @@ export const PAGE_SECTIONS = [
   },
   {
     key: 'pageProduct',
-    label: 'Product missing',
+    label: 'Product page',
     group: 'Pages',
-    hint: 'When a piece is gone',
+    hint: 'Related pieces heading and the missing-piece state',
     preview: '/p/this-piece-does-not-exist',
     base: 'pages.product',
-    fields: [emptyState('missing', 'Product not found')],
+    fields: [
+      row([text('relatedEyebrow', '"You may also like" eyebrow', { placeholder: 'Worn alongside' }), text('relatedTitle', '"You may also like" title', { placeholder: 'You may also like' })]),
+      emptyState('missing', 'Product not found'),
+    ],
   },
-  { key: 'pageCart', label: 'Bag', group: 'Pages', hint: 'Cart page', preview: '/cart', base: 'pages.cart', fields: bagFields },
+  {
+    key: 'pageCart',
+    label: 'Bag',
+    group: 'Pages',
+    hint: 'Cart page',
+    preview: '/cart',
+    base: 'pages.cart',
+    fields: [...bagFields, row([text('summaryKicker', 'Summary kicker', { placeholder: 'To pay' }), text('summaryTitle', 'Summary title', { placeholder: 'Checkout.' })])],
+  },
   { key: 'pageWishlist', label: 'Wishlist', group: 'Pages', hint: 'Wishlist page', preview: '/wishlist', base: 'pages.wishlist', fields: bagFields },
   {
     key: 'pageCheckout',
@@ -173,7 +198,12 @@ export const PAGE_SECTIONS = [
     hint: 'Missing page',
     preview: '/this-page-does-not-exist',
     base: 'pages.notFound',
-    fields: [text('title', 'Title'), area('body', 'Body'), row([text('cta', 'Button label'), text('to', 'Button link', { placeholder: '/' })])],
+    fields: [
+      text('title', 'Title'),
+      area('body', 'Body'),
+      row([text('cta', 'Button label'), text('to', 'Button link', { placeholder: '/' })]),
+      media('image', 'Banner image', { folder: 'banner', hint: 'Leave empty to use the built-in photo.' }),
+    ],
   },
 ];
 

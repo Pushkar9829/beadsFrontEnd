@@ -106,8 +106,8 @@ export default function CartPage() {
             </div>
 
             <aside className="nx-sum">
-              <p className="nx-k">To pay</p>
-              <h2 className="nx-sum-t">Checkout.</h2>
+              <p className="nx-k">{page.summaryKicker || 'To pay'}</p>
+              <h2 className="nx-sum-t">{page.summaryTitle || 'Checkout.'}</h2>
               <dl className="nx-rows">
                 <div>
                   <dt>Pieces</dt>

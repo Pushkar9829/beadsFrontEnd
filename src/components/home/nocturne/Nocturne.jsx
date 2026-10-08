@@ -318,9 +318,9 @@ export function NHouses({ houses = {}, studio = {}, ritual = {}, counts = {}, mi
   return (
     <section ref={ref} className="nx-sec nx-reveal">
       <div className="nx-w">
-        <Head eyebrow={houses.eyebrow} title={houses.title}>
-          <Link to="/shop" className="nx-lnk">
-            Shop everything →
+        <Head eyebrow={houses.eyebrow} title={houses.title} body={houses.body}>
+          <Link to={houses.to || '/shop'} className="nx-lnk">
+            {clean(houses.action) || 'Shop everything'} →
           </Link>
         </Head>
         <div className="nx-bento">
@@ -609,7 +609,7 @@ export function NFinder({ copy = {}, purposes = [] }) {
             <Display text={copy.title} className="nx-h2 nx-h2-s" />
             {copy.body && <p className="nx-lede">{copy.body}</p>}
             <p className="nx-step">
-              <b>1</b>What are you asking for?
+              <b>1</b>{copy.askLabel || 'What are you asking for?'}
             </p>
             <div className="nx-opts">
               {options.map((p) => (
@@ -627,7 +627,7 @@ export function NFinder({ copy = {}, purposes = [] }) {
                 </button>
               ))}
             </div>
-            <p className="nx-or">or by birth date</p>
+            <p className="nx-or">{copy.orLabel || 'or by birth date'}</p>
             <form className="nx-dob" onSubmit={onDob}>
               <input inputMode="numeric" maxLength={2} placeholder="DD" aria-label="Day" value={dob.d} onChange={(e) => setDob({ ...dob, d: e.target.value.replace(/\D/g, '') })} />
               <input inputMode="numeric" maxLength={2} placeholder="MM" aria-label="Month" value={dob.m} onChange={(e) => setDob({ ...dob, m: e.target.value.replace(/\D/g, '') })} />
@@ -642,7 +642,7 @@ export function NFinder({ copy = {}, purposes = [] }) {
             {r && (
               <>
                 <p className="nx-step nx-step-0">
-                  <b>2</b>Your stones · {r.label}
+                  <b>2</b>{copy.stonesLabel || 'Your stones'} · {r.label}
                 </p>
                 <div className="nx-res">
                   {(r.stones || []).map((s) => (
@@ -660,7 +660,7 @@ export function NFinder({ copy = {}, purposes = [] }) {
                     {r.product.images?.[0] && <img src={mediaUrl(r.product.images[0])} alt="" />}
                     <span>
                       <b>{r.product.name}</b>
-                      <span>Ready-made with these stones · {formatInr(r.product.price)}</span>
+                      <span>{copy.readyLabel || 'Ready-made with these stones'} · {formatInr(r.product.price)}</span>
                     </span>
                     <span className="nx-lnk">View →</span>
                   </Link>
@@ -870,15 +870,15 @@ export function NNewsletter({ copy = {} }) {
         </div>
         <div>
           {state.done ? (
-            <p className="nx-lede">Thank you — you are on the list.</p>
+            <p className="nx-lede">{copy.success || 'Thank you — you are on the list.'}</p>
           ) : (
             <form className="nx-letter-form" onSubmit={submit}>
               <label htmlFor="nx-email" className="sr-only">
                 Email address
               </label>
-              <input id="nx-email" type="email" required autoComplete="email" placeholder="Your email address" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <input id="nx-email" type="email" required autoComplete="email" placeholder={copy.placeholder || 'Your email address'} value={email} onChange={(e) => setEmail(e.target.value)} />
               <button type="submit" disabled={state.busy}>
-                {state.busy ? 'Joining…' : 'Join →'}
+                {state.busy ? copy.actionBusy || 'Joining…' : copy.action || 'Join →'}
               </button>
             </form>
           )}
@@ -925,10 +925,14 @@ export function NFinale({ finale = {}, image }) {
 
 export function NFooter({ footer = {}, brandName = 'KUBERSTONES' }) {
   const groups = [
-    ['Shop', footer.shopLinks || []],
-    ['Help', footer.careLinks || []],
-    ['House', footer.legalLinks || []],
+    [footer.shopHeading || 'Shop', footer.shopLinks || []],
+    [footer.careHeading || 'Help', footer.careLinks || []],
+    [footer.legalHeading || 'House', footer.legalLinks || []],
   ].filter(([, links]) => links.length);
+  const payments = String(footer.payments || 'UPI, Cards, Netbanking')
+    .split(',')
+    .map((p) => p.trim())
+    .filter(Boolean);
   return (
     <div className="nx">
     <footer className="nx-footer">
@@ -939,11 +943,13 @@ export function NFooter({ footer = {}, brandName = 'KUBERSTONES' }) {
               <BrandMark name={footer.brandName || brandName} stack />
             </Link>
             {footer.blurb && <p className="nx-footer-blurb">{footer.blurb}</p>}
-            <div className="nx-pay" aria-label="Secure payments">
-              <span>UPI</span>
-              <span>Cards</span>
-              <span>Netbanking</span>
-            </div>
+            {payments.length > 0 && (
+              <div className="nx-pay" aria-label="Secure payments">
+                {payments.map((p) => (
+                  <span key={p}>{p}</span>
+                ))}
+              </div>
+            )}
           </div>
           {groups.map(([title, links]) => (
             <div key={title}>
@@ -960,7 +966,7 @@ export function NFooter({ footer = {}, brandName = 'KUBERSTONES' }) {
         </div>
         <div className="nx-footer-legal">
           <span>
-            © {new Date().getFullYear()} {footer.brandName || 'Kuberstones'}
+            {footer.copyright || `© ${new Date().getFullYear()} ${footer.brandName || 'Kuberstones'}`}
             {footer.instagram && (
               <a href={footer.instagram} target="_blank" rel="noreferrer">
                 Instagram
@@ -969,6 +975,7 @@ export function NFooter({ footer = {}, brandName = 'KUBERSTONES' }) {
           </span>
           <span>{footer.tagline || 'Crystal associations are traditional, not medical claims.'}</span>
         </div>
+        {footer.disclaimer && <p className="nx-footer-note">{footer.disclaimer}</p>}
       </div>
     </footer>
     </div>

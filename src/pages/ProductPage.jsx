@@ -25,7 +25,7 @@ function SaleTimer({ sale }) {
   );
 }
 
-function Related({ product }) {
+function Related({ product, copy = {} }) {
   const ref = useReveal();
   const [items, setItems] = useState([]);
   useEffect(() => {
@@ -56,8 +56,8 @@ function Related({ product }) {
       <div className="nx-w">
         <div className="nx-head nx-head-tight">
           <div>
-            <p className="nx-eb">Worn alongside</p>
-            <h2 className="nx-d nx-h2 nx-h2-s">You may also like</h2>
+            <p className="nx-eb">{copy.relatedEyebrow || 'Worn alongside'}</p>
+            <h2 className="nx-d nx-h2 nx-h2-s">{copy.relatedTitle || 'You may also like'}</h2>
           </div>
           {product.categoryId?.slug && (
             <Link to={`/c/${product.categoryId.slug}`} className="nx-lnk">
@@ -284,7 +284,7 @@ export default function ProductPage() {
         </div>
       </div>
 
-      <Related product={product} />
+      <Related product={product} copy={site.pages.product} />
 
       <StudioBand title="Want this feeling in your own counts?" body="Compose a strand in the studio — Mulank, zodiac, and a name." />
 

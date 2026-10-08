@@ -109,6 +109,7 @@ export const HOME_SECTIONS = [
     fields: [
       eyebrowTitle(),
       area('body', 'Body'),
+      row([text('action', 'Link label', { placeholder: 'Shop everything' }), text('to', 'Link', { placeholder: '/shop' })]),
       list(
         'items',
         'Houses',
@@ -182,12 +183,13 @@ export const HOME_SECTIONS = [
     preview: '/sale',
     base: 'flash',
     fields: [
-      group('On the home page', [text('label', 'Badge label'), area('body', 'Body'), linkPair()]),
+      group('On the home page', [row([text('label', 'Badge label'), text('title', 'Headline')]), area('body', 'Body'), linkPair()]),
       group('On the sale page', [
         area('pageBody', 'Body'),
         text('emptyTitle', 'No sale running — title'),
         area('emptyBody', 'No sale running — body', { rows: 2 }),
         text('emptyProducts', 'Sale without products — line'),
+        media('pageImage', 'Banner image', { folder: 'banner', hint: 'Leave empty to use the first sale piece (or a built-in photo when no sale runs).' }),
       ]),
       note('The home block only shows while a flash sale is running.'),
     ],
@@ -239,6 +241,10 @@ export const HOME_SECTIONS = [
       eyebrowTitle(),
       area('body', 'Body'),
       row([number('purposeLimit', 'Purposes shown', { min: 1, max: 12, hint: 'How many purpose chips to offer.' }), text('cta', 'Button label')]),
+      group('Labels', [
+        row([text('askLabel', 'Step 1 label', { placeholder: 'What are you asking for?' }), text('orLabel', 'Divider', { placeholder: 'or by birth date' })]),
+        row([text('stonesLabel', 'Step 2 label', { placeholder: 'Your stones' }), text('readyLabel', 'Ready-made line', { placeholder: 'Ready-made with these stones' })]),
+      ]),
       note('Suggested stones come from the customizer mappings (purpose → intention → beads, and Mulank → crystals).'),
     ],
     clean: (values) => {
@@ -319,7 +325,13 @@ export const HOME_SECTIONS = [
       ]),
       group(
         'On the FAQ page',
-        [row([text('pageEyebrow', 'Eyebrow'), text('pageTitle', 'Title')]), area('pageBody', 'Body'), area('emptyBody', 'When there are no questions', { rows: 2 })],
+        [
+          row([text('pageEyebrow', 'Eyebrow'), text('pageTitle', 'Title')]),
+          area('pageBody', 'Body'),
+          area('emptyBody', 'When there are no questions', { rows: 2 }),
+          row([text('helpKicker', 'Help box heading', { placeholder: 'Still unsure?' }), text('helpAction', 'Help box link', { placeholder: 'Contact us →' })]),
+          area('helpBody', 'Help box text', { rows: 2 }),
+        ],
         'faq'
       ),
     ],
@@ -343,7 +355,11 @@ export const HOME_SECTIONS = [
     hint: 'Home block + footer',
     preview: '/',
     base: 'newsletter',
-    fields: [eyebrowTitle(), text('compactTitle', 'Footer title')],
+    fields: [
+      eyebrowTitle(),
+      row([text('placeholder', 'Email placeholder', { placeholder: 'Your email address' }), text('action', 'Button label', { placeholder: 'Join →' })]),
+      row([text('actionBusy', 'Button while sending', { placeholder: 'Joining…' }), text('success', 'Thank-you message', { placeholder: 'Thank you — you are on the list.' })]),
+    ],
   },
   {
     key: 'finale',
@@ -384,17 +400,13 @@ export const SITE_SECTIONS = [
     preview: '/',
     base: 'footer',
     fields: [
-      group('Banner', [
-        media('bannerImage', 'Banner image', { folder: 'banner' }),
-        row([text('kicker', 'Kicker'), text('title', 'Title')]),
-        area('copy', 'Copy'),
-        text('cta', 'Button label'),
-      ]),
       group('Brand', [
-        media('logo', 'Footer logo', { folder: 'logo', aspect: 'aspect-[3/1]' }),
+        note('The logo (crystal emblem and gold wordmark) is part of the site design.'),
         row([text('brandName', 'Brand name'), text('tagline', 'Tagline')]),
         area('blurb', 'Blurb'),
         row([text('email', 'Email link', { placeholder: 'mailto:hello@…' }), text('instagram', 'Instagram URL')]),
+        text('payments', 'Payment badges', { placeholder: 'UPI, Cards, Netbanking', hint: 'Comma separated.' }),
+        text('cta', 'Contact button label (policy pages)'),
         text('location', 'Location'),
       ]),
       group('Company & grievance', [

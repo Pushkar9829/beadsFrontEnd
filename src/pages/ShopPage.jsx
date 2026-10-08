@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
-import api from '../api/client';
+import api, { mediaUrl } from '../api/client';
 import { fillCopy, houseMeta } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
@@ -67,7 +67,8 @@ export default function ShopPage() {
   const house = houseMeta(site, family);
   const activeCollection = collections.find((c) => c.slug === collection);
   const body = house ? fillCopy(page.familyBody, { house: house.name.toLowerCase() }) : page.body;
-  const heroImage = HOUSE_IMAGES[family] || HOUSE_IMAGES.gemstones;
+  // A house filter shows that house's image (Homepage → Houses); otherwise the Shop page banner.
+  const heroImage = house?.image ? mediaUrl(house.image) : family ? HOUSE_IMAGES[family] : page.image ? mediaUrl(page.image) : HOUSE_IMAGES.gemstones;
   const chips = houses.map((h) => ({ value: h.slug, label: h.name }));
 
   const collectionSelect = collections.length > 0 && (
