@@ -11,9 +11,29 @@
   }
 }
 
+/* While the admin is mounted the window itself must not scroll. The panel scrolls in #admin-main. */
+html.admin-scroll-lock,
+html.admin-scroll-lock body,
+html.admin-scroll-lock #root {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 .admin-root {
   font-size: 15px;
   color-scheme: dark;
+}
+
+/* Horizontal table scroll must not become a vertical scrollport, and must not
+   chain into the window once the rows or the sideways scroll run out. */
+.admin-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  overscroll-behavior-y: auto;
 }
 
 /* The storefront hides scrollbars globally; the admin needs visible, slim ones. */

@@ -221,19 +221,18 @@ function Shell() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // The storefront locks body scroll in places; the admin manages its own scroll container.
+  // The storefront scrolls the window. A table that only scrolls sideways will hand the
+  // leftover wheel movement to that window, which then slides into a blank page.
   useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prev;
-    };
+    const root = document.documentElement;
+    root.classList.add('admin-scroll-lock');
+    return () => root.classList.remove('admin-scroll-lock');
   }, []);
 
   useEffect(() => setMobileOpen(false), [location.pathname]);
 
   return (
-    <div className="admin-root flex h-screen overflow-hidden bg-ink font-sans text-ivory">
+    <div className="admin-root flex h-dvh max-h-dvh min-h-0 overflow-hidden overscroll-none bg-ink font-sans text-ivory">
       <aside className={cx('hidden shrink-0 flex-col border-r border-white/[0.08] bg-surface transition-[width] duration-200 lg:flex', collapsed ? 'w-[68px]' : 'w-60')}>
         <Brand collapsed={collapsed} />
         <SidebarNav collapsed={collapsed} />
@@ -265,7 +264,7 @@ function Shell() {
         </div>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <header className="flex h-14 shrink-0 items-center gap-3 border-b border-white/[0.08] bg-ink/90 px-4 backdrop-blur md:px-6">
           <IconButton icon={MenuIcon} label="Open menu" className="lg:hidden" onClick={() => setMobileOpen(true)} />
           <button
@@ -285,7 +284,7 @@ function Shell() {
             <UserMenu />
           </div>
         </header>
-        <main id="admin-main" className="min-h-0 flex-1 overflow-y-auto">
+        <main id="admin-main" className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           <div className="mx-auto w-full max-w-[1400px] px-4 py-6 md:px-8 md:py-8">
             <PageErrorBoundary key={location.pathname}>
               <Suspense

@@ -47,7 +47,7 @@ export function DataTable({
 
   return (
     <div className={cx('overflow-hidden rounded-2xl border border-white/[0.08] bg-surface', className)}>
-      <div className={cx('relative overflow-x-auto', fetching && !loading && 'opacity-70 transition-opacity')}>
+      <div className={cx('admin-table-scroll relative', fetching && !loading && 'opacity-70 transition-opacity')}>
         <table className="w-full min-w-[640px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-white/[0.08] text-left text-[11px] uppercase tracking-wider text-lilac">
