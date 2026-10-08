@@ -1,0 +1,1005 @@
+/* Nocturne · bag, checkout, account, and the popups and drawers they open.
+   Popups render into <body>, so the palette is defined on :root as well as on .nx. */
+
+:root {
+  --nx-bg: #09080a;
+  --nx-bg2: #111013;
+  --nx-tile: #17151a;
+  --nx-ink: #ede8e1;
+  --nx-muted: #aaa3af;
+  --nx-soft: #7d7682;
+  --nx-champ: #d6c29a;
+  --nx-line: rgba(237, 232, 225, 0.1);
+  --nx-line2: rgba(237, 232, 225, 0.22);
+  --nx-bad: #ff9c9c;
+  --nx-sans: 'Inter Tight', 'Outfit', ui-sans-serif, system-ui, sans-serif;
+}
+
+.nx-body {
+  padding-block: 24px 96px;
+}
+
+/* Titles set their own face: the old global h1-h4 rule is still loaded for the admin. */
+.nx-line-t,
+.nx-sum-t,
+.nx-pop-t,
+.nx-order-n,
+.nx .nx-acct-t {
+  font-family: var(--nx-sans);
+}
+
+/* ---------- small type ---------- */
+.nx-k {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--nx-champ);
+}
+
+.nx-note {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--nx-muted);
+}
+
+.nx-msg {
+  font-size: 13px;
+  color: var(--nx-champ);
+}
+
+.nx-bad {
+  font-size: 13px;
+  color: var(--nx-bad);
+}
+
+/* Quiet uppercase text button (Remove, Clear bag, Refresh tracking). */
+.nx-mini {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--nx-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.nx-mini:hover:not(:disabled) {
+  color: var(--nx-ink);
+}
+
+.nx-mini.is-c {
+  color: var(--nx-champ);
+}
+
+.nx-mini:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ---------- buttons (shared ui/Button) ---------- */
+.nx-btn.nx-btn-s {
+  height: 42px;
+  padding: 0 18px;
+  font-size: 12px;
+}
+
+.nx-btn.nx-btn-block {
+  width: 100%;
+}
+
+/* ---------- form controls ---------- */
+.nx-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--nx-line2);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--nx-ink);
+  font-family: var(--nx-sans);
+  font-size: 14px;
+  font-weight: 400;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+textarea.nx-input {
+  height: auto;
+  min-height: 112px;
+  padding: 12px 14px;
+  resize: vertical;
+}
+
+select.nx-input option {
+  background: var(--nx-bg2);
+}
+
+.nx-input:focus {
+  outline: none;
+  border-color: var(--nx-champ);
+  background: rgba(237, 232, 225, 0.03);
+}
+
+.nx-input[aria-invalid='true'] {
+  border-color: var(--nx-bad);
+}
+
+.nx-input:disabled {
+  opacity: 0.5;
+}
+
+.nx-lab {
+  display: grid;
+  gap: 7px;
+}
+
+.nx-lab > span:first-child {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+.nx-lab .nx-note,
+.nx-lab .nx-bad {
+  font-size: 12px;
+}
+
+.nx-fields {
+  display: grid;
+  gap: 14px;
+}
+
+@media (min-width: 640px) {
+  .nx-fields.is-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .nx-fields.is-2 > .is-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.nx-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--nx-muted);
+  cursor: pointer;
+}
+
+.nx-check input,
+.nx-choice input {
+  accent-color: var(--nx-champ);
+}
+
+/* Bordered radio row (payment method, return type). */
+.nx-choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--nx-line);
+  border-radius: 2px;
+  font-size: 14px;
+  color: var(--nx-muted);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.nx-choice:hover {
+  border-color: var(--nx-line2);
+}
+
+.nx-choice:has(input:checked) {
+  border-color: var(--nx-champ);
+  color: var(--nx-ink);
+}
+
+.nx-inline {
+  display: flex;
+  gap: 8px;
+}
+
+.nx-inline > .nx-input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- panel and money rows ---------- */
+.nx-sum {
+  padding: clamp(22px, 2.4vw, 30px);
+  border: 1px solid var(--nx-line);
+  border-radius: 3px;
+  background: var(--nx-bg2);
+}
+
+.nx-sum-t {
+  margin: 8px 0 14px;
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.nx-part {
+  display: grid;
+  gap: 12px;
+  padding-top: 18px;
+  margin-top: 18px;
+  border-top: 1px solid var(--nx-line);
+}
+
+.nx-rows {
+  margin: 0;
+  font-size: 14px;
+}
+
+.nx-rows > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--nx-line);
+}
+
+.nx-rows > div:last-child {
+  border-bottom: 0;
+}
+
+.nx-rows dt {
+  color: var(--nx-muted);
+}
+
+.nx-rows dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.nx-rows > .is-total {
+  align-items: baseline;
+  padding-top: 14px;
+}
+
+.nx-rows > .is-total dt {
+  color: var(--nx-ink);
+}
+
+.nx-rows > .is-total dd {
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.nx-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* Studio preview on phones: a folded card above the step. */
+.nx-sum.nx-sum-fold {
+  padding: 0;
+}
+
+.nx-sum-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.nx-sum-fold-body {
+  padding: 0 16px 16px;
+}
+
+.nx-sum .nx-sum-t {
+  font-size: 22px;
+}
+
+.nx-sum.studio-preview .nx-sum-t {
+  margin-bottom: 4px;
+}
+
+/* ---------- bag and checkout ---------- */
+.nx-bag {
+  display: grid;
+  gap: clamp(28px, 4vw, 56px);
+}
+
+@media (min-width: 1024px) {
+  .nx-bag {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+    align-items: start;
+  }
+
+  /* The bag summary is short enough to stay in view; the checkout form is not. */
+  .nx-bag > aside {
+    position: sticky;
+    top: 96px;
+  }
+}
+
+.nx-lines {
+  border-top: 1px solid var(--nx-line);
+}
+
+.nx-line {
+  display: flex;
+  gap: 22px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--nx-line);
+}
+
+.nx-line-media {
+  flex: 0 0 104px;
+  height: 128px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--nx-tile);
+}
+
+.nx .nx-line-media img {
+  width: 100%;
+  height: 100%;
+}
+
+.nx-line-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nx-line-t {
+  margin-top: 6px;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.nx-line-m {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--nx-muted);
+}
+
+.nx-line-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 14px;
+}
+
+.nx-line-price {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nx-qty.is-s {
+  height: 40px;
+}
+
+.nx-qty.is-s button {
+  width: 36px;
+}
+
+/* Bag on phones and tablets: the total and Checkout stay pinned to the bottom. */
+.nx-paybar {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .nx-paybar {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px var(--nx-pad, 18px) calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--nx-line2);
+    background: rgba(9, 8, 10, 0.96);
+    backdrop-filter: blur(12px);
+  }
+
+  .nx-paybar-sum {
+    display: grid;
+    line-height: 1.2;
+  }
+
+  .nx-paybar-sum > span {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--nx-soft);
+  }
+
+  .nx-paybar-sum strong {
+    font-size: 18px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .nx-paybar .nx-btn {
+    height: 46px;
+    min-width: 150px;
+  }
+
+  /* Room under the footer so the bar never covers it. */
+  body:has(.nx-paybar) {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Checkout panel: payment and totals stay dimmed until an address is chosen. */
+.nx-gate {
+  position: relative;
+}
+
+.nx-gate.is-locked > .nx-gate-c {
+  opacity: 0.4;
+  pointer-events: none;
+  user-select: none;
+}
+
+.nx-gate-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.nx-addr-pick.is-missing {
+  padding: 12px;
+  border: 1px solid var(--nx-bad);
+  border-radius: 2px;
+}
+
+.nx-addr-now {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--nx-muted);
+}
+
+.nx-addr-now b {
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-ink);
+}
+
+.nx-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 20px;
+  margin-top: 16px;
+}
+
+/* ---------- coupons ---------- */
+.nx-coupons-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 0;
+  border: 0;
+  background: none;
+  font-family: var(--nx-sans);
+  font-size: 13px;
+  color: var(--nx-champ);
+  cursor: pointer;
+}
+
+.nx-coupons-toggle span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nx-coupons-toggle span:last-child {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+.nx-coupons-toggle:disabled {
+  color: var(--nx-soft);
+  cursor: default;
+}
+
+.nx-coupon-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nx-coupon {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--nx-line);
+  border-radius: 3px;
+}
+
+.nx-coupon.is-ok {
+  border-color: var(--nx-line2);
+}
+
+.nx-coupon.is-on {
+  border-color: var(--nx-champ);
+  background: rgba(214, 194, 154, 0.06);
+}
+
+.nx-coupon.is-locked {
+  opacity: 0.7;
+}
+
+.nx-coupon-code {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.nx-coupon-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 10px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-soft);
+}
+
+.nx-coupon.is-ok .nx-coupon-tag {
+  color: #9fd7a8;
+}
+
+.nx-coupon-offer {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--nx-champ);
+}
+
+.nx-coupon .nx-note {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+/* ---------- popups (bottom sheet on phones) ---------- */
+.nx-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: end stretch;
+  color: var(--nx-ink);
+  font-family: var(--nx-sans);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+:where(.nx-layer) button {
+  font: inherit;
+  color: inherit;
+}
+
+:where(.nx-layer) a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.nx-scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(5, 4, 6, 0.78);
+  backdrop-filter: blur(3px);
+  animation: nx-fade 0.25s ease both;
+}
+
+.nx-modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 92dvh;
+  border: 1px solid var(--nx-line2);
+  border-radius: 4px 4px 0 0;
+  background: var(--nx-bg);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.65);
+  animation: nx-sheet 0.3s ease both;
+}
+
+@media (min-width: 640px) {
+  .nx-layer {
+    place-items: center;
+    padding: 24px;
+  }
+
+  .nx-modal {
+    width: min(560px, 100%);
+    max-height: min(88vh, 820px);
+    border-radius: 4px;
+    animation: nx-rise 0.35s ease both;
+  }
+}
+
+.nx-pop-head {
+  display: flex;
+  flex: none;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--nx-line);
+}
+
+.nx-pop-t {
+  margin-top: 6px;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.nx-pop-body {
+  flex: 1;
+  min-height: 0;
+  padding: 20px 22px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--nx-line2) transparent;
+}
+
+.nx-pop-foot {
+  display: flex;
+  flex: none;
+  gap: 10px;
+  padding: 14px 22px;
+  border-top: 1px solid var(--nx-line);
+}
+
+.nx-pop-foot > * {
+  flex: 1;
+}
+
+.nx-x {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--nx-line2);
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.nx-x:hover {
+  background: rgba(237, 232, 225, 0.08);
+}
+
+/* ---------- side drawers (account, contact) ---------- */
+.nx-layer.is-side {
+  place-items: stretch end;
+  padding: 0;
+}
+
+.nx-drawer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, 100%);
+  height: 100dvh;
+  border-left: 1px solid var(--nx-line2);
+  background: var(--nx-bg);
+  box-shadow: -30px 0 80px rgba(0, 0, 0, 0.6);
+  animation: nx-drawer 0.3s ease both;
+}
+
+@keyframes nx-drawer {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+}
+
+.nx-me {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nx-me-av {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--nx-champ);
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--nx-champ);
+}
+
+.nx-me-n {
+  overflow: hidden;
+  font-size: 17px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nx-me .nx-note {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nx-tabs-k {
+  margin: 26px 0 8px;
+}
+
+.nx-tabs {
+  border-top: 1px solid var(--nx-line);
+}
+
+.nx-tab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 2px;
+  border-bottom: 1px solid var(--nx-line);
+  font-size: 14px;
+  transition: color 0.2s, padding 0.2s;
+}
+
+.nx-tab:hover {
+  padding-left: 6px;
+  color: #fff;
+}
+
+.nx-tab > svg:first-child {
+  color: var(--nx-champ);
+}
+
+.nx-tab > span:not(.nx-tab-n) {
+  flex: 1;
+}
+
+.nx-tab-n {
+  min-width: 24px;
+  padding: 1px 7px;
+  border: 1px solid var(--nx-line2);
+  border-radius: 999px;
+  font-size: 11px;
+  text-align: center;
+  color: var(--nx-muted);
+}
+
+.nx-tab-n.is-on {
+  border-color: var(--nx-champ);
+  color: var(--nx-champ);
+}
+
+.nx-tab > svg:last-child {
+  color: var(--nx-soft);
+}
+
+/* ---------- account ---------- */
+.nx-acct-sec {
+  margin-top: clamp(48px, 6vw, 72px);
+}
+
+.nx-acct-sec:first-child {
+  margin-top: 0;
+}
+
+.nx-acct-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 32px;
+  margin-bottom: 24px;
+}
+
+.nx-acct-head .nx-note {
+  max-width: 560px;
+  margin-top: 8px;
+}
+
+.nx .nx-acct-t {
+  margin-top: 10px;
+  font-size: clamp(26px, 2.6vw, 36px);
+}
+
+.nx-addrs {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .nx-addrs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.nx-addr {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+  border: 1px solid var(--nx-line);
+  border-radius: 3px;
+  background: var(--nx-bg2);
+}
+
+.nx-addr.is-default {
+  border-color: rgba(214, 194, 154, 0.5);
+}
+
+.nx-addr .nx-note {
+  font-size: 14px;
+}
+
+.nx-addr-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.nx-orders {
+  border-top: 1px solid var(--nx-line);
+}
+
+.nx-order {
+  display: grid;
+  gap: 8px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--nx-line);
+}
+
+.nx-order-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.nx-order-n {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.nx-order-total {
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nx-order-items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.nx-order-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 4px;
+}
+
+.nx-order-form {
+  display: grid;
+  gap: 12px;
+  max-width: 560px;
+  margin-top: 6px;
+}
+
+@media (max-width: 767px) {
+  .nx-body {
+    padding-block: 28px 72px;
+  }
+
+  .nx-line {
+    gap: 16px;
+  }
+
+  .nx-line-media {
+    flex-basis: 84px;
+    height: 106px;
+  }
+}
+
+/* ---------- loading ---------- */
+.nx-spin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 64px 0;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+.nx-spin > span {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--nx-champ);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: nx-spin 0.9s linear infinite;
+}
+
+@keyframes nx-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- date of birth (studio) ---------- */
+.nx-date {
+  display: grid;
+  grid-template-columns: 0.9fr 1.4fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 767px) {
+  .nx-date {
+    gap: 8px;
+  }
+
+  .nx-date .nx-input {
+    padding: 0 8px;
+  }
+}

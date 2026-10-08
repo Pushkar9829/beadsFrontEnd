@@ -39,9 +39,9 @@ export default function PlaceOrderButton({ className = 'w-full' }) {
 
   return (
     <div>
-      {err && <p className="mb-3 text-sm text-red-300">{err}</p>}
+      {err && <p className="nx-bad mb-3">{err}</p>}
       {quote.errors?.length > 0 && !err && (
-        <p className="mb-3 text-xs text-lilac">{quote.errors.join(' ')}</p>
+        <p className="nx-note mb-3">{quote.errors.join(' ')}</p>
       )}
       <Button onClick={place} disabled={busy} className={className}>
         {busy ? labels.placingOrder : labels.placeOrder}

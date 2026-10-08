@@ -4,6 +4,7 @@ import Header from './Header';
 import BootScreen from './BootScreen';
 import { NFooter } from '../home/nocturne/Nocturne';
 import '../home/nocturne/nocturne.css';
+import '../home/nocturne/commerce.css';
 import { useSite, useContentStore } from '../../store/contentStore';
 import { useSettingsStore, useBrand } from '../../store/settingsStore';
 import { useBootStore } from '../../store/bootStore';
@@ -33,7 +34,7 @@ export default function StoreLayout() {
   }, [pathname, markPageReady]);
 
   return (
-    <div className="relative flex min-h-screen flex-col text-ivory">
+    <div className="relative flex min-h-screen flex-col">
       <BootScreen />
       <Header />
       <main className="flex-1">

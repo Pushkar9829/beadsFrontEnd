@@ -138,15 +138,15 @@ function BraceletModel({ lines, layout, wristSize, metalColor, view, charmKind }
 function FallbackStrip({ lines, layout, metalColor }) {
   const beads = beadsForPreview(layout, lines);
   return (
-    <div className="flex h-56 items-center justify-center gap-1 overflow-hidden rounded-2xl bg-raised px-4">
-      {beads.length === 0 && <p className="text-sm text-lilac">Add beads to see your strand.</p>}
+    <div className="nx-stage nx-stage-flat h-56">
+      {beads.length === 0 && <p className="nx-note">Add beads to see your strand.</p>}
       {beads.map((b, i) => (
-        <div key={i} className="h-8 w-8 overflow-hidden rounded-full ring-1 ring-gold/30">
+        <div key={i} className="h-8 w-8 overflow-hidden rounded-full ring-1 ring-white/20">
           <GemVisual color={b.colorHex} className="h-full w-full" />
         </div>
       ))}
       <div
-        className="ml-1 h-10 w-6 rounded-full ring-1 ring-gold/50"
+        className="ml-1 h-10 w-6 rounded-full ring-1 ring-white/30"
         style={{ background: metalColor || '#D4AF37' }}
       />
     </div>
@@ -160,22 +160,15 @@ export default function BraceletPreview({ lines, layout, wristSize, finish, char
 
   return (
     <div>
-      <div className="mb-3 flex gap-2">
+      <div className="nx-view-tabs">
         {['front', 'wrist'].map((v) => (
-          <button
-            key={v}
-            type="button"
-            onClick={() => setView(v)}
-            className={`rounded-full px-3 py-1 text-[10px] uppercase tracking-widest ${
-              view === v ? 'bg-amethyst text-ivory' : 'border border-gold/30 text-lilac'
-            }`}
-          >
+          <button key={v} type="button" onClick={() => setView(v)} className={view === v ? 'is-on' : ''}>
             {v === 'front' ? 'Front view' : 'Wrist view'}
           </button>
         ))}
       </div>
       <WebGLGuard fallback={<FallbackStrip lines={lines} layout={layout} metalColor={metal} />}>
-        <div className={`overflow-hidden rounded-2xl bg-gradient-to-b from-[#16131c] to-black gold-border ${compact ? 'h-48' : 'h-72'}`}>
+        <div className={`nx-stage ${compact ? 'h-48' : 'h-72'}`}>
           <Canvas camera={{ position: [0, 0.6, 3.1], fov: 40 }} gl={{ antialias: true }}>
             <color attach="background" args={['#08070a']} />
             <ambientLight intensity={0.45} />

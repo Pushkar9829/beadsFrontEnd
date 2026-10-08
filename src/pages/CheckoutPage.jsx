@@ -5,15 +5,13 @@ import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import Button from '../components/ui/Button';
 import Price from '../components/ui/Price';
-import GemVisual from '../components/ui/GemVisual';
-import InViewGroup from '../components/ui/InViewGroup';
 import { useSite } from '../store/contentStore';
 import { startCashfreeCheckout } from '../lib/cashfree';
 import AddressPicker from '../components/checkout/AddressPicker';
 import AddressFormModal from '../components/checkout/AddressFormModal';
 import CouponPicker from '../components/cart/CouponPicker';
 import { detectCurrentAddress } from '../lib/location';
-import { itemMeta, itemTitle } from '../lib/cartItems';
+import BagLine from '../components/cart/BagLine';
 import { EmptyBlock, PageIntro } from '../components/home/nocturne/Listing';
 import { addressId, addressReady, checkoutFromAddress, defaultAddress, digitsOnly, emptyAddress, normalizePhone, upsertAddress, validateAddress } from '../lib/addresses';
 
@@ -318,57 +316,21 @@ export default function CheckoutPage() {
   const canContinue = Boolean(selected && addressReady(form));
 
   return (
-    <div className="nx nx-page nx-skin cart-page checkout-page is-filled">
+    <div className="nx nx-page">
       <PageIntro crumbs={CRUMBS} eyebrow="Secure checkout" title={page.title} body={page.body} />
-      <div className="nx-w nx-skin-body">
-
-        <div className="bag-stage">
-          <section>
-            <div className="mb-3 hidden grid-cols-[minmax(0,1fr)_4rem_5.5rem_6.5rem] gap-3 text-[10px] uppercase tracking-widest text-gold lg:grid">
-              <span>Product</span>
-              <span className="text-right">Qty</span>
-              <span className="text-right">Total</span>
-              <span className="text-right">Delivery</span>
+      <div className="nx-w nx-body">
+        <div className="nx-bag">
+          <section aria-label="Your pieces">
+            <div className="nx-lines">
+              {items.map((item) => (
+                <BagLine key={item._id} item={item} aside={<span className="nx-mini">{eta}</span>}>
+                  <span className="nx-note">Qty {item.quantity}</span>
+                </BagLine>
+              ))}
             </div>
-            <InViewGroup className="bag-list">
-              {items.map((item, i) => {
-                const snap = item.snapshot || {};
-                const title = itemTitle(item);
-                const meta = itemMeta(item);
-                const href = item.kind === 'product' && snap.slug ? `/p/${snap.slug}` : null;
-                const kindLabel = item.kind === 'custom_bracelet' ? 'Studio' : snap.family || 'House';
-                const media = (
-                  <GemVisual
-                    color={snap.colorHex || snap.beads?.[0]?.colorHex}
-                    image={snap.image}
-                    className="h-full w-full"
-                    name={title}
-                  />
-                );
-                return (
-                  <article key={item._id} className="bag-item bag-card" style={{ '--i': i }}>
-                    <div className="bag-card-media">
-                      {href ? <Link to={href} className="block h-full w-full">{media}</Link> : media}
-                    </div>
-                    <div className="bag-card-body">
-                      <p className="bag-card-kind">{kindLabel}</p>
-                      {href ? <Link to={href}><h2 className="bag-card-title">{title}</h2></Link> : <h2 className="bag-card-title">{title}</h2>}
-                      {meta && <p className="bag-card-meta">{meta}</p>}
-                      <div className="bag-card-foot">
-                        <p className="text-xs text-lilac">Qty {item.quantity}</p>
-                        <div className="bag-card-price-row">
-                          <Price value={item.lineTotal} className="text-gold" />
-                          <span className="text-[11px] uppercase tracking-widest text-lilac">{eta}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-            </InViewGroup>
           </section>
 
-          <form onSubmit={submit} className="bag-summary space-y-5">
+          <form onSubmit={submit} className="nx-sum">
             <AddressPicker
               addresses={addresses}
               selectedId={selectedId}
@@ -379,11 +341,11 @@ export default function CheckoutPage() {
               missing={needAddress && !canContinue}
             />
 
-            <div className="relative space-y-5">
+            <div className={`nx-gate${canContinue ? '' : ' is-locked'}`}>
               {!canContinue && (
                 <button
                   type="button"
-                  className="absolute inset-0 z-10 cursor-pointer rounded-xl"
+                  className="nx-gate-hit"
                   onClick={() => {
                     setNeedAddress(true);
                     setError('Add a delivery address to continue.');
@@ -392,31 +354,24 @@ export default function CheckoutPage() {
                   aria-label="Add a delivery address to continue"
                 />
               )}
-              <div className={!canContinue ? 'pointer-events-none select-none opacity-40' : ''}>
-                {q.pincode && !q.pincode.serviceable && (
-                  <p className="text-sm text-red-300">We do not deliver to this pincode yet.</p>
-                )}
+              <div className="nx-gate-c">
+                {q.pincode && !q.pincode.serviceable && <p className="nx-bad mt-4">We do not deliver to this pincode yet.</p>}
                 {q.pincode?.serviceable && q.pincode.source === 'ithink' && (
-                  <p className="text-xs text-lilac">
+                  <p className="nx-note mt-4">
                     Delivery is available via iThink Logistics
                     {q.settings?.estimatedDays ? ` · about ${q.settings.estimatedDays} days after dispatch` : ''}.
                     Customized bracelets may need extra preparation time.
                   </p>
                 )}
                 {q.pincode?.serviceable && q.pincode.cod === false && (
-                  <p className="text-xs text-lilac">Cash on delivery is not available for this pincode. Please pay online.</p>
+                  <p className="nx-note mt-4">Cash on delivery is not available for this pincode. Please pay online.</p>
                 )}
 
-                <div className="border-t border-gold/20 pt-4">
-                  <p className="mb-2 text-xs uppercase tracking-widest text-gold">Apply coupon</p>
-                  <div className="mb-3 flex gap-2">
-                    <input
-                      className="flex-1 rounded-xl border border-gold/30 bg-ink px-3 py-2 text-sm text-ivory"
-                      placeholder="Enter coupon code"
-                      value={coupon}
-                      onChange={(e) => setCoupon(e.target.value)}
-                    />
-                    <Button type="button" variant="ghost" onClick={applyCoupon}>Apply</Button>
+                <div className="nx-part">
+                  <p className="nx-k">Apply coupon</p>
+                  <div className="nx-inline">
+                    <input className="nx-input" placeholder="Enter coupon code" aria-label="Coupon code" value={coupon} onChange={(e) => setCoupon(e.target.value)} />
+                    <Button variant="ghost" size="s" onClick={applyCoupon}>Apply</Button>
                   </div>
                   <CouponPicker
                     signedIn
@@ -434,7 +389,7 @@ export default function CheckoutPage() {
                   {q.coupon?.code && (
                     <button
                       type="button"
-                      className="text-[11px] uppercase tracking-widest text-gold"
+                      className="nx-mini is-c justify-self-start"
                       onClick={async () => {
                         await api.delete('/cart/coupon');
                         setCouponMsg('');
@@ -444,12 +399,12 @@ export default function CheckoutPage() {
                       Remove {q.coupon.code}
                     </button>
                   )}
-                  {couponMsg && <p className="mt-2 text-xs text-lilac">{couponMsg}</p>}
+                  {couponMsg && <p className="nx-msg">{couponMsg}</p>}
                 </div>
 
-                <div className="border-t border-gold/20 pt-4">
-                  <p className="text-xs uppercase tracking-widest text-gold">{page.summaryTitle || 'Bill summary'}</p>
-                  <dl className="bag-summary-rows">
+                <div className="nx-part">
+                  <p className="nx-k">{page.summaryTitle || 'Bill summary'}</p>
+                  <dl className="nx-rows">
                     <div>
                       <dt>Item total</dt>
                       <dd><Price value={q.subtotal ?? amount} /></dd>
@@ -468,55 +423,50 @@ export default function CheckoutPage() {
                         <dd><Price value={q.tax} /></dd>
                       </div>
                     ) : null}
-                    <div>
+                    <div className="is-total">
                       <dt>Total</dt>
-                      <dd className="bag-summary-total"><Price value={q.total ?? amount} /></dd>
+                      <dd><Price value={q.total ?? amount} /></dd>
                     </div>
                   </dl>
                 </div>
 
-                <div className="border-t border-gold/20 pt-4">
-                  <p className="text-xs uppercase tracking-widest text-gold">Choose payment</p>
-                  <div className="mt-2 space-y-2 text-sm text-lilac">
-                    {pay.cod && (
-                      <label className="flex items-center justify-between gap-2 rounded-xl border border-gold/20 px-3 py-2.5">
-                        <span>Cash on delivery</span>
-                        <input type="radio" name="pay" checked={method === 'cod'} onChange={() => setMethod('cod')} />
-                      </label>
-                    )}
-                    {pay.gateway && (
-                      <label className="flex items-center justify-between gap-2 rounded-xl border border-gold/20 px-3 py-2.5">
-                        <span>Online payment{pay.gatewayName ? ` · ${pay.gatewayName}` : ''}</span>
-                        <input type="radio" name="pay" checked={method === 'gateway'} onChange={() => setMethod('gateway')} />
-                      </label>
-                    )}
-                    {pay.upi && (
-                      <label className="flex items-center justify-between gap-2 rounded-xl border border-gold/20 px-3 py-2.5">
-                        <span>UPI{pay.upiId ? ` · ${pay.upiId}` : ''}</span>
-                        <input type="radio" name="pay" checked={method === 'upi'} onChange={() => setMethod('upi')} />
-                      </label>
-                    )}
-                  </div>
+                <div className="nx-part">
+                  <p className="nx-k">Choose payment</p>
+                  {pay.cod && (
+                    <label className="nx-choice">
+                      <span>Cash on delivery</span>
+                      <input type="radio" name="pay" checked={method === 'cod'} onChange={() => setMethod('cod')} />
+                    </label>
+                  )}
+                  {pay.gateway && (
+                    <label className="nx-choice">
+                      <span>Online payment{pay.gatewayName ? ` · ${pay.gatewayName}` : ''}</span>
+                      <input type="radio" name="pay" checked={method === 'gateway'} onChange={() => setMethod('gateway')} />
+                    </label>
+                  )}
+                  {pay.upi && (
+                    <label className="nx-choice">
+                      <span>UPI{pay.upiId ? ` · ${pay.upiId}` : ''}</span>
+                      <input type="radio" name="pay" checked={method === 'upi'} onChange={() => setMethod('upi')} />
+                    </label>
+                  )}
                   {method === 'upi' && (
-                    <input
-                      className="mt-2 w-full rounded-xl border border-gold/30 bg-ink px-3 py-2 text-ivory"
-                      placeholder="UPI reference (optional)"
-                      value={upiRef}
-                      onChange={(e) => setUpiRef(e.target.value)}
-                    />
+                    <input className="nx-input" placeholder="UPI reference (optional)" aria-label="UPI reference" value={upiRef} onChange={(e) => setUpiRef(e.target.value)} />
                   )}
                 </div>
               </div>
             </div>
 
-            {error && <p className="text-sm text-red-300">{error}</p>}
-            <Button type="submit" className="w-full" disabled={busy || (canContinue && (!method || q.pincode?.serviceable === false))}>
-              {canContinue ? (busy ? page.submitBusy : page.submitLabel) : 'Add address to continue'}
-            </Button>
-            <div className="flex flex-col items-center gap-2 text-center text-[11px] uppercase tracking-widest text-lilac">
-              <Link to="/cart" className="text-gold">Back to cart</Link>
-              <Link to="/shop">Continue shopping</Link>
-              <Link to="/wishlist">View wishlist</Link>
+            {error && <p className="nx-bad mt-4">{error}</p>}
+            <div className="nx-actions">
+              <Button type="submit" className="nx-btn-block" disabled={busy || (canContinue && (!method || q.pincode?.serviceable === false))}>
+                {canContinue ? (busy ? page.submitBusy : page.submitLabel) : 'Add address to continue'}
+              </Button>
+            </div>
+            <div className="nx-links">
+              <Link to="/cart" className="nx-mini is-c">Back to bag</Link>
+              <Link to="/shop" className="nx-mini">Continue shopping</Link>
+              <Link to="/wishlist" className="nx-mini">Wishlist</Link>
             </div>
           </form>
         </div>

@@ -31,9 +31,9 @@ export default function PreviewPanel({ mobile }) {
         charm={charm}
         compact={mobile}
       />
-      <p className="bag-summary-kicker mt-4">{labels.previewKicker}</p>
-      <h2 className="bag-summary-title gold-text">{intention?.braceletName || intention?.name || layer?.name || purpose?.name || labels.customStrand}</h2>
-      <p className="mt-1 text-sm text-lilac">
+      <p className="nx-k mt-4">{labels.previewKicker}</p>
+      <h2 className="nx-sum-t">{intention?.braceletName || intention?.name || layer?.name || purpose?.name || labels.customStrand}</h2>
+      <p className="nx-note">
         {layer ? `${layer.modeLabel} · ${layer.name}` : purpose?.name || labels.selectionPending}
         {!layer && intention ? ` · ${intention.braceletName || intention.name}` : ''}
       </p>
@@ -41,7 +41,7 @@ export default function PreviewPanel({ mobile }) {
       {(quote.lines?.length || quote.packaging?.lines?.length) ? (
         <details className="nx-price-more">
           <summary>Price breakdown</summary>
-          <dl className="bag-summary-rows">
+          <dl className="nx-rows">
             {(quote.lines || []).map((l) => (
               <div key={l.beadId}>
                 <dt>{l.name} × {l.quantity}</dt>
@@ -57,26 +57,26 @@ export default function PreviewPanel({ mobile }) {
           </dl>
         </details>
       ) : null}
-      <dl className="bag-summary-rows">
+      <dl className="nx-rows">
         <div>
           <dt>{formatWristChoice(threadType, wristSize)}</dt>
           <dd>{quote.beadCount} {labels.beadsUnit}</dd>
         </div>
-        <div className="bag-summary-total">
+        <div className="is-total">
           <dt>{labels.liveTotal}</dt>
           <dd><Price value={quote.total} /></dd>
         </div>
       </dl>
       {!quote.valid && quote.errors?.length > 0 && (
-        <p className="mt-3 text-xs text-red-300">{quote.errors.join(' ')}</p>
+        <p className="nx-bad mt-3">{quote.errors.join(' ')}</p>
       )}
       <div className="mt-4 flex justify-between gap-3">
-        <button type="button" className="bag-summary-clear" onClick={() => setStep(1)}>
+        <button type="button" className="nx-mini" onClick={() => setStep(1)}>
           {labels.editSelection}
         </button>
         <button
           type="button"
-          className="bag-summary-clear"
+          className="nx-mini"
           onClick={() => {
             clearBuild();
             navigate('/customize');
@@ -90,19 +90,19 @@ export default function PreviewPanel({ mobile }) {
 
   if (mobile) {
     return (
-      <div className="auth-card !p-0">
+      <div className="nx-sum nx-sum-fold">
         <button
           type="button"
-          className="flex w-full items-center justify-between px-4 py-3.5 text-[11px] uppercase tracking-[0.2em] text-gold"
+          className="nx-sum-toggle nx-k"
           onClick={() => setPreviewOpen(!previewOpen)}
         >
           {labels.previewToggle}
           <ChevronDown className={`transition ${previewOpen ? 'rotate-180' : ''}`} size={16} />
         </button>
-        {previewOpen && <div className="px-4 pb-4">{body}</div>}
+        {previewOpen && <div className="nx-sum-fold-body">{body}</div>}
       </div>
     );
   }
 
-  return <aside className="studio-preview bag-summary">{body}</aside>;
+  return <aside className="studio-preview nx-sum">{body}</aside>;
 }

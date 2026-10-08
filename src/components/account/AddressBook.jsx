@@ -133,114 +133,127 @@ export default function AddressBook() {
   const preferred = defaultAddress(user);
 
   return (
-    <section id="addresses" className="mt-12 sm:mt-16">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <section id="addresses" className="nx-acct-sec">
+      <div className="nx-acct-head">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.22em] text-gold">Addresses</p>
-          <h2 className="mt-2 font-serif text-2xl gold-text">Delivery addresses</h2>
-          <p className="mt-2 max-w-xl text-sm text-lilac">
-            Save a default address for checkout, or fill one from your current location.
-          </p>
+          <p className="nx-eb">Addresses</p>
+          <h2 className="nx-d nx-acct-t">Delivery addresses</h2>
+          <p className="nx-note">Save a default address for checkout, or fill one from your current location.</p>
         </div>
-        <Button type="button" variant="ghost" onClick={() => edit(null)}>Add address</Button>
+        {!draft && (
+          <Button variant="ghost" size="s" onClick={() => edit(null)}>
+            Add address
+          </Button>
+        )}
       </div>
 
       {preferred && !draft && (
-        <p className="mt-4 text-xs text-gold">
+        <p className="nx-msg mb-4">
           Default address: {preferred.label || 'Home'} · {formatAddress(preferred)}
         </p>
       )}
 
-      <div className="mt-6 grid gap-3">
-        {addresses.map((row) => (
-          <article key={addressId(row)} className={`rounded-2xl border p-4 ${row.isDefault ? 'border-gold/50 bg-gold/5' : 'border-gold/20 bg-surface/70'}`}>
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.2em] text-gold">
-                  {row.label || 'Home'}{addressBadges(row).length ? ` · ${addressBadges(row).join(' · ')}` : ''}
-                </p>
-                <p className="mt-2 text-sm text-lilac">{formatAddress(row)}</p>
-                {row.display && <p className="mt-1 text-xs text-lilac/80">{row.display}</p>}
-                {row.phone && <p className="mt-1 text-xs text-lilac">{row.phone}</p>}
-              </div>
-              <div className="flex flex-wrap gap-2">
+      {addresses.length > 0 && (
+        <div className="nx-addrs">
+          {addresses.map((row) => (
+            <article key={addressId(row)} className={`nx-addr${row.isDefault ? ' is-default' : ''}`}>
+              <p className="nx-k">
+                {row.label || 'Home'}
+                {addressBadges(row).length ? ` · ${addressBadges(row).join(' · ')}` : ''}
+              </p>
+              <p className="nx-note">{formatAddress(row)}</p>
+              {row.display && <p className="nx-note">{row.display}</p>}
+              {row.phone && <p className="nx-note">{row.phone}</p>}
+              <div className="nx-addr-acts">
                 {!row.isDefault && (
-                  <Button type="button" variant="ghost" disabled={busy === addressId(row)} onClick={() => makeDefault(row)}>
+                  <button type="button" className="nx-mini is-c" disabled={busy === addressId(row)} onClick={() => makeDefault(row)}>
                     Set default
-                  </Button>
+                  </button>
                 )}
-                <Button type="button" variant="ghost" onClick={() => edit(row)}>Edit</Button>
-                <Button type="button" variant="ghost" disabled={busy === addressId(row)} onClick={() => remove(row)}>
+                <button type="button" className="nx-mini" onClick={() => edit(row)}>
+                  Edit
+                </button>
+                <button type="button" className="nx-mini" disabled={busy === addressId(row)} onClick={() => remove(row)}>
                   Remove
-                </Button>
+                </button>
               </div>
-            </div>
-          </article>
-        ))}
-        {!addresses.length && !draft && (
-          <p className="text-sm text-lilac">No saved addresses yet. Add one or use your current location.</p>
-        )}
-      </div>
+            </article>
+          ))}
+        </div>
+      )}
+      {!addresses.length && !draft && <p className="nx-note">No saved addresses yet. Add one or use your current location.</p>}
 
       {draft && (
-        <form onSubmit={saveDraft} className="auth-card mt-6 space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-gold">{draft._id ? 'Edit address' : 'New address'}</p>
-            <Button type="button" variant="ghost" disabled={busy === 'gps'} onClick={useCurrentLocation}>
-              <MapPin size={14} /> {busy === 'gps' ? 'Locating…' : 'Use current location'}
+        <form onSubmit={saveDraft} className="nx-sum mt-6" noValidate>
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <p className="nx-k">{draft._id ? 'Edit address' : 'New address'}</p>
+            <Button variant="ghost" size="s" disabled={busy === 'gps'} onClick={useCurrentLocation}>
+              <MapPin size={14} strokeWidth={1.6} /> {busy === 'gps' ? 'Locating…' : 'Use current location'}
             </Button>
           </div>
-          {FIELDS.map(([key, label, required]) => {
-            const invalid = Boolean(fieldErrors[key]);
-            const isNumber = key === 'phone' || key === 'pincode';
-            return (
-              <label key={key} className="block text-xs uppercase tracking-widest text-gold">
-                {label}{required || isNumber ? ' *' : ''}
-                <input
-                  type={isNumber ? 'tel' : 'text'}
-                  inputMode={isNumber ? 'numeric' : undefined}
-                  maxLength={key === 'phone' ? 10 : key === 'pincode' ? 6 : undefined}
-                  value={draft[key] || ''}
-                  aria-invalid={invalid}
-                  onChange={(e) => {
-                    const value = isNumber ? digitsOnly(e.target.value, key === 'phone' ? 10 : 6) : e.target.value;
-                    setDraft((row) => ({ ...row, [key]: value }));
-                    setFieldErrors((current) => {
-                      if (!current[key]) return current;
-                      const next = { ...current };
-                      delete next[key];
-                      return next;
-                    });
-                  }}
-                  className={`mt-1 w-full rounded-xl border bg-ink px-3 py-2 text-ivory ${
-                    invalid ? 'border-red-400' : 'border-gold/30'
-                  }`}
-                />
-                {invalid ? (
-                  <span className="mt-1 block text-[11px] normal-case tracking-normal text-red-300">{fieldErrors[key]}</span>
-                ) : key === 'phone' ? (
-                  <span className="mt-1 block text-[11px] normal-case tracking-normal text-lilac">10-digit Indian mobile</span>
-                ) : key === 'pincode' ? (
-                  <span className="mt-1 block text-[11px] normal-case tracking-normal text-lilac">6-digit pincode</span>
-                ) : null}
-              </label>
-            );
-          })}
-          <label className="flex items-center gap-2 text-sm text-lilac">
-            <input
-              type="checkbox"
-              checked={Boolean(draft.isDefault) || addresses.length === 0}
-              onChange={(e) => setDraft((row) => ({ ...row, isDefault: e.target.checked }))}
-            />
-            Use as default delivery address
-          </label>
-          <div className="flex flex-wrap gap-2">
-            <Button type="submit" disabled={busy === 'save'}>{busy === 'save' ? 'Saving…' : 'Save address'}</Button>
-            <Button type="button" variant="ghost" onClick={() => { setDraft(null); setNote(''); setFieldErrors({}); }}>Cancel</Button>
+          <div className="nx-fields is-2">
+            {FIELDS.map(([key, label, required]) => {
+              const invalid = Boolean(fieldErrors[key]);
+              const isNumber = key === 'phone' || key === 'pincode';
+              return (
+                <label key={key} className={`nx-lab${key === 'line1' || key === 'line2' ? ' is-wide' : ''}`}>
+                  <span>{label}{required || isNumber ? ' *' : ''}</span>
+                  <input
+                    className="nx-input"
+                    type={isNumber ? 'tel' : 'text'}
+                    inputMode={isNumber ? 'numeric' : undefined}
+                    maxLength={key === 'phone' ? 10 : key === 'pincode' ? 6 : undefined}
+                    value={draft[key] || ''}
+                    aria-invalid={invalid}
+                    onChange={(e) => {
+                      const value = isNumber ? digitsOnly(e.target.value, key === 'phone' ? 10 : 6) : e.target.value;
+                      setDraft((row) => ({ ...row, [key]: value }));
+                      setFieldErrors((current) => {
+                        if (!current[key]) return current;
+                        const next = { ...current };
+                        delete next[key];
+                        return next;
+                      });
+                    }}
+                  />
+                  {invalid ? (
+                    <span className="nx-bad">{fieldErrors[key]}</span>
+                  ) : key === 'phone' ? (
+                    <span className="nx-note">10-digit Indian mobile</span>
+                  ) : key === 'pincode' ? (
+                    <span className="nx-note">6-digit pincode</span>
+                  ) : null}
+                </label>
+              );
+            })}
+            <label className="nx-check is-wide">
+              <input
+                type="checkbox"
+                checked={Boolean(draft.isDefault) || addresses.length === 0}
+                onChange={(e) => setDraft((row) => ({ ...row, isDefault: e.target.checked }))}
+              />
+              Use as default delivery address
+            </label>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Button type="submit" size="s" disabled={busy === 'save'}>
+              {busy === 'save' ? 'Saving…' : 'Save address'}
+            </Button>
+            <Button
+              variant="ghost"
+              size="s"
+              onClick={() => {
+                setDraft(null);
+                setNote('');
+                setFieldErrors({});
+              }}
+            >
+              Cancel
+            </Button>
           </div>
         </form>
       )}
-      {note && <p className="mt-3 text-sm text-gold">{note}</p>}
+      {note && <p className="nx-msg mt-3">{note}</p>}
     </section>
   );
 }

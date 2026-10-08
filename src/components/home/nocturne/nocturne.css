@@ -1,4 +1,4 @@
-/* Nocturne — home page only. Scoped under .nx; the solid background covers the animated sky. */
+/* Nocturne — the storefront design. Scoped under .nx (bag, checkout, account and popups: commerce.css). */
 
 .nx {
   --nx-bg: #09080a;
@@ -35,12 +35,12 @@
   object-fit: cover;
 }
 
-.nx a {
+:where(.nx) a {
   color: inherit;
   text-decoration: none;
 }
 
-.nx button {
+:where(.nx) button {
   font: inherit;
   color: inherit;
   cursor: pointer;
@@ -2872,8 +2872,6 @@ a.nx-tile:hover .nx-arrow {
   background: var(--nx-tile);
 }
 
-
-
 .nx-banner img {
   height: 100%;
   transition: transform 1.2s ease;
@@ -4397,426 +4395,7 @@ a.nx-tile:hover .nx-arrow {
   }
 }
 
-/* =====================================================================
-   Skin: restyles the shared storefront components (cart, checkout,
-   account, drawers, modals) without touching their markup or logic.
-   Doubled class so it outranks the `.store-canvas …` rules.
-   ===================================================================== */
-.nx-skin {
-  --nx-bg: #09080a;
-  --nx-bg2: #111013;
-  --nx-tile: #17151a;
-  --nx-ink: #ede8e1;
-  --nx-muted: #aaa3af;
-  --nx-soft: #7d7682;
-  --nx-champ: #d6c29a;
-  --nx-violet: #a78bff;
-  --nx-line: rgba(237, 232, 225, 0.1);
-  --nx-line2: rgba(237, 232, 225, 0.22);
-  --nx-sans: 'Inter Tight', 'Outfit', ui-sans-serif, system-ui, sans-serif;
-}
-
-.nx-skin-body {
-  padding-block: 40px 96px;
-}
-
-.nx-skin.nx-skin {
-  font-family: var(--nx-sans);
-}
-
-/* type */
-.nx-skin.nx-skin .text-gold:not(svg),
-.nx-skin.nx-skin .text-gold-light:not(svg),
-.nx-skin.nx-skin .gold-text,
-.nx-skin.nx-skin .gold-cloud {
-  background: none;
-  -webkit-text-fill-color: currentColor;
-  animation: none;
-}
-
-.nx-skin.nx-skin .text-gold:not(svg),
-.nx-skin.nx-skin .text-gold-light:not(svg) {
-  color: var(--nx-champ);
-}
-
-.nx-skin.nx-skin .gold-text {
-  color: var(--nx-ink);
-}
-
-.nx-skin.nx-skin .text-lilac {
-  color: var(--nx-muted);
-  text-shadow: none;
-}
-
-.nx-skin.nx-skin .text-ivory {
-  color: var(--nx-ink);
-}
-
-.nx-skin.nx-skin .text-red-300 {
-  color: #ff9c9c;
-}
-
-.nx-skin.nx-skin .font-serif {
-  font-family: var(--nx-sans);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-}
-
-.nx-skin.nx-skin h1.font-serif,
-.nx-skin.nx-skin h2.font-serif {
-  text-transform: uppercase;
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-
-/* section heads used inside account */
-.nx-skin.nx-skin .sec-head {
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-}
-
-.nx-skin.nx-skin .sec-eyebrow {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.24em;
-  color: var(--nx-champ);
-}
-
-.nx-skin.nx-skin .sec-title {
-  margin-top: 12px;
-  font-size: clamp(30px, 3.4vw, 48px);
-}
-
-.nx-skin.nx-skin .sec-body {
-  font-size: 15px;
-  color: var(--nx-muted);
-}
-
-.nx-skin.nx-skin .sec-action {
-  padding-bottom: 3px;
-  border-bottom: 1px solid var(--nx-champ);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--nx-ink);
-}
-
-/* panels */
-.nx-skin.nx-skin .auth-card,
-.nx-skin.nx-skin .bag-summary {
-  padding: clamp(22px, 2.4vw, 32px);
-  border: 1px solid var(--nx-line);
-  border-radius: 3px;
-  background: var(--nx-bg2);
-  box-shadow: none;
-}
-
-.nx-skin.nx-skin .border-gold\/20,
-.nx-skin.nx-skin .border-gold\/30,
-.nx-skin.nx-skin .border-t,
-.nx-skin.nx-skin .border-b,
-.nx-skin.nx-skin [class*='border-[rgba(198,167,94'] {
-  border-color: var(--nx-line);
-}
-
-.nx-skin.nx-skin .rounded-xl,
-.nx-skin.nx-skin .rounded-2xl {
-  border-radius: 3px;
-}
-
-.nx-skin.nx-skin .bg-surface,
-.nx-skin.nx-skin .bg-surface\/80 {
-  background: var(--nx-bg2);
-  box-shadow: none;
-}
-
-/* bag / checkout lines */
-.nx-skin.nx-skin .bag-stage {
-  margin-top: 0;
-  gap: clamp(28px, 4vw, 56px);
-}
-
-.nx-skin.nx-skin .bag-list {
-  gap: 0;
-  border-top: 1px solid var(--nx-line);
-}
-
-.nx-skin.nx-skin .bag-card {
-  padding: 22px 0;
-  border: 0;
-  border-bottom: 1px solid var(--nx-line);
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-}
-
-.nx-skin.nx-skin .bag-card-media {
-  flex: 0 0 104px;
-  width: 104px;
-  min-height: 130px;
-  border-radius: 2px;
-  background: var(--nx-tile);
-}
-
-.nx-skin.nx-skin .bag-card-media::after {
-  display: none;
-}
-
-.nx-skin.nx-skin .bag-card-body {
-  padding: 2px 0 0 22px;
-}
-
-.nx-skin.nx-skin .bag-card-kind {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  color: var(--nx-champ);
-}
-
-.nx-skin.nx-skin .bag-card-title {
-  margin-top: 8px;
-  font-family: var(--nx-sans);
-  font-size: 18px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  text-transform: none;
-}
-
-.nx-skin.nx-skin .bag-card-meta {
-  font-size: 13px;
-  color: var(--nx-muted);
-}
-
-.nx-skin.nx-skin .bag-card-foot {
-  margin-top: auto;
-  padding-top: 14px;
-}
-
-.nx-skin.nx-skin .bag-card-remove,
-.nx-skin.nx-skin .bag-card-edit,
-.nx-skin.nx-skin .bag-summary-clear {
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  color: var(--nx-muted);
-}
-
-.nx-skin.nx-skin .bag-card-edit {
-  color: var(--nx-champ);
-}
-
-.nx-skin.nx-skin .bag-card-remove:hover,
-.nx-skin.nx-skin .bag-summary-clear:hover {
-  color: var(--nx-ink);
-}
-
-.nx-skin.nx-skin .bag-card-price-row .text-gold {
-  font-size: 16px;
-  color: var(--nx-ink);
-}
-
-.nx-skin.nx-skin .bag-summary-kicker {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.24em;
-  color: var(--nx-champ);
-}
-
-.nx-skin.nx-skin .bag-summary-title {
-  margin: 10px 0 20px;
-  font-family: var(--nx-sans);
-  font-size: 32px;
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-}
-
-.nx-skin.nx-skin .bag-summary-rows {
-  gap: 0;
-  font-size: 14px;
-}
-
-.nx-skin.nx-skin .bag-summary-rows > div {
-  padding: 11px 0;
-  border-bottom: 1px solid var(--nx-line);
-}
-
-.nx-skin.nx-skin .bag-summary-rows > div:last-child {
-  border-bottom: 0;
-  padding-top: 16px;
-}
-
-.nx-skin.nx-skin .bag-summary-rows dt {
-  color: var(--nx-muted);
-}
-
-.nx-skin.nx-skin .bag-summary-total {
-  font-family: var(--nx-sans);
-  font-size: 24px;
-  font-weight: 400;
-  color: var(--nx-ink);
-}
-
-.nx-skin.nx-skin .bag-summary-actions {
-  margin-top: 20px;
-  gap: 10px;
-}
-
-/* coupons */
-.nx-skin.nx-skin .bag-coupon-count,
-.nx-skin.nx-skin .bag-coupon-offer {
-  color: var(--nx-champ);
-}
-
-.nx-skin.nx-skin .bag-coupon-offer {
-  font-family: var(--nx-sans);
-  font-weight: 500;
-}
-
-.nx-skin.nx-skin .bag-coupon-see,
-.nx-skin.nx-skin .bag-coupon-meta {
-  color: var(--nx-muted);
-}
-
-.nx-skin.nx-skin .bag-coupon-card {
-  padding: 14px 16px;
-  border: 1px solid var(--nx-line);
-  border-radius: 3px;
-  background: none;
-}
-
-.nx-skin.nx-skin .bag-coupon-card.is-eligible {
-  border-color: var(--nx-line2);
-}
-
-.nx-skin.nx-skin .bag-coupon-card.is-on {
-  border-color: var(--nx-champ);
-  background: rgba(214, 194, 154, 0.06);
-}
-
-.nx-skin.nx-skin .bag-coupon-apply,
-.nx-skin.nx-skin .bag-coupon-applied {
-  color: var(--nx-champ);
-}
-
-/* modals and drawers */
-.nx-skin.nx-skin .studio-modal,
-.nx-skin.nx-skin .account-panel,
-.nx-skin.nx-skin aside.animate-drawer-right {
-  border-color: var(--nx-line2);
-  background: var(--nx-bg);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
-}
-
-.nx-skin.nx-skin .studio-modal {
-  border-radius: 4px 4px 0 0;
-}
-
-@media (min-width: 640px) {
-  .nx-skin.nx-skin .studio-modal {
-    border-radius: 4px;
-  }
-}
-
-.nx-skin.nx-skin .header-icon {
-  border-color: var(--nx-line2);
-  background: none;
-  color: var(--nx-ink);
-}
-
 /* controls */
-.nx-skin.nx-skin .qty-ctrl {
-  border: 1px solid var(--nx-line2);
-  border-radius: 2px;
-  background: none;
-}
-
-.nx-skin.nx-skin .qty-ctrl-btn {
-  width: 36px;
-  height: 38px;
-}
-
-.nx-skin.nx-skin .inline-flex.rounded-full {
-  min-height: 46px;
-  padding: 0 22px;
-  border: 1px solid var(--nx-line2);
-  border-radius: 2px;
-  background: none;
-  color: var(--nx-ink);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: none;
-}
-
-.nx-skin.nx-skin .inline-flex.rounded-full:hover {
-  background: rgba(237, 232, 225, 0.08);
-}
-
-.nx-skin.nx-skin .inline-flex.rounded-full.gold-btn {
-  min-height: 52px;
-  border-color: var(--nx-ink);
-  background: var(--nx-ink);
-  color: var(--nx-bg);
-}
-
-.nx-skin.nx-skin .inline-flex.rounded-full.gold-btn:hover {
-  background: #fff;
-}
-
-.nx-skin.nx-skin .gold-btn .gold-cloud {
-  color: var(--nx-bg);
-}
-
-.nx-skin.nx-skin input:not([type='radio']):not([type='checkbox']),
-.nx-skin.nx-skin select,
-.nx-skin.nx-skin textarea {
-  border: 1px solid var(--nx-line2);
-  border-radius: 2px;
-  background: transparent;
-  color: var(--nx-ink);
-  font-family: var(--nx-sans);
-}
-
-.nx-skin.nx-skin select option {
-  background: var(--nx-bg2);
-}
-
-.nx-skin.nx-skin input:not([type='radio']):not([type='checkbox']):focus,
-.nx-skin.nx-skin select:focus,
-.nx-skin.nx-skin textarea:focus {
-  outline: none;
-  border-color: var(--nx-champ);
-}
-
-.nx-skin.nx-skin input[type='radio'],
-.nx-skin.nx-skin input[type='checkbox'] {
-  accent-color: var(--nx-champ);
-}
-
-.nx-skin.nx-skin label:has(> input[type='radio']:checked) {
-  border-color: var(--nx-champ);
-  color: var(--nx-ink);
-}
-
-@media (max-width: 767px) {
-  .nx-skin-body {
-    padding-block: 28px 72px;
-  }
-
-  .nx-skin.nx-skin .bag-card-media {
-    flex-basis: 84px;
-    width: 84px;
-    min-height: 108px;
-  }
-
-  .nx-skin.nx-skin .bag-card-body {
-    padding-left: 16px;
-  }
-}
 
 .nx .nx-phero-t.is-long,
 .nx-phero.is-short .nx-phero-t.is-long {
@@ -5471,40 +5050,59 @@ a.nx-tile:hover .nx-arrow {
 }
 
 /* bracelet preview inside the purpose studio */
-.nx-studio.nx-studio .bg-amethyst {
+.nx-view-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.nx-view-tabs button {
+  padding: 6px 14px;
+  border: 1px solid var(--nx-line2);
+  border-radius: 999px;
+  background: none;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+.nx-view-tabs button.is-on {
+  border-color: var(--nx-ink);
   background: var(--nx-ink);
   color: var(--nx-bg);
 }
 
-.nx-studio.nx-studio .gold-border {
+.nx-stage {
+  overflow: hidden;
   border: 1px solid var(--nx-line);
   border-radius: 3px;
-  box-shadow: none;
+  background: linear-gradient(180deg, #16131c, #000);
 }
 
-.nx-studio.nx-studio .rounded-full.px-3.py-1 {
-  padding: 6px 14px;
-  font-size: 11px;
-  font-weight: 500;
+.nx-stage.nx-stage-flat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 16px;
+  background: var(--nx-bg2);
 }
 
 /* Skinned pages open popups (crystals, coupons, addresses) that must sit above the fixed
    header, so they cannot be trapped in the page's own stacking layer. */
-.nx.nx-skin {
-  isolation: auto;
-}
 
 @media (max-width: 1023px) {
   .nx-studio.nx-studio .studio-stage {
     margin-top: 16px;
   }
+}
 
-  .nx-studio.nx-studio .auth-card > button.text-gold {
-    font-family: var(--nx-sans);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.2em;
-  }
+/* Studio popups (crystals, intentions) render inside the page and must sit above the fixed
+   header, so the studio page cannot be its own stacking layer. */
+.nx.nx-studio {
+  isolation: auto;
 }
 
 /* crystal popup (purpose studio) */
@@ -6074,42 +5672,6 @@ a.nx-tile:hover .nx-arrow {
   margin-bottom: 12px;
 }
 
-.nx-studio.nx-studio .studio-birth-fields {
-  display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: none;
-}
-
-.nx-studio.nx-studio .studio-birth-fields label {
-  display: grid;
-  gap: 8px;
-  padding: 0;
-  border: 0;
-  background: none;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--nx-muted);
-}
-
-.nx-studio.nx-studio .studio-birth-fields .studio-select {
-  height: 46px;
-  padding: 0 14px;
-  border: 1px solid var(--nx-line2);
-  border-radius: 2px;
-  background: var(--nx-bg);
-  font-size: 15px;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--nx-ink);
-  cursor: pointer;
-}
-
 .nx-birth-head {
   display: flex;
   flex-wrap: wrap;
@@ -6350,17 +5912,6 @@ a.nx-tile:hover .nx-arrow {
     padding: 18px;
   }
 
-  .nx-studio.nx-studio .studio-birth-fields {
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.1fr) minmax(0, 1fr);
-    gap: 8px;
-  }
-
-  .nx-studio.nx-studio .studio-birth-fields .studio-select {
-    padding: 0 8px;
-    font-size: 14px;
-  }
-
-
 }
 
 .nx .nx-pb-gem {
@@ -6555,9 +6106,10 @@ a.nx-tile:hover .nx-arrow {
   color: var(--nx-ink);
 }
 
+/* Two or three blocks (paths without a reading have two); they always fill the row. */
 .nx-rv-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 14px;
 }
 
@@ -6816,36 +6368,6 @@ a.nx-tile:hover .nx-arrow {
   }
 }
 
-/* Bag: the total and Checkout come straight after the heading; coupons follow. */
-.nx-skin.nx-skin.cart-page:not(.checkout-page) .bag-summary {
-  display: flex;
-  flex-direction: column;
-}
-
-.nx-skin.nx-skin.cart-page:not(.checkout-page) .bag-summary > * {
-  order: 3;
-}
-
-.nx-skin.nx-skin.cart-page:not(.checkout-page) .bag-summary > .bag-summary-kicker,
-.nx-skin.nx-skin.cart-page:not(.checkout-page) .bag-summary > .bag-summary-title {
-  order: 0;
-}
-
-.nx-skin.nx-skin.cart-page:not(.checkout-page) .bag-summary > .bag-summary-rows {
-  order: 1;
-  margin: 0 0 4px;
-}
-
-.nx-skin.nx-skin.cart-page:not(.checkout-page) .bag-summary > .bag-summary-actions {
-  order: 2;
-  margin: 12px 0 22px;
-}
-
-.nx-skin.nx-skin .bag-summary-title {
-  margin: 8px 0 12px;
-  font-size: 26px;
-}
-
 /* Studio action bar stays in view on laptops too (it is already pinned on phones). */
 @media (min-width: 1024px) {
   .nx-studio.nx-studio .studio-actions {
@@ -6899,22 +6421,10 @@ a.nx-tile:hover .nx-arrow {
   transform: rotate(45deg);
 }
 
-.nx-price-more .bag-summary-rows {
-  margin-top: 0;
-}
-
 /* The home journal keeps its wide photos (the Journal page sets its own 4:3 crop). */
 .nx-journal .nx-post-ph {
   aspect-ratio: 2 / 1;
   margin-bottom: 14px;
-}
-
-.nx-skin.nx-skin .bag-summary-rows > div {
-  padding: 8px 0;
-}
-
-.nx-skin-body {
-  padding-top: 24px;
 }
 
 /* Personal-bead cards: number beside its crystal, Add / Skip pinned to the card bottom. */

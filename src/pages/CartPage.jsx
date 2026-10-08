@@ -6,13 +6,11 @@ import { useAuthStore } from '../store/authStore';
 import Button from '../components/ui/Button';
 import QtyControl from '../components/ui/QtyControl';
 import Price from '../components/ui/Price';
-import GemVisual from '../components/ui/GemVisual';
-import InViewGroup from '../components/ui/InViewGroup';
 import { fillCopy } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
+import BagLine from '../components/cart/BagLine';
 import CouponPicker from '../components/cart/CouponPicker';
 import { CmsEmpty, PageIntro } from '../components/home/nocturne/Listing';
-import { itemMeta, itemTitle } from '../lib/cartItems';
 
 const CRUMBS = [
   { label: 'Home', to: '/' },
@@ -40,20 +38,38 @@ export default function CartPage() {
     }).catch(() => {});
   }, [user, items.length, amount]);
 
+  async function applyCoupon(e) {
+    e.preventDefault();
+    setCouponMsg('');
+    try {
+      const { data } = await api.post('/cart/coupon', { code: coupon });
+      setQuote(data.quote);
+      setCouponMsg(data.quote?.coupon ? 'Applied.' : data.quote?.couponError || '');
+    } catch (err) {
+      setCouponMsg(err.message);
+    }
+  }
+
+  async function removeCoupon() {
+    try {
+      const { data } = await api.delete('/cart/coupon');
+      setQuote(data.quote);
+      setCoupon('');
+      setCouponMsg('');
+    } catch (err) {
+      setCouponMsg(err.message);
+    }
+  }
+
+  const total = quote?.total ?? amount;
+
   return (
-    <div className={`nx nx-page nx-skin cart-page ${items.length ? 'is-filled' : 'is-empty'}`}>
+    <div className="nx nx-page">
       <PageIntro
         crumbs={CRUMBS}
         eyebrow={page.eyebrow}
         title={page.title}
-        body={
-          items.length
-            ? fillCopy(page.filledBody, {
-                count,
-                pieces: count === 1 ? 'piece' : 'pieces',
-              })
-            : page.emptyBody
-        }
+        body={items.length ? fillCopy(page.filledBody, { count, pieces: count === 1 ? 'piece' : 'pieces' }) : page.emptyBody}
         actions={
           page.to && (
             <Link to={page.to} className="nx-lnk">
@@ -62,123 +78,37 @@ export default function CartPage() {
           )
         }
       />
-      <div className="nx-w nx-skin-body">
+      <div className="nx-w nx-body">
         {items.length === 0 ? (
           <CmsEmpty block={page.empty} />
         ) : (
-          <div className="bag-stage">
-            <InViewGroup className="bag-list">
-              {items.map((item, i) => {
-                const snap = item.snapshot || {};
-                const title = itemTitle(item);
-                const meta = itemMeta(item);
-                const href = item.kind === 'product' && snap.slug ? `/p/${snap.slug}` : null;
-                const kindLabel = item.kind === 'custom_bracelet' ? 'Studio' : snap.family || 'House';
-                const media = (
-                  <GemVisual
-                    color={snap.colorHex || snap.beads?.[0]?.colorHex}
-                    image={snap.image}
-                    className="h-full w-full"
-                    name={title}
-                  />
-                );
-
-                return (
-                  <article key={item._id} className="bag-item bag-card" style={{ '--i': i }}>
-                    <div className="bag-card-media">
-                      {href ? (
-                        <Link to={href} className="block h-full w-full">
-                          {media}
-                        </Link>
-                      ) : (
-                        media
-                      )}
-                    </div>
-                    <div className="bag-card-body">
-                      <p className="bag-card-kind">{kindLabel}</p>
-                      {href ? (
-                        <Link to={href}>
-                          <h3 className="bag-card-title">{title}</h3>
-                        </Link>
-                      ) : (
-                        <h3 className="bag-card-title">{title}</h3>
-                      )}
-                      {meta && <p className="bag-card-meta">{meta}</p>}
-                      <div className="bag-card-foot">
-                        {item.kind === 'product' ? (
-                          <QtyControl value={item.quantity} min={1} onChange={(n) => updateQty(item._id, n)} />
-                        ) : (
-                          <Link to="/customize" className="bag-card-edit">
-                            Edit in studio
-                          </Link>
-                        )}
-                        <div className="bag-card-price-row">
-                          <Price value={item.lineTotal} className="text-gold" />
-                          <button type="button" onClick={() => remove(item._id)} className="bag-card-remove">
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-            </InViewGroup>
-
-            <aside className="bag-summary">
-              <p className="bag-summary-kicker">To pay</p>
-              <h2 className="bag-summary-title gold-text">Checkout.</h2>
-              {user && (
-                <form
-                  className="mb-3 flex gap-2"
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    setCouponMsg('');
-                    try {
-                      const { data } = await api.post('/cart/coupon', { code: coupon });
-                      setQuote(data.quote);
-                      setCouponMsg(data.quote?.coupon ? 'Applied.' : data.quote?.couponError || '');
-                    } catch (err) {
-                      setCouponMsg(err.message);
-                    }
-                  }}
-                >
-                  <input className="flex-1 rounded-xl border border-gold/30 bg-ink px-3 py-2 text-sm text-ivory" placeholder="Coupon code" value={coupon} onChange={(e) => setCoupon(e.target.value)} />
-                  <button type="submit" className="text-xs uppercase tracking-widest text-gold">Apply</button>
-                </form>
-              )}
-              <CouponPicker
-                signedIn={!!user}
-                appliedCode={quote?.coupon?.code || coupon}
-                refreshKey={`${items.length}-${amount}`}
-                onQuote={(next, message) => {
-                  if (next) {
-                    setQuote(next);
-                    if (next.coupon?.code) setCoupon(next.coupon.code);
+          <div className="nx-bag">
+            <div className="nx-lines">
+              {items.map((item) => (
+                <BagLine
+                  key={item._id}
+                  item={item}
+                  aside={
+                    <button type="button" className="nx-mini" onClick={() => remove(item._id)}>
+                      Remove
+                    </button>
                   }
-                  if (message) setCouponMsg(message);
-                }}
-              />
-              {quote?.coupon?.code && user && (
-                <button
-                  type="button"
-                  className="mb-3 text-[11px] uppercase tracking-widest text-gold"
-                  onClick={async () => {
-                    try {
-                      const { data } = await api.delete('/cart/coupon');
-                      setQuote(data.quote);
-                      setCoupon('');
-                      setCouponMsg('');
-                    } catch (err) {
-                      setCouponMsg(err.message);
-                    }
-                  }}
                 >
-                  Remove {quote.coupon.code}
-                </button>
-              )}
-              {couponMsg && <p className="mb-2 text-xs text-lilac">{couponMsg}</p>}
-              <dl className="bag-summary-rows">
+                  {item.kind === 'product' ? (
+                    <QtyControl value={item.quantity} min={1} onChange={(n) => updateQty(item._id, n)} />
+                  ) : (
+                    <Link to="/customize" className="nx-mini is-c">
+                      Edit in studio
+                    </Link>
+                  )}
+                </BagLine>
+              ))}
+            </div>
+
+            <aside className="nx-sum">
+              <p className="nx-k">To pay</p>
+              <h2 className="nx-sum-t">Checkout.</h2>
+              <dl className="nx-rows">
                 <div>
                   <dt>Pieces</dt>
                   <dd>{count}</dd>
@@ -209,24 +139,60 @@ export default function CartPage() {
                     <dd><Price value={quote.tax} /></dd>
                   </div>
                 ) : null}
-                <div>
+                <div className="is-total">
                   <dt>To pay</dt>
-                  <dd className="bag-summary-total">
-                    <Price value={quote?.total ?? amount} />
-                  </dd>
+                  <dd><Price value={total} /></dd>
                 </div>
               </dl>
-              <div className="bag-summary-actions">
-                <Button to="/checkout" className="w-full">Checkout</Button>
-                <Button to="/shop" variant="ghost" className="w-full">Continue shopping</Button>
-                <button type="button" onClick={clear} className="bag-summary-clear">
-                  Clear bag
-                </button>
+              <div className="nx-actions">
+                <Button to="/checkout" className="nx-btn-block">Checkout</Button>
+                <Button to="/shop" variant="ghost" size="s" className="nx-btn-block">Continue shopping</Button>
               </div>
+
+              <div className="nx-part">
+                {user && (
+                  <form className="nx-inline" onSubmit={applyCoupon}>
+                    <input className="nx-input" placeholder="Coupon code" aria-label="Coupon code" value={coupon} onChange={(e) => setCoupon(e.target.value)} />
+                    <Button type="submit" variant="ghost" size="s">Apply</Button>
+                  </form>
+                )}
+                <CouponPicker
+                  signedIn={!!user}
+                  appliedCode={quote?.coupon?.code || coupon}
+                  refreshKey={`${items.length}-${amount}`}
+                  onQuote={(next, message) => {
+                    if (next) {
+                      setQuote(next);
+                      if (next.coupon?.code) setCoupon(next.coupon.code);
+                    }
+                    if (message) setCouponMsg(message);
+                  }}
+                />
+                {quote?.coupon?.code && user && (
+                  <button type="button" className="nx-mini is-c justify-self-start" onClick={removeCoupon}>
+                    Remove {quote.coupon.code}
+                  </button>
+                )}
+                {couponMsg && <p className="nx-msg">{couponMsg}</p>}
+              </div>
+              <button type="button" onClick={clear} className="nx-mini mt-5">
+                Clear bag
+              </button>
             </aside>
           </div>
         )}
       </div>
+      {items.length > 0 && (
+        <div className="nx-paybar">
+          <span className="nx-paybar-sum">
+            <span>{count} {count === 1 ? 'piece' : 'pieces'} · to pay</span>
+            <strong><Price value={total} /></strong>
+          </span>
+          <Link to="/checkout" className="nx-btn">
+            Checkout
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

@@ -90,7 +90,7 @@ export default function CustomizePage() {
   }
 
   return (
-    <div className="nx nx-page nx-skin nx-studio">
+    <div className="nx nx-page nx-studio">
       <SeoHead
         title={pageTitle(copy.title || brand.nav.customize, brand)}
         description={copy.body || mode.body}

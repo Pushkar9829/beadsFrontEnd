@@ -47,11 +47,11 @@ export default function DateFields({ value, onChange }) {
   }
 
   return (
-    <div className="studio-birth-fields">
-      <label>
-        Day
+    <div className="nx-date">
+      <label className="nx-lab">
+        <span>Day</span>
         <select
-          className="studio-select"
+          className="nx-input"
           value={day}
           onChange={(e) => emit(year, month, Number(e.target.value) || '')}
         >
@@ -61,10 +61,10 @@ export default function DateFields({ value, onChange }) {
           ))}
         </select>
       </label>
-      <label>
-        Month
+      <label className="nx-lab">
+        <span>Month</span>
         <select
-          className="studio-select"
+          className="nx-input"
           value={month}
           onChange={(e) => emit(year, Number(e.target.value) || '', day)}
         >
@@ -74,10 +74,10 @@ export default function DateFields({ value, onChange }) {
           ))}
         </select>
       </label>
-      <label>
-        Year
+      <label className="nx-lab">
+        <span>Year</span>
         <select
-          className="studio-select"
+          className="nx-input"
           value={year}
           onChange={(e) => emit(Number(e.target.value) || '', month, day)}
         >
