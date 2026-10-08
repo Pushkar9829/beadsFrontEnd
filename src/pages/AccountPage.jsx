@@ -118,7 +118,7 @@ export default function AccountPage() {
               </p>
             </div>
             {page.ordersAction && (
-              <Link to="/customize" className="nx-lnk">
+              <Link to={page.ordersTo || '/customize'} className="nx-lnk">
                 {String(page.ordersAction).replace(/\s*→\s*$/, '')} →
               </Link>
             )}

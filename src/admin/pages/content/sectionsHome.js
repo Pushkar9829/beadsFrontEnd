@@ -117,7 +117,6 @@ export const HOME_SECTIONS = [
           row([select('slug', 'Collection', HOUSE_SLUGS), text('roman', 'Roman numeral')]),
           text('name', 'Name'),
           area('blurb', 'Blurb', { rows: 2 }),
-          text('cta', 'Card link label'),
           media('image', 'House image', { folder: 'banner' }),
         ],
         { itemLabel: 'House', fixed: true, summary: (h) => h.name }
@@ -126,9 +125,9 @@ export const HOME_SECTIONS = [
   },
   {
     key: 'studio',
-    label: 'Studio tile',
+    label: 'Studio tile & band',
     group: 'Homepage',
-    hint: 'Customization tile next to the houses',
+    hint: 'Customization tile next to the houses, and the studio band on other pages',
     preview: '/',
     base: '',
     paths: ['studio', 'ritual'],
@@ -140,6 +139,17 @@ export const HOME_SECTIONS = [
           row([text('eyebrow', 'Eyebrow'), text('heading', 'Heading')]),
           area('copy', 'Copy'),
           row([text('cta', 'Button label'), text('to', 'Button link', { placeholder: '/customize' })]),
+        ],
+        'studio'
+      ),
+      group(
+        'Studio band on other pages',
+        [
+          note('The "compose your own" band at the bottom of Shop, Collections, house, category, journal and product pages.'),
+          row([text('bandEyebrow', 'Eyebrow'), text('bandTitle', 'Title')]),
+          area('bandBody', 'Text', { rows: 2 }),
+          row([text('bandCta', 'Button label'), text('bandTo', 'Button link', { placeholder: '/customize' })]),
+          row([text('productBandTitle', 'Title on product pages'), text('productBandBody', 'Text on product pages')]),
         ],
         'studio'
       ),
@@ -189,6 +199,7 @@ export const HOME_SECTIONS = [
         text('emptyTitle', 'No sale running — title'),
         area('emptyBody', 'No sale running — body', { rows: 2 }),
         text('emptyProducts', 'Sale without products — line'),
+        row([text('listEyebrow', 'Pieces eyebrow', { placeholder: 'On the tray' }), text('listTitle', 'Pieces title', { placeholder: 'Timed prices' })]),
         media('pageImage', 'Banner image', { folder: 'banner', hint: 'Leave empty to use the first sale piece (or a built-in photo when no sale runs).' }),
       ]),
       note('The home block only shows while a flash sale is running.'),
@@ -383,13 +394,17 @@ export const SITE_SECTIONS = [
     key: 'brand',
     label: 'Header brand',
     group: 'Site-wide',
-    hint: 'Name, tagline, logo, menu labels',
+    hint: 'Name, tagline and menu labels',
     preview: '/',
     base: 'brand',
     fields: [
       row([text('name', 'Header name'), text('tagline', 'Header tagline')]),
-      media('logo', 'Logo', { folder: 'logo', hint: 'Optional. A logo set in Settings takes priority.', aspect: 'aspect-[3/1]' }),
-      row([text('customizeLabel', 'Customization menu label'), text('collectionsLabel', 'Collections menu label'), text('shopAllLabel', 'Shop All menu label')]),
+      note('The logo (crystal emblem and gold wordmark) is part of the site design.'),
+      group('Menu labels', [
+        row([text('customizeLabel', 'Customization', { placeholder: 'Customization' }), text('collectionsLabel', 'Collections', { placeholder: 'Collections' })]),
+        row([text('shopAllLabel', 'Shop All', { placeholder: 'Shop All' }), text('journalLabel', 'Journal', { placeholder: 'Journal' })]),
+        row([text('studioMenuTitle', 'Customization dropdown heading', { placeholder: 'Begin a strand' }), text('allCollectionsLabel', '"All collections" link', { placeholder: 'All collections' })]),
+      ]),
     ],
   },
   {

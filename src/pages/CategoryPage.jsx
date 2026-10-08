@@ -121,12 +121,12 @@ export default function CategoryPage() {
       {loading ? (
         <GridSkeleton />
       ) : (
-        <ProductListing eyebrow={house?.name ? `${house.name} · collection` : 'Collection'} title="The pieces" products={products} empty={<CmsEmpty block={page.empty} />} />
+        <ProductListing eyebrow={house?.name ? `${house.name} · collection` : 'Collection'} title={page.listTitle || 'The pieces'} products={products} empty={<CmsEmpty block={page.empty} />} />
       )}
 
-      <CollectionTiles eyebrow="More from this house" title={house ? `More ${house.name.toLowerCase()}` : 'More collections'} items={more} />
+      <CollectionTiles eyebrow={page.moreEyebrow || 'More from this house'} title={house ? `More ${house.name.toLowerCase()}` : 'More collections'} items={more} />
 
-      <StudioBand body="Choose a purpose and an intention; the crystals are selected for you and strung to your wrist." to={page.to || '/customize'} cta={clean(page.action) || 'Open the studio'} />
+      <StudioBand to={page.to || '/customize'} cta={clean(page.action) || 'Open the studio'} />
     </div>
   );
 }

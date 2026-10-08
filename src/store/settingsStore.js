@@ -60,6 +60,9 @@ export function useBrand() {
       customize: site.brand?.customizeLabel || 'Customization',
       collections: site.brand?.collectionsLabel || 'Collections',
       shopAll: site.brand?.shopAllLabel || 'Shop All',
+      journal: site.brand?.journalLabel || 'Journal',
+      studioMenu: site.brand?.studioMenuTitle || 'Begin a strand',
+      allCollections: site.brand?.allCollectionsLabel || 'All collections',
     },
   };
 }

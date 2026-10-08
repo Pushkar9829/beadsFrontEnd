@@ -76,7 +76,7 @@ export default function FlashSalePage() {
               <EmptyBlock title={copy.emptyProducts || 'Products for this sale are being placed.'} />
             </div>
           ) : (
-            <ProductListing eyebrow="On the tray" title="Timed prices" products={products} />
+            <ProductListing eyebrow={copy.listEyebrow || 'On the tray'} title={copy.listTitle || 'Timed prices'} products={products} />
           )}
         </>
       )}

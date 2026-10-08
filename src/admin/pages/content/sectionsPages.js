@@ -86,6 +86,7 @@ export const PAGE_SECTIONS = [
       area('body', 'Body'),
       text('action', 'Card link label'),
       media('image', 'Banner image', { folder: 'banner', hint: 'Leave empty to use the built-in photo.' }),
+      group('On a single collection page', [row([text('inEyebrow', 'Pieces eyebrow', { placeholder: 'In this collection' }), text('moreTitle', 'Other collections heading', { placeholder: 'More collections' })])]),
       emptyState(),
     ],
   },
@@ -101,6 +102,7 @@ export const PAGE_SECTIONS = [
       area('body', 'Body'),
       area('familyBody', 'Body when filtered by house', { hint: '{house} is filled in automatically.' }),
       linkPair(),
+      row([text('listEyebrow', 'Pieces eyebrow', { placeholder: 'Every house' }), text('listTitle', 'Pieces title', { placeholder: 'All pieces' })]),
       media('image', 'Banner image', { folder: 'banner', hint: 'Used for "all pieces". A house filter shows the image of that house (set under Homepage → Houses).' }),
       emptyState(),
     ],
@@ -117,6 +119,7 @@ export const PAGE_SECTIONS = [
       row([text('piecesEyebrow', 'Pieces eyebrow'), text('piecesTitle', 'Pieces title')]),
       area('piecesBody', 'Pieces body', { hint: '{count} and {pieces} are filled in automatically.' }),
       linkPair('piecesAction', 'piecesTo', 'Pieces '),
+      row([text('tilesEyebrow', 'Collections eyebrow', { placeholder: 'Inside the house' }), text('backLabel', 'Back link', { placeholder: 'Back to all houses' })]),
       emptyState(),
     ],
   },
@@ -124,19 +127,28 @@ export const PAGE_SECTIONS = [
     key: 'pageCategory',
     label: 'Category pages',
     group: 'Pages',
-    hint: 'Category empty / missing states',
+    hint: 'Headings and empty / missing states',
     preview: '/shop',
     base: 'pages.category',
-    fields: [linkPair(), emptyState('missing', 'Category not found'), emptyState('empty', 'Category without pieces')],
+    fields: [
+      linkPair(),
+      row([text('listTitle', 'Pieces title', { placeholder: 'The pieces' }), text('moreEyebrow', 'Related collections eyebrow', { placeholder: 'More from this house' })]),
+      emptyState('missing', 'Category not found'),
+      emptyState('empty', 'Category without pieces'),
+    ],
   },
   {
     key: 'pageProduct',
     label: 'Product page',
     group: 'Pages',
-    hint: 'Related pieces heading and the missing-piece state',
+    hint: 'Shipping & returns text, related pieces heading, missing-piece state',
     preview: '/p/this-piece-does-not-exist',
     base: 'pages.product',
     fields: [
+      group('Shipping & returns (on every product)', [
+        text('shippingTitle', 'Heading', { placeholder: 'Shipping & returns' }),
+        area('shippingBody', 'Text', { rows: 3, hint: 'Shown above the links to the shipping, returns and exchanges policies.' }),
+      ]),
       row([text('relatedEyebrow', '"You may also like" eyebrow', { placeholder: 'Worn alongside' }), text('relatedTitle', '"You may also like" title', { placeholder: 'You may also like' })]),
       emptyState('missing', 'Product not found'),
     ],
@@ -178,14 +190,12 @@ export const PAGE_SECTIONS = [
     fields: [
       eyebrowTitle(),
       area('guestBody', 'Guest body'),
-      linkPair(),
-      row([text('cardKicker', 'Card kicker'), text('cardTitle', 'Card title')]),
       group('Orders', [
         row([text('ordersEyebrow', 'Eyebrow'), text('ordersTitle', 'Title')]),
         text('ordersLoading', 'Loading message'),
         area('ordersEmptyBody', 'Body without orders'),
         area('ordersFilledBody', 'Body with orders', { hint: '{count} and {orders} are filled in automatically.' }),
-        text('ordersAction', 'Link label'),
+        row([text('ordersAction', 'Link label'), text('ordersTo', 'Link', { placeholder: '/customize' })]),
       ]),
       group('Order placed', [text('placedKicker', 'Kicker'), area('placedBody', 'Body', { hint: '{number} is the order number.' })]),
       emptyState(),
@@ -317,6 +327,26 @@ export const LEGAL_SECTIONS = LEGAL.map(([kind, label]) => ({
       summary: (s) => s.heading,
       newItem: { heading: '', body: '' },
     }),
-    ...(kind === 'grievance' ? [note('Company name, phone, address and grievance officer come from the Footer section.')] : []),
+    ...(kind === 'grievance'
+      ? [
+          group('Company details box', [
+            row([text('detailsEyebrow', 'Eyebrow', { placeholder: 'How to reach us' }), text('detailsTitle', 'Title', { placeholder: 'Company details' })]),
+            area('detailsNote', 'Note under the details', { rows: 2 }),
+            text('writeLabel', 'Button label', { placeholder: 'Write to us' }),
+          ]),
+          note('Company name, phone, address and grievance officer come from the Footer section.'),
+        ]
+      : []),
   ],
 }));
+
+// Shared by every policy page.
+LEGAL_SECTIONS.unshift({
+  key: 'legalShared',
+  label: 'All policy pages',
+  group: 'Legal',
+  hint: 'Side menu heading',
+  preview: '/returns',
+  base: 'pages.legal',
+  fields: [text('navTitle', 'Side menu heading', { placeholder: 'Policies & care', hint: 'Also the eyebrow on a policy page that has none of its own.' })],
+});

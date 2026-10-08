@@ -73,7 +73,7 @@ export default function HomeHeaderBar({
               {nav.customize}
             </NavLink>
             <Mega open={mega === 'customize'} wide>
-              <p className="nxh-mega-h">Begin a strand</p>
+              <p className="nxh-mega-h">{nav.studioMenu}</p>
               <div className="nxh-mega-grid">
                 {studioModes.map((mode) => (
                   <Link key={mode.slug} to={mode.path} className="nxh-mega-link nxh-mode">
@@ -104,7 +104,7 @@ export default function HomeHeaderBar({
                   </Link>
                 ))}
                 <Link to="/collections" className="nxh-mega-all">
-                  All collections →
+                  {nav.allCollections} →
                 </Link>
               </Mega>
             </div>
@@ -112,7 +112,7 @@ export default function HomeHeaderBar({
               {nav.shopAll}
             </NavLink>
             <NavLink to="/journal" className="nxh-link">
-              Journal
+              {nav.journal}
             </NavLink>
           </nav>
           <div className="nxh-icons">
@@ -156,7 +156,7 @@ export default function HomeHeaderBar({
             <Link to="/customize">{nav.customize}</Link>
             <Link to="/collections">{nav.collections}</Link>
             <Link to="/shop">{nav.shopAll}</Link>
-            <Link to="/journal">Journal</Link>
+            <Link to="/journal">{nav.journal}</Link>
             {staff && <Link to="/admin">Admin</Link>}
           </nav>
           <div className="nxh-sheet-modes">

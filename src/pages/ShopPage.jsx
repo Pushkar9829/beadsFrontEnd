@@ -109,8 +109,8 @@ export default function ShopPage() {
       <BannerRow banners={banners} />
 
       <ProductListing
-        eyebrow={house ? `House of ${house.name.toLowerCase()}` : 'Every house'}
-        title={activeCollection?.name || house?.name || 'All pieces'}
+        eyebrow={house ? `House of ${house.name.toLowerCase()}` : page.listEyebrow || 'Every house'}
+        title={activeCollection?.name || house?.name || page.listTitle || 'All pieces'}
         products={loading ? [] : products}
         chips={chips}
         activeChip={family || 'all'}

@@ -263,7 +263,8 @@ export default function ProductPage() {
                 </details>
               )}
               <details>
-                <summary>Shipping & returns</summary>
+                <summary>{site.pages.product?.shippingTitle || 'Shipping & returns'}</summary>
+                {site.pages.product?.shippingBody && <p className="nx-pd-ship">{site.pages.product.shippingBody}</p>}
                 <p>
                   See our <Link to="/shipping">shipping</Link>, <Link to="/returns">returns</Link> and <Link to="/exchanges">exchanges</Link> policies.
                 </p>
@@ -286,7 +287,10 @@ export default function ProductPage() {
 
       <Related product={product} copy={site.pages.product} />
 
-      <StudioBand title="Want this feeling in your own counts?" body="Compose a strand in the studio — Mulank, zodiac, and a name." />
+      <StudioBand
+        title={site.studio?.productBandTitle || 'Want this feeling in your own counts?'}
+        body={site.studio?.productBandBody || 'Compose a strand in the studio — Mulank, zodiac, and a name.'}
+      />
 
       {/* phone: keep the price and the bag button in reach */}
       <div className="nx-pd-bar">

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
 import { mediaUrl } from '../../../api/client';
 import { NCard, useReveal } from './Nocturne';
+import { useSite } from '../../../store/contentStore';
 
 /** Full-bleed page hero with breadcrumbs. Height is set per page via `size` (tall | short). */
 export function PageHero({ image, crumbs = [], eyebrow, title, body, meta = [], actions, size = 'tall' }) {
@@ -256,18 +257,21 @@ export function BannerRow({ banners = [] }) {
 }
 
 /** Compact "studio" invitation used at the end of listing pages. */
-export function StudioBand({ title = 'Compose your own strand.', body, to = '/customize', cta = 'Open the studio' }) {
+/** "Compose your own" band; its copy is edited in the admin under Homepage → Studio tile. */
+export function StudioBand({ title, body, to, cta }) {
   const ref = useReveal();
+  const band = useSite().studio || {};
+  const text = body ?? band.bandBody;
   return (
     <section ref={ref} className="nx-band nx-reveal">
       <div className="nx-w nx-band-row">
         <div>
-          <p className="nx-eb">The studio</p>
-          <p className="nx-d nx-band-t">{title}</p>
-          {body && <p className="nx-lede">{body}</p>}
+          <p className="nx-eb">{band.bandEyebrow || 'The studio'}</p>
+          <p className="nx-d nx-band-t">{title || band.bandTitle || 'Compose your own strand.'}</p>
+          {text && <p className="nx-lede">{text}</p>}
         </div>
-        <Link to={to} className="nx-btn">
-          {cta} <ArrowRight size={15} strokeWidth={1.6} />
+        <Link to={to || band.bandTo || '/customize'} className="nx-btn">
+          {cta || String(band.bandCta || 'Open the studio').replace(/\s*→\s*$/, '')} <ArrowRight size={15} strokeWidth={1.6} />
         </Link>
       </div>
     </section>

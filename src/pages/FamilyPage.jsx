@@ -103,17 +103,15 @@ export default function FamilyPage() {
       )}
       {!loading && products.length > 0 && piecesBody && <p className="sr-only">{piecesBody}</p>}
 
-      <CollectionTiles eyebrow="Inside the house" title={`${title} collections`} items={subs} />
+      <CollectionTiles eyebrow={page.tilesEyebrow || 'Inside the house'} title={`${title} collections`} items={subs} />
 
       <StudioBand
-        title="Compose your own strand."
-        body="Choose a purpose and an intention; the crystals are selected for you and strung to your wrist."
         to={page.piecesTo || '/customize'}
         cta={clean(page.piecesAction) || 'Open the studio'}
       />
       <div className="nx-w nx-back">
         <Link to="/" className="nx-lnk">
-          <ArrowRight size={13} style={{ transform: 'rotate(180deg)', display: 'inline', verticalAlign: '-2px' }} /> Back to all houses
+          <ArrowRight size={13} style={{ transform: 'rotate(180deg)', display: 'inline', verticalAlign: '-2px' }} /> {page.backLabel || 'Back to all houses'}
         </Link>
       </div>
     </div>

@@ -34,13 +34,16 @@ export default function LegalPage({ kind }) {
   const contacts = companyContacts(site.footer, store);
   const finale = site.finale || {};
   const contactLabel = site.contact?.cta || site.footer?.cta || 'Contact us';
+  const legal = site.pages?.legal || {};
+  const navTitle = legal.navTitle || 'Policies & care';
+  const g = legal.grievance || {};
 
   return (
     <div className="nx nx-page">
       <SeoHead title={pageTitle(page.title, brand)} description={page.description} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
       <PageIntro
         crumbs={[{ label: 'Home', to: '/' }, { label: page.title }]}
-        eyebrow={page.eyebrow || 'Policies & care'}
+        eyebrow={page.eyebrow || navTitle}
         title={page.title}
         body={page.description}
         actions={
@@ -53,7 +56,7 @@ export default function LegalPage({ kind }) {
       <div className="nx-w nx-sec nx-split">
         <aside className="nx-split-side nx-sticky">
           <nav aria-label="Policies" className="nx-side-nav">
-            <p className="nx-eb">Policies & care</p>
+            <p className="nx-eb">{navTitle}</p>
             {POLICY_NAV.map((item) => (
               <Link key={item.to} to={item.to} className={item.to === `/${page.slug}` ? 'is-on' : ''} aria-current={item.to === `/${page.slug}` ? 'page' : undefined}>
                 {item.label}
@@ -96,8 +99,8 @@ export default function LegalPage({ kind }) {
 
           {kind === 'grievance' && (
             <section className="nx-panel">
-              <p className="nx-eb">How to reach us</p>
-              <h2 className="nx-d nx-policy-h">Company details</h2>
+              <p className="nx-eb">{g.detailsEyebrow || 'How to reach us'}</p>
+              <h2 className="nx-d nx-policy-h">{g.detailsTitle || 'Company details'}</h2>
               <dl className="nx-facts-dl">
                 <Detail label="Brand" value={contacts.brand} />
                 <Detail label="Legal entity / operator" value={contacts.legalEntity} />
@@ -111,9 +114,9 @@ export default function LegalPage({ kind }) {
                   <a href={contacts.grievanceEmailHref}>{contacts.grievanceEmail}</a>
                 </Detail>
               </dl>
-              <p className="nx-lede">Include your order number, registered contact details and a concise description of the issue.</p>
+              <p className="nx-lede">{g.detailsNote || 'Include your order number, registered contact details and a concise description of the issue.'}</p>
               <button type="button" className="nx-btn nx-mt" onClick={() => setContactOpen(true)}>
-                Write to us
+                {g.writeLabel || 'Write to us'}
               </button>
             </section>
           )}

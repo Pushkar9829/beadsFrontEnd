@@ -92,12 +92,12 @@ export default function CollectionPage() {
       {loading ? (
         <GridSkeleton />
       ) : (
-        <ProductListing eyebrow="In this collection" title="The pieces" products={products} chips={chips} filterBy={filterBy} empty={<CmsEmpty block={site.pages.category.empty} />} />
+        <ProductListing eyebrow={site.pages.collections?.inEyebrow || 'In this collection'} title={site.pages.category?.listTitle || 'The pieces'} products={products} chips={chips} filterBy={filterBy} empty={<CmsEmpty block={site.pages.category.empty} />} />
       )}
 
       {others.length > 0 && (
         <div className="nx-w nx-more">
-          <p className="nx-eb">More collections</p>
+          <p className="nx-eb">{site.pages.collections?.moreTitle || 'More collections'}</p>
           <div className="nx-more-row">
             {others.map((c) => (
               <Link key={c._id} to={`/collection/${c.slug}`}>
