@@ -960,6 +960,10 @@ select.nx-input option {
 }
 
 /* ---------- loading ---------- */
+.nx-loading {
+  min-height: 100svh;
+}
+
 .nx-spin {
   display: flex;
   align-items: center;

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { lazy, useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import { useAuthStore } from './store/authStore';
@@ -10,28 +10,30 @@ import StoreLayout from './components/layout/StoreLayout';
 import { adminRoutes } from './admin/routes';
 import { RequireAuth } from './components/gates';
 import HomePage from './pages/HomePage';
-import FamilyPage from './pages/FamilyPage';
-import ShopPage from './pages/ShopPage';
-import CategoryPage from './pages/CategoryPage';
-import ProductPage from './pages/ProductPage';
-import AboutPage from './pages/AboutPage';
-import CustomizePage from './pages/CustomizePage';
-import CartPage from './pages/CartPage';
-import WishlistPage from './pages/WishlistPage';
-import CheckoutPage from './pages/CheckoutPage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import AccountPage from './pages/AccountPage';
-import LegalPage from './pages/LegalPage';
-import NotFoundPage from './pages/NotFoundPage';
-import CollectionPage from './pages/CollectionPage';
-import CollectionsIndexPage from './pages/CollectionsIndexPage';
-import BlogListPage from './pages/BlogListPage';
-import BlogPostPage from './pages/BlogPostPage';
-import FaqPage from './pages/FaqPage';
-import FlashSalePage from './pages/FlashSalePage';
-import ShopByPurposePage from './pages/ShopByPurposePage';
 import { STUDIO_PATHS } from './lib/studioFlow';
+
+// The home page ships with the first download; every other page loads when it is opened.
+const FamilyPage = lazy(() => import('./pages/FamilyPage'));
+const ShopPage = lazy(() => import('./pages/ShopPage'));
+const CategoryPage = lazy(() => import('./pages/CategoryPage'));
+const ProductPage = lazy(() => import('./pages/ProductPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const CustomizePage = lazy(() => import('./pages/CustomizePage'));
+const CartPage = lazy(() => import('./pages/CartPage'));
+const WishlistPage = lazy(() => import('./pages/WishlistPage'));
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+const AccountPage = lazy(() => import('./pages/AccountPage'));
+const LegalPage = lazy(() => import('./pages/LegalPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const CollectionPage = lazy(() => import('./pages/CollectionPage'));
+const CollectionsIndexPage = lazy(() => import('./pages/CollectionsIndexPage'));
+const BlogListPage = lazy(() => import('./pages/BlogListPage'));
+const BlogPostPage = lazy(() => import('./pages/BlogPostPage'));
+const FaqPage = lazy(() => import('./pages/FaqPage'));
+const FlashSalePage = lazy(() => import('./pages/FlashSalePage'));
+const ShopByPurposePage = lazy(() => import('./pages/ShopByPurposePage'));
 
 // The per-path pages folded into the single flow at /customize, so their old URLs
 // (still linked from the footer and studioModes) forward into it.

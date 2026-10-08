@@ -1,10 +1,13 @@
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, useParams } from 'react-router-dom';
-import AdminShell from './layout/AdminShell';
 import { RequireAdmin } from '../components/gates';
+import Spinner from '../components/ui/Spinner';
 import { ORDER_STATUSES } from './lib/status';
 
 const page = (load) => lazy(load);
+
+// The whole admin, shell included, loads only when /admin is opened.
+const AdminShell = page(() => import('./layout/AdminShell'));
 
 const Dashboard = page(() => import('./pages/Dashboard'));
 const Analytics = page(() => import('./pages/Analytics'));
@@ -54,7 +57,9 @@ export const adminRoutes = (
     path="/admin"
     element={
       <RequireAdmin>
-        <AdminShell />
+        <Suspense fallback={<Spinner label="Loading admin" />}>
+          <AdminShell />
+        </Suspense>
       </RequireAdmin>
     }
   >

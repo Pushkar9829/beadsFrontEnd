@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import BootScreen from './BootScreen';
@@ -38,7 +38,10 @@ export default function StoreLayout() {
       <BootScreen />
       <Header />
       <main className="flex-1">
-        <Outlet />
+        {/* Pages load on demand; a dark full-height block holds the footer down meanwhile. */}
+        <Suspense fallback={<div className="nx nx-page nx-loading" aria-busy="true" />}>
+          <Outlet />
+        </Suspense>
       </main>
       <NFooter footer={site.footer} brandName={brand.display || 'KUBERSTONES'} />
     </div>
