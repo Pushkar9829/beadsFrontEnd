@@ -1,0 +1,204 @@
+/* Journal, FAQ, policies and about in the atelier look, from beeds_ecommerce/src/pages/InfoPages.jsx:
+   editorial serif titles, gold eyebrows, dark #120D19 cards with gold hairlines, journal on the purple stage.
+   Applied with the .at-utility page class (add .is-stage for the purple background). */
+
+:root .nx.at-utility {
+  background: #0A0810;
+  --nx-line: rgba(217, 174, 79, 0.16);
+  --nx-line2: rgba(217, 174, 79, 0.3);
+  --nx-muted: #AAA3AF;
+  --nx-champ: #D9AE4F;
+}
+
+:root .nx.at-utility.is-stage {
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -10%, rgba(191, 0, 255, 0.35), transparent 75%),
+    radial-gradient(circle 600px at 85% 30%, rgba(160, 0, 255, 0.22), transparent),
+    radial-gradient(circle 500px at 10% 65%, rgba(191, 0, 255, 0.16), transparent),
+    linear-gradient(180deg, #320054 0%, #200038 35%, #130022 75%, #0B0014 100%);
+}
+
+.at-utility .nx-intro {
+  border-bottom: 0;
+  background: none;
+}
+
+.nx.at-utility .nx-intro-t {
+  font-family: var(--font-editorial);
+  font-size: clamp(32px, 3.8vw, 46px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  color: #F4F1EC;
+}
+
+.nx.at-utility .nx-eb {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  color: #C5A572;
+}
+
+.at-utility .nx-intro-sub,
+.at-utility .nx-lede {
+  color: #AAA3AF;
+}
+
+/* FAQ */
+.at-utility .nx-faq {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 0;
+}
+
+.at-utility .nx-faq details {
+  background: #120D19;
+  border: 1px solid rgba(217, 174, 79, 0.16);
+  border-radius: 6px;
+  padding: 24px;
+}
+
+.at-utility .nx-faq summary {
+  border: 0;
+  padding: 0;
+}
+
+.at-utility .nx-faq-q {
+  font-size: 16px;
+  font-weight: 600;
+  color: #EDE8E1;
+}
+
+.at-utility .nx-faq-n {
+  color: #D9AE4F;
+}
+
+.at-utility .nx-faq details p {
+  margin-top: 8px;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #AAA3AF;
+}
+
+/* Policies */
+.at-utility .nx-policy,
+.at-utility .nx-panel {
+  background: #120D19;
+  border: 1px solid rgba(217, 174, 79, 0.16);
+  border-radius: 8px;
+  padding: 36px;
+  color: #AAA3AF;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.at-utility .nx-policy + .nx-policy {
+  margin-top: 20px;
+}
+
+.at-utility .nx-policy-h {
+  font-family: var(--font-brand);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #EDE8E1;
+}
+
+.at-utility .nx-prose strong,
+.at-utility .nx-prose b {
+  color: #EDE8E1;
+}
+
+/* Journal */
+.at-utility .nx-post,
+.at-utility .nx-post-lead {
+  background: #180D28;
+  border: 1px solid rgba(197, 165, 114, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.at-utility .nx-post:hover,
+.at-utility .nx-post-lead:hover {
+  border-color: rgba(197, 165, 114, 0.35);
+  background: #22143A;
+}
+
+.at-utility .nx-post {
+  padding-bottom: 24px;
+}
+
+.at-utility .nx-post .nx-post-ph {
+  height: 220px;
+  margin-bottom: 20px;
+}
+
+.at-utility .nx-post > .nx-post-k,
+.at-utility .nx-post > .nx-post-h,
+.at-utility .nx-post > .nx-post-p {
+  padding: 0 24px;
+}
+
+.at-utility .nx-post-k {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #D9AE4F;
+}
+
+.at-utility .nx-post-h,
+.at-utility .nx-post-lh {
+  font-family: var(--font-brand);
+  font-weight: 700;
+  line-height: 1.3;
+  color: #EDE8E1;
+  text-transform: none;
+}
+
+.at-utility .nx-post-h {
+  font-size: 18px;
+  margin: 8px 0 10px;
+}
+
+.at-utility .nx-post-p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #AAA3AF;
+}
+
+.at-utility .nx-post-go {
+  font-size: 12px;
+  font-weight: 600;
+  color: #F5DC93;
+}
+
+.at-utility .nx-post-c {
+  padding: 28px;
+}
+
+/* About: cards and closing band */
+.at-utility .nx-tcard,
+.at-utility .nx-close {
+  background: #120D19;
+  border: 1px solid rgba(217, 174, 79, 0.25);
+  border-radius: 8px;
+}
+
+.at-utility .nx-tcard-h,
+.at-utility .nx-close-t {
+  font-family: var(--font-brand);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #EDE8E1;
+}
+
+.at-utility .nx-h2 {
+  font-family: var(--font-editorial);
+  font-weight: 400;
+  text-transform: uppercase;
+}

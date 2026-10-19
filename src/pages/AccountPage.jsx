@@ -68,7 +68,7 @@ export default function AccountPage() {
   }, [user]);
 
   return (
-    <div className="nx nx-page">
+    <div className="nx nx-page at-commerce">
       <PageIntro
         crumbs={CRUMBS}
         eyebrow={page.eyebrow}

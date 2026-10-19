@@ -13,7 +13,7 @@ export default function WishlistPage() {
   const body = items.length ? fillCopy(page.filledBody, { count: items.length, pieces: items.length === 1 ? 'piece' : 'pieces' }) : page.emptyBody;
 
   return (
-    <div className="nx nx-page">
+    <div className="nx nx-page at-commerce">
       <PageIntro
         crumbs={[{ label: 'Home', to: '/' }, { label: page.title || 'Wishlist' }]}
         eyebrow={page.eyebrow}

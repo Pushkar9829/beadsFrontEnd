@@ -486,3 +486,20 @@ body {
   --nx-sans: var(--font-sans);
   --nx-serif: var(--font-editorial);
 }
+
+/* Popups and drawers render into <body>, outside .nx; commerce.css gives them the palette on :root. */
+:root {
+  --nx-bg: #12091E;
+  --nx-bg2: #180D28;
+  --nx-tile: #180D28;
+  --nx-ink: #F4F1EC;
+  --nx-muted: #A8A39D;
+  --nx-soft: #75716B;
+  --nx-champ: #C5A572;
+  --nx-line: rgba(197, 165, 114, 0.15);
+  --nx-line2: rgba(197, 165, 114, 0.35);
+  --nx-g1: #DFCA9E;
+  --nx-g2: #C5A572;
+  --nx-g3: #8E7345;
+  --nx-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+}

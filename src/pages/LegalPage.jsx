@@ -39,7 +39,7 @@ export default function LegalPage({ kind }) {
   const g = legal.grievance || {};
 
   return (
-    <div className="nx nx-page">
+    <div className="nx nx-page at-utility">
       <SeoHead title={pageTitle(page.title, brand)} description={page.description} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
       <PageIntro
         crumbs={[{ label: 'Home', to: '/' }, { label: page.title }]}

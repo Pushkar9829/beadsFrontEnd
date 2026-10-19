@@ -30,7 +30,7 @@ export default function BlogPostPage() {
 
   if (loading) {
     return (
-      <div className="nx nx-page">
+      <div className="nx nx-page at-utility">
         <div className="nx-w nx-article">
           <div className="nx-skel nx-post-skel" />
         </div>
@@ -40,7 +40,7 @@ export default function BlogPostPage() {
 
   if (!post) {
     return (
-      <div className="nx nx-page">
+      <div className="nx nx-page at-utility">
         <PageIntro crumbs={crumbs} eyebrow="Journal" title="Note not found." />
         <div className="nx-w nx-sec">
           <EmptyBlock title="This note is not published." actions={<Link to="/journal" className="nx-btn">All notes</Link>} />
@@ -55,7 +55,7 @@ export default function BlogPostPage() {
     .filter(Boolean);
 
   return (
-    <div className="nx nx-page">
+    <div className="nx nx-page at-utility">
       <SeoHead
         title={post.seo?.title || pageTitle(post.title, brand)}
         description={post.seo?.description || post.excerpt}

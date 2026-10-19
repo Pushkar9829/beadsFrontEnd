@@ -48,7 +48,7 @@ export default function AboutPage() {
   const closeRef = useReveal();
 
   return (
-    <div className="nx nx-page">
+    <div className="nx nx-page at-utility">
       <SeoHead title={pageTitle(copy.headline || 'About', brand)} description={intro[0] || copy.tagline || copy.body} keywords={brand.seo?.keywords} image={brand.seo?.ogImage || page.image} noIndex={brand.seo?.noIndex} />
       <PageHero
         image={image}

@@ -27,7 +27,7 @@ export default function FaqPage() {
   const title = copy.pageTitle || copy.title || 'FAQ';
 
   return (
-    <div className="nx nx-page">
+    <div className="nx nx-page at-utility">
       <SeoHead title={pageTitle(title, brand)} description={copy.pageBody} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
       <PageIntro crumbs={[{ label: 'Home', to: '/' }, { label: copy.pageTitle || copy.title || 'FAQ' }]} eyebrow={copy.pageEyebrow || copy.eyebrow} title={title} body={copy.pageBody} />
 

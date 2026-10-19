@@ -1,0 +1,219 @@
+/* Bag, checkout, account and wishlist in the atelier look, from beeds_ecommerce/src/pages/CheckoutPage.jsx:
+   purple stage, hairline item rows with gold kickers, dark side panel with gold block labels and a gold
+   gradient action. Applied with the .at-commerce page class; markup and logic are the frontend's own. */
+
+:root .nx.at-commerce {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -10%, rgba(191, 0, 255, 0.35), transparent 75%),
+    radial-gradient(circle 600px at 85% 30%, rgba(160, 0, 255, 0.22), transparent),
+    radial-gradient(circle 500px at 10% 65%, rgba(191, 0, 255, 0.16), transparent),
+    linear-gradient(180deg, #320054 0%, #200038 35%, #130022 75%, #0B0014 100%);
+  color: #EDE8E1;
+  --nx-line: rgba(255, 255, 255, 0.08);
+  --nx-line2: rgba(217, 174, 79, 0.25);
+  --nx-muted: #AAA3AF;
+  --nx-soft: #8E8896;
+  --nx-champ: #D9AE4F;
+}
+
+/* Page header (the header is no longer floating, so the intro sits close under it) */
+.nx .nx-intro {
+  padding-top: 40px;
+}
+
+.at-commerce .nx-intro {
+  border-bottom: 0;
+  background: none;
+}
+
+.nx.at-commerce .nx-intro-t {
+  font-family: var(--font-brand);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #EDE8E1;
+}
+
+.at-commerce .nx-intro-sub {
+  color: #AAA3AF;
+}
+
+.at-commerce .nx-crumbs,
+.at-utility .nx-crumbs {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Item rows */
+.at-commerce .nx-lines {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.at-commerce .nx-line {
+  align-items: center;
+  gap: 24px;
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.at-commerce .nx-line-media {
+  flex: 0 0 96px;
+  height: 96px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: #140D1E;
+}
+
+.at-commerce .nx-line .nx-k {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: #D9AE4F;
+}
+
+.at-commerce .nx-line-t {
+  margin-top: 6px;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: #EDE8E1;
+}
+
+.at-commerce .nx-line-t a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.at-commerce .nx-line-m {
+  color: #9E98A6;
+}
+
+.at-commerce .nx-line-foot {
+  padding-top: 18px;
+}
+
+.at-commerce .nx-line-price {
+  font-size: 15.5px;
+  font-weight: 600;
+  color: #EDE8E1;
+}
+
+/* Side panel */
+.at-commerce .nx-sum,
+.at-commerce .nx-panel,
+.at-commerce .nx-acct-card {
+  border: 1px solid rgba(217, 174, 79, 0.18);
+  border-radius: 6px;
+  background: #120B1A;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+}
+
+.at-commerce .nx-sum {
+  padding: 28px 24px;
+}
+
+.at-commerce .nx-sum .nx-k,
+.at-commerce .nx-panel .nx-k {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: #D9AE4F;
+}
+
+.at-commerce .nx-sum-t {
+  font-family: var(--font-brand);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #EDE8E1;
+}
+
+.at-commerce .nx-rows {
+  font-size: 13px;
+}
+
+.at-commerce .nx-rows dt {
+  color: #AAA3AF;
+}
+
+.at-commerce .nx-rows > .is-total dt {
+  font-size: 15px;
+  font-weight: 600;
+  color: #EDE8E1;
+}
+
+.at-commerce .nx-rows > .is-total dd {
+  font-size: 26px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.at-commerce .nx-input {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  color: #EDE8E1;
+}
+
+.at-commerce .nx-input:focus {
+  border-color: rgba(217, 174, 79, 0.6);
+}
+
+/* Gold gradient primary action, outlined secondary */
+.at-commerce .nx-btn:not(.nx-btn-o):not([data-variant='ghost']),
+.at-utility .nx-btn:not(.nx-btn-o) {
+  border: none;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #ECC26A 0%, #D9AE4F 60%, #B88E3E 100%);
+  box-shadow: 0 4px 18px rgba(217, 174, 79, 0.25);
+  color: #0A0810;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.at-commerce .nx-btn-o,
+.at-utility .nx-btn-o {
+  border: 1px solid rgba(217, 174, 79, 0.25);
+  border-radius: 4px;
+  background: transparent;
+  color: #EDE8E1;
+}
+
+.at-commerce .nx-btn-o:hover,
+.at-utility .nx-btn-o:hover {
+  border-color: #D9AE4F;
+  background: rgba(217, 174, 79, 0.06);
+}
+
+.at-commerce .nx-mini {
+  color: #AAA3AF;
+}
+
+.at-commerce .nx-mini:hover {
+  color: #D9AE4F;
+}
+
+/* Empty bag: source empty card */
+.at-commerce .nx-empty {
+  padding: 64px 20px;
+  border: 1px solid rgba(217, 174, 79, 0.18);
+  border-radius: 6px;
+  background: #120B1A;
+  text-align: center;
+}
+
+.at-commerce .nx-empty-t {
+  font-family: var(--font-brand);
+  font-size: clamp(22px, 2.4vw, 28px);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #EDE8E1;
+}
+
+.at-commerce .nx-paybar {
+  border-top-color: rgba(191, 0, 255, 0.3);
+  background: rgba(20, 3, 34, 0.95);
+}

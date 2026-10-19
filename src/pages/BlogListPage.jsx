@@ -34,7 +34,7 @@ export default function BlogListPage() {
   const title = copy.pageTitle || copy.title || 'Journal';
 
   return (
-    <div className="nx nx-page">
+    <div className="nx nx-page at-utility is-stage">
       <SeoHead title={pageTitle(title, brand)} description={copy.pageBody} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
       <PageIntro crumbs={[{ label: 'Home', to: '/' }, { label: copy.title || 'Journal' }]} eyebrow={copy.pageEyebrow || copy.eyebrow} title={title} body={copy.pageBody} />
 
