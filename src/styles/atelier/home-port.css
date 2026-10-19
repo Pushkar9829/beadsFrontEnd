@@ -183,3 +183,26 @@ a.hero-dock-specimen:hover {
   font-size: 13px;
   color: #E8A0A0;
 }
+
+/* The frontend has four collection tabs (the source had three short ones): scroll them on phones. */
+@media (max-width: 640px) {
+  .collection-controls-col {
+    width: 100%;
+  }
+
+  .collection-pills {
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .collection-pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  .collection-pill {
+    flex: none;
+    white-space: nowrap;
+  }
+}
