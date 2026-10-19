@@ -13,7 +13,7 @@ import SeoHead from '../components/SeoHead';
 import { HOUSE_IMAGES, NCard, useCountdown } from '../components/home/nocturne/Nocturne';
 import { SectionTitle } from '../components/home/atelier/AtelierHome';
 import emblem from '../assets/brand/emblem.png';
-import { CmsEmpty, PageHero, StudioBand } from '../components/home/nocturne/Listing';
+import { CmsEmpty, PageHero } from '../components/home/nocturne/Listing';
 
 const pad = (n) => String(n).padStart(2, '0');
 
@@ -59,11 +59,6 @@ function Related({ product, copy = {} }) {
           {copy.relatedEyebrow && <span className="section-eyebrow">{copy.relatedEyebrow}</span>}
           <SectionTitle text={copy.relatedTitle || 'You may also like'} />
         </div>
-        {product.categoryId?.slug && (
-          <Link to={`/c/${product.categoryId.slug}`} className="pd-related-all">
-            All {product.categoryId.name?.toLowerCase()} →
-          </Link>
-        )}
       </div>
       <div className="pd-related-grid reveal-stagger">
         {items.map((p) => (
@@ -135,6 +130,7 @@ export default function ProductPage() {
   const off = was > product.price ? Math.round((1 - product.price / was) * 100) : 0;
   const { rating, reviewCount } = resolveProductRating(product);
   const soldOut = product.stock <= 0;
+  const benefits = (product.benefits || []).filter(Boolean);
   const lowStock = !soldOut && product.stock <= (product.lowStockLimit ?? 5);
   const maxQty = Math.max(1, Math.min(10, product.stock || 1));
   const attributes = Object.entries(product.attributes || {});
@@ -254,7 +250,7 @@ export default function ProductPage() {
               </div>
               <button type="button" className="btn-gold pd-add" disabled={soldOut} onClick={add}>
                 <ShoppingBag size={16} />
-                <span>{soldOut ? labels.soldOutLabel || 'Sold out' : `${labels.addLabel || 'Add to bag'} · ${formatInr(product.price * qty)}`}</span>
+                <span>{soldOut ? labels.soldOutLabel || 'Sold out' : labels.addLabel || 'Add to bag'}</span>
               </button>
               <button
                 type="button"
@@ -283,23 +279,12 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {product.sku && (
+            {benefits.length > 0 && (
               <div className="pd-list">
-                <span className="pd-list-h">{labels.detailsLabel || 'Details'}</span>
+                <span className="pd-list-h">{labels.benefitsLabel || 'Sacred energy & benefits'}</span>
                 <ul>
-                  <li>SKU {product.sku}</li>
-                </ul>
-              </div>
-            )}
-
-            {!!product.collectionIds?.length && (
-              <div className="pd-list">
-                <span className="pd-list-h">{labels.foundInLabel || 'Found in'}</span>
-                <ul>
-                  {product.collectionIds.map((c) => (
-                    <li key={c._id || c}>
-                      <Link to={`/collection/${c.slug || c}`}>{c.name || c.slug}</Link>
-                    </li>
+                  {benefits.map((b, i) => (
+                    <li key={i}>{b}</li>
                   ))}
                 </ul>
               </div>
@@ -308,22 +293,6 @@ export default function ProductPage() {
         </div>
 
         <Related product={product} copy={site.pages.product} />
-      </div>
-
-      <StudioBand
-        title={site.studio?.productBandTitle || 'Want this feeling in your own counts?'}
-        body={site.studio?.productBandBody || 'Compose a strand in the studio — Mulank, zodiac, and a name.'}
-      />
-
-      {/* phone: keep the price and the bag button in reach */}
-      <div className="nx-pd-bar">
-        <span>
-          <b>{formatInr(product.price)}</b>
-          {off > 0 && <s>{formatInr(was)}</s>}
-        </span>
-        <button type="button" className="nx-btn" disabled={soldOut} onClick={add}>
-          {soldOut ? labels.soldOutLabel || 'Sold out' : added ? 'Added ✓' : labels.addLabel || 'Add to bag'}
-        </button>
       </div>
     </div>
   );

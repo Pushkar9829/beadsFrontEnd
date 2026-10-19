@@ -35,6 +35,7 @@ const EMPTY = {
   slug: '',
   shortDescription: '',
   description: '',
+  benefits: '',
   images: [],
   price: '',
   compareAtPrice: '',
@@ -62,6 +63,7 @@ function fromProduct(p) {
     slug: p.slug || '',
     shortDescription: p.shortDescription || '',
     description: p.description || '',
+    benefits: (Array.isArray(p.benefits) ? p.benefits : []).join('\n'),
     images: Array.isArray(p.images) ? p.images.filter(Boolean) : [],
     price: p.price ?? '',
     compareAtPrice: p.compareAtPrice ?? '',
@@ -89,7 +91,18 @@ function buildPayload(values, isNew) {
     if (key && value) attributes[key] = value;
   }
   const body = toPayload(
-    { ...values, attributes, name: values.name.trim(), slug: slugify(values.slug), sku: String(values.sku || '').trim() },
+    {
+      ...values,
+      attributes,
+      benefits: String(values.benefits || '')
+        .split('\n')
+        .map((b) => b.trim())
+        .filter(Boolean)
+        .slice(0, 8),
+      name: values.name.trim(),
+      slug: slugify(values.slug),
+      sku: String(values.sku || '').trim(),
+    },
     {
       nullable: ['compareAtPrice', 'sku', 'categoryId', 'reviewCount'],
       numbers: ['price', 'compareAtPrice', 'stock', 'lowStockLimit', 'rating', 'reviewCount'],
@@ -270,6 +283,9 @@ function EditorForm({ isNew, product }) {
               {({ id }) => <Textarea id={id} rows={2} maxLength={300} {...form.bind('shortDescription')} />}
             </Field>
             <Field label="Description">{({ id }) => <Textarea id={id} rows={8} {...form.bind('description')} />}</Field>
+            <Field label="Benefits" hint="One per line, up to 8. Shown as “Sacred energy & benefits” on the product page.">
+              {({ id }) => <Textarea id={id} rows={4} {...form.bind('benefits')} />}
+            </Field>
           </Card>
 
           <Card className="space-y-4">

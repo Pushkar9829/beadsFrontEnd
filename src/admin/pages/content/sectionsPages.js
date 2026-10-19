@@ -151,7 +151,7 @@ export const PAGE_SECTIONS = [
       ]),
       row([text('relatedEyebrow', '"You may also like" eyebrow', { placeholder: 'Worn alongside' }), text('relatedTitle', '"You may also like" title', { placeholder: 'You may also like' })]),
       row([text('addLabel', 'Add-to-bag button', { placeholder: 'Add to bag' }), text('soldOutLabel', 'Sold-out button', { placeholder: 'Sold out' })]),
-      row([text('detailsLabel', 'Details heading', { placeholder: 'Details' }), text('foundInLabel', 'Collections heading', { placeholder: 'Found in' })]),
+      text('benefitsLabel', 'Benefits heading', { placeholder: 'Sacred energy & benefits' }),
       emptyState('missing', 'Product not found'),
     ],
   },

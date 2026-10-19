@@ -153,7 +153,6 @@ export const HOME_SECTIONS = [
           row([text('bandEyebrow', 'Eyebrow'), text('bandTitle', 'Title')]),
           area('bandBody', 'Text', { rows: 2 }),
           row([text('bandCta', 'Button label'), text('bandTo', 'Button link', { placeholder: '/customize' })]),
-          row([text('productBandTitle', 'Title on product pages'), text('productBandBody', 'Text on product pages')]),
         ],
         'studio'
       ),
