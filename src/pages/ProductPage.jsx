@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Check, Heart, Minus, Plus } from 'lucide-react';
+import { Check, Heart, Minus, Plus, ShoppingBag, Star } from 'lucide-react';
 import api, { mediaUrl } from '../api/client';
 import { useCartStore } from '../store/cartStore';
 import { useWishlistStore } from '../store/wishlistStore';
@@ -10,7 +10,9 @@ import { formatInr } from '../lib/format';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import SeoHead from '../components/SeoHead';
-import { HOUSE_IMAGES, NCard, useCountdown, useReveal } from '../components/home/nocturne/Nocturne';
+import { HOUSE_IMAGES, NCard, useCountdown } from '../components/home/nocturne/Nocturne';
+import { SectionTitle } from '../components/home/atelier/AtelierHome';
+import emblem from '../assets/brand/emblem.png';
 import { CmsEmpty, PageHero, StudioBand } from '../components/home/nocturne/Listing';
 
 const pad = (n) => String(n).padStart(2, '0');
@@ -19,14 +21,13 @@ function SaleTimer({ sale }) {
   const t = useCountdown(sale?.endsAt);
   if (!sale || !t || t.done) return null;
   return (
-    <p className="nx-pd-sale">
+    <p className="pd-sale">
       <b>{sale.name || 'Flash sale'}</b> · ends in {t.d}d {pad(t.h)}h {pad(t.m)}m
     </p>
   );
 }
 
 function Related({ product, copy = {} }) {
-  const ref = useReveal();
   const [items, setItems] = useState([]);
   useEffect(() => {
     let alive = true;
@@ -52,26 +53,24 @@ function Related({ product, copy = {} }) {
 
   if (!items.length) return null;
   return (
-    <section ref={ref} className="nx-sec nx-reveal nx-pb0">
-      <div className="nx-w">
-        <div className="nx-head nx-head-tight">
-          <div>
-            <p className="nx-eb">{copy.relatedEyebrow || 'Worn alongside'}</p>
-            <h2 className="nx-d nx-h2 nx-h2-s">{copy.relatedTitle || 'You may also like'}</h2>
-          </div>
-          {product.categoryId?.slug && (
-            <Link to={`/c/${product.categoryId.slug}`} className="nx-lnk">
-              All {product.categoryId.name?.toLowerCase()} →
-            </Link>
-          )}
+    <div className="pd-related reveal-on-scroll">
+      <div className="pd-related-head">
+        <div>
+          {copy.relatedEyebrow && <span className="section-eyebrow">{copy.relatedEyebrow}</span>}
+          <SectionTitle text={copy.relatedTitle || 'You may also like'} />
         </div>
-        <div className="nx-grid">
-          {items.map((p) => (
-            <NCard key={p._id} product={p} />
-          ))}
-        </div>
+        {product.categoryId?.slug && (
+          <Link to={`/c/${product.categoryId.slug}`} className="pd-related-all">
+            All {product.categoryId.name?.toLowerCase()} →
+          </Link>
+        )}
       </div>
-    </section>
+      <div className="pd-related-grid reveal-stagger">
+        {items.map((p) => (
+          <NCard key={p._id} product={p} />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -106,10 +105,10 @@ export default function ProductPage() {
 
   if (loading) {
     return (
-      <div className="nx nx-page">
-        <div className="nx-w nx-pd">
-          <div className="nx-pd-grid">
-            <div className="nx-skel nx-pd-skel" />
+      <div className="nx nx-page pd-page">
+        <div className="container-custom">
+          <div className="pd-grid">
+            <div className="pd-skel" />
             <div />
           </div>
         </div>
@@ -152,7 +151,7 @@ export default function ProductPage() {
   }
 
   return (
-    <div className="nx nx-page nx-pd-page">
+    <div className="nx nx-page pd-page">
       <SeoHead
         title={product.seo?.title || pageTitle(product.name, brand)}
         description={product.seo?.description || product.shortDescription}
@@ -160,8 +159,8 @@ export default function ProductPage() {
         image={product.seo?.ogImage || product.images?.[0]}
         noIndex={product.seo?.noIndex}
       />
-      <div className="nx-w nx-pd">
-        <nav className="nx-crumbs" aria-label="Breadcrumb">
+      <div className="container-custom">
+        <nav className="pd-crumbs" aria-label="Breadcrumb">
           <ol>
             {crumbs.map((c, i) => (
               <li key={`${c.label}-${i}`}>{c.to && i < crumbs.length - 1 ? <Link to={c.to}>{c.label}</Link> : <span aria-current="page">{c.label}</span>}</li>
@@ -169,17 +168,24 @@ export default function ProductPage() {
           </ol>
         </nav>
 
-        <div className="nx-pd-grid">
-          {/* gallery */}
-          <div className="nx-pd-gallery">
-            <div className="nx-pd-main">
-              {images.length ? <img key={shot} src={mediaUrl(images[shot])} alt={product.name} fetchPriority="high" /> : <span style={{ background: product.colorHex || 'var(--nx-tile)' }} />}
-              {off > 0 && <span className="nx-tag">{product.flashSale ? `Flash −${off}%` : `−${off}%`}</span>}
+        <div className="pd-grid">
+          <div>
+            <div className="pd-hero">
+              {images.length ? (
+                <img key={shot} src={mediaUrl(images[shot])} alt={product.name} fetchPriority="high" />
+              ) : (
+                <span className="pd-hero-tone" style={{ background: product.colorHex || '#22173A' }} />
+              )}
+              {off > 0 && (
+                <div className="modern-badge-wrap">
+                  <span className={`modern-card-badge ${product.flashSale ? 'badge-flash' : 'badge-default'}`}>{product.flashSale ? `FLASH −${off}%` : `−${off}%`}</span>
+                </div>
+              )}
             </div>
             {images.length > 1 && (
-              <div className="nx-pd-thumbs">
+              <div className="pd-thumbs">
                 {images.map((src, i) => (
-                  <button key={src} type="button" className={i === shot ? 'is-on' : ''} aria-label={`Image ${i + 1}`} onClick={() => setShot(i)}>
+                  <button key={src} type="button" className={`pd-thumb${i === shot ? ' is-active' : ''}`} aria-label={`Image ${i + 1}`} onClick={() => setShot(i)}>
                     <img src={mediaUrl(src)} alt="" loading="lazy" />
                   </button>
                 ))}
@@ -187,33 +193,56 @@ export default function ProductPage() {
             )}
           </div>
 
-          {/* details */}
-          <div className="nx-pd-info">
-            <p className="nx-eb">
+          <div>
+            <span className="pd-tag">
               {house?.name || product.family}
               {product.categoryId?.name ? ` · ${product.categoryId.name}` : ''}
-            </p>
-            <h1 className="nx-d nx-pd-t">{product.name}</h1>
-            {product.shortDescription && <p className="nx-pd-stones">{product.shortDescription}</p>}
+            </span>
+            <h1 className="pd-title">{product.name}</h1>
             {rating > 0 && reviewCount > 0 && (
-              <p className="nx-pd-rate">
-                <b>★ {rating % 1 === 0 ? rating.toFixed(0) : rating.toFixed(1)}</b> · {formatReviewCount(reviewCount)} reviews
-              </p>
+              <div className="pd-rating">
+                <div className="pd-stars" aria-hidden>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} size={15} fill={i < Math.round(rating) ? '#D9AE4F' : 'none'} stroke="#D9AE4F" />
+                  ))}
+                </div>
+                <span className="pd-rating-val">{rating % 1 === 0 ? rating.toFixed(0) : rating.toFixed(1)}</span>
+                <span className="pd-rating-dot">·</span>
+                <span className="pd-rating-count">{formatReviewCount(reviewCount)} reviews</span>
+              </div>
             )}
 
-            <div className="nx-pd-price">
-              <span>{formatInr(product.price)}</span>
+            <div className="pd-price-row">
+              <span className="pd-price">{formatInr(product.price)}</span>
               {off > 0 && (
                 <>
-                  <s>{formatInr(was)}</s>
-                  <em>Save {off}%</em>
+                  <span className="pd-was">{formatInr(was)}</span>
+                  <span className="badge-flash">Save {off}%</span>
                 </>
               )}
             </div>
             <SaleTimer sale={product.flashSale} />
 
-            <div className="nx-pd-buy">
-              <div className="nx-qty" aria-label="Quantity">
+            {(product.description || product.shortDescription) && <p className="pd-desc">{product.description || product.shortDescription}</p>}
+
+            {attributes.map(([key, value]) => (
+              <div key={key} className="pd-option">
+                <span className="pd-option-label">{key.replace(/-/g, ' ')}</span>
+                <div className="pd-option-pills">
+                  {String(value)
+                    .split(/\s*[,·]\s*/)
+                    .filter(Boolean)
+                    .map((v) => (
+                      <span key={v} className="pill-tab active">
+                        {v}
+                      </span>
+                    ))}
+                </div>
+              </div>
+            ))}
+
+            <div className="pd-buy">
+              <div className="pd-stepper" aria-label="Quantity">
                 <button type="button" aria-label="Decrease quantity" disabled={qty <= 1 || soldOut} onClick={() => setQty((q) => Math.max(1, q - 1))}>
                   <Minus size={14} />
                 </button>
@@ -222,70 +251,63 @@ export default function ProductPage() {
                   <Plus size={14} />
                 </button>
               </div>
-              <button type="button" className="nx-btn nx-pd-add" disabled={soldOut} onClick={add}>
-                {soldOut ? 'Sold out' : `Add to bag · ${formatInr(product.price * qty)}`}
+              <button type="button" className="btn-gold pd-add" disabled={soldOut} onClick={add}>
+                <ShoppingBag size={16} />
+                <span>{soldOut ? 'Sold out' : `Add to bag · ${formatInr(product.price * qty)}`}</span>
               </button>
-              <button type="button" className={`nx-pd-wish${wishlisted ? ' is-on' : ''}`} aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'} onClick={() => toggleWish(product)}>
-                <Heart size={18} strokeWidth={1.4} fill={wishlisted ? 'currentColor' : 'none'} />
+              <button
+                type="button"
+                className={`pd-wish${wishlisted ? ' is-active' : ''}`}
+                aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+                onClick={() => toggleWish(product)}
+              >
+                <Heart size={18} fill={wishlisted ? '#D9AE4F' : 'none'} />
               </button>
             </div>
             {added && (
-              <p className="nx-pd-added" role="status">
+              <p className="pd-note" role="status">
                 <Check size={14} /> Added to bag. <Link to="/cart">View bag →</Link>
               </p>
             )}
-            {lowStock && <p className="nx-pd-stock">Only {product.stock} left.</p>}
+            {lowStock && <p className="pd-note is-warn">Only {product.stock} left.</p>}
 
-            <div className="nx-pd-acc">
-              {product.description && (
-                <details open>
-                  <summary>The piece</summary>
-                  <p>{product.description}</p>
-                </details>
-              )}
-              {(attributes.length > 0 || product.sku) && (
-                <details>
-                  <summary>Details</summary>
-                  <dl>
-                    {attributes.map(([key, value]) => (
-                      <div key={key}>
-                        <dt>{key.replace(/-/g, ' ')}</dt>
-                        <dd>{String(value)}</dd>
-                      </div>
-                    ))}
-                    {product.sku && (
-                      <div>
-                        <dt>SKU</dt>
-                        <dd>{product.sku}</dd>
-                      </div>
-                    )}
-                  </dl>
-                </details>
-              )}
-              <details>
-                <summary>{site.pages.product?.shippingTitle || 'Shipping & returns'}</summary>
-                {site.pages.product?.shippingBody && <p className="nx-pd-ship">{site.pages.product.shippingBody}</p>}
+            <div className="pd-seal">
+              <img src={emblem} alt="" className="pd-seal-img" />
+              <div>
+                <div className="pd-seal-t">{site.pages.product?.shippingTitle || 'Shipping & returns'}</div>
                 <p>
+                  {site.pages.product?.shippingBody ? `${site.pages.product.shippingBody} ` : ''}
                   See our <Link to="/shipping">shipping</Link>, <Link to="/returns">returns</Link> and <Link to="/exchanges">exchanges</Link> policies.
                 </p>
-              </details>
+              </div>
             </div>
 
+            {product.sku && (
+              <div className="pd-list">
+                <span className="pd-list-h">Details</span>
+                <ul>
+                  <li>SKU {product.sku}</li>
+                </ul>
+              </div>
+            )}
+
             {!!product.collectionIds?.length && (
-              <div className="nx-pd-cols">
-                <span>Found in</span>
-                {product.collectionIds.map((c) => (
-                  <Link key={c._id || c} to={`/collection/${c.slug || c}`}>
-                    {c.name || c.slug}
-                  </Link>
-                ))}
+              <div className="pd-list">
+                <span className="pd-list-h">Found in</span>
+                <ul>
+                  {product.collectionIds.map((c) => (
+                    <li key={c._id || c}>
+                      <Link to={`/collection/${c.slug || c}`}>{c.name || c.slug}</Link>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>
         </div>
-      </div>
 
-      <Related product={product} copy={site.pages.product} />
+        <Related product={product} copy={site.pages.product} />
+      </div>
 
       <StudioBand
         title={site.studio?.productBandTitle || 'Want this feeling in your own counts?'}
