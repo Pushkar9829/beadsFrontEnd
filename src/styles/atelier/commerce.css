@@ -217,3 +217,45 @@
   border-top-color: rgba(191, 0, 255, 0.3);
   background: rgba(20, 3, 34, 0.95);
 }
+
+/* Account: orders and addresses as dark gold-hairline cards (source account tabs) */
+.at-commerce .nx-orders {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border: 0;
+}
+
+.at-commerce .nx-order,
+.at-commerce .nx-addrs > * {
+  padding: 20px 22px;
+  border: 1px solid rgba(217, 174, 79, 0.18);
+  border-radius: 6px;
+  background: #120B1A;
+}
+
+.at-commerce .nx-order .nx-k {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+}
+
+.at-commerce .nx-order-n {
+  font-family: var(--font-brand);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #EDE8E1;
+}
+
+.at-commerce .nx-order-total {
+  font-size: 17px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.at-commerce .nx-acct-t {
+  font-family: var(--font-brand);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
