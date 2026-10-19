@@ -1,0 +1,185 @@
+/* Adaptations for the ported home markup: the source's inline styles as classes, router links
+   where the source used clickable divs, and the value bar sized to however many facts the CMS has. */
+
+.homepage-root a.house-plate,
+.homepage-root a.flash-img-plate,
+.homepage-root .flash-specimen-name a {
+  color: inherit;
+}
+
+.homepage-root a.house-plate,
+.homepage-root a.oracle-featured-bracelet,
+.homepage-root a.oracle-compose-btn,
+.homepage-root a.collection-see-all-btn,
+.homepage-root a.flash-img-plate,
+.homepage-root a.btn-kundali-action,
+.homepage-root .flash-specimen-name a,
+.homepage-root .review-faq-list a,
+.homepage-root .hero-dock-specimen {
+  text-decoration: none;
+}
+
+.homepage-root a.flash-img-plate {
+  display: block;
+}
+
+/* Hero eyebrow row (emblem + eyebrow) */
+.hero-eyebrow-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.hero-eyebrow-emblem {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 10px rgba(197, 165, 114, 0.45));
+}
+
+.hero-eyebrow-row .hero-eyebrow {
+  margin: 0;
+}
+
+.hero-editorial-wrap {
+  animation: fadeIn 0.6s ease both;
+}
+
+a.hero-dock-specimen:hover {
+  color: #F4F1EC;
+}
+
+/* Value bar with any number of facts */
+.value-bar-grid.is-auto {
+  grid-template-columns: repeat(var(--n, 3), 1fr);
+}
+
+.value-bar-grid.is-auto .value-bar-item + .value-bar-item {
+  border-left: 1px solid rgba(197, 165, 114, 0.12);
+}
+
+@media (max-width: 992px) {
+  .value-bar-grid.is-auto {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .value-bar-grid.is-auto .value-bar-item + .value-bar-item {
+    border-left: none;
+  }
+
+  .value-bar-grid.is-auto .value-bar-item {
+    border-top: 1px solid rgba(197, 165, 114, 0.12);
+  }
+
+  .value-bar-grid.is-auto .value-bar-item:nth-child(even) {
+    border-left: 1px solid rgba(197, 165, 114, 0.12);
+  }
+}
+
+@media (max-width: 560px) {
+  .value-bar-grid.is-auto {
+    grid-template-columns: 1fr;
+  }
+
+  .value-bar-grid.is-auto .value-bar-item:nth-child(even) {
+    border-left: none;
+  }
+}
+
+/* Flash */
+.flash-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.flash-title {
+  margin-bottom: 20px;
+}
+
+.homepage-root .flash-cta {
+  padding: 16px 38px;
+}
+
+.flash-star {
+  color: #C5A572;
+  font-size: 11px;
+}
+
+/* Craft (sacred origins) */
+.rudraksha-title {
+  margin-bottom: 20px;
+}
+
+.homepage-root .rudraksha-cta {
+  padding: 16px 38px;
+}
+
+/* Reviews */
+.reviews-star {
+  color: #C5A572;
+  font-size: 16px;
+}
+
+.review-star {
+  color: #C5A572;
+  font-size: 11px;
+}
+
+.review-name {
+  color: #F4F1EC;
+  font-weight: 500;
+}
+
+.review-faq-list {
+  list-style: none;
+  margin: 12px 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.review-faq-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  color: #F4F1EC;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(197, 165, 114, 0.12);
+  transition: color 0.2s ease;
+}
+
+.review-faq-list a:hover {
+  color: #C5A572;
+}
+
+.homepage-root a.review-faq-all {
+  text-decoration: none;
+}
+
+/* Stone finder: loading state for the live result */
+.oracle-right-col.is-loading {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
+.oracle-date-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Newsletter */
+.newsletter-eyebrow {
+  display: block;
+  margin: 0 auto 16px;
+}
+
+.newsletter-error {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #E8A0A0;
+}

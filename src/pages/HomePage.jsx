@@ -6,26 +6,30 @@ import { useBootStore } from '../store/bootStore';
 import SeoHead from '../components/SeoHead';
 import useRefreshOnView from '../hooks/useRefreshOnView';
 import { formatInr } from '../lib/format';
+import { NFinale, NJournal, NLook, NPurposes } from '../components/home/nocturne/Nocturne';
 import {
-  NCollection,
-  NCraft,
-  NFacts,
-  NFinale,
-  NFinder,
-  NFlash,
-  NHero,
-  NHouses,
-  NJournal,
-  NLook,
-  NNewsletter,
-  NPurposes,
-  NReviews,
-} from '../components/home/nocturne/Nocturne';
+  ACollection,
+  ACraft,
+  AFinder,
+  AFlash,
+  AHero,
+  AHouses,
+  AKundali,
+  ANewsletter,
+  APromises,
+  AReviews,
+  AValueBar,
+} from '../components/home/atelier/AtelierHome';
 import '../components/home/nocturne/nocturne.css';
 import craftFallback from '../assets/home/house-rudraksha.jpg';
 import finaleFallback from '../assets/home/finale-banner.jpg';
 
-const DEFAULT_ORDER = ['hero', 'facts', 'houses', 'collection', 'flash_sale', 'look', 'finder', 'purposes', 'craft', 'reviews', 'journal', 'newsletter', 'finale'];
+const DEFAULT_ORDER = ['hero', 'facts', 'houses', 'collection', 'flash_sale', 'kundali', 'look', 'finder', 'purposes', 'craft', 'reviews', 'promises', 'journal', 'newsletter', 'finale'];
+
+/** Sections still in the Nocturne design keep its scoped styles. */
+function Nx({ children }) {
+  return <div className="nx">{children}</div>;
+}
 
 /** Product slugs referenced by the CMS (hero hotspots and shop-the-look points). */
 function referencedSlugs(home) {
@@ -117,27 +121,31 @@ export default function HomePage() {
   ];
 
   const blocks = {
-    hero: live('hero') && <NHero key="hero" hero={home.hero} products={linked} sale={live('flash_sale') ? flash : null} flashCopy={home.flash} />,
-    facts: live('facts') && <NFacts key="facts" items={home.facts?.items || []} vars={vars} />,
-    houses: live('houses') && <NHouses key="houses" houses={home.houses} studio={home.studio} ritual={home.ritual} counts={summary?.houses || {}} minPrice={summary?.minPrice} />,
-    collection: live('collection') && <NCollection key="collection" copy={home.featured} tabs={tabs} />,
-    flash_sale: live('flash_sale') && flash && <NFlash key="flash_sale" sale={flash} products={flashProducts} copy={home.flash} />,
-    look: live('look') && <NLook key="look" copy={home.look} products={linked} />,
-    finder: live('finder') && <NFinder key="finder" copy={home.finder} purposes={purposes} />,
-    purposes: live('purposes') && <NPurposes key="purposes" copy={home.purpose} purposes={purposes} beads={beads} />,
-    craft: live('craft') && (
-      <NCraft key="craft" copy={home.craft} claims={home.trustClaims || []} image={home.craft?.image ? mediaUrl(home.craft.image) : craftFallback} />
-    ),
+    hero: live('hero') && <AHero key="hero" hero={home.hero} products={linked} />,
+    facts: live('facts') && <AValueBar key="facts" items={home.facts?.items || []} vars={vars} />,
+    houses: live('houses') && <AHouses key="houses" houses={home.houses} studio={home.studio} counts={summary?.houses || {}} />,
+    collection: live('collection') && <ACollection key="collection" copy={home.featured} tabs={tabs} />,
+    flash_sale: live('flash_sale') && flash && <AFlash key="flash_sale" sale={flash} products={flashProducts} copy={home.flash} />,
+    kundali: live('kundali') && <AKundali key="kundali" copy={home.kundali} />,
+    look: live('look') && <Nx key="look"><NLook copy={home.look} products={linked} /></Nx>,
+    finder: live('finder') && <AFinder key="finder" copy={home.finder} purposes={purposes} />,
+    purposes: live('purposes') && <Nx key="purposes"><NPurposes copy={home.purpose} purposes={purposes} beads={beads} /></Nx>,
+    craft: live('craft') && <ACraft key="craft" copy={home.craft} image={home.craft?.image ? mediaUrl(home.craft.image) : craftFallback} />,
     reviews: live('reviews') && (
-      <NReviews key="reviews" copy={home.reviews} voices={home.voices} testimonials={home.testimonials || []} faqs={faqs} faqCopy={home.faq} rating={summary?.rating} />
+      <AReviews key="reviews" copy={home.reviews} voices={home.voices} testimonials={home.testimonials || []} faqs={faqs} faqCopy={home.faq} rating={summary?.rating} />
     ),
-    journal: live('journal') && <NJournal key="journal" copy={home.journal} posts={posts} />,
-    newsletter: live('newsletter') && <NNewsletter key="newsletter" copy={home.newsletter} />,
-    finale: live('finale') && <NFinale key="finale" finale={home.finale} image={home.finale?.image ? mediaUrl(home.finale.image) : finaleFallback} />,
+    promises: live('promises') && <APromises key="promises" claims={home.trustClaims || []} />,
+    journal: live('journal') && <Nx key="journal"><NJournal copy={home.journal} posts={posts} /></Nx>,
+    newsletter: live('newsletter') && <ANewsletter key="newsletter" copy={home.newsletter} />,
+    finale: live('finale') && (
+      <Nx key="finale">
+        <NFinale finale={home.finale} image={home.finale?.image ? mediaUrl(home.finale.image) : finaleFallback} />
+      </Nx>
+    ),
   };
 
   return (
-    <div className="home-page nx">
+    <div className="homepage-root">
       <SeoHead
         title={pageTitle('', brand)}
         description={brand.seo?.description || home.hero?.subtitle}
