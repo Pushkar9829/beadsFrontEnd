@@ -248,9 +248,17 @@
   gap: 10px;
   margin-bottom: 26px;
   border: 0;
+  /* Source wraps the pills on phones and keeps the BEGIN BY label. */
+  flex-wrap: wrap;
+  overflow-x: visible;
+}
+
+.nx-studio .nx-paths a {
+  flex: none;
 }
 
 .nx-studio .nx-paths-l {
+  display: inline;
   margin-right: 4px;
   font-size: 10.5px;
   font-weight: 600;
