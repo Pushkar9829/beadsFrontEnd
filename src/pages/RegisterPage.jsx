@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import { useSite } from '../store/contentStore';
-import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
 import AuthShell, { Field } from '../components/home/nocturne/AuthShell';
 
 const FIELDS = [
@@ -39,7 +38,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthShell page={page} image={HOUSE_IMAGES.gemstones}>
+    <AuthShell page={page} wide>
       <form onSubmit={submit} className="nx-form">
         {FIELDS.map((field) => (
           <Field key={field.key} label={field.label} value={form[field.key]} onChange={(e) => set(field.key, e.target.value)} type={field.type} required={field.required} autoComplete={field.autoComplete} />
