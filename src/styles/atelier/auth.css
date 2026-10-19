@@ -324,3 +324,25 @@ a.auth-switch {
   line-height: normal;
   border-bottom: 0;
 }
+
+/* Terms checkbox (source: AuthPage.jsx signup form) */
+.nx.auth-split-layout .nx-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #AAA3AF;
+  margin-top: 4px;
+}
+.nx.auth-split-layout .nx-check input {
+  accent-color: #D9AE4F;
+  width: 15px;
+  height: 15px;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+.nx.auth-split-layout .nx-check a {
+  color: #D9AE4F;
+  text-decoration: none;
+}

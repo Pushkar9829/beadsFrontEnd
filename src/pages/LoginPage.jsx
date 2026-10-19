@@ -35,8 +35,8 @@ export default function LoginPage() {
   return (
     <AuthShell page={page}>
       <form onSubmit={submit} className="nx-form">
-        <Field label="Email" value={email} onChange={(e) => setEmail(e.target.value)} type="email" required autoComplete="email" />
-        <Field label="Password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" required autoComplete="current-password" />
+        <Field label="Email" value={email} onChange={(e) => setEmail(e.target.value)} type="email" required autoComplete="email" placeholder="name@kuberstones.in" />
+        <Field label="Password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" required autoComplete="current-password" placeholder="••••••••••••" />
         {error && (
           <p className="nx-error" role="alert">
             {error}
