@@ -1,0 +1,637 @@
+/* Customization studio in the atelier look, from beeds_ecommerce/src/pages/StudioBuilderPage.jsx:
+   purple stage, cream option cards with a gold check, underlined step rail, glass side panels,
+   gold gradient actions and the cream crystal popup (source commit 00a6eaf).
+   The studio markup is the frontend's own; cream surfaces re-point the Nocturne colour variables
+   so every child picks up dark-on-cream text without per-element overrides. */
+
+:root .nx.nx-studio {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -10%, rgba(191, 0, 255, 0.35), transparent 75%),
+    radial-gradient(circle 600px at 85% 30%, rgba(160, 0, 255, 0.22), transparent),
+    radial-gradient(circle 500px at 10% 65%, rgba(191, 0, 255, 0.16), transparent),
+    linear-gradient(180deg, #320054 0%, #200038 35%, #130022 75%, #0B0014 100%);
+  color: #EDE8E1;
+  --nx-line: rgba(191, 0, 255, 0.22);
+  --nx-line2: rgba(191, 0, 255, 0.35);
+  --nx-muted: #8E8A9A;
+  --nx-soft: #6B6676;
+  --nx-champ: #E5C378;
+}
+
+/* Cream surfaces */
+.nx-studio .nx-ptile,
+.nx-studio .nx-itile,
+.nx-studio .nx-chosen,
+.nx-studio .nx-crystal-sum,
+.nx-studio .nx-pb,
+.nx-studio .nx-opt,
+.nx-studio .nx-birth-date,
+.nx-studio .nx-rv-hero,
+.nx-studio .nx-rv-block,
+.nx-studio .nx-rv-bill,
+.nx-cm-layer .nx-cm {
+  --nx-ink: #1A160F;
+  --nx-muted: #695B44;
+  --nx-soft: #8C7245;
+  --nx-champ: #B8913F;
+  --nx-line: rgba(197, 165, 114, 0.35);
+  --nx-line2: rgba(197, 165, 114, 0.55);
+  --nx-tile: #FAF5EB;
+  --nx-bg: #1A160F;
+  --nx-bg2: #FAF4E8;
+  --nx-bg3: #EFE4CF;
+  color: #1A160F;
+}
+
+.nx-studio .nx-ptile,
+.nx-studio .nx-itile,
+.nx-studio .nx-opt,
+.nx-studio .nx-pb {
+  background: #FAF5EB;
+  border: 1px solid rgba(197, 165, 114, 0.35);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(160, 126, 68, 0.08);
+  transition: all 0.2s ease;
+}
+
+.nx-studio .nx-ptile:hover:not(:disabled),
+.nx-studio .nx-itile:hover:not(:disabled),
+.nx-studio .nx-opt:hover,
+.nx-studio .nx-pb:hover {
+  border-color: rgba(197, 165, 114, 0.7);
+  background-color: #FAF5EB;
+  box-shadow: 0 8px 22px rgba(160, 126, 68, 0.16);
+}
+
+.nx-studio .nx-ptile.is-on,
+.nx-studio .nx-itile.is-on,
+.nx-studio .nx-opt.is-on,
+.nx-studio .nx-pb.is-on {
+  border: 2px solid #D9AE4F;
+  box-shadow: 0 8px 24px rgba(160, 126, 68, 0.22), 0 0 16px rgba(217, 174, 79, 0.28);
+}
+
+.nx-studio .nx-chosen,
+.nx-studio .nx-crystal-sum,
+.nx-studio .nx-birth-date,
+.nx-studio .nx-rv-hero,
+.nx-studio .nx-rv-block,
+.nx-studio .nx-rv-bill {
+  background: #FAF5EB;
+  border: 1px solid rgba(197, 165, 114, 0.4);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(160, 126, 68, 0.08);
+}
+
+/* Option card type (purpose, intention, charm, thread) */
+.nx-studio .nx-ptile {
+  min-height: 236px;
+  padding: 16px 12px;
+}
+
+.nx-studio .nx-ptiles {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.nx-studio .nx-ptile-n,
+.nx-studio .nx-itile-n {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #8C7245;
+}
+
+.nx-studio .nx-ptile.is-on .nx-ptile-n,
+.nx-studio .nx-itile.is-on .nx-itile-n {
+  color: #8C7245;
+}
+
+.nx-studio .nx-ptile-check {
+  top: 12px;
+  right: 12px;
+  width: 18px;
+  height: 18px;
+  background: #D9AE4F;
+  color: #1A160F;
+}
+
+.nx-studio .nx-ptile-check svg {
+  width: 12px;
+  height: 12px;
+}
+
+.nx-studio .nx-ptile-art {
+  width: 104px;
+  height: 104px;
+  margin: 4px auto 14px;
+}
+
+.nx-studio .nx-ptile-art img {
+  filter: drop-shadow(0 4px 14px rgba(217, 174, 79, 0.25));
+}
+
+.nx-studio .nx-ptile-h,
+.nx-studio .nx-opt-h {
+  font-family: var(--font-editorial);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: #1A160F;
+}
+
+.nx-studio .nx-ptile-p,
+.nx-studio .nx-opt-p {
+  margin-top: auto;
+  padding-top: 6px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #695B44;
+}
+
+.nx-studio .nx-itile {
+  min-height: 160px;
+  padding: 16px 14px;
+}
+
+.nx-studio .nx-itile-h {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1A160F;
+}
+
+.nx-studio .nx-itile-b {
+  font-size: 11px;
+  font-style: italic;
+  font-weight: 600;
+  color: #8C6F3D;
+}
+
+.nx-studio .nx-itile-p {
+  font-size: 11px;
+  line-height: 1.45;
+  color: #695B44;
+}
+
+.nx-studio .nx-itile-go,
+.nx-studio .nx-itile.is-on .nx-itile-go {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8C6F3D;
+}
+
+.nx-studio .nx-chosen-art {
+  border: 1px solid rgba(197, 165, 114, 0.3);
+  background: #EFE4CF;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.nx-studio .nx-chosen-h {
+  font-family: var(--font-editorial);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1A160F;
+}
+
+.nx-studio .nx-chosen .nx-eb,
+.nx-studio .nx-crystal-sum .nx-eb,
+.nx-studio .nx-rv-block .nx-eb,
+.nx-studio .nx-rv-hero .nx-eb {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #8C6F3D;
+}
+
+.nx-studio .nx-chosen-edit {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8C6F3D;
+  text-decoration: underline;
+}
+
+.nx-studio .nx-pick-head,
+.nx-studio .nx-pick-head > span {
+  color: #8E8A9A;
+}
+
+/* Page header */
+.nx-studio .nx-intro.is-compact {
+  padding-top: 36px;
+}
+
+.nx.nx-studio .nx-intro.is-compact .nx-intro-t {
+  font-family: var(--font-editorial);
+  font-size: clamp(28px, 3.2vw, 38px);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  color: #FFFFFF;
+}
+
+.nx.nx-studio .nx-intro.is-compact .nx-intro-sub {
+  font-size: 13.5px;
+  color: #8E8A9A;
+}
+
+/* Begin-by pills */
+.nx-studio .nx-paths {
+  gap: 10px;
+  margin-bottom: 26px;
+  border: 0;
+}
+
+.nx-studio .nx-paths-l {
+  margin-right: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(237, 232, 225, 0.65);
+}
+
+.nx-studio .nx-paths a {
+  padding: 6px 18px;
+  border: 1px solid rgba(191, 0, 255, 0.25);
+  border-radius: 9999px;
+  background: rgba(32, 10, 54, 0.72);
+  backdrop-filter: blur(8px);
+  color: #EDE8E1;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  transition: all 0.2s ease;
+}
+
+.nx-studio .nx-paths a:hover {
+  border-color: rgba(229, 195, 120, 0.6);
+}
+
+.nx-studio .nx-paths a.is-on {
+  border-color: #F5E8BA;
+  background: #F5E8BA;
+  color: #0A0810;
+  font-weight: 600;
+}
+
+/* Step rail */
+.nx-studio.nx-studio.nx-studio .studio-steps {
+  gap: 36px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid rgba(191, 0, 255, 0.22);
+}
+
+.nx-studio.nx-studio.nx-studio .studio-chip,
+.nx-studio.nx-studio.nx-studio .studio-chip:not(.is-on):not(.is-done) {
+  gap: 8px;
+  margin: 0 0 -1px;
+  padding: 8px 0 12px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6B6676;
+}
+
+.nx-studio.nx-studio.nx-studio .studio-chip-n {
+  font-weight: 600;
+  color: #6B6676;
+}
+
+.nx-studio.nx-studio.nx-studio .studio-chip-n::before {
+  content: none;
+}
+
+.nx-studio.nx-studio.nx-studio .studio-chip.is-on {
+  border-bottom-color: #E5C378;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.nx-studio.nx-studio.nx-studio .studio-chip.is-on .studio-chip-n {
+  color: #E5C378;
+}
+
+.nx-studio.nx-studio.nx-studio .studio-chip.is-done {
+  color: #BBB5C3;
+}
+
+.nx-studio.nx-studio.nx-studio .studio-chip.is-done .studio-chip-n {
+  color: #D4AF37;
+}
+
+/* Glass side panels: how it works, live strand, review side */
+.nx-studio .nx-guide,
+.nx-studio .studio-preview,
+.nx-studio .nx-rv-side {
+  border: 1px solid rgba(191, 0, 255, 0.24);
+  border-radius: 6px;
+  background: rgba(28, 7, 46, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(12, 0, 22, 0.45);
+}
+
+.nx-studio .nx-guide {
+  padding: 24px 22px;
+}
+
+.nx-studio .nx-guide > .nx-eb {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #E5C378;
+}
+
+.nx-studio .nx-guide-steps li {
+  border-top-color: rgba(255, 255, 255, 0.06);
+}
+
+.nx-studio .nx-guide-steps li > span:first-child,
+.nx-studio .nx-guide-steps b {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #6B6676;
+}
+
+.nx-studio .nx-guide-steps em {
+  font-size: 12.5px;
+  color: #8E8A9A;
+}
+
+.nx-studio .nx-guide-steps li.is-on > span:first-child,
+.nx-studio .nx-guide-steps li.is-on b {
+  color: #E5C378;
+}
+
+.nx-studio .nx-guide-steps li.is-on em {
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.nx-studio .nx-guide-note {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #6B6676;
+  border-top-color: rgba(255, 255, 255, 0.06);
+}
+
+.nx-studio .nx-stage {
+  border: 1px solid rgba(191, 0, 255, 0.25);
+  border-radius: 6px;
+  background: radial-gradient(circle at 50% 50%, rgba(191, 0, 255, 0.2) 0%, rgba(16, 2, 28, 0.95) 100%);
+}
+
+/* Gold gradient actions */
+.nx-studio .nx-btn,
+.nx-studio.nx-studio.nx-studio .studio-actions-next,
+.nx-cm-layer .nx-cm-actions .nx-btn {
+  border: none;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #ECC26A 0%, #D9AE4F 60%, #B88E3E 100%);
+  box-shadow: 0 4px 16px rgba(217, 174, 79, 0.25);
+  color: #0A0810;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.nx-studio .nx-btn:disabled,
+.nx-studio.nx-studio.nx-studio .studio-actions-next:disabled {
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+/* Action dock */
+.nx-studio.nx-studio.nx-studio .studio-actions {
+  border-top: 1px solid rgba(191, 0, 255, 0.3);
+  background: rgba(20, 3, 34, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 -10px 30px rgba(12, 0, 22, 0.8);
+}
+
+.nx-studio.nx-studio.nx-studio .studio-actions-hint {
+  font-size: 12px;
+  color: #8E8A9A;
+}
+
+.nx-studio.nx-studio.nx-studio .studio-actions-back {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #BBB5C3;
+}
+
+.nx-studio.nx-studio.nx-studio .studio-actions-back:disabled {
+  color: #444;
+}
+
+.nx-studio.nx-studio.nx-studio .studio-actions-meta span {
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6B6676;
+}
+
+.nx-studio.nx-studio.nx-studio .studio-actions-meta strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+/* Inputs and toggles on cream */
+.nx-studio .nx-birth-date .nx-input,
+.nx-studio .nx-pb .nx-input,
+.nx-cm-layer .nx-cm .nx-input {
+  border: 1px solid rgba(197, 165, 114, 0.45);
+  background: #FFFDF8;
+  color: #1A160F;
+  -webkit-text-fill-color: #1A160F;
+}
+
+.nx-studio .nx-yn button,
+.nx-studio .nx-chips-pick button,
+.nx-cm-layer .nx-cm-sizes button {
+  border-color: rgba(197, 165, 114, 0.45);
+  background: #FAF4E8;
+  color: #3B3120;
+}
+
+.nx-studio .nx-yn button.is-on,
+.nx-studio .nx-chips-pick button.is-on,
+.nx-cm-layer .nx-cm-sizes button.is-on {
+  border-color: #967439;
+  background: #967439;
+  color: #FFFFFF;
+}
+
+/* Strand rows (source: cream rows with square thumbs and pill counters) */
+.nx-studio .nx-cm-lines li,
+.nx-cm-layer .nx-cm-lines li {
+  padding: 10px 12px;
+  border: 1px solid rgba(197, 165, 114, 0.35);
+  border-radius: 8px;
+  background: #FAF4E8;
+  box-shadow: 0 2px 8px rgba(160, 126, 68, 0.06);
+  color: #1A160F;
+}
+
+.nx-studio .nx-cm-lines .nx-cm-name,
+.nx-cm-layer .nx-cm-lines .nx-cm-name {
+  color: #1A160F;
+  font-weight: 600;
+}
+
+.nx-studio .nx-cm-dot,
+.nx-cm-layer .nx-cm-dot {
+  border-radius: 6px;
+  border: 1px solid rgba(197, 165, 114, 0.3);
+  background: #EFE4CF;
+}
+
+.nx-studio .nx-qty.nx-cm-qty,
+.nx-cm-layer .nx-qty.nx-cm-qty {
+  border: 1px solid rgba(197, 165, 114, 0.5);
+  border-radius: 9999px;
+  background: #FAF5EB;
+  color: #1A160F;
+}
+
+/* Crystal popup (cream, as in the source after 00a6eaf) */
+.nx-cm-layer .nx-cm-scrim {
+  background: rgba(12, 9, 6, 0.72);
+}
+
+.nx-cm-layer .nx-cm {
+  border: 1px solid rgba(197, 165, 114, 0.4);
+  border-radius: 16px;
+  background: #FAF5EB;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(160, 126, 68, 0.15);
+}
+
+.nx-cm-layer .nx-cm .nx-eb {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #8C6F3D;
+}
+
+.nx.nx-studio .nx-cm-layer .nx-cm-t,
+.nx-cm-layer .nx-cm .nx-cm-t {
+  font-family: var(--font-editorial);
+  font-weight: 700;
+  color: #1A160F;
+}
+
+.nx-cm-layer .nx-cm-x {
+  border: 1px solid rgba(197, 165, 114, 0.35);
+  border-radius: 50%;
+  background: #FAF4E8;
+  box-shadow: 0 2px 8px rgba(140, 105, 50, 0.12);
+  color: #1A160F;
+}
+
+.nx-cm-layer .nx-cm-tabs button {
+  color: #8C7245;
+}
+
+.nx-cm-layer .nx-cm-tabs button.is-on {
+  border-bottom-color: #B8913F;
+  color: #1A160F;
+}
+
+.nx-cm-layer .nx-cm-tile {
+  border: 1px solid rgba(197, 165, 114, 0.35);
+  border-radius: 10px;
+  background: #FAF4E8;
+}
+
+.nx-cm-layer .nx-cm-tile.is-on {
+  border: 2px solid #D9AE4F;
+}
+
+.nx-cm-layer .nx-cm-ph {
+  background: #EFE4CF;
+}
+
+.nx-cm-layer .nx-cm-foot {
+  border-top: 1px solid rgba(197, 165, 114, 0.3);
+  background: #FAF5EB;
+}
+
+.nx-cm-layer .nx-cm-addbtn {
+  border: 1px dashed rgba(150, 116, 57, 0.6);
+  border-radius: 8px;
+  background: #FAF4E8;
+  color: #8C6F3D;
+  font-weight: 600;
+}
+
+/* Review */
+.nx.nx-studio .nx-rv-t {
+  font-family: var(--font-editorial);
+  font-weight: 600;
+  color: #1A160F;
+}
+
+.nx-studio .nx-rv-bill .is-total dd,
+.nx-studio .nx-rv-bill .is-total dt {
+  color: #1A160F;
+}
+
+.nx-studio .nx-rv-side-total b {
+  color: #FFFFFF;
+}
+
+@media (max-width: 1200px) {
+  .nx-studio .nx-ptiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .nx-studio .nx-ptiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .nx-studio .nx-ptiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nx-studio .nx-ptile {
+    min-height: 0;
+  }
+
+  .nx-studio .nx-ptile-art {
+    width: 76px;
+    height: 76px;
+  }
+
+  .nx-studio.nx-studio.nx-studio .studio-steps {
+    gap: 22px;
+  }
+}
+
+/* The old stone-finder rules (.nx-opts button) also match the charm and thread cards. */
+.nx-studio .nx-opts .nx-opt,
+.nx-studio .nx-opts .nx-opt:hover,
+.nx-studio .nx-opts .nx-opt.is-on {
+  background: #FAF5EB;
+  color: #1A160F;
+  font-size: inherit;
+}
