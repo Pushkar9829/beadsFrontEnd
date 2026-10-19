@@ -1,6 +1,6 @@
 // Storefront pages, studio copy and legal pages (all live under `about` / `pages.*`).
 import { STUDIO_STEPS } from '../../../lib/studioFlow';
-import { area, emptyState, group, linkPair, list, media, note, row, strings, text } from './schema';
+import { area, cta, emptyState, group, linkPair, list, media, note, row, strings, text } from './schema';
 import { getPath, setPath } from '../../ui';
 
 const eyebrowTitle = () => row([text('eyebrow', 'Eyebrow'), text('title', 'Title')]);
@@ -164,7 +164,20 @@ export const PAGE_SECTIONS = [
     base: 'pages.cart',
     fields: [...bagFields, row([text('summaryKicker', 'Summary kicker', { placeholder: 'To pay' }), text('summaryTitle', 'Summary title', { placeholder: 'Checkout.' })])],
   },
-  { key: 'pageWishlist', label: 'Wishlist', group: 'Pages', hint: 'Wishlist page', preview: '/wishlist', base: 'pages.wishlist', fields: bagFields },
+  {
+    key: 'pageWishlist',
+    label: 'Wishlist',
+    group: 'Pages',
+    hint: 'Wishlist page',
+    preview: '/wishlist',
+    base: 'pages.wishlist',
+    fields: [
+      text('kicker', 'Eyebrow'),
+      row([text('heading', 'Title'), text('headingTail', 'Title, gold italic part')]),
+      area('intro', 'Text under the title', { rows: 2 }),
+      group('When nothing is saved', [text('title', 'Title'), area('copy', 'Text', { rows: 2 }), cta('primaryCta', 'Button')], 'emptyState'),
+    ],
+  },
   {
     key: 'pageCheckout',
     label: 'Checkout',

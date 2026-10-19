@@ -182,17 +182,6 @@ export default function CartPage() {
           </div>
         )}
       </div>
-      {items.length > 0 && (
-        <div className="nx-paybar">
-          <span className="nx-paybar-sum">
-            <span>{count} {count === 1 ? 'piece' : 'pieces'} · to pay</span>
-            <strong><Price value={total} /></strong>
-          </span>
-          <Link to="/checkout" className="nx-btn">
-            Checkout
-          </Link>
-        </div>
-      )}
     </div>
   );
 }
