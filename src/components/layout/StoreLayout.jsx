@@ -5,6 +5,8 @@ import BootScreen from './BootScreen';
 import { NFooter } from '../home/nocturne/Nocturne';
 import '../home/nocturne/nocturne.css';
 import '../home/nocturne/commerce.css';
+import '../../styles/atelier/index.css';
+import ScrollExperience from './ScrollExperience';
 import { useSite, useContentStore } from '../../store/contentStore';
 import { useSettingsStore, useBrand } from '../../store/settingsStore';
 import { useBootStore } from '../../store/bootStore';
@@ -44,6 +46,7 @@ export default function StoreLayout() {
         </Suspense>
       </main>
       <NFooter footer={site.footer} brandName={brand.display || 'KUBERSTONES'} />
+      <ScrollExperience />
     </div>
   );
 }

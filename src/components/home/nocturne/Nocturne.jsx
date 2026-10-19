@@ -2,7 +2,7 @@
 // admin Homepage layout, numbers from /api/home/summary. See docs/home-nocturne-spec.md.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Heart, Plus } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Heart, ShoppingBag } from 'lucide-react';
 import api, { mediaUrl } from '../../../api/client';
 import { useCartStore } from '../../../store/cartStore';
 import { useWishlistStore } from '../../../store/wishlistStore';
@@ -142,34 +142,53 @@ export function NCard({ product, badge }) {
   const was = product.originalPrice || product.compareAtPrice;
   const off = was > product.price ? Math.round((1 - product.price / was) * 100) : 0;
   const tag = badge || (product.flashSale && off ? `Flash −${off}%` : off ? `−${off}%` : null);
+  const tagKind = !tag ? '' : /flash/i.test(tag) ? 'badge-flash' : /best|popular/i.test(tag) ? 'badge-bestseller' : 'badge-default';
   return (
-    <article className="nx-card">
-      <div className="nx-card-ph">
-        <Link to={`/p/${product.slug}`} aria-label={product.name} className="nx-card-link">
-          {product.images?.[0] ? <img src={mediaUrl(product.images[0])} alt="" loading="lazy" /> : <span style={{ background: product.colorHex }} />}
-        </Link>
-        {tag && <span className={`nx-tag${tag === 'New' ? ' is-new' : ''}`}>{tag}</span>}
-        <button type="button" className={`nx-heart${wishlisted ? ' is-on' : ''}`} aria-label={wishlisted ? `Remove ${product.name} from wishlist` : `Save ${product.name}`} onClick={() => toggleWish(product)}>
-          <Heart size={14} strokeWidth={1.5} fill={wishlisted ? 'currentColor' : 'none'} />
-        </button>
-        <button type="button" className="nx-qa" onClick={() => addProduct(product, 1)}>
-          Quick add <Plus size={13} />
-        </button>
-      </div>
-      <Link to={`/p/${product.slug}`} className="nx-card-m">
-        <span>
-          <span className="nx-card-n">{product.name}</span>
-          {product.shortDescription && <span className="nx-card-s">{product.shortDescription}</span>}
-          {rating > 0 && reviewCount > 0 && (
-            <span className="nx-card-r">
-              <b>★</b> {rating % 1 === 0 ? rating.toFixed(0) : rating.toFixed(1)} · {formatReviewCount(reviewCount)} reviews
-            </span>
+    <article className="modern-product-card">
+      <div className="modern-card-visual">
+        <Link to={`/p/${product.slug}`} aria-label={product.name}>
+          {product.images?.[0] ? (
+            <img src={mediaUrl(product.images[0])} alt={product.name} className="modern-card-img" loading="lazy" />
+          ) : (
+            <span className="modern-card-img" style={{ background: product.colorHex }} />
           )}
-        </span>
-        <span className="nx-card-p">
-          {formatInr(product.price)}
-          {off > 0 && <s>{formatInr(was)}</s>}
-        </span>
+        </Link>
+        {tag && (
+          <div className="modern-badge-wrap">
+            <span className={`modern-card-badge ${tagKind}`}>{tag.toUpperCase()}</span>
+          </div>
+        )}
+        <button
+          type="button"
+          className={`modern-wishlist-btn ${wishlisted ? 'is-active' : ''}`}
+          aria-label={wishlisted ? `Remove ${product.name} from wishlist` : `Save ${product.name}`}
+          onClick={() => toggleWish(product)}
+        >
+          <Heart size={16} stroke={wishlisted ? '#E05353' : '#222222'} fill={wishlisted ? '#E05353' : 'none'} strokeWidth={1.8} />
+        </button>
+        <div className="modern-quick-add">
+          <button type="button" className="modern-quick-add-btn" onClick={() => addProduct(product, 1)}>
+            <ShoppingBag size={13} strokeWidth={1.8} />
+            <span>Quick Add</span>
+          </button>
+        </div>
+      </div>
+      <Link to={`/p/${product.slug}`} className="modern-card-info">
+        <div className="modern-info-top">
+          <h3 className="modern-product-title">{product.name}</h3>
+          <div className="modern-price-col">
+            <span className="modern-current-price">{formatInr(product.price)}</span>
+            {off > 0 && <span className="modern-original-price">{formatInr(was)}</span>}
+          </div>
+        </div>
+        {product.shortDescription && <div className="modern-product-subtitle">{product.shortDescription}</div>}
+        {rating > 0 && reviewCount > 0 && (
+          <div className="modern-rating-row">
+            <span className="modern-rating-star">★</span>
+            <span className="modern-rating-val">{rating % 1 === 0 ? rating.toFixed(0) : rating.toFixed(1)}</span>
+            <span className="modern-reviews-count">· {formatReviewCount(reviewCount)} reviews</span>
+          </div>
+        )}
       </Link>
     </article>
   );

@@ -1,0 +1,488 @@
+/* Atelier design tokens and base utilities, copied from beeds_ecommerce/src/index.css.
+   Source of truth for the storefront look; Nocturne (.nx) tokens are re-pointed at the bottom. */
+
+:root {
+  --bg-primary: #12091E;
+  --bg-surface: #180D28;
+  --bg-elevated: #1F1134;
+  --bg-card: #180D28;
+  --bg-card-hover: #22143A;
+
+  --gold-primary: #C5A572;
+  --gold-light: #DFCA9E;
+  --gold-dark: #8E7345;
+  --gold-subtle-bg: rgba(197, 165, 114, 0.06);
+
+  --text-cream: #F4F1EC;
+  --text-muted: #A8A39D;
+  --text-dim: #75716B;
+
+  --border-subtle: rgba(197, 165, 114, 0.15);
+  --border-gold: rgba(197, 165, 114, 0.35);
+  --border-active: #C5A572;
+
+  --shadow-editorial: 0 12px 36px rgba(0, 0, 0, 0.6);
+
+  --font-brand: 'Cinzel', serif;
+  --font-editorial: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-cream);
+  font-family: var(--font-sans);
+}
+
+.nx p {
+  line-height: 1.75;
+}
+
+/* Typography Utilities */
+.font-brand {
+  font-family: var(--font-brand);
+  letter-spacing: 0.12em;
+}
+
+.font-editorial {
+  font-family: var(--font-editorial);
+  font-weight: 400;
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+.gold-italic {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  color: var(--gold-primary);
+  font-weight: 400;
+}
+
+.gold-gradient-text {
+  color: var(--gold-primary);
+}
+
+.text-cream {
+  color: var(--text-cream);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-dim {
+  color: var(--text-dim);
+}
+
+.text-gold {
+  color: var(--gold-primary);
+}
+
+/* Containers */
+.container-custom {
+  max-width: 1380px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+@media (min-width: 1440px) {
+  .container-custom {
+    max-width: 1440px;
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+}
+
+/* Ultra-Premium Editorial Buttons */
+.btn-gold {
+  background: var(--gold-primary);
+  color: #12091E;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 12px 26px;
+  border: 1px solid var(--gold-primary);
+  border-radius: 0;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.btn-gold:hover {
+  background: transparent;
+  color: var(--gold-light);
+  border-color: var(--gold-light);
+}
+
+.btn-gold:active {
+  transform: translateY(0);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-cream);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 11px 24px;
+  border-radius: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.btn-outline:hover {
+  border-color: var(--gold-primary);
+  color: var(--gold-primary);
+  background: rgba(197, 165, 114, 0.04);
+}
+
+/* Luxury Pills / Filter Chips -> Architectural Tabs */
+.pill-tab {
+  padding: 7px 16px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  background: rgba(15, 14, 12, 0.6);
+  border-radius: 0;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.pill-tab:hover {
+  color: var(--text-cream);
+  border-color: var(--border-gold);
+}
+
+.pill-tab.active {
+  background: rgba(197, 165, 114, 0.12);
+  color: var(--gold-primary);
+  border-color: var(--gold-primary);
+  font-weight: 600;
+}
+
+/* Luxury Cards */
+.luxury-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.luxury-card:hover {
+  border-color: var(--border-gold);
+  background: var(--bg-card-hover);
+}
+
+/* Badge Styles */
+.badge-flash {
+  background: rgba(18, 9, 30, 0.9);
+  color: var(--gold-primary);
+  border: 1px solid var(--border-subtle);
+  font-size: 8px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 0;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+}
+
+.badge-gold {
+  background: rgba(197, 165, 114, 0.1);
+  color: var(--gold-primary);
+  border: 1px solid var(--border-subtle);
+  font-size: 8px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 0;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+/* Section Header Typography */
+.section-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  color: var(--gold-primary);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.section-title {
+  font-family: var(--font-editorial);
+  font-size: clamp(28px, 3.6vw, 42px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--text-cream);
+  line-height: 1.15;
+}
+
+@media (min-width: 768px) {
+  .section-title {
+    font-size: clamp(32px, 3.8vw, 46px);
+  }
+}
+
+/* Glass Header Navigation */
+.header-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(18, 9, 30, 0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-subtle);
+  transition: all 0.3s ease;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+/* =========================================================================
+   SCROLL PROGRESS BAR
+   ========================================================================= */
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2.5px;
+  background: linear-gradient(90deg, #8E7345 0%, #C5A572 50%, #F4F1EC 100%);
+  box-shadow: 0 0 10px rgba(197, 165, 114, 0.7);
+  z-index: 9999;
+  pointer-events: none;
+  transition: width 0.06s ease-out;
+}
+
+/* =========================================================================
+   BACK TO TOP FLOATING BUTTON
+   ========================================================================= */
+.back-to-top-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 28px;
+  width: 44px;
+  height: 44px;
+  border-radius: 0;
+  background: rgba(24, 13, 40, 0.9);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(197, 165, 114, 0.35);
+  color: var(--gold-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 80;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.back-to-top-btn.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.back-to-top-btn:hover {
+  background: var(--gold-primary);
+  color: #0A0908;
+  border-color: var(--gold-primary);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(197, 165, 114, 0.4);
+}
+
+/* =========================================================================
+   SCROLL REVEAL UTILITIES & REFINED MOTION
+   ========================================================================= */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.55s cubic-bezier(0.2, 0.9, 0.3, 1),
+              transform 0.55s cubic-bezier(0.2, 0.9, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+  will-change: auto;
+}
+
+.reveal-fade {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  will-change: opacity;
+}
+
+.reveal-fade.is-revealed {
+  opacity: 1;
+  will-change: auto;
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.6s cubic-bezier(0.2, 0.9, 0.3, 1),
+              transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-scale.is-revealed {
+  opacity: 1;
+  transform: scale(1);
+  will-change: auto;
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-18px);
+  transition: opacity 0.6s cubic-bezier(0.2, 0.9, 0.3, 1),
+              transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-left.is-revealed {
+  opacity: 1;
+  transform: translateX(0);
+  will-change: auto;
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(18px);
+  transition: opacity 0.6s cubic-bezier(0.2, 0.9, 0.3, 1),
+              transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-right.is-revealed {
+  opacity: 1;
+  transform: translateX(0);
+  will-change: auto;
+}
+
+/* Fluid Stagger sequence utility */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s cubic-bezier(0.2, 0.9, 0.3, 1),
+              transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-stagger.is-revealed > *:nth-child(1) { transition-delay: 0.03s; }
+.reveal-stagger.is-revealed > *:nth-child(2) { transition-delay: 0.07s; }
+.reveal-stagger.is-revealed > *:nth-child(3) { transition-delay: 0.11s; }
+.reveal-stagger.is-revealed > *:nth-child(4) { transition-delay: 0.15s; }
+.reveal-stagger.is-revealed > *:nth-child(5) { transition-delay: 0.19s; }
+.reveal-stagger.is-revealed > *:nth-child(6) { transition-delay: 0.23s; }
+.reveal-stagger.is-revealed > *:nth-child(7) { transition-delay: 0.27s; }
+.reveal-stagger.is-revealed > *:nth-child(8) { transition-delay: 0.31s; }
+
+.reveal-stagger.is-revealed > * {
+  opacity: 1;
+  transform: translateY(0);
+  will-change: auto;
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll,
+  .reveal-fade,
+  .reveal-scale,
+  .reveal-left,
+  .reveal-right,
+  .reveal-stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* Studio Luxury Left-Pane Custom Scrollbar */
+.studio-left-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(217, 174, 79, 0.35) rgba(10, 8, 15, 0.5);
+}
+
+.studio-left-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.studio-left-scroll::-webkit-scrollbar-track {
+  background: rgba(10, 8, 15, 0.4);
+  border-radius: 4px;
+}
+
+.studio-left-scroll::-webkit-scrollbar-thumb {
+  background: rgba(217, 174, 79, 0.3);
+  border-radius: 4px;
+  border: 1px solid rgba(217, 174, 79, 0.15);
+}
+
+.studio-left-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(217, 174, 79, 0.6);
+}
+
+/* Re-point the Nocturne tokens at the atelier palette so every .nx page picks up the new look. */
+:root .nx {
+  --nx-bg: var(--bg-primary);
+  --nx-bg2: var(--bg-surface);
+  --nx-bg3: var(--bg-elevated);
+  --nx-tile: var(--bg-card);
+  --nx-ink: var(--text-cream);
+  --nx-muted: var(--text-muted);
+  --nx-soft: var(--text-dim);
+  --nx-champ: var(--gold-primary);
+  --nx-line: var(--border-subtle);
+  --nx-line2: var(--border-gold);
+  --nx-g1: var(--gold-light);
+  --nx-g2: var(--gold-primary);
+  --nx-g3: var(--gold-dark);
+  --nx-gold: linear-gradient(110deg, #8E7345 0%, #C5A572 30%, #DFCA9E 50%, #C5A572 70%, #8E7345 100%);
+  --nx-sans: var(--font-sans);
+  --nx-serif: var(--font-editorial);
+}
