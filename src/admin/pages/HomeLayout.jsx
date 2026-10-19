@@ -17,15 +17,11 @@ const SECTION_META = {
   collection: { label: 'Collection carousel', description: 'Featured products with best seller, new arrival and trending tabs.', copy: 'collection' },
   flash_sale: { label: 'Flash sale', description: 'Countdown and products of the running flash sale. Hidden when none is active.', copy: 'flash' },
   kundali: { label: 'Kundali offer', description: 'Free Kundali offer banner (rosette seal, three steps). Advertises an offer — switch off if it is not running.', copy: 'kundali' },
-  look: { label: 'Shop the look', description: 'Styled photos with numbered product tags. Hidden until a look has a product.', copy: 'look' },
   finder: { label: 'Stone finder', description: 'Suggests stones from a purpose or a birth date, then links to compose them.', copy: 'finder' },
-  purposes: { label: 'Shop by purpose', description: 'Purpose cards that open the customizer on that purpose.', copy: 'purpose' },
   craft: { label: 'The craft', description: 'Image plate with four attribute tiles and a button.', copy: 'craft' },
-  reviews: { label: 'Reviews', description: 'Average rating, customer notes and a short FAQ.', copy: 'reviews' },
+  reviews: { label: 'Reviews', description: 'Average rating and customer notes.', copy: 'reviews' },
   promises: { label: 'Promises strip', description: 'Four promise tiles from the trust claims (Site pages → Trust).', copy: 'trust' },
-  journal: { label: 'Journal', description: 'Latest journal posts.', copy: 'journal' },
   newsletter: { label: 'Newsletter', description: 'Email sign-up block.', copy: 'newsletter' },
-  finale: { label: 'Closing banner', description: 'Last image banner with two buttons.', copy: 'finale' },
 };
 
 /** Form rows keep schedule times as local datetime-local strings; converted to ISO only on save. */

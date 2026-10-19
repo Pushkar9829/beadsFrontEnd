@@ -2,23 +2,30 @@
 // components/StoneFinder.jsx. Markup follows the source; copy comes from the CMS (home content), order and
 // visibility from the admin Homepage layout. Styles: styles/atelier/home.css, finder.css, home-port.css.
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { createPortal } from 'react-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Award,
   ArrowRight,
+  Calendar,
   Check,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock,
+  Mail,
+  MapPin,
   ShieldCheck,
   ShoppingBag,
   ShoppingCart,
   Sparkles,
   Star,
+  User,
+  X,
 } from 'lucide-react';
 import api, { mediaUrl } from '../../../api/client';
 import { useCartStore } from '../../../store/cartStore';
+import { useAuthStore } from '../../../store/authStore';
 import { claimIcon } from '../../../lib/claimIcons';
 import { resolveProductRating, formatReviewCount } from '../../../lib/productRating';
 import { formatInr } from '../../../lib/format';
@@ -218,7 +225,7 @@ export function AValueBar({ items = [], vars = {} }) {
       <div className="container-custom">
         <div className="value-bar-grid is-auto" style={{ '--n': rows.length }}>
           {rows.map((r, i) => (
-            <div key={i} className="value-bar-item">
+            <div key={i} className={`value-bar-item${i === 1 ? " value-bar-item-border" : ""}`}>
               <span className="value-roman">{ROMAN[i]}</span>
               <span>
                 {r.value} {r.label}
@@ -495,6 +502,7 @@ const KUNDALI_ICONS = {
 };
 
 export function AKundali({ copy = {} }) {
+  const [open, setOpen] = useState(false);
   const threshold = copy.threshold || '₹2,000';
   const fill = (v) => String(v || '').replace(/\{threshold\}/g, threshold);
   const steps = (copy.steps || []).slice(0, 3).map((st) => ({
@@ -606,17 +614,232 @@ export function AKundali({ copy = {} }) {
             </div>
 
             <div className="kundali-cta-row">
-              <Link to={copy.to || '/shop'} className="btn-kundali-action">
+              <button type="button" onClick={() => setOpen(true)} className="btn-kundali-action">
                 <span>{String(copy.action || 'Avail the offer').toUpperCase()}</span>
                 <span className="btn-circle-arrow">
                   <ArrowRight size={13} strokeWidth={2} />
                 </span>
-              </Link>
+              </button>
             </div>
           </div>
         </div>
       </div>
+      {open && <KundaliModal copy={copy} threshold={threshold} onClose={() => setOpen(false)} />}
     </section>
+  );
+}
+
+/** Two-part title: "Lead <gold italic>Tail</gold italic>". */
+function GoldTail({ lead, tail }) {
+  return (
+    <>
+      {lead} {tail && <span className="gold-italic">{tail}</span>}
+    </>
+  );
+}
+
+// "Avail the offer" popup (source: HomePage.jsx, KUNDALI OFFER POPUP MODAL). The source only shows a success
+// state; here the birth details are sent to the Contact inbox so the team can prepare the Kundali.
+function KundaliModal({ copy, threshold, onClose }) {
+  const navigate = useNavigate();
+  const user = useAuthStore((st) => st.user);
+  const [form, setForm] = useState({ name: user?.name || '', email: user?.email || '', placeOfBirth: '', dob: '', tob: '' });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [sent, setSent] = useState(false);
+  const fill = (v) => String(v || '').replace(/\{threshold\}/g, threshold);
+  // Body text with tokens; {threshold} and {name} render bold, as in the source.
+  const rich = (v, values) =>
+    String(v || '')
+      .split(/(\{threshold\}|\{name\}|\{place\})/g)
+      .map((part, i) => {
+        const key = part.slice(1, -1);
+        if (!(part.startsWith('{') && key in values)) return part;
+        return key === 'place' ? values.place : <strong key={i} className="modal-strong">{values[key]}</strong>;
+      });
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && onClose();
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
+
+  async function submit(e) {
+    e.preventDefault();
+    if (!form.name.trim() || !form.email.trim() || !form.placeOfBirth.trim() || !form.dob) {
+      setError('Please provide your name, email, place of birth and date of birth.');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    try {
+      await api.post('/contact', {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        message: [
+          `Kundali offer request (orders above ${threshold})`,
+          `Name: ${form.name.trim()}`,
+          `Place of birth: ${form.placeOfBirth.trim()}`,
+          `Date of birth: ${form.dob}`,
+          `Time of birth: ${form.tob || 'not given'}`,
+        ].join('\n'),
+      });
+      setSent(true);
+    } catch (err) {
+      setError(err?.response?.data?.message || err.message || 'Could not send. Please try again.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return createPortal(
+    <div className="kundali-modal-backdrop" onClick={onClose}>
+      <div className="kundali-modal-card" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="kundali-modal-title">
+        <div className="modal-ambient-glow" />
+        <div className="modal-diya-glow" />
+        <button type="button" className="modal-close-btn" onClick={onClose} aria-label="Close dialog">
+          <X size={17} strokeWidth={2} />
+        </button>
+
+        {!sent ? (
+          <div className="modal-inner-content">
+            <div className="modal-eyebrow">
+              <span className="eyebrow-rule" />
+              <span className="eyebrow-lotus">{LOTUS}</span>
+              <span className="eyebrow-text">{String(copy.modalEyebrow || 'Free Vedic Kundali offer').toUpperCase()}</span>
+              <span className="eyebrow-rule" />
+            </div>
+            <h3 className="modal-title" id="kundali-modal-title">
+              <GoldTail lead={copy.modalTitleLead || 'Inscribe Your'} tail={copy.modalTitleTail ?? 'Birth Details'} />
+            </h3>
+            <p className="modal-subtext">{rich(copy.modalBody, { threshold })}</p>
+
+            <form onSubmit={submit} className="kundali-modal-form" noValidate>
+              <div className="form-group">
+                <label className="form-label" htmlFor="kundali-name">
+                  <User size={13} className="label-icon" />
+                  <span>Full Name</span>
+                </label>
+                <div className="input-wrap">
+                  <input id="kundali-name" type="text" required placeholder="e.g. Arjun Sharma" value={form.name} onChange={set('name')} className="modal-input" autoComplete="name" />
+                </div>
+              </div>
+              {!user?.email && (
+                <div className="form-group">
+                  <label className="form-label" htmlFor="kundali-email">
+                    <Mail size={13} className="label-icon" />
+                    <span>Email</span>
+                  </label>
+                  <div className="input-wrap">
+                    <input id="kundali-email" type="email" required placeholder="you@example.com" value={form.email} onChange={set('email')} className="modal-input" autoComplete="email" />
+                  </div>
+                </div>
+              )}
+              <div className="form-group">
+                <label className="form-label" htmlFor="kundali-place">
+                  <MapPin size={13} className="label-icon" />
+                  <span>Place of Birth (City / State / Country)</span>
+                </label>
+                <div className="input-wrap">
+                  <input id="kundali-place" type="text" required placeholder="e.g. Varanasi, Uttar Pradesh" value={form.placeOfBirth} onChange={set('placeOfBirth')} className="modal-input" />
+                </div>
+              </div>
+              <div className="form-row-duo">
+                <div className="form-group">
+                  <label className="form-label" htmlFor="kundali-dob">
+                    <Calendar size={13} className="label-icon" />
+                    <span>Date of Birth</span>
+                  </label>
+                  <div className="input-wrap">
+                    <input id="kundali-dob" type="date" required value={form.dob} onChange={set('dob')} className="modal-input date-input" />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label" htmlFor="kundali-tob">
+                    <Clock size={13} className="label-icon" />
+                    <span>Time of Birth</span>
+                  </label>
+                  <div className="input-wrap">
+                    <input id="kundali-tob" type="time" value={form.tob} onChange={set('tob')} className="modal-input time-input" />
+                  </div>
+                </div>
+              </div>
+              {copy.modalHint && <div className="form-hint">{copy.modalHint}</div>}
+              {error && (
+                <p className="form-hint kundali-modal-error" role="alert">
+                  {error}
+                </p>
+              )}
+              <div className="modal-actions">
+                <button type="submit" className="btn-kundali-action modal-submit-btn" disabled={busy}>
+                  <span>{busy ? 'SENDING…' : fill(copy.modalAction || 'Confirm & avail offer').toUpperCase()}</span>
+                  <span className="btn-circle-arrow">
+                    <ArrowRight size={13} strokeWidth={2} />
+                  </span>
+                </button>
+              </div>
+            </form>
+          </div>
+        ) : (
+          <div className="modal-success-content">
+            <div className="success-badge-rosette">
+              <span className="success-check-icon">✓</span>
+            </div>
+            <div className="modal-eyebrow modal-eyebrow-center">
+              <span className="eyebrow-rule" />
+              <span className="eyebrow-text">{String(copy.successEyebrow || 'Vedic consecration reserved').toUpperCase()}</span>
+              <span className="eyebrow-rule" />
+            </div>
+            <h3 className="modal-title modal-title-success">
+              <GoldTail lead={copy.successTitleLead || 'Your Kundali Is'} tail={copy.successTitleTail ?? 'Reserved'} />
+            </h3>
+            <p className="modal-subtext modal-subtext-success">
+              {rich(copy.successBody, { threshold, name: form.name.trim(), place: form.placeOfBirth.trim() })}
+            </p>
+            <div className="success-summary-card">
+              <div className="summary-row">
+                <span className="summary-label">Native:</span>
+                <span className="summary-val">{form.name}</span>
+              </div>
+              <div className="summary-row">
+                <span className="summary-label">Birth Coordinates:</span>
+                <span className="summary-val">{form.placeOfBirth}</span>
+              </div>
+              <div className="summary-row">
+                <span className="summary-label">Date & Time:</span>
+                <span className="summary-val">
+                  {form.dob} {form.tob ? `· ${form.tob}` : ''}
+                </span>
+              </div>
+              <div className="summary-row summary-row-status">
+                <span className="summary-label">Status:</span>
+                <span className="summary-val summary-val-gold">{fill(copy.successStatus || 'Complimentary on {threshold}+ orders').toUpperCase()}</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                navigate(copy.to || '/shop');
+              }}
+              className="btn-kundali-action btn-kundali-wide"
+            >
+              <span>{fill(copy.successAction || 'Explore sacred pieces ({threshold}+)').toUpperCase()}</span>
+              <span className="btn-circle-arrow">
+                <ArrowRight size={13} strokeWidth={2} />
+              </span>
+            </button>
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body
   );
 }
 
@@ -896,7 +1119,7 @@ export function ACraft({ copy = {}, image }) {
 
 /* ---------------- 8. reviews ---------------- */
 
-export function AReviews({ copy = {}, voices = {}, testimonials = [], faqs = [], faqCopy = {}, rating }) {
+export function AReviews({ copy = {}, voices = {}, testimonials = [], rating }) {
   const quotes = testimonials.filter((v) => v.quote && v.name).slice(0, 4);
   const showScore = copy.showSummary !== false && rating?.average && rating?.count;
   if (!quotes.length && !showScore) return null;
@@ -946,23 +1169,6 @@ export function AReviews({ copy = {}, voices = {}, testimonials = [], faqs = [],
                 </div>
               </div>
             ))}
-            {faqs.length > 0 && (
-              <div className={`review-editorial-card review-faq-card ${quotes.length % 2 === 1 ? 'review-stagger' : ''}`}>
-                <span className="section-eyebrow">{copy.faqTitle || 'Before you buy'}</span>
-                <ul className="review-faq-list">
-                  {faqs.slice(0, 4).map((f) => (
-                    <li key={f._id}>
-                      <Link to={`${faqCopy.to || '/faq'}#${f._id}`}>
-                        {f.question} <ArrowRight size={13} />
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-                <Link to={faqCopy.to || '/faq'} className="review-product-tag review-faq-all">
-                  {clean(faqCopy.action || 'All questions')} →
-                </Link>
-              </div>
-            )}
           </div>
         </div>
       </div>

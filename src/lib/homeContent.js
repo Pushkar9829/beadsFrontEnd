@@ -17,10 +17,9 @@ export const HOME_DEFAULTS = {
   },
   facts: {
     items: [
-      { value: '{stones}', label: 'Natural stones in our library' },
-      { value: '{purposes}', label: 'Purposes to compose for' },
-      { value: '{rating} ★', label: 'Average from {reviews} reviews' },
-      { value: '5–8 days', label: 'From composition to your door' },
+      { value: 'Consecrated', label: 'in sacred Rishikesh' },
+      { value: 'Genuine', label: 'lab-verified minerals' },
+      { value: 'Composed', label: 'by sacred numerology' },
     ],
   },
   look: {
@@ -213,6 +212,18 @@ export const HOME_DEFAULTS = {
     image: '',
     action: 'Avail the offer',
     to: '/shop',
+    modalEyebrow: 'Free Vedic Kundali offer',
+    modalTitleLead: 'Inscribe Your',
+    modalTitleTail: 'Birth Details',
+    modalBody: 'Provide your exact birth coordinates. Our Rishikesh astrologers will prepare your complimentary personalized Kundali chart included with every order above {threshold}.',
+    modalHint: '* Exact birth time enables precise Ascendant (Lagna), planetary decan, and gemstone alignment.',
+    modalAction: 'Confirm & avail offer',
+    successEyebrow: 'Vedic consecration reserved',
+    successTitleLead: 'Your Kundali Is',
+    successTitleTail: 'Reserved',
+    successBody: 'Birth coordinates for {name} ({place}) have been successfully inscribed into our register. Your personalized physical Kundali box will be included complimentary with your order of {threshold} or more.',
+    successStatus: 'Complimentary on {threshold}+ orders',
+    successAction: 'Explore sacred pieces ({threshold}+)',
     steps: [
       { icon: 'bag', titleLead: 'Shop', titleTail: 'Your Sacred Pieces', body: 'Explore handcrafted malas and spiritual keepsakes.' },
       { icon: 'cart', titleLead: 'Order Above', titleTail: '{threshold}', body: 'Add your favorite pieces and place an order worth {threshold} or more.' },
@@ -305,15 +316,11 @@ export const HOME_LAYOUT_DEFAULTS = [
   { key: 'collection', label: 'Collection carousel', enabled: true, sortOrder: 3 },
   { key: 'flash_sale', label: 'Flash sale', enabled: true, sortOrder: 4 },
   { key: 'kundali', label: 'Kundali offer', enabled: true, sortOrder: 4.5 },
-  { key: 'look', label: 'Shop the look', enabled: true, sortOrder: 5 },
   { key: 'finder', label: 'Stone finder', enabled: true, sortOrder: 6 },
-  { key: 'purposes', label: 'Shop by purpose', enabled: true, sortOrder: 7 },
   { key: 'craft', label: 'The craft', enabled: true, sortOrder: 8 },
   { key: 'reviews', label: 'Reviews', enabled: true, sortOrder: 9 },
   { key: 'promises', label: 'Promises strip', enabled: true, sortOrder: 9.5 },
-  { key: 'journal', label: 'Journal', enabled: true, sortOrder: 10 },
   { key: 'newsletter', label: 'Newsletter', enabled: true, sortOrder: 11 },
-  { key: 'finale', label: 'Closing banner', enabled: true, sortOrder: 12 },
 ];
 
 export function mergeHomeLayout(stored) {

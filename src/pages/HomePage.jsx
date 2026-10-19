@@ -6,7 +6,6 @@ import { useBootStore } from '../store/bootStore';
 import SeoHead from '../components/SeoHead';
 import useRefreshOnView from '../hooks/useRefreshOnView';
 import { formatInr } from '../lib/format';
-import { NFinale, NJournal, NLook, NPurposes } from '../components/home/nocturne/Nocturne';
 import {
   ACollection,
   ACraft,
@@ -22,20 +21,14 @@ import {
 } from '../components/home/atelier/AtelierHome';
 import '../components/home/nocturne/nocturne.css';
 import craftFallback from '../assets/home/house-rudraksha.jpg';
-import finaleFallback from '../assets/home/finale-banner.jpg';
 
-const DEFAULT_ORDER = ['hero', 'facts', 'houses', 'collection', 'flash_sale', 'kundali', 'look', 'finder', 'purposes', 'craft', 'reviews', 'promises', 'journal', 'newsletter', 'finale'];
+// Same sections and order as the source home page (beeds_ecommerce HomePage.jsx).
+const DEFAULT_ORDER = ['hero', 'facts', 'houses', 'collection', 'flash_sale', 'kundali', 'finder', 'craft', 'reviews', 'promises', 'newsletter'];
 
-/** Sections still in the Nocturne design keep its scoped styles. */
-function Nx({ children }) {
-  return <div className="nx">{children}</div>;
-}
-
-/** Product slugs referenced by the CMS (hero hotspots and shop-the-look points). */
+/** Product slugs referenced by the CMS (hero hotspots). */
 function referencedSlugs(home) {
   const slugs = new Set();
   [home.hero, ...(home.hero?.slides || [])].forEach((s) => s?.hotspot?.productSlug && slugs.add(s.hotspot.productSlug));
-  (home.look?.looks || []).forEach((l) => (l.items || []).forEach((it) => it.productSlug && slugs.add(it.productSlug)));
   return [...slugs].slice(0, 24);
 }
 
@@ -45,11 +38,8 @@ export default function HomePage() {
   const [featured, setFeatured] = useState([]);
   const [rails, setRails] = useState({ bestsellers: [], newArrivals: [], trending: [] });
   const [purposes, setPurposes] = useState([]);
-  const [beads, setBeads] = useState([]);
-  const [faqs, setFaqs] = useState([]);
   const [flash, setFlash] = useState(null);
   const [flashProducts, setFlashProducts] = useState([]);
-  const [posts, setPosts] = useState([]);
   const [summary, setSummary] = useState(null);
   const [linked, setLinked] = useState({});
   const markPageReady = useBootStore((s) => s.markPageReady);
@@ -61,20 +51,17 @@ export default function HomePage() {
       api.get('/products?featured=true').then(({ data }) => setFeatured(data.products || [])).catch(() => {}),
       api.get('/home/collections').then(({ data }) => setRails(data)).catch(() => {}),
       api.get('/customizer/purposes').then(({ data }) => setPurposes(data.purposes || [])).catch(() => {}),
-      api.get('/customizer/beads').then(({ data }) => setBeads(data.beads || [])).catch(() => {}),
-      api.get('/faqs').then(({ data }) => setFaqs(data.faqs || [])).catch(() => {}),
       api.get('/flash-sales/active').then(({ data }) => {
         setFlash(data.sale);
         setFlashProducts(data.products || []);
       }).catch(() => {}),
-      api.get('/blog').then(({ data }) => setPosts((data.posts || []).slice(0, 3))).catch(() => {}),
       api.get('/home/summary').then(({ data }) => setSummary(data)).catch(() => {}),
     ]).finally(() => markPageReady());
   }, [markPageReady]);
 
   useRefreshOnView(loadCatalog);
 
-  // Products picked in the CMS (hero hotspots, shop-the-look points); the content loads separately.
+  // Products picked in the CMS (hero hotspots); the content loads separately.
   useEffect(() => {
     if (!slugKey) return undefined;
     let alive = true;
@@ -127,21 +114,13 @@ export default function HomePage() {
     collection: live('collection') && <ACollection key="collection" copy={home.featured} tabs={tabs} />,
     flash_sale: live('flash_sale') && flash && <AFlash key="flash_sale" sale={flash} products={flashProducts} copy={home.flash} />,
     kundali: live('kundali') && <AKundali key="kundali" copy={home.kundali} />,
-    look: live('look') && <Nx key="look"><NLook copy={home.look} products={linked} /></Nx>,
     finder: live('finder') && <AFinder key="finder" copy={home.finder} purposes={purposes} />,
-    purposes: live('purposes') && <Nx key="purposes"><NPurposes copy={home.purpose} purposes={purposes} beads={beads} /></Nx>,
     craft: live('craft') && <ACraft key="craft" copy={home.craft} image={home.craft?.image ? mediaUrl(home.craft.image) : craftFallback} />,
     reviews: live('reviews') && (
-      <AReviews key="reviews" copy={home.reviews} voices={home.voices} testimonials={home.testimonials || []} faqs={faqs} faqCopy={home.faq} rating={summary?.rating} />
+      <AReviews key="reviews" copy={home.reviews} voices={home.voices} testimonials={home.testimonials || []} rating={summary?.rating} />
     ),
     promises: live('promises') && <APromises key="promises" claims={home.trustClaims || []} />,
-    journal: live('journal') && <Nx key="journal"><NJournal copy={home.journal} posts={posts} /></Nx>,
     newsletter: live('newsletter') && <ANewsletter key="newsletter" copy={home.newsletter} />,
-    finale: live('finale') && (
-      <Nx key="finale">
-        <NFinale finale={home.finale} image={home.finale?.image ? mediaUrl(home.finale.image) : finaleFallback} />
-      </Nx>
-    ),
   };
 
   return (

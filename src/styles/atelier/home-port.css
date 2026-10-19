@@ -14,7 +14,6 @@
 .homepage-root a.flash-img-plate,
 .homepage-root a.btn-kundali-action,
 .homepage-root .flash-specimen-name a,
-.homepage-root .review-faq-list a,
 .homepage-root .hero-dock-specimen {
   text-decoration: none;
 }
@@ -130,35 +129,6 @@ a.hero-dock-specimen:hover {
 .review-name {
   color: #F4F1EC;
   font-weight: 500;
-}
-
-.review-faq-list {
-  list-style: none;
-  margin: 12px 0 16px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.review-faq-list a {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 14px;
-  color: #F4F1EC;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(197, 165, 114, 0.12);
-  transition: color 0.2s ease;
-}
-
-.review-faq-list a:hover {
-  color: #C5A572;
-}
-
-.homepage-root a.review-faq-all {
-  text-decoration: none;
 }
 
 /* Stone finder: loading state for the live result */

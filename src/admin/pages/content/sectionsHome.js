@@ -1,6 +1,6 @@
 // Homepage and site-wide copy blocks of the SiteContent document.
 // Homepage sections follow the v2 home layout order (see docs/home-nocturne-spec.md §1, §4).
-import { cleanPoint, HeroHotspotField, LookPointsField } from './HotspotEditor';
+import { cleanPoint, HeroHotspotField } from './HotspotEditor';
 import { area, cta, custom, group, icon, linkPair, links, list, media, note, number, row, select, text, toggle } from './schema';
 
 const HOUSE_SLUGS = ['crystals', 'rudraksha', 'gemstones'].map((s) => ({ value: s, label: s[0].toUpperCase() + s.slice(1) }));
@@ -89,7 +89,8 @@ export const HOME_SECTIONS = [
       list('items', 'Facts', [row([text('value', 'Value', { placeholder: '{stones}' }), text('label', 'Label', { placeholder: 'Natural stones in our library' })])], {
         itemLabel: 'Fact',
         compact: true,
-        max: 6,
+        max: 3,
+        hint: 'Three lines, as in the design. Tokens like {stones} show live numbers.',
         newItem: { value: '', label: '' },
       }),
     ],
@@ -209,42 +210,6 @@ export const HOME_SECTIONS = [
     ],
   },
   {
-    key: 'look',
-    label: 'Shop the look',
-    group: 'Homepage',
-    hint: 'Styled photos with numbered product tags',
-    preview: '/',
-    base: 'look',
-    fields: [
-      eyebrowTitle(),
-      area('body', 'Body'),
-      list(
-        'looks',
-        'Looks',
-        [
-          media('image', 'Look image', { folder: 'banner', aspect: 'aspect-[4/5]' }),
-          text('title', 'Title'),
-          area('body', 'Body', { rows: 2 }),
-          custom('items', 'Products on this look', LookPointsField, { max: 8 }),
-        ],
-        {
-          itemLabel: 'Look',
-          max: 6,
-          hint: 'The block stays hidden until a look has at least one active product.',
-          summary: (l) => l.title,
-          newItem: { image: '', title: '', body: '', items: [] },
-        }
-      ),
-    ],
-    clean: (values) => ({
-      ...values,
-      look: {
-        ...(values.look || {}),
-        looks: (values.look?.looks || []).map((l) => ({ ...l, items: (l.items || []).map((p) => cleanPoint(p)) })),
-      },
-    }),
-  },
-  {
     key: 'finder',
     label: 'Stone finder',
     group: 'Homepage',
@@ -270,12 +235,12 @@ export const HOME_SECTIONS = [
   {
     key: 'purpose',
     label: 'Shop by purpose',
-    group: 'Homepage',
-    hint: 'Home block + purpose page',
+    group: 'Pages',
+    hint: 'Purpose page + About page link',
     preview: '/customize/purpose',
     base: 'purpose',
     fields: [
-      group('On the home page', [eyebrowTitle(), area('body', 'Body'), linkPair()]),
+      group('Short heading and link (used on About; fallback on the purpose page)', [eyebrowTitle(), area('body', 'Body'), linkPair()]),
       group('On the purpose page', [row([text('pageEyebrow', 'Eyebrow'), text('pageTitle', 'Title')]), area('pageBody', 'Body')]),
     ],
   },
@@ -323,7 +288,7 @@ export const HOME_SECTIONS = [
     key: 'reviews',
     label: 'Reviews',
     group: 'Homepage',
-    hint: 'Rating, customer notes and FAQ',
+    hint: 'Rating and customer notes',
     preview: '/',
     base: '',
     paths: ['reviews', 'voices', 'testimonials', 'faq'],
@@ -348,11 +313,6 @@ export const HOME_SECTIONS = [
         ],
         { itemLabel: 'Note', summary: (t) => t.name, newItem: { quote: '', name: '', place: '', piece: '', media: '' } }
       ),
-      group('FAQ on the home page', [
-        text('reviews.faqTitle', 'FAQ title'),
-        row([text('faq.action', 'Link label'), text('faq.to', 'Link', { placeholder: '/faq' })]),
-        note('The questions themselves are managed on the FAQs page.'),
-      ]),
       group(
         'On the FAQ page',
         [
@@ -369,12 +329,12 @@ export const HOME_SECTIONS = [
   {
     key: 'journal',
     label: 'Journal',
-    group: 'Homepage',
-    hint: 'Home block + journal page',
+    group: 'Pages',
+    hint: 'Journal page',
     preview: '/journal',
     base: 'journal',
     fields: [
-      group('On the home page', [eyebrowTitle(), linkPair()]),
+      group('Short heading (fallback)', [eyebrowTitle(), linkPair()]),
       group('On the journal page', [row([text('pageEyebrow', 'Eyebrow'), text('pageTitle', 'Title')]), area('pageBody', 'Body'), area('emptyBody', 'When there are no posts', { rows: 2 })]),
     ],
   },
@@ -407,7 +367,22 @@ export const HOME_SECTIONS = [
         ],
         { itemLabel: 'Step', max: 3, summary: (s) => `${s.titleLead || ''} ${s.titleTail || ''}`.trim(), newItem: { icon: 'bag', titleLead: '', titleTail: '', body: '' } }
       ),
-      linkPair(),
+      text('action', 'Button label', { placeholder: 'Avail the offer', hint: 'Opens the birth-details popup.' }),
+      group('Birth-details popup', [
+        text('modalEyebrow', 'Eyebrow'),
+        row([text('modalTitleLead', 'Title'), text('modalTitleTail', 'Title, gold italic part')]),
+        area('modalBody', 'Text', { rows: 3, hint: '{threshold} is replaced with the order amount.' }),
+        text('modalHint', 'Note under the form'),
+        text('modalAction', 'Submit button'),
+      ]),
+      group('After sending', [
+        note('Requests arrive in Content → Contact inbox with the customer’s birth details.'),
+        text('successEyebrow', 'Eyebrow'),
+        row([text('successTitleLead', 'Title'), text('successTitleTail', 'Title, gold italic part')]),
+        area('successBody', 'Text', { rows: 3, hint: '{name}, {place} and {threshold} are filled in.' }),
+        text('successStatus', 'Status line'),
+        row([text('successAction', 'Button label'), text('to', 'Button link', { placeholder: '/shop' })]),
+      ]),
     ],
   },
   {
@@ -429,9 +404,9 @@ export const HOME_SECTIONS = [
   {
     key: 'finale',
     label: 'Closing banner',
-    group: 'Homepage',
-    hint: 'Last block (home, about, legal)',
-    preview: '/',
+    group: 'Pages',
+    hint: 'Last block on About and legal pages',
+    preview: '/about',
     base: 'finale',
     fields: [
       media('image', 'Image', { folder: 'banner' }),
