@@ -120,7 +120,7 @@ export function Checkbox({ checked, onChange, label, indeterminate, disabled, cl
       checked={Boolean(checked)}
       disabled={disabled}
       onChange={(e) => onChange?.(e.target.checked)}
-      className="h-4 w-4 shrink-0 cursor-pointer rounded border-white/20 bg-raised accent-[#c6a75e]"
+      className="h-4 w-4 shrink-0 cursor-pointer rounded border-white/20 bg-raised accent-[var(--color-gold)]"
       {...rest}
     />
   );

@@ -1,17 +1,31 @@
 import { Component, Suspense, useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ArrowLeft, Bell, CheckCheck, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeftOpen, Search, Store, X } from 'lucide-react';
+import { ArrowLeft, Bell, BookOpen, Check, CheckCheck, ExternalLink, LogOut, Menu as MenuIcon, Monitor, Moon, PanelLeftClose, PanelLeftOpen, Search, Store, Sun, X } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { apiSend, queryClient, useApiMutation, useApiQuery } from '../lib/query';
 import { ROLE_LABELS, usePermissions } from '../lib/permissions';
 import { relative } from '../lib/format';
-import { isActive, navForRole } from './nav';
+import { flatNav, isActive, navForRole } from './nav';
+import { AdminThemeContext, THEME_OPTIONS, useAdminTheme, useAdminThemeState } from '../lib/theme';
 import CommandPalette from './CommandPalette';
 import Toaster from '../ui/Toaster';
 import { ConfirmProvider } from '../ui/overlay';
 import { Avatar, Badge, Button, ErrorState, IconButton, Kbd, Spinner, cx } from '../ui/primitives';
 import '../admin.css';
+import '../theme.css';
+
+/** Close a menu, popover or drawer with Escape. */
+function useEscape(open, close) {
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => {
+      if (e.key === 'Escape') close();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, close]);
+}
 
 class PageErrorBoundary extends Component {
   constructor(props) {
@@ -39,7 +53,7 @@ function SidebarNav({ collapsed, onNavigate }) {
     <nav className="min-h-0 flex-1 space-y-5 overflow-y-auto px-3 py-4" aria-label="Admin">
       {navForRole(isAdmin).map((group) => (
         <div key={group.label}>
-          {!collapsed && <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-lilac/60">{group.label}</p>}
+          {!collapsed && <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-lilac/70">{group.label}</p>}
           <ul className="space-y-0.5">
             {group.items
               .filter((i) => !i.hiddenInNav)
@@ -52,12 +66,14 @@ function SidebarNav({ collapsed, onNavigate }) {
                       end={item.end}
                       onClick={onNavigate}
                       title={collapsed ? item.label : undefined}
+                      aria-current={active ? 'page' : undefined}
                       className={cx(
-                        'group flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition-colors',
+                        'group relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition-colors',
                         collapsed && 'justify-center px-0',
-                        active ? 'bg-gold/[0.12] text-gold' : 'text-lilac hover:bg-white/[0.05] hover:text-ivory'
+                        active ? 'bg-gold/[0.1] font-medium text-gold' : 'text-lilac hover:bg-white/[0.05] hover:text-ivory'
                       )}
                     >
+                      {active && <span className="absolute inset-y-1.5 left-0 w-[3px] rounded-full bg-gold" aria-hidden />}
                       <item.icon size={16} className="shrink-0" />
                       {!collapsed && <span className="truncate">{item.label}</span>}
                     </NavLink>
@@ -87,6 +103,7 @@ function Brand({ collapsed }) {
 
 function NotificationsButton() {
   const [open, setOpen] = useState(false);
+  useEscape(open, () => setOpen(false));
   const navigate = useNavigate();
   const { data } = useApiQuery('/admin/notifications', { limit: 8 }, { refetchInterval: 60_000 });
   const unread = data?.unread || 0;
@@ -103,7 +120,7 @@ function NotificationsButton() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden />
-          <div className="absolute right-0 z-50 mt-2 w-[min(92vw,22rem)] overflow-hidden rounded-2xl border border-white/10 bg-raised shadow-2xl">
+          <div className="absolute right-0 z-50 mt-2 w-[min(92vw,22rem)] overflow-hidden rounded-2xl border border-white/10 bg-raised admin-pop">
             <div className="flex items-center justify-between border-b border-white/[0.08] px-4 py-3">
               <p className="text-sm font-semibold text-ivory">Notifications</p>
               <Button size="sm" variant="ghost" icon={CheckCheck} disabled={!unread} loading={markAll.isPending} onClick={() => markAll.mutate()}>
@@ -145,6 +162,7 @@ function NotificationsButton() {
 
 function UserMenu() {
   const [open, setOpen] = useState(false);
+  useEscape(open, () => setOpen(false));
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
@@ -160,7 +178,7 @@ function UserMenu() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden />
-          <div className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-xl border border-white/10 bg-raised py-1 shadow-2xl">
+          <div className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-xl border border-white/10 bg-raised py-1 admin-pop">
             <div className="border-b border-white/[0.08] px-3 py-2.5">
               <p className="truncate text-sm text-ivory">{user?.name}</p>
               <p className="truncate text-xs text-lilac">{user?.email}</p>
@@ -171,6 +189,15 @@ function UserMenu() {
             <Link to="/" className="flex items-center gap-2 px-3 py-2 text-sm text-ivory hover:bg-white/[0.06]" onClick={() => setOpen(false)}>
               <Store size={14} /> View storefront
             </Link>
+            <a
+              href="/admin-handbook.pdf"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-ivory hover:bg-white/[0.06]"
+              onClick={() => setOpen(false)}
+            >
+              <BookOpen size={14} /> Admin handbook (PDF)
+            </a>
             <button
               type="button"
               className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-rose-300 hover:bg-rose-500/10"
@@ -187,6 +214,72 @@ function UserMenu() {
         </>
       )}
     </div>
+  );
+}
+
+const THEME_ICONS = { light: Sun, dark: Moon, system: Monitor };
+
+function ThemeMenu() {
+  const [open, setOpen] = useState(false);
+  useEscape(open, () => setOpen(false));
+  const { mode, resolved, setMode } = useAdminTheme();
+  const Icon = mode === 'system' ? Monitor : resolved === 'light' ? Sun : Moon;
+  return (
+    <div className="relative">
+      <IconButton icon={Icon} label={`Theme: ${THEME_OPTIONS.find((o) => o.value === mode)?.label}`} onClick={() => setOpen((o) => !o)} />
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden />
+          <div className="absolute right-0 z-50 mt-2 w-48 overflow-hidden rounded-xl border border-white/10 bg-raised py-1 admin-pop" role="menu" aria-label="Theme">
+            <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-lilac/70">Appearance</p>
+            {THEME_OPTIONS.map((o) => {
+              const OptIcon = THEME_ICONS[o.value];
+              return (
+                <button
+                  key={o.value}
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={mode === o.value}
+                  onClick={() => {
+                    setMode(o.value);
+                    setOpen(false);
+                  }}
+                  className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-ivory hover:bg-white/[0.06]"
+                >
+                  <OptIcon size={14} className="text-lilac" />
+                  <span className="flex-1">{o.label}</span>
+                  {mode === o.value && <Check size={14} className="text-gold" />}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** "Sales / Orders" — where you are, shown in the top bar on wider screens. */
+function Breadcrumb() {
+  const location = useLocation();
+  const { isAdmin } = usePermissions();
+  const items = flatNav(isAdmin);
+  const hit = items.filter((i) => isActive(i, location)).sort((a, b) => b.to.length - a.to.length)[0];
+  const label = hit?.label;
+  useEffect(() => {
+    const previous = document.title;
+    document.title = label ? `${label} · Kuberstones admin` : 'Kuberstones admin';
+    return () => {
+      document.title = previous;
+    };
+  }, [label]);
+  if (!hit) return null;
+  return (
+    <p className="hidden min-w-0 items-center gap-1.5 truncate text-sm xl:flex" aria-label="You are here">
+      <span className="text-lilac/80">{hit.group}</span>
+      <span className="text-lilac/50">/</span>
+      <span className="truncate font-medium text-ivory">{hit.label}</span>
+    </p>
   );
 }
 
@@ -230,10 +323,11 @@ function Shell() {
   }, []);
 
   useEffect(() => setMobileOpen(false), [location.pathname]);
+  useEscape(mobileOpen, () => setMobileOpen(false));
 
   return (
     <div className="admin-root flex h-dvh max-h-dvh min-h-0 overflow-hidden overscroll-none bg-ink font-sans text-ivory">
-      <aside className={cx('hidden shrink-0 flex-col border-r border-white/[0.08] bg-surface transition-[width] duration-200 lg:flex', collapsed ? 'w-[68px]' : 'w-60')}>
+      <aside className={cx('admin-sidebar hidden shrink-0 flex-col border-r border-white/[0.08] transition-[width] duration-200 lg:flex', collapsed ? 'w-[68px]' : 'w-64')}>
         <Brand collapsed={collapsed} />
         <SidebarNav collapsed={collapsed} />
         <div className="border-t border-white/[0.08] p-2">
@@ -251,7 +345,7 @@ function Shell() {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/70" onClick={() => setMobileOpen(false)} aria-hidden />
-          <aside className="relative flex h-full w-72 max-w-[85vw] flex-col border-r border-white/10 bg-surface">
+          <aside className="admin-sidebar relative flex h-full w-72 max-w-[85vw] flex-col border-r border-white/10">
             <div className="flex items-center justify-between pr-3">
               <Brand />
               <IconButton icon={X} label="Close menu" onClick={() => setMobileOpen(false)} />
@@ -265,12 +359,13 @@ function Shell() {
       )}
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 shrink-0 items-center gap-3 border-b border-white/[0.08] bg-ink/90 px-4 backdrop-blur md:px-6">
+        <header className="admin-header flex h-14 shrink-0 items-center gap-3 border-b border-white/[0.08] px-4 md:px-6">
           <IconButton icon={MenuIcon} label="Open menu" className="lg:hidden" onClick={() => setMobileOpen(true)} />
+          <Breadcrumb />
           <button
             type="button"
             onClick={() => setPaletteOpen(true)}
-            className="flex h-9 w-full max-w-sm items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 text-left text-sm text-lilac hover:border-white/20"
+            className="flex h-9 w-full max-w-sm items-center gap-2 rounded-lg border border-white/10 bg-raised px-3 text-left text-sm text-lilac hover:border-white/20 xl:ml-6"
           >
             <Search size={14} />
             <span className="flex-1 truncate">Search pages & actions…</span>
@@ -280,6 +375,16 @@ function Shell() {
             </span>
           </button>
           <div className="ml-auto flex items-center gap-1">
+            <a
+              href="/"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs text-lilac transition-colors hover:bg-white/[0.06] hover:text-ivory sm:inline-flex"
+              title="Open the storefront in a new tab"
+            >
+              <ExternalLink size={14} /> Storefront
+            </a>
+            <ThemeMenu />
             <NotificationsButton />
             <UserMenu />
           </div>
@@ -307,11 +412,14 @@ function Shell() {
 }
 
 export default function AdminShell() {
+  const theme = useAdminThemeState();
   return (
+    <AdminThemeContext.Provider value={theme}>
     <QueryClientProvider client={queryClient}>
       <ConfirmProvider>
         <Shell />
       </ConfirmProvider>
     </QueryClientProvider>
+    </AdminThemeContext.Provider>
   );
 }

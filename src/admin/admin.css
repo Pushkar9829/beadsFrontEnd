@@ -23,7 +23,6 @@ html.admin-scroll-lock #root {
 
 .admin-root {
   font-size: 15px;
-  color-scheme: dark;
 }
 
 /* Horizontal table scroll must not become a vertical scrollport, and must not
@@ -37,35 +36,26 @@ html.admin-scroll-lock #root {
 }
 
 /* The storefront hides scrollbars globally; the admin needs visible, slim ones. */
-.admin-root ::-webkit-scrollbar {
+html[data-admin-theme] ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
   display: block;
 }
-.admin-root ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+html[data-admin-theme] ::-webkit-scrollbar-thumb {
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
-.admin-root ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(198, 167, 94, 0.35);
-}
-.admin-root * {
+html[data-admin-theme] * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
 }
 
 .admin-root input[type='number']::-webkit-inner-spin-button {
   opacity: 0.4;
 }
 
-.admin-root input[type='datetime-local']::-webkit-calendar-picker-indicator,
-.admin-root input[type='date']::-webkit-calendar-picker-indicator {
+html[data-admin-theme='dark'] input[type='datetime-local']::-webkit-calendar-picker-indicator,
+html[data-admin-theme='dark'] input[type='date']::-webkit-calendar-picker-indicator {
   filter: invert(0.8);
 }
 
-.admin-root select option {
-  background: #1a1a1e;
-  color: #f6f1e8;
-}

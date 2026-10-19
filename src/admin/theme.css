@@ -1,0 +1,195 @@
+/* Admin themes. The admin is written against a handful of Tailwind colour tokens (ink, surface, raised,
+   ivory, lilac, gold, white overlays and the status palette). Tailwind v4 compiles every one of them to
+   var(--color-*), so each theme redefines those variables on <html data-admin-theme> (set by AdminShell while the admin is
+   mounted, so portalled modals and drawers follow too) and every page follows.
+
+   Token meaning inside the admin:
+     ink      app background            surface  cards, sidebar           raised  inputs, menus, popovers
+     ivory    primary text              lilac    secondary text           gold    accent / primary action
+     white    overlay tint (hover fills, hairlines) — flipped to near-black in the light theme. */
+
+html[data-admin-theme] {
+  --admin-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --admin-shadow-lg: 0 18px 48px rgba(0, 0, 0, 0.55);
+  --admin-focus: color-mix(in oklab, var(--color-gold) 55%, transparent);
+}
+
+/* ---------- Dark (default) ---------- */
+html[data-admin-theme],
+html[data-admin-theme='dark'] {
+  color-scheme: dark;
+  --color-ink: #0e0f12;
+  --color-surface: #15171b;
+  --color-raised: #1c1f25;
+  --color-ivory: #eeeae3;
+  --color-lilac: #a3a1ab;
+  --color-gold: #d3ae62;
+  --color-gold-light: #e4c789;
+  --color-gold-deep: #9c7a35;
+  --color-amethyst: #7c5cc4;
+  --color-amethyst-light: #b69cff;
+  --color-white: #ffffff;
+  --admin-sidebar: #111216;
+  --admin-header: rgba(14, 15, 18, 0.88);
+}
+
+/* ---------- Light ---------- */
+html[data-admin-theme='light'] {
+  color-scheme: light;
+  --color-ink: #f4f3ef;
+  --color-surface: #ffffff;
+  --color-raised: #ffffff;
+  --color-ivory: #1d1c21;
+  --color-lilac: #5d5c66;
+  --color-gold: #8a661c;
+  --color-gold-light: #725316;
+  --color-gold-deep: #5e4512;
+  --color-amethyst: #6b3fa0;
+  --color-amethyst-light: #6b3fa0;
+  /* overlays (bg-white/5, border-white/10 …) become soft dark tints */
+  --color-white: #16151a;
+  /* status text and borders: deep shades that read on white */
+  --color-rose-100: #881337;
+  --color-rose-200: #9f1239;
+  --color-rose-300: #be123c;
+  --color-rose-400: #e11d48;
+  --color-emerald-200: #065f46;
+  --color-emerald-300: #047857;
+  --color-emerald-400: #059669;
+  --color-amber-100: #78350f;
+  --color-amber-200: #92400e;
+  --color-amber-300: #b45309;
+  --color-sky-200: #075985;
+  --color-sky-300: #0369a1;
+  --color-sky-400: #0284c7;
+  --color-gray-300: #4b5563;
+  --admin-sidebar: #fbfaf7;
+  --admin-header: rgba(244, 243, 239, 0.9);
+  --admin-shadow: 0 1px 2px rgba(22, 21, 26, 0.06), 0 1px 1px rgba(22, 21, 26, 0.04);
+  --admin-shadow-lg: 0 18px 48px rgba(22, 21, 26, 0.16);
+}
+
+/* Inputs on white cards need an edge. */
+html[data-admin-theme='light'] input:not([type='checkbox']):not([type='radio']):not([type='range']),
+html[data-admin-theme='light'] textarea,
+html[data-admin-theme='light'] select {
+  border-color: color-mix(in oklab, var(--color-white) 16%, transparent);
+}
+
+/* ---------- Base ---------- */
+html[data-admin-theme] {
+  background: var(--color-ink);
+  color: var(--color-ivory);
+  font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The storefront sets Cinzel and wide tracking on every h1–h4; the admin uses its sans. */
+html[data-admin-theme] h1,
+html[data-admin-theme] h2,
+html[data-admin-theme] h3,
+html[data-admin-theme] h4 {
+  font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* The storefront paints .text-gold as a moving gold gradient; the admin wants a flat, legible colour. */
+html[data-admin-theme] .text-gold:not(svg),
+html[data-admin-theme] .text-gold-light:not(svg) {
+  background: none;
+  color: var(--color-gold);
+  -webkit-text-fill-color: currentColor;
+  animation: none;
+}
+
+/* The storefront forces light text on every input; follow the theme instead. */
+html[data-admin-theme] input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='color']),
+html[data-admin-theme] textarea,
+html[data-admin-theme] select {
+  color: var(--color-ivory);
+  -webkit-text-fill-color: var(--color-ivory);
+  caret-color: var(--color-gold);
+}
+
+html[data-admin-theme] input::placeholder,
+html[data-admin-theme] textarea::placeholder {
+  color: color-mix(in oklab, var(--color-lilac) 70%, transparent);
+  -webkit-text-fill-color: color-mix(in oklab, var(--color-lilac) 70%, transparent);
+}
+
+html[data-admin-theme] input:-webkit-autofill,
+html[data-admin-theme] input:-webkit-autofill:hover,
+html[data-admin-theme] input:-webkit-autofill:focus,
+html[data-admin-theme] textarea:-webkit-autofill,
+html[data-admin-theme] select:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-ivory) !important;
+  box-shadow: 0 0 0 1000px var(--color-raised) inset;
+}
+
+html[data-admin-theme] select option {
+  background: var(--color-raised);
+  color: var(--color-ivory);
+}
+
+html[data-admin-theme='light'] input[type='datetime-local']::-webkit-calendar-picker-indicator,
+html[data-admin-theme='light'] input[type='date']::-webkit-calendar-picker-indicator {
+  filter: none;
+}
+
+html[data-admin-theme] ::selection {
+  background: color-mix(in oklab, var(--color-gold) 30%, transparent);
+  color: var(--color-ivory);
+}
+
+/* Scrollbars follow the theme. */
+html[data-admin-theme] ::-webkit-scrollbar-thumb {
+  background-color: color-mix(in oklab, var(--color-white) 16%, transparent);
+}
+
+html[data-admin-theme] ::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in oklab, var(--color-gold) 45%, transparent);
+}
+
+html[data-admin-theme] * {
+  scrollbar-color: color-mix(in oklab, var(--color-white) 18%, transparent) transparent;
+}
+
+/* Visible keyboard focus everywhere. */
+html[data-admin-theme] :focus-visible {
+  outline: 2px solid var(--admin-focus);
+  outline-offset: 2px;
+}
+
+/* ---------- Surfaces ---------- */
+.admin-sidebar {
+  background: var(--admin-sidebar);
+}
+
+.admin-header {
+  background: var(--admin-header);
+  backdrop-filter: saturate(140%) blur(10px);
+}
+
+.admin-card {
+  box-shadow: var(--admin-shadow);
+}
+
+.admin-pop {
+  box-shadow: var(--admin-shadow-lg);
+}
+
+/* Theme switch animates colours briefly, then stays out of the way. */
+html[data-admin-theme].is-theme-switching,
+html[data-admin-theme].is-theme-switching * {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease !important;
+}
+
+/* Packing slips and other print views stay black on white in both themes. */
+@media print {
+  html[data-admin-theme] {
+    --color-ink: #ffffff;
+    --color-surface: #ffffff;
+    --color-ivory: #000000;
+    --color-lilac: #333333;
+  }
+}

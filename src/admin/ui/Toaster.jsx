@@ -23,7 +23,7 @@ export default function Toaster() {
             key={t.id}
             role={t.type === 'error' ? 'alert' : 'status'}
             className={cx(
-              'pointer-events-auto flex items-start gap-2.5 rounded-xl border bg-raised px-3.5 py-3 text-sm shadow-2xl',
+              'pointer-events-auto flex items-start gap-2.5 rounded-xl border bg-raised px-3.5 py-3 text-sm admin-pop',
               t.type === 'error' ? 'border-rose-400/30' : 'border-white/10'
             )}
           >

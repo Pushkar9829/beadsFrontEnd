@@ -6,7 +6,7 @@ export function cx(...parts) {
 }
 
 const BUTTON_VARIANTS = {
-  primary: 'bg-gold text-ink hover:bg-gold-light shadow-[0_0_0_1px_rgba(198,167,94,0.4)] font-medium',
+  primary: 'bg-gold text-ink hover:bg-gold-light shadow-sm font-medium',
   secondary: 'bg-white/[0.06] text-ivory hover:bg-white/[0.1] border border-white/10',
   ghost: 'text-lilac hover:text-ivory hover:bg-white/[0.06]',
   danger: 'bg-rose-500/15 text-rose-200 hover:bg-rose-500/25 border border-rose-400/30',
@@ -99,7 +99,7 @@ export function StatusBadge({ meta, value }) {
 
 export function Card({ className, children, padded = true, ...rest }) {
   return (
-    <div className={cx('rounded-2xl border border-white/[0.08] bg-surface', padded && 'p-5', className)} {...rest}>
+    <div className={cx('admin-card rounded-2xl border border-white/[0.08] bg-surface', padded && 'p-5', className)} {...rest}>
       {children}
     </div>
   );
@@ -185,6 +185,6 @@ export function Thumb({ src, alt = '', size = 40, color }) {
   return src ? (
     <img src={src} alt={alt} loading="lazy" className="shrink-0 rounded-lg border border-white/10 bg-raised object-cover" style={{ width: size, height: size }} />
   ) : (
-    <span className="shrink-0 rounded-lg border border-white/10" style={{ width: size, height: size, background: color || 'rgba(255,255,255,0.05)' }} />
+    <span className="shrink-0 rounded-lg border border-white/10" style={{ width: size, height: size, background: color || 'color-mix(in oklab, var(--color-white) 6%, transparent)' }} />
   );
 }

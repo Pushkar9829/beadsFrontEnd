@@ -124,7 +124,7 @@ export function MediaDetailDrawer({ item, onClose, folders = FOLDERS }) {
     >
       <input ref={fileRef} type="file" hidden accept={ACCEPT} onChange={onReplacePick} />
       <div className="space-y-6">
-        <div className="grid place-items-center overflow-hidden rounded-xl border border-white/10 bg-[repeating-conic-gradient(rgba(255,255,255,0.04)_0%_25%,transparent_0%_50%)] bg-[length:20px_20px]">
+        <div className="grid place-items-center overflow-hidden rounded-xl border border-white/10 bg-[repeating-conic-gradient(color-mix(in_oklab,var(--color-white)_4%,transparent)_0%_25%,transparent_0%_50%)] bg-[length:20px_20px]">
           {kind === 'video' ? (
             <video
               key={src}

@@ -48,7 +48,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
         aria-modal="true"
         aria-label={typeof title === 'string' ? title : undefined}
         tabIndex={-1}
-        className={cx('relative flex max-h-[92vh] w-full flex-col rounded-t-2xl border border-white/10 bg-surface shadow-2xl sm:rounded-2xl', width)}
+        className={cx('relative flex max-h-[92vh] w-full flex-col rounded-t-2xl border border-white/10 bg-surface admin-pop sm:rounded-2xl', width)}
       >
         <div className="flex items-start justify-between gap-4 border-b border-white/[0.08] px-5 py-4">
           <div className="min-w-0">
@@ -85,7 +85,7 @@ export function Drawer({ open, onClose, title, description, children, footer, wi
         aria-modal="true"
         aria-label={typeof title === 'string' ? title : undefined}
         tabIndex={-1}
-        className={cx('relative flex h-full w-full flex-col border-l border-white/10 bg-surface shadow-2xl animate-[slideIn_.18s_ease-out]', w)}
+        className={cx('relative flex h-full w-full flex-col border-l border-white/10 bg-surface admin-pop animate-[slideIn_.18s_ease-out]', w)}
       >
         <div className="flex items-start justify-between gap-4 border-b border-white/[0.08] px-5 py-4">
           <div className="min-w-0">
@@ -132,7 +132,7 @@ export function ConfirmProvider({ children }) {
         createPortal(
           <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/70" onClick={() => close(false)} aria-hidden />
-            <div role="alertdialog" aria-modal="true" className="relative w-full max-w-md rounded-2xl border border-white/10 bg-surface p-5 shadow-2xl">
+            <div role="alertdialog" aria-modal="true" className="relative w-full max-w-md rounded-2xl border border-white/10 bg-surface p-5 admin-pop">
               <div className="flex gap-3">
                 <div className={cx('grid h-9 w-9 shrink-0 place-items-center rounded-full', state.tone === 'danger' ? 'bg-rose-500/15 text-rose-300' : 'bg-gold/15 text-gold')}>
                   <AlertTriangle size={17} />
@@ -211,7 +211,7 @@ export function Menu({ items = [], label = 'More actions', icon = MoreHorizontal
           <div className="fixed inset-0 z-[70]" onClick={() => setOpen(false)}>
             <div
               role="menu"
-              className="absolute min-w-[11rem] overflow-hidden rounded-xl border border-white/10 bg-raised py-1 shadow-2xl"
+              className="absolute min-w-[11rem] overflow-hidden rounded-xl border border-white/10 bg-raised py-1 admin-pop"
               style={{ top: Math.min(pos.top, window.innerHeight - 40 * visible.length - 16), left: pos.left, right: pos.right }}
               onClick={(e) => e.stopPropagation()}
             >

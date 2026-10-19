@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { CornerDownLeft, Search } from 'lucide-react';
+import { Monitor, Moon, Sun } from 'lucide-react';
 import { QUICK_ACTIONS, flatNav } from './nav';
+import { useAdminTheme } from '../lib/theme';
 import { usePermissions } from '../lib/permissions';
 import { Kbd, cx } from '../ui/primitives';
 
@@ -20,6 +22,7 @@ function score(text, q) {
 /** Ctrl/Cmd+K jump-to-page + quick actions. */
 export default function CommandPalette({ open, onClose }) {
   const { isAdmin } = usePermissions();
+  const { setMode } = useAdminTheme();
   const navigate = useNavigate();
   const [q, setQ] = useState('');
   const [index, setIndex] = useState(0);
@@ -29,6 +32,9 @@ export default function CommandPalette({ open, onClose }) {
     const all = [
       ...QUICK_ACTIONS.map((a) => ({ ...a, group: 'Quick actions' })),
       ...flatNav(isAdmin).filter((i) => !i.hiddenInNav),
+      { to: '#theme-light', label: 'Switch to light theme', icon: Sun, group: 'Appearance', run: () => setMode('light') },
+      { to: '#theme-dark', label: 'Switch to dark theme', icon: Moon, group: 'Appearance', run: () => setMode('dark') },
+      { to: '#theme-system', label: 'Match system theme', icon: Monitor, group: 'Appearance', run: () => setMode('system') },
     ];
     const needle = q.trim().toLowerCase();
     return all
@@ -37,7 +43,7 @@ export default function CommandPalette({ open, onClose }) {
       .sort((a, b) => b.s - a.s)
       .map((x) => x.it)
       .slice(0, 12);
-  }, [q, isAdmin]);
+  }, [q, isAdmin, setMode]);
 
   useEffect(() => {
     if (open) {
@@ -50,7 +56,8 @@ export default function CommandPalette({ open, onClose }) {
   if (!open) return null;
   const go = (item) => {
     onClose();
-    navigate(item.to);
+    if (item.run) item.run();
+    else navigate(item.to);
   };
   const onKey = (e) => {
     if (e.key === 'ArrowDown') {
@@ -70,7 +77,7 @@ export default function CommandPalette({ open, onClose }) {
   return createPortal(
     <div className="fixed inset-0 z-[85] flex items-start justify-center p-4 pt-[12vh]">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} aria-hidden />
-      <div role="dialog" aria-modal="true" aria-label="Command palette" className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-surface shadow-2xl">
+      <div role="dialog" aria-modal="true" aria-label="Command palette" className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-surface admin-pop">
         <div className="flex items-center gap-2 border-b border-white/[0.08] px-4">
           <Search size={16} className="text-lilac" />
           <input

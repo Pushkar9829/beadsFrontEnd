@@ -13,7 +13,7 @@ export function PageHeader({ title, description, actions, back, meta, className 
           </Link>
         )}
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="truncate font-serif text-xl tracking-wide text-ivory sm:text-2xl">{title}</h1>
+          <h1 className="truncate text-xl font-semibold tracking-tight text-ivory sm:text-2xl">{title}</h1>
           {meta}
         </div>
         {description && <p className="mt-1 max-w-2xl text-sm text-lilac">{description}</p>}

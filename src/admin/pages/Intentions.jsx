@@ -307,7 +307,7 @@ function PurposesTab({ selectedId, onSelect }) {
 function CardIcon({ item }) {
   if (item.image) return <img src={mediaUrl(item.image)} alt="" className="h-9 w-9 shrink-0 rounded-lg border border-white/10 object-cover" />;
   return (
-    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/10 text-base" style={{ background: item.cardBg || 'rgba(255,255,255,0.04)', borderColor: item.cardAccent || undefined }}>
+    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/10 text-base" style={{ background: item.cardBg || 'color-mix(in oklab, var(--color-white) 4%, transparent)', borderColor: item.cardAccent || undefined }}>
       {item.icon || <Gem size={14} className="text-lilac" />}
     </span>
   );

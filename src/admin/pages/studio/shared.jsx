@@ -40,7 +40,7 @@ export function BeadThumb({ bead, size = 36 }) {
   if (bead?.image) {
     return <img src={mediaUrl(bead.image)} alt="" loading="lazy" className="shrink-0 rounded-full border border-white/10 bg-raised object-cover" style={{ width: size, height: size }} />;
   }
-  return <span className="shrink-0 rounded-full border border-white/10" style={{ width: size, height: size, background: bead?.colorHex || 'rgba(255,255,255,0.06)' }} />;
+  return <span className="shrink-0 rounded-full border border-white/10" style={{ width: size, height: size, background: bead?.colorHex || 'color-mix(in oklab, var(--color-white) 6%, transparent)' }} />;
 }
 
 /**

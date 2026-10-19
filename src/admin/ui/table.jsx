@@ -250,7 +250,7 @@ export function Segmented({ items, value, onChange, className, label = 'Filter' 
 export function BulkBar({ count, onClear, children }) {
   if (!count) return null;
   return (
-    <div className="sticky bottom-4 z-20 mx-auto mt-3 flex w-fit items-center gap-3 rounded-xl border border-gold/30 bg-raised px-4 py-2 shadow-2xl">
+    <div className="sticky bottom-4 z-20 mx-auto mt-3 flex w-fit items-center gap-3 rounded-xl border border-gold/30 bg-raised px-4 py-2 admin-pop">
       <span className="text-sm text-ivory">{number(count)} selected</span>
       <div className="flex items-center gap-2">{children}</div>
       <Button variant="ghost" size="sm" onClick={onClear}>
