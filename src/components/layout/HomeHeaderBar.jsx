@@ -1,20 +1,23 @@
-// Header bar: house menus, studio and collection mega menus, wishlist, bag and account.
+// Header bar: notice strip, house menus, studio and collection dropdowns, wishlist, bag and account.
+// Markup and styling follow beeds_ecommerce/src/components/Header.jsx (styles/atelier/header.css).
 import { Link, NavLink } from 'react-router-dom';
 import { Heart, Menu, ShoppingBag, User, X } from 'lucide-react';
 import { useState } from 'react';
-import { ModeArt } from '../customizer/OptionArt';
-import BrandMark from './BrandMark';
+import emblem from '../../assets/brand/emblem.png';
 
 function Count({ n }) {
   if (!n) return null;
-  return <span className="nxh-count">{n > 99 ? '99+' : n}</span>;
+  return <span className="at-icon-count">{n > 99 ? '99+' : n}</span>;
 }
 
-function Mega({ open, children, wide = false }) {
-  if (!open) return null;
+function Dropdown({ open, title, account = false, children, all, onHover }) {
   return (
-    <div className={`nxh-mega${wide ? ' is-wide' : ''}`}>
-      <div className="nxh-mega-in">{children}</div>
+    <div className={`header-dropdown-menu${account ? ' is-account' : ''}${open ? ' is-open' : ''}`} {...onHover}>
+      <div className="at-dd-panel">
+        <div className="at-dd-eyebrow">{title}</div>
+        {children}
+        {all}
+      </div>
     </div>
   );
 }
@@ -26,6 +29,7 @@ export default function HomeHeaderBar({
   studioModes,
   collections,
   nav,
+  notice,
   mega,
   openMega,
   closeMega,
@@ -34,137 +38,274 @@ export default function HomeHeaderBar({
   cartCount,
   user,
   staff,
-  accountOpen,
   onCart,
   onProfile,
+  onLogout,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const hover = (key) => ({ onMouseEnter: () => openMega(key), onMouseLeave: closeMega, onFocus: () => openMega(key), onBlur: closeMega });
+  const item = (key) => `at-nav-item${mega === key ? ' is-hover' : ''}`;
+  const close = () => openMega(null);
+  const notices = (notice || []).filter(Boolean);
 
   return (
     <>
-      <div className="nxh-row">
-        <button type="button" className="nxh-icon nxh-burger" aria-label="Open menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}>
-          <Menu size={20} strokeWidth={1.4} />
-        </button>
-
-        <nav className="nxh-nav" aria-label="Primary">
-          {families.map((f) => (
-            <div key={f.slug} className="nxh-item" {...hover(f.slug)}>
-              <NavLink to={`/${f.slug}`} className="nxh-link">
-                {f.name}
-              </NavLink>
-              <Mega open={mega === f.slug}>
-                <p className="nxh-mega-h">{f.name}</p>
-                {childrenOf(f.slug).length === 0 && <p className="nxh-mega-empty">{emptyCopy}</p>}
-                {childrenOf(f.slug).map((c) => (
-                  <Link key={c._id} to={c.slug === 'customize-your-bracelet' ? '/customize' : `/c/${c.slug}`} className="nxh-mega-link">
-                    {c.name}
-                  </Link>
-                ))}
-                <Link to={`/${f.slug}`} className="nxh-mega-all">
-                  All {f.name.toLowerCase()} →
-                </Link>
-              </Mega>
-            </div>
+      {notices.length > 0 && (
+        <div className="at-header-notice">
+          {notices.map((n, i) => (
+            <span key={n} className={i ? 'at-header-notice-rest' : ''}>
+              {i > 0 && <span className="at-header-notice-sep">· </span>}
+              {n}
+            </span>
           ))}
-          <div className="nxh-item" {...hover('customize')}>
-            <NavLink to="/customize" className="nxh-link">
-              {nav.customize}
-            </NavLink>
-            <Mega open={mega === 'customize'} wide>
-              <p className="nxh-mega-h">{nav.studioMenu}</p>
-              <div className="nxh-mega-grid">
-                {studioModes.map((mode) => (
-                  <Link key={mode.slug} to={mode.path} className="nxh-mega-link nxh-mode">
-                    <ModeArt mode={mode} />
-                    {mode.label}
-                  </Link>
-                ))}
-              </div>
-            </Mega>
-          </div>
+        </div>
+      )}
+
+      <div className="container-custom at-header-row">
+        <nav className="at-nav at-nav-left" aria-label="Primary">
+          <ul className="at-nav-list">
+            {families.map((f) => (
+              <li key={f.slug} className={item(f.slug)} {...hover(f.slug)}>
+                <NavLink to={`/${f.slug}`} className="at-nav-link">
+                  <span>{f.name}</span>
+                </NavLink>
+                <Dropdown
+                  open={mega === f.slug}
+                  title={f.name}
+                  onHover={hover(f.slug)}
+                  all={
+                    <div className="at-dd-foot">
+                      <Link to={`/${f.slug}`} className="at-dd-all" onClick={close}>
+                        All {f.name.toLowerCase()} →
+                      </Link>
+                    </div>
+                  }
+                >
+                  <div className="at-dd-links">
+                    {childrenOf(f.slug).length === 0 && <p className="at-dd-empty">{emptyCopy}</p>}
+                    {childrenOf(f.slug).map((c) => (
+                      <Link key={c._id} to={c.slug === 'customize-your-bracelet' ? '/customize' : `/c/${c.slug}`} className="at-dd-link" onClick={close}>
+                        {c.name}
+                      </Link>
+                    ))}
+                  </div>
+                </Dropdown>
+              </li>
+            ))}
+            <li className={item('customize')} {...hover('customize')}>
+              <NavLink to="/customize" className="at-nav-link">
+                <span>{nav.customize}</span>
+              </NavLink>
+              <Dropdown
+                open={mega === 'customize'}
+                title={nav.studioMenu}
+                onHover={hover('customize')}
+                all={
+                  <div className="at-dd-foot">
+                    <Link to="/customize" className="at-dd-all" onClick={close}>
+                      Open the studio →
+                    </Link>
+                  </div>
+                }
+              >
+                <div className="at-dd-links">
+                  {studioModes.map((mode) => (
+                    <Link key={mode.slug} to={mode.path} className="at-dd-link" onClick={close}>
+                      {mode.label}
+                    </Link>
+                  ))}
+                </div>
+              </Dropdown>
+            </li>
+          </ul>
         </nav>
 
-        <Link to="/" className="nxh-mark" aria-label={`${brandName} home`}>
-          <BrandMark name={brandName} />
+        <button type="button" className="at-mobile-toggle" aria-label="Toggle navigation menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((v) => !v)}>
+          {menuOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
+
+        <Link to="/" className="at-brand" aria-label={`${brandName} home`}>
+          <img src={emblem} alt="" className="at-brand-emblem" />
+          <span className="at-brand-word">{brandName}</span>
         </Link>
 
-        <div className="nxh-right">
-          <nav className="nxh-nav" aria-label="Secondary">
-            <div className="nxh-item" {...hover('collections')}>
-              <NavLink to="/collections" className="nxh-link">
-                {nav.collections}
-              </NavLink>
-              <Mega open={mega === 'collections'}>
-                <p className="nxh-mega-h">{nav.collections}</p>
-                {collections.map((c) => (
-                  <Link key={c._id} to={`/collection/${c.slug}`} className="nxh-mega-link">
-                    {c.name}
-                  </Link>
-                ))}
-                <Link to="/collections" className="nxh-mega-all">
-                  {nav.allCollections} →
-                </Link>
-              </Mega>
-            </div>
-            <NavLink to="/shop" className="nxh-link">
-              {nav.shopAll}
-            </NavLink>
-            <NavLink to="/journal" className="nxh-link">
-              {nav.journal}
-            </NavLink>
+        <div className="at-header-right">
+          <nav className="at-nav at-nav-right" aria-label="Secondary">
+            <ul className="at-nav-list">
+              <li className={item('collections')} {...hover('collections')}>
+                <NavLink to="/collections" className="at-nav-link">
+                  <span>{nav.collections}</span>
+                </NavLink>
+                <Dropdown
+                  open={mega === 'collections'}
+                  title={nav.collections}
+                  onHover={hover('collections')}
+                  all={
+                    <div className="at-dd-foot">
+                      <Link to="/collections" className="at-dd-all" onClick={close}>
+                        {nav.allCollections} →
+                      </Link>
+                    </div>
+                  }
+                >
+                  <div className="at-dd-links">
+                    {collections.map((c) => (
+                      <Link key={c._id} to={`/collection/${c.slug}`} className="at-dd-link" onClick={close}>
+                        {c.name}
+                      </Link>
+                    ))}
+                  </div>
+                </Dropdown>
+              </li>
+              <li className="at-nav-item">
+                <NavLink to="/shop" className="at-nav-link">
+                  <span>{nav.shopAll}</span>
+                </NavLink>
+              </li>
+              <li className="at-nav-item">
+                <NavLink to="/journal" className="at-nav-link">
+                  <span>{nav.journal}</span>
+                </NavLink>
+              </li>
+            </ul>
           </nav>
-          <div className="nxh-icons">
+
+          <div className="at-icons">
             {staff && (
-              <Link to="/admin" className="nxh-admin">
+              <Link to="/admin" className="at-admin-link">
                 Admin
               </Link>
             )}
-            <Link to="/wishlist" className="nxh-icon" aria-label={`Wishlist, ${wishCount} items`}>
-              <Heart size={18} strokeWidth={1.4} />
+            <NavLink to="/wishlist" className={({ isActive }) => `at-icon${isActive ? ' is-active' : ''}`} aria-label={`Wishlist, ${wishCount} items`}>
+              <Heart size={18} strokeWidth={1.5} fill={wishCount > 0 ? 'rgba(197, 165, 114, 0.25)' : 'none'} />
               <Count n={wishCount} />
-            </Link>
-            <button type="button" className="nxh-icon" aria-label={`Bag, ${cartCount} items`} onClick={onCart}>
-              <ShoppingBag size={18} strokeWidth={1.4} />
+            </NavLink>
+            <button type="button" className="at-icon" aria-label={`Bag, ${cartCount} items`} onClick={onCart}>
+              <ShoppingBag size={18} strokeWidth={1.5} />
               <Count n={cartCount} />
             </button>
-            <button type="button" className={`nxh-icon${accountOpen ? ' is-open' : ''}`} aria-label={user ? 'Open account' : 'Sign in'} aria-expanded={accountOpen} onClick={onProfile}>
-              <User size={18} strokeWidth={1.4} />
-              {user && <span className="nxh-dot" />}
-            </button>
+            <div className="at-account" {...hover('account')}>
+              <button type="button" className={`at-icon${mega === 'account' ? ' is-active' : ''}`} aria-label={user ? 'Your account' : 'Sign in'} onClick={onProfile}>
+                <User size={18} strokeWidth={1.5} />
+                {user && <span className="at-icon-dot" />}
+              </button>
+              <Dropdown
+                account
+                open={mega === 'account'}
+                title={user ? 'Member' : 'Account'}
+                onHover={hover('account')}
+                all={
+                  <div className="at-dd-foot">
+                    {user ? (
+                      <button
+                        type="button"
+                        className="at-dd-all is-gold"
+                        onClick={() => {
+                          close();
+                          onLogout();
+                        }}
+                      >
+                        Sign out →
+                      </button>
+                    ) : (
+                      <Link to="/register" className="at-dd-all" onClick={close}>
+                        Create an account →
+                      </Link>
+                    )}
+                  </div>
+                }
+              >
+                {user && <div className="at-dd-greeting">Namaste, {user.name}</div>}
+                <div className="at-dd-links">
+                  {user ? (
+                    <>
+                      <Link to="/account" className="at-dd-link" onClick={close}>
+                        My orders
+                      </Link>
+                      <Link to="/account" className="at-dd-link" onClick={close}>
+                        My account
+                      </Link>
+                      <Link to="/wishlist" className="at-dd-link" onClick={close}>
+                        Wishlist
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link to="/login" className="at-dd-link" onClick={close}>
+                        Sign in
+                      </Link>
+                      <Link to="/register" className="at-dd-link" onClick={close}>
+                        Create account
+                      </Link>
+                      <Link to="/login" className="at-dd-link is-muted" onClick={close}>
+                        Forgot password?
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </Dropdown>
+            </div>
           </div>
         </div>
       </div>
 
       {menuOpen && (
-        <div className="nxh-sheet" role="dialog" aria-modal="true" aria-label="Menu">
-          <div className="nxh-sheet-top">
-            <span className="nxh-mark">
-              <BrandMark name={brandName} />
-            </span>
-            <button type="button" className="nxh-icon" aria-label="Close menu" onClick={() => setMenuOpen(false)}>
-              <X size={20} strokeWidth={1.4} />
-            </button>
+        <div className="at-mobile-drawer" role="dialog" aria-label="Menu" onClick={(e) => e.target.closest('a') && setMenuOpen(false)}>
+          <div className="at-mobile-brand">
+            <img src={emblem} alt="" />
+            <span>{brandName}</span>
           </div>
-          <nav className="nxh-sheet-nav" onClick={() => setMenuOpen(false)}>
+          <ul className="at-mobile-list">
             {families.map((f) => (
-              <Link key={f.slug} to={`/${f.slug}`}>
-                {f.name}
-              </Link>
+              <li key={f.slug}>
+                <NavLink to={`/${f.slug}`} className="at-mobile-link">
+                  {f.name}
+                </NavLink>
+              </li>
             ))}
-            <Link to="/customize">{nav.customize}</Link>
-            <Link to="/collections">{nav.collections}</Link>
-            <Link to="/shop">{nav.shopAll}</Link>
-            <Link to="/journal">{nav.journal}</Link>
-            {staff && <Link to="/admin">Admin</Link>}
-          </nav>
-          <div className="nxh-sheet-modes">
-            {studioModes.slice(0, 6).map((mode) => (
-              <Link key={mode.slug} to={mode.path} onClick={() => setMenuOpen(false)}>
-                <ModeArt mode={mode} small /> {mode.short || mode.label}
+            <li>
+              <NavLink to="/customize" className="at-mobile-link">
+                {nav.customize}
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/collections" className="at-mobile-link">
+                {nav.collections}
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/shop" className="at-mobile-link">
+                {nav.shopAll}
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/journal" className="at-mobile-link">
+                {nav.journal}
+              </NavLink>
+            </li>
+            {staff && (
+              <li>
+                <Link to="/admin" className="at-mobile-link">
+                  Admin
+                </Link>
+              </li>
+            )}
+          </ul>
+          <div className="at-mobile-auth">
+            {user ? (
+              <Link to="/account" className="btn-gold">
+                Namaste, {user.name} · Account
               </Link>
-            ))}
+            ) : (
+              <div className="at-mobile-auth-duo">
+                <Link to="/login" className="btn-gold">
+                  Sign In
+                </Link>
+                <Link to="/register" className="btn-outline">
+                  Sign Up
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}

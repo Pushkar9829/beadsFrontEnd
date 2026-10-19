@@ -45,7 +45,7 @@ export default function StoreLayout() {
           <Outlet />
         </Suspense>
       </main>
-      <NFooter footer={site.footer} brandName={brand.display || 'KUBERSTONES'} />
+      <NFooter footer={site.footer} claims={site.trustClaims || []} brandName={brand.display || 'KUBERSTONES'} />
       <ScrollExperience />
     </div>
   );

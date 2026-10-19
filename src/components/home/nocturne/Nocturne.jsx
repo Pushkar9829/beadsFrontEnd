@@ -14,7 +14,7 @@ import crystalsImg from '../../../assets/home/house-crystals.jpg';
 import rudrakshaImg from '../../../assets/home/house-rudraksha.jpg';
 import gemstonesImg from '../../../assets/home/house-gemstones.jpg';
 import studioImg from '../../../assets/home/finale-banner.jpg';
-import BrandMark from '../../layout/BrandMark';
+import emblem from '../../../assets/brand/emblem.png';
 
 export const HOUSE_IMAGES = { crystals: crystalsImg, rudraksha: rudrakshaImg, gemstones: gemstonesImg };
 const pad = (n) => String(n).padStart(2, '0');
@@ -940,9 +940,18 @@ export function NFinale({ finale = {}, image }) {
   );
 }
 
-/* ---------------- footer (home only; same CMS footer content) ---------------- */
+/* ---------------- footer (atelier: styles/atelier/footer.css) ---------------- */
 
-export function NFooter({ footer = {}, brandName = 'KUBERSTONES' }) {
+const FOOTER_TRUST = [
+  { icon: 'sparkles', title: 'Certified Authentic', body: '100% genuine lab-verified mineral specimens' },
+  { icon: 'hand', title: 'Hand-strung', body: 'Composed and strung by hand in our atelier' },
+  { icon: 'heart', title: 'Restringing Guarantee', body: '7-day complimentary sizing adjustment' },
+  { icon: 'shield', title: 'Vedic Consecration', body: 'Strung with sacred mantras before departure' },
+];
+
+export function NFooter({ footer = {}, claims = [], brandName = 'KUBERSTONES' }) {
+  const name = footer.brandName || brandName;
+  const trust = (claims.length ? claims : FOOTER_TRUST).slice(0, 4);
   const groups = [
     [footer.shopHeading || 'Shop', footer.shopLinks || []],
     [footer.careHeading || 'Help', footer.careLinks || []],
@@ -953,27 +962,48 @@ export function NFooter({ footer = {}, brandName = 'KUBERSTONES' }) {
     .map((p) => p.trim())
     .filter(Boolean);
   return (
-    <div className="nx">
-    <footer className="nx-footer">
-      <div className="nx-w">
-        <div className="nx-footer-cols">
-          <div>
-            <Link to="/" className="nx-logo" aria-label={`${footer.brandName || brandName} home`}>
-              <BrandMark name={footer.brandName || brandName} stack />
+    <footer className="at-footer">
+      <div className="container-custom at-footer-trust">
+        <div className="at-footer-trust-grid">
+          {trust.map((c, i) => {
+            const Icon = claimIcon(c);
+            return (
+              <div key={`${c.title}-${i}`} className="at-footer-trust-item">
+                <div className="at-footer-trust-icon">
+                  <Icon size={16} strokeWidth={1.5} />
+                </div>
+                <div>
+                  <h4>{c.title}</h4>
+                  {c.body && <p>{c.body}</p>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="container-custom">
+        <div className="at-footer-cols">
+          <div className="at-footer-brand-col">
+            <Link to="/" className="at-footer-brand" aria-label={`${name} home`}>
+              <img src={emblem} alt="" />
+              <span>{String(name).toUpperCase()}</span>
             </Link>
-            {footer.blurb && <p className="nx-footer-blurb">{footer.blurb}</p>}
+            {footer.blurb && <p className="at-footer-manifesto">{footer.blurb}</p>}
             {payments.length > 0 && (
-              <div className="nx-pay" aria-label="Secure payments">
+              <div className="at-footer-pills" aria-label="Secure payments">
                 {payments.map((p) => (
-                  <span key={p}>{p}</span>
+                  <span key={p} className="at-footer-pill">
+                    {p}
+                  </span>
                 ))}
               </div>
             )}
           </div>
           {groups.map(([title, links]) => (
             <div key={title}>
-              <p className="nx-footer-h">{title}</p>
-              <ul>
+              <h4 className="at-footer-h">{title}</h4>
+              <ul className="at-footer-links">
                 {links.map((l) => (
                   <li key={`${l.to}-${l.label}`}>
                     <Link to={l.to}>{l.label}</Link>
@@ -983,20 +1013,20 @@ export function NFooter({ footer = {}, brandName = 'KUBERSTONES' }) {
             </div>
           ))}
         </div>
-        <div className="nx-footer-legal">
-          <span>
-            {footer.copyright || `© ${new Date().getFullYear()} ${footer.brandName || 'Kuberstones'}`}
+
+        <div className="at-footer-bottom">
+          <div>{footer.copyright || `© ${new Date().getFullYear()} ${name}`}</div>
+          <div className="at-footer-bottom-right">
+            <span>{footer.tagline || 'Crystal associations are traditional, not medical claims.'}</span>
             {footer.instagram && (
               <a href={footer.instagram} target="_blank" rel="noreferrer">
                 Instagram
               </a>
             )}
-          </span>
-          <span>{footer.tagline || 'Crystal associations are traditional, not medical claims.'}</span>
+          </div>
         </div>
-        {footer.disclaimer && <p className="nx-footer-note">{footer.disclaimer}</p>}
+        {footer.disclaimer && <p className="at-footer-note">{footer.disclaimer}</p>}
       </div>
     </footer>
-    </div>
   );
 }
