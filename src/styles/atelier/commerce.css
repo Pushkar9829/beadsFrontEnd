@@ -259,3 +259,85 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
+
+/* ---- Exactness pass (computed-style diff against the source bag / checkout) ---- */
+:root .nx.at-commerce {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #EDE8E1;
+}
+
+/* The source bag and checkout is one page with no heading: items on the left, the panel on the right. */
+:root .nx.at-commerce.is-flow {
+  padding-top: 36px;
+  padding-bottom: 96px;
+}
+
+.at-commerce.is-flow .nx-intro {
+  display: none;
+}
+
+.at-commerce.is-flow .nx-body {
+  padding-block: 0;
+}
+
+.at-commerce .nx-line .nx-k,
+.at-commerce .nx-sum .nx-k,
+.at-commerce .nx-line-price {
+  line-height: 1.7;
+}
+
+.at-commerce .nx-line-t {
+  line-height: 1.7;
+}
+
+.at-commerce .nx-line-foot {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #9E98A6;
+}
+
+.at-commerce .nx-line-foot .nx-line-price {
+  font-size: 15.5px;
+  color: #EDE8E1;
+}
+
+/* Source buttons: browser-default font, own padding */
+.at-commerce .nx-btn.nx-btn-o.nx-btn-s.nx-btn-block {
+  height: auto;
+  min-height: 0;
+  padding: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: normal;
+  line-height: normal;
+  text-transform: none;
+  color: #EDE8E1;
+}
+
+.at-commerce .nx-btn.nx-btn-block:not(.nx-btn-o) {
+  height: auto;
+  min-height: 0;
+  padding: 14px 0;
+  font-family: Arial, sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: normal;
+  text-transform: none;
+  color: #12091E !important;
+  -webkit-text-fill-color: #12091E;
+  background: linear-gradient(180deg, #E6C87C 0%, #C4983E 100%);
+  box-shadow: 0 4px 16px rgba(217, 174, 79, 0.25);
+}
+
+.at-commerce .nx-line .nx-note {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #9E98A6;
+}
+
+.at-commerce .nx-btn.nx-btn-o.nx-btn-s.nx-btn-block {
+  color: #EDE8E1 !important;
+}

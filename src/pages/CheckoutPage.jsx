@@ -105,7 +105,7 @@ export default function CheckoutPage() {
 
   if (!items.length) {
     return (
-      <div className="nx nx-page at-commerce">
+      <div className="nx nx-page at-commerce is-flow">
         <PageIntro crumbs={CRUMBS} eyebrow="Secure checkout" title={page.title} />
         <div className="nx-w nx-sec">
           <EmptyBlock
@@ -316,7 +316,7 @@ export default function CheckoutPage() {
   const canContinue = Boolean(selected && addressReady(form));
 
   return (
-    <div className="nx nx-page at-commerce">
+    <div className="nx nx-page at-commerce is-flow">
       <PageIntro crumbs={CRUMBS} eyebrow="Secure checkout" title={page.title} body={page.body} />
       <div className="nx-w nx-body">
         <div className="nx-bag">

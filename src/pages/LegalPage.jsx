@@ -42,6 +42,7 @@ export default function LegalPage({ kind }) {
     <div className="nx nx-page at-utility">
       <SeoHead title={pageTitle(page.title, brand)} description={page.description} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
       <PageIntro
+        split
         crumbs={[{ label: 'Home', to: '/' }, { label: page.title }]}
         eyebrow={page.eyebrow || navTitle}
         title={page.title}

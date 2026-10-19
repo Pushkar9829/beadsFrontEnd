@@ -29,7 +29,7 @@ export default function FaqPage() {
   return (
     <div className="nx nx-page at-utility">
       <SeoHead title={pageTitle(title, brand)} description={copy.pageBody} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
-      <PageIntro crumbs={[{ label: 'Home', to: '/' }, { label: copy.pageTitle || copy.title || 'FAQ' }]} eyebrow={copy.pageEyebrow || copy.eyebrow} title={title} body={copy.pageBody} />
+      <PageIntro crumbs={[{ label: 'Home', to: '/' }, { label: copy.pageTitle || copy.title || 'FAQ' }]} eyebrow={copy.pageEyebrow || copy.eyebrow} title={title} body={copy.pageBody} split />
 
       <section ref={ref} className="nx-sec nx-reveal">
         <div className="nx-w nx-split">

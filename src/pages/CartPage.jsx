@@ -64,7 +64,7 @@ export default function CartPage() {
   const total = quote?.total ?? amount;
 
   return (
-    <div className="nx nx-page at-commerce">
+    <div className="nx nx-page at-commerce is-flow">
       <PageIntro
         crumbs={CRUMBS}
         eyebrow={page.eyebrow}

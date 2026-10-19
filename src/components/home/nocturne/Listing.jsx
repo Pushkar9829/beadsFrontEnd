@@ -302,7 +302,7 @@ export function StudioBand({ title, body, to, cta }) {
 }
 
 /** Text-only page header (no photo) for utility pages: bag, checkout, account, policies, journal. */
-export function PageIntro({ crumbs = [], eyebrow, title, body, actions, children, narrow = false, compact = false }) {
+export function PageIntro({ crumbs = [], eyebrow, title, body, actions, children, narrow = false, compact = false, split = false }) {
   return (
     <div className={`nx-intro${narrow ? ' is-narrow' : ''}${compact ? ' is-compact' : ''}`}>
       <div className="nx-w">
@@ -318,7 +318,7 @@ export function PageIntro({ crumbs = [], eyebrow, title, body, actions, children
         <div className="nx-intro-row">
           <div className="nx-intro-copy">
             {eyebrow && <p className="nx-eb nx-rise">{eyebrow}</p>}
-            <h1 className="nx-d nx-intro-t nx-rise">{title}</h1>
+            {split ? <SectionTitle as="h1" text={title} className="nx-intro-t section-title nx-rise" /> : <h1 className="nx-d nx-intro-t nx-rise">{title}</h1>}
             {body && <p className="nx-intro-sub nx-rise">{body}</p>}
             {children}
           </div>
