@@ -402,7 +402,7 @@
   border-radius: 4px;
   background: linear-gradient(135deg, #ECC26A 0%, #D9AE4F 60%, #B88E3E 100%);
   box-shadow: 0 4px 16px rgba(217, 174, 79, 0.25);
-  color: #0A0810;
+  color: #0A0810 !important;
   font-weight: 700;
   letter-spacing: 0.04em;
 }

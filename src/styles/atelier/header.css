@@ -33,7 +33,7 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  line-height: 1.5;
+  line-height: 1.7;
 }
 
 .at-header-notice-sep {
@@ -80,6 +80,7 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+  line-height: normal;
   transition: color 0.2s ease;
 }
 

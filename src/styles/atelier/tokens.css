@@ -35,7 +35,7 @@ body {
   font-family: var(--font-sans);
 }
 
-.nx p {
+:where(.nx) p {
   line-height: 1.75;
 }
 
@@ -485,6 +485,7 @@ body {
   --nx-gold: linear-gradient(110deg, #8E7345 0%, #C5A572 30%, #DFCA9E 50%, #C5A572 70%, #8E7345 100%);
   --nx-sans: var(--font-sans);
   --nx-serif: var(--font-editorial);
+  font-weight: 400;
 }
 
 /* Popups and drawers render into <body>, outside .nx; commerce.css gives them the palette on :root. */
@@ -518,5 +519,16 @@ body {
 :where(.homepage-root, .at-header, .at-footer, .cat-hero, .category-pieces-section, .pd-page, .auth-split-layout, .modern-product-card) h4 {
   font-family: inherit;
   font-weight: bold;
+  letter-spacing: normal;
+}
+
+/* The source never sets a font on form controls, so they keep the browser defaults (Arial 13.33px,
+   normal line-height). Tailwind's preflight makes them inherit; restore that in the ported areas.
+   Element-level specificity: any class rule that sets a font still wins. */
+:where(.homepage-root, .at-header, .at-footer, .cat-hero, .category-pieces-section, .pd-page, .auth-split-layout) :where(button, select, input, textarea) {
+  font-family: Arial, sans-serif;
+  font-size: 13.3333px;
+  font-weight: 400;
+  line-height: normal;
   letter-spacing: normal;
 }

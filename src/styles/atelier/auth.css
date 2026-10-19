@@ -290,3 +290,37 @@ a.auth-switch:hover {
     padding: 40px 24px 56px;
   }
 }
+
+/* ---- Exactness pass (computed-style diff against the source sign-in) ---- */
+.nx.auth-split-layout {
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+a.auth-switch {
+  line-height: normal;
+}
+
+.nx.auth-split-layout .nx-field input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']) {
+  font-family: Arial, sans-serif;
+  line-height: normal;
+  color: #EDE8E1;
+  -webkit-text-fill-color: #EDE8E1;
+  caret-color: #EDE8E1;
+}
+
+.nx.auth-split-layout .nx-form .nx-btn.nx-btn-block {
+  line-height: normal;
+  color: #0A0810 !important;
+  -webkit-text-fill-color: #0A0810;
+}
+
+.nx.auth-split-layout .nx-auth-foot {
+  line-height: 1.7;
+}
+
+.nx.auth-split-layout .nx-auth-foot a {
+  font-family: Arial, sans-serif;
+  line-height: normal;
+  border-bottom: 0;
+}
