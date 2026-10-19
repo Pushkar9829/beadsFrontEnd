@@ -254,7 +254,9 @@ export function AHouses({ houses = {}, studio = {}, counts = {} }) {
           <h3 className={primary ? 'house-title' : 'house-title-sm'}>{String(h.name).toUpperCase()}</h3>
           {h.blurb && <p className={primary ? 'house-desc' : 'house-desc-sm'}>{h.blurb}</p>}
           <div className="house-action-line">
-            <span>Explore House {roman}</span>
+            <span>
+              {houses.exploreLabel || 'Explore House'} {roman}
+            </span>
             <ArrowRight size={primary ? 14 : 13} />
           </div>
         </div>
@@ -451,7 +453,7 @@ export function AFlash({ sale, products = [], copy = {} }) {
                         </div>
                         <button type="button" onClick={() => addProduct(p, 1)} className="flash-acquire-btn">
                           <ShoppingBag size={12} />
-                          <span>Add</span>
+                          <span>{copy.addLabel || 'Add'}</span>
                         </button>
                       </div>
                     </div>
@@ -478,31 +480,34 @@ const LOTUS = (
   </svg>
 );
 
+const KUNDALI_ICONS = {
+  bag: <ShoppingBag size={22} strokeWidth={1.3} />,
+  cart: <ShoppingCart size={22} strokeWidth={1.3} />,
+  chart: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <circle cx="12" cy="14" r="3" strokeDasharray="1.5 1.5" />
+      <line x1="9" y1="14" x2="15" y2="14" />
+      <line x1="12" y1="11" x2="12" y2="17" />
+    </svg>
+  ),
+};
+
 export function AKundali({ copy = {} }) {
   const threshold = copy.threshold || '₹2,000';
-  const steps = [
-    { icon: <ShoppingBag size={22} strokeWidth={1.3} />, title: ['Shop', 'Your Sacred Pieces'], body: 'Explore handcrafted malas and spiritual keepsakes.' },
-    { icon: <ShoppingCart size={22} strokeWidth={1.3} />, title: ['Order Above', threshold], body: `Add your favorite pieces and place an order worth ${threshold} or more.` },
-    {
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-          <polyline points="14 2 14 8 20 8" />
-          <circle cx="12" cy="14" r="3" strokeDasharray="1.5 1.5" />
-          <line x1="9" y1="14" x2="15" y2="14" />
-          <line x1="12" y1="11" x2="12" y2="17" />
-        </svg>
-      ),
-      title: ['Receive Your', 'Personalized Kundali'],
-      body: 'Your Kundali, prepared by our expert astrologers, is included as a complimentary gift with your order.',
-    },
-  ];
+  const fill = (v) => String(v || '').replace(/\{threshold\}/g, threshold);
+  const steps = (copy.steps || []).slice(0, 3).map((st) => ({
+    icon: KUNDALI_ICONS[st.icon] || KUNDALI_ICONS.bag,
+    title: [fill(st.titleLead), fill(st.titleTail)],
+    body: fill(st.body),
+  }));
   return (
     <section className="section-kundali-offer">
       <div className="container-custom">
         <div className="kundali-banner-wrapper">
           <div className="kundali-banner-backdrop">
-            <img src={kundaliBanner} alt="" className="kundali-backdrop-img" loading="lazy" />
+            <img src={img(copy.image, kundaliBanner)} alt="" className="kundali-backdrop-img" loading="lazy" />
           </div>
 
           <div className="kundali-rosette-seal" aria-hidden="true">
@@ -546,14 +551,14 @@ export function AKundali({ copy = {} }) {
                   <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
                 </g>
                 <text x="100" y="86" textAnchor="middle" fill="url(#sealGoldGrad)" fontFamily="'Cinzel', serif" fontSize="23" fontWeight="800" letterSpacing="0.08em">
-                  FREE
+                  {copy.sealTop || 'FREE'}
                 </text>
                 <text x="100" y="106" textAnchor="middle" fill="url(#sealGoldGrad)" fontFamily="'Cinzel', serif" fontSize="13.5" fontWeight="600" letterSpacing="0.26em">
-                  KUNDALI
+                  {copy.sealName || 'KUNDALI'}
                 </text>
                 <line x1="56" y1="117" x2="144" y2="117" stroke="url(#sealGoldGrad)" strokeWidth="0.8" opacity="0.75" />
                 <text x="100" y="130" textAnchor="middle" fill="#DFCA9E" fontFamily="'Outfit', sans-serif" fontSize="8.5" fontWeight="600" letterSpacing="0.18em">
-                  ON ORDERS ABOVE
+                  {copy.sealLine || 'ON ORDERS ABOVE'}
                 </text>
                 <text x="100" y="153" textAnchor="middle" fill="url(#sealGoldGrad)" fontFamily="'Cinzel', serif" fontSize="18" fontWeight="800" letterSpacing="0.04em">
                   {threshold}
@@ -566,19 +571,19 @@ export function AKundali({ copy = {} }) {
             <div className="kundali-eyebrow">
               <span className="eyebrow-rule" />
               <span className="eyebrow-lotus">{LOTUS}</span>
-              <span className="eyebrow-text">{copy.eyebrow || 'EXCLUSIVE OFFER'}</span>
+              <span className="eyebrow-text">{String(copy.eyebrow || 'Exclusive offer').toUpperCase()}</span>
               <span className="eyebrow-rule" />
             </div>
 
             <h2 className="kundali-title">
-              Your Kundali,
+              {copy.titleLead || 'Your Kundali,'}
               <br />
-              <span className="kundali-title-italic">on us</span>
+              <span className="kundali-title-italic">{copy.titleTail || 'on us'}</span>
               <span className="kundali-sparkle">✦</span>
             </h2>
 
             <p className="kundali-paragraph">
-              Bring home your chosen spiritual pieces and receive a <strong className="kundali-bold-text">complimentary personalized Kundali</strong> with every order above{' '}
+              {copy.bodyLead} <strong className="kundali-bold-text">{copy.bodyHighlight}</strong> {copy.bodyTail}{' '}
               <strong className="kundali-bold-text">{threshold}</strong>.
             </p>
 
@@ -602,7 +607,7 @@ export function AKundali({ copy = {} }) {
 
             <div className="kundali-cta-row">
               <Link to={copy.to || '/shop'} className="btn-kundali-action">
-                <span>{copy.action || 'AVAIL THE OFFER'}</span>
+                <span>{String(copy.action || 'Avail the offer').toUpperCase()}</span>
                 <span className="btn-circle-arrow">
                   <ArrowRight size={13} strokeWidth={2} />
                 </span>
@@ -924,7 +929,7 @@ export function AReviews({ copy = {}, voices = {}, testimonials = [], faqs = [],
             {showScore && (
               <div className="reviews-verified-badge">
                 <CheckCircle2 size={14} color="#C5A572" />
-                <span>From customers who bought and wore it</span>
+                <span>{copy.verifiedLabel || 'From customers who bought and wore it'}</span>
               </div>
             )}
           </div>

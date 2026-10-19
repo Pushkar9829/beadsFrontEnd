@@ -129,6 +129,7 @@ export default function ProductPage() {
   }
 
   const house = houseMeta(site, product.family);
+  const labels = site.pages.product || {};
   const images = product.images?.length ? product.images : [];
   const was = product.originalPrice || product.compareAtPrice;
   const off = was > product.price ? Math.round((1 - product.price / was) * 100) : 0;
@@ -253,7 +254,7 @@ export default function ProductPage() {
               </div>
               <button type="button" className="btn-gold pd-add" disabled={soldOut} onClick={add}>
                 <ShoppingBag size={16} />
-                <span>{soldOut ? 'Sold out' : `Add to bag · ${formatInr(product.price * qty)}`}</span>
+                <span>{soldOut ? labels.soldOutLabel || 'Sold out' : `${labels.addLabel || 'Add to bag'} · ${formatInr(product.price * qty)}`}</span>
               </button>
               <button
                 type="button"
@@ -284,7 +285,7 @@ export default function ProductPage() {
 
             {product.sku && (
               <div className="pd-list">
-                <span className="pd-list-h">Details</span>
+                <span className="pd-list-h">{labels.detailsLabel || 'Details'}</span>
                 <ul>
                   <li>SKU {product.sku}</li>
                 </ul>
@@ -293,7 +294,7 @@ export default function ProductPage() {
 
             {!!product.collectionIds?.length && (
               <div className="pd-list">
-                <span className="pd-list-h">Found in</span>
+                <span className="pd-list-h">{labels.foundInLabel || 'Found in'}</span>
                 <ul>
                   {product.collectionIds.map((c) => (
                     <li key={c._id || c}>
@@ -321,7 +322,7 @@ export default function ProductPage() {
           {off > 0 && <s>{formatInr(was)}</s>}
         </span>
         <button type="button" className="nx-btn" disabled={soldOut} onClick={add}>
-          {soldOut ? 'Sold out' : added ? 'Added ✓' : 'Add to bag'}
+          {soldOut ? labels.soldOutLabel || 'Sold out' : added ? 'Added ✓' : labels.addLabel || 'Add to bag'}
         </button>
       </div>
     </div>

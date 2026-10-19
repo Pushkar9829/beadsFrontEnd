@@ -30,6 +30,7 @@ export default function HomeHeaderBar({
   collections,
   nav,
   notice,
+  labels = {},
   mega,
   openMega,
   closeMega,
@@ -103,7 +104,7 @@ export default function HomeHeaderBar({
                 all={
                   <div className="at-dd-foot">
                     <Link to="/customize" className="at-dd-all" onClick={close}>
-                      Open the studio →
+                      {labels.studioMenuAll || 'Open the studio'} →
                     </Link>
                   </div>
                 }
@@ -192,7 +193,7 @@ export default function HomeHeaderBar({
               <Dropdown
                 account
                 open={mega === 'account'}
-                title={user ? 'Member' : 'Account'}
+                title={user ? labels.accountMemberTitle || 'Member' : labels.accountGuestTitle || 'Account'}
                 onHover={hover('account')}
                 all={
                   <div className="at-dd-foot">
@@ -205,40 +206,44 @@ export default function HomeHeaderBar({
                           onLogout();
                         }}
                       >
-                        Sign out →
+                        {labels.accountSignOut || 'Sign out'} →
                       </button>
                     ) : (
                       <Link to="/register" className="at-dd-all" onClick={close}>
-                        Create an account →
+                        {labels.accountRegisterCta || 'Create an account'} →
                       </Link>
                     )}
                   </div>
                 }
               >
-                {user && <div className="at-dd-greeting">Namaste, {user.name}</div>}
+                {user && (
+                  <div className="at-dd-greeting">
+                    {labels.accountGreeting || 'Namaste,'} {user.name}
+                  </div>
+                )}
                 <div className="at-dd-links">
                   {user ? (
                     <>
                       <Link to="/account" className="at-dd-link" onClick={close}>
-                        My orders
+                        {labels.accountOrders || 'My orders'}
                       </Link>
                       <Link to="/account" className="at-dd-link" onClick={close}>
-                        My account
+                        {labels.accountProfile || 'My account'}
                       </Link>
                       <Link to="/wishlist" className="at-dd-link" onClick={close}>
-                        Wishlist
+                        {labels.accountWishlist || 'Wishlist'}
                       </Link>
                     </>
                   ) : (
                     <>
                       <Link to="/login" className="at-dd-link" onClick={close}>
-                        Sign in
+                        {labels.accountSignIn || 'Sign in'}
                       </Link>
                       <Link to="/register" className="at-dd-link" onClick={close}>
-                        Create account
+                        {labels.accountRegister || 'Create account'}
                       </Link>
                       <Link to="/login" className="at-dd-link is-muted" onClick={close}>
-                        Forgot password?
+                        {labels.accountForgot || 'Forgot password?'}
                       </Link>
                     </>
                   )}
@@ -294,15 +299,15 @@ export default function HomeHeaderBar({
           <div className="at-mobile-auth">
             {user ? (
               <Link to="/account" className="btn-gold">
-                Namaste, {user.name} · Account
+                {labels.accountGreeting || 'Namaste,'} {user.name} · {labels.accountProfile || 'My account'}
               </Link>
             ) : (
               <div className="at-mobile-auth-duo">
                 <Link to="/login" className="btn-gold">
-                  Sign In
+                  {labels.accountSignIn || 'Sign in'}
                 </Link>
                 <Link to="/register" className="btn-outline">
-                  Sign Up
+                  {labels.accountRegister || 'Create account'}
                 </Link>
               </div>
             )}

@@ -5,6 +5,7 @@ import { getPath, setPath } from '../../ui';
 
 const eyebrowTitle = () => row([text('eyebrow', 'Eyebrow'), text('title', 'Title')]);
 const authFields = [
+  text('badge', 'Photo badge', { hint: 'Small badge at the top of the photo.' }),
   eyebrowTitle(),
   area('body', 'Body'),
   linkPair(),
@@ -150,6 +151,8 @@ export const PAGE_SECTIONS = [
         area('shippingBody', 'Text', { rows: 3, hint: 'Shown above the links to the shipping, returns and exchanges policies.' }),
       ]),
       row([text('relatedEyebrow', '"You may also like" eyebrow', { placeholder: 'Worn alongside' }), text('relatedTitle', '"You may also like" title', { placeholder: 'You may also like' })]),
+      row([text('addLabel', 'Add-to-bag button', { placeholder: 'Add to bag' }), text('soldOutLabel', 'Sold-out button', { placeholder: 'Sold out' })]),
+      row([text('detailsLabel', 'Details heading', { placeholder: 'Details' }), text('foundInLabel', 'Collections heading', { placeholder: 'Found in' })]),
       emptyState('missing', 'Product not found'),
     ],
   },

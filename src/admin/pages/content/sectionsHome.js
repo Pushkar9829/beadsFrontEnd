@@ -30,6 +30,7 @@ export const HOME_SECTIONS = [
       area('subtitle', 'Subtitle'),
       media('image', 'Hero image', { folder: 'banner' }),
       text('imageAlt', 'Image alt text', { hint: 'Describe the image for screen readers and search engines.' }),
+      text('plaque', 'Specimen plaque', { hint: 'Small line in the hero dock. Empty: the hotspot product name, then the alt text.' }),
       cta('primaryCta', 'Primary button'),
       cta('secondaryCta', 'Secondary button'),
       heroHotspot(),
@@ -39,6 +40,7 @@ export const HOME_SECTIONS = [
         [
           media('image', 'Image', { folder: 'banner' }),
           text('imageAlt', 'Image alt text'),
+          text('plaque', 'Specimen plaque'),
           row([text('eyebrow', 'Eyebrow'), text('title', 'Headline')]),
           area('subtitle', 'Subtitle', { rows: 2 }),
           cta('primaryCta', 'Primary button'),
@@ -110,12 +112,13 @@ export const HOME_SECTIONS = [
       eyebrowTitle(),
       area('body', 'Body'),
       row([text('action', 'Link label', { placeholder: 'Shop everything' }), text('to', 'Link', { placeholder: '/shop' })]),
+      text('exploreLabel', 'Plate link label', { placeholder: 'Explore House', hint: 'Followed by the roman numeral, e.g. “Explore House I”.' }),
       list(
         'items',
         'Houses',
         [
           row([select('slug', 'Collection', HOUSE_SLUGS), text('roman', 'Roman numeral')]),
-          text('name', 'Name'),
+          row([text('name', 'Name'), text('kicker', 'Kicker', { placeholder: 'Intention', hint: 'Shown after “House I ·”.' })]),
           area('blurb', 'Blurb', { rows: 2 }),
           media('image', 'House image', { folder: 'banner' }),
         ],
@@ -193,7 +196,7 @@ export const HOME_SECTIONS = [
     preview: '/sale',
     base: 'flash',
     fields: [
-      group('On the home page', [row([text('label', 'Badge label'), text('title', 'Headline')]), area('body', 'Body'), linkPair()]),
+      group('On the home page', [row([text('label', 'Badge label'), text('title', 'Headline')]), area('body', 'Body'), linkPair(), text('addLabel', 'Add-to-bag button', { placeholder: 'Add' })]),
       group('On the sale page', [
         area('pageBody', 'Body'),
         text('emptyTitle', 'No sale running — title'),
@@ -255,6 +258,7 @@ export const HOME_SECTIONS = [
       group('Labels', [
         row([text('askLabel', 'Step 1 label', { placeholder: 'What are you asking for?' }), text('orLabel', 'Divider', { placeholder: 'or by birth date' })]),
         row([text('stonesLabel', 'Step 2 label', { placeholder: 'Your stones' }), text('readyLabel', 'Ready-made line', { placeholder: 'Ready-made with these stones' })]),
+        text('ctaNote', 'Note under the button'),
       ]),
       note('Suggested stones come from the customizer mappings (purpose → intention → beads, and Mulank → crystals).'),
     ],
@@ -287,7 +291,14 @@ export const HOME_SECTIONS = [
       area('body', 'Body'),
       media('image', 'Image', { folder: 'banner' }),
       note('Optional image. Without one, the Rudraksha house image is used.'),
-      note('The four tiles are the first four Trust claims.', { to: '/admin/content?section=trust', linkLabel: 'Edit trust claims' }),
+      text('plaque', 'Image plaque', { hint: 'Caption across the bottom of the image.' }),
+      linkPair(),
+      list('points', 'Attribute tiles', [text('title', 'Title'), area('body', 'Body', { rows: 2 })], {
+        itemLabel: 'Tile',
+        max: 4,
+        summary: (p) => p.title,
+        newItem: { title: '', body: '' },
+      }),
     ],
   },
   {
@@ -317,7 +328,15 @@ export const HOME_SECTIONS = [
     base: '',
     paths: ['reviews', 'voices', 'testimonials', 'faq'],
     fields: [
-      group('Heading', [eyebrowTitle(), toggle('showSummary', 'Show the average rating', { hint: 'Hidden automatically while there are no reviews.' })], 'reviews'),
+      group(
+        'Heading',
+        [
+          eyebrowTitle(),
+          toggle('showSummary', 'Show the average rating', { hint: 'Hidden automatically while there are no reviews.' }),
+          text('verifiedLabel', 'Verified line under the rating'),
+        ],
+        'reviews'
+      ),
       group('Customer notes', [eyebrowTitle(), area('body', 'Body')], 'voices'),
       list(
         'testimonials',
@@ -360,6 +379,38 @@ export const HOME_SECTIONS = [
     ],
   },
   {
+    key: 'kundali',
+    label: 'Kundali offer',
+    group: 'Homepage',
+    hint: 'Offer banner with the rosette seal and three steps',
+    preview: '/',
+    base: 'kundali',
+    fields: [
+      note('This banner advertises an offer. Switch it off under Homepage layout when the offer is not running.'),
+      media('image', 'Banner image', { folder: 'banner', hint: 'Leave empty to use the built-in gift-box artwork.' }),
+      text('eyebrow', 'Eyebrow'),
+      row([text('titleLead', 'Title, first line'), text('titleTail', 'Title, gold italic line')]),
+      row([text('bodyLead', 'Text before the highlight'), text('bodyHighlight', 'Highlighted words')]),
+      row([text('bodyTail', 'Text before the amount'), text('threshold', 'Order amount', { placeholder: '₹2,000' })]),
+      group('Seal', [row([text('sealTop', 'Top word'), text('sealName', 'Name')]), text('sealLine', 'Line above the amount')]),
+      list(
+        'steps',
+        'Steps',
+        [
+          select('icon', 'Icon', [
+            { value: 'bag', label: 'Shopping bag' },
+            { value: 'cart', label: 'Cart' },
+            { value: 'chart', label: 'Kundali chart' },
+          ]),
+          row([text('titleLead', 'Title, first line'), text('titleTail', 'Title, second line')]),
+          area('body', 'Body', { rows: 2, hint: '{threshold} is replaced with the order amount.' }),
+        ],
+        { itemLabel: 'Step', max: 3, summary: (s) => `${s.titleLead || ''} ${s.titleTail || ''}`.trim(), newItem: { icon: 'bag', titleLead: '', titleTail: '', body: '' } }
+      ),
+      linkPair(),
+    ],
+  },
+  {
     key: 'newsletter',
     label: 'Newsletter',
     group: 'Homepage',
@@ -370,6 +421,9 @@ export const HOME_SECTIONS = [
       eyebrowTitle(),
       row([text('placeholder', 'Email placeholder', { placeholder: 'Your email address' }), text('action', 'Button label', { placeholder: 'Join →' })]),
       row([text('actionBusy', 'Button while sending', { placeholder: 'Joining…' }), text('success', 'Thank-you message', { placeholder: 'Thank you — you are on the list.' })]),
+      area('body', 'Body', { rows: 2 }),
+      text('note', 'Footnote'),
+      media('image', 'Background image', { folder: 'banner', hint: 'Leave empty to use the built-in photo.' }),
     ],
   },
   {
@@ -404,6 +458,16 @@ export const SITE_SECTIONS = [
         row([text('customizeLabel', 'Customization', { placeholder: 'Customization' }), text('collectionsLabel', 'Collections', { placeholder: 'Collections' })]),
         row([text('shopAllLabel', 'Shop All', { placeholder: 'Shop All' }), text('journalLabel', 'Journal', { placeholder: 'Journal' })]),
         row([text('studioMenuTitle', 'Customization dropdown heading', { placeholder: 'Begin a strand' }), text('allCollectionsLabel', '"All collections" link', { placeholder: 'All collections' })]),
+        text('studioMenuAll', 'Customization dropdown link', { placeholder: 'Open the studio' }),
+      ]),
+      text('notice', 'Notice strip', { hint: 'Thin line above the header. Separate several messages with “·”. Hidden in the studio pages.' }),
+      group('Account menu', [
+        row([text('accountGuestTitle', 'Heading (signed out)'), text('accountMemberTitle', 'Heading (signed in)')]),
+        row([text('accountGreeting', 'Greeting', { placeholder: 'Namaste,' }), text('accountOrders', 'Orders link')]),
+        row([text('accountProfile', 'Account link'), text('accountWishlist', 'Wishlist link')]),
+        row([text('accountSignIn', 'Sign in link'), text('accountRegister', 'Create account link')]),
+        row([text('accountForgot', 'Forgot password link'), text('accountSignOut', 'Sign out link')]),
+        text('accountRegisterCta', 'Bottom link (signed out)'),
       ]),
     ],
   },
@@ -431,6 +495,13 @@ export const SITE_SECTIONS = [
         text('copyright', 'Copyright line'),
         area('disclaimer', 'Disclaimer'),
       ]),
+      list('trust', 'Trust strip', [icon('icon'), text('title', 'Title'), text('body', 'Line')], {
+        itemLabel: 'Badge',
+        max: 4,
+        hint: 'Four badges across the top of the footer.',
+        summary: (c) => c.title,
+        newItem: { icon: 'sparkles', title: '', body: '' },
+      }),
       group('Link columns', [
         row([text('shopHeading', 'Shop heading'), text('contactLabel', 'Contact button label')]),
         links('shopLinks', 'Shop links'),

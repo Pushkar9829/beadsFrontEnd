@@ -16,7 +16,7 @@ const SECTION_META = {
   houses: { label: 'Houses & studio', description: 'The three house plates plus the studio card.', copy: ['houses', 'studio'] },
   collection: { label: 'Collection carousel', description: 'Featured products with best seller, new arrival and trending tabs.', copy: 'collection' },
   flash_sale: { label: 'Flash sale', description: 'Countdown and products of the running flash sale. Hidden when none is active.', copy: 'flash' },
-  kundali: { label: 'Kundali offer', description: 'Free Kundali offer banner (rosette seal, three steps). Advertises an offer — switch off if it is not running.' },
+  kundali: { label: 'Kundali offer', description: 'Free Kundali offer banner (rosette seal, three steps). Advertises an offer — switch off if it is not running.', copy: 'kundali' },
   look: { label: 'Shop the look', description: 'Styled photos with numbered product tags. Hidden until a look has a product.', copy: 'look' },
   finder: { label: 'Stone finder', description: 'Suggests stones from a purpose or a birth date, then links to compose them.', copy: 'finder' },
   purposes: { label: 'Shop by purpose', description: 'Purpose cards that open the customizer on that purpose.', copy: 'purpose' },

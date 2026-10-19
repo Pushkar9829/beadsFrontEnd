@@ -17,8 +17,6 @@ const fallbackFamilies = [
   { slug: 'gemstones', name: 'Gemstones' },
 ];
 
-const fallbackNotice = ['Consecrated in sacred temples & hand-strung within 48 hours'];
-
 // Sticky header with the notice strip (hidden in the studio), as in the atelier design.
 export default function Header() {
   const location = useLocation();
@@ -42,7 +40,7 @@ export default function Header() {
   const headerRef = useRef(null);
   const inStudio = location.pathname.startsWith('/customize');
   const rawNotice = site.brand?.notice;
-  const notice = inStudio ? [] : Array.isArray(rawNotice) ? rawNotice : rawNotice ? String(rawNotice).split('·').map((s) => s.trim()) : fallbackNotice;
+  const notice = inStudio ? [] : Array.isArray(rawNotice) ? rawNotice : String(rawNotice || '').split('·').map((s) => s.trim()).filter(Boolean);
 
   useEffect(() => {
     setMega(null);
@@ -116,6 +114,7 @@ export default function Header() {
         collections={collections}
         nav={brand.nav}
         notice={notice}
+        labels={site.brand || {}}
         mega={mega}
         openMega={openMega}
         closeMega={closeMega}
