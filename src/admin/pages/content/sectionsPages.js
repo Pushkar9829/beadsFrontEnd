@@ -180,6 +180,13 @@ export const PAGE_SECTIONS = [
     fields: [
       eyebrowTitle(),
       area('guestBody', 'Guest body'),
+      group('Member banner', [
+        row([text('crumbLabel', 'Breadcrumb', { placeholder: 'Sanctuary Account' }), text('memberLabel', 'Badge', { placeholder: 'Member' })]),
+        text('greeting', 'Greeting before the name', { placeholder: 'Namaste,' }),
+        row([text('designAction', 'Button label', { placeholder: 'Design In Atelier' }), text('designTo', 'Button link', { placeholder: '/customize' })]),
+        row([text('statOrders', 'Orders stat', { placeholder: 'Orders' }), text('statWishlist', 'Wishlist stat', { placeholder: 'Sacred Wishlist' }), text('statAddresses', 'Addresses stat', { placeholder: 'Saved Addresses' })]),
+        row([text('tabOrders', 'Orders tab', { placeholder: 'Sacred Orders' }), text('tabProfile', 'Profile tab', { placeholder: 'Personal Dossier' })]),
+      ]),
       group('Orders', [
         row([text('ordersEyebrow', 'Eyebrow'), text('ordersTitle', 'Title')]),
         text('ordersLoading', 'Loading message'),

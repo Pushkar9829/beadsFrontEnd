@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { LogOut, MapPin, Package, Sparkles, User } from 'lucide-react';
 import api from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
+import { useWishlistStore } from '../store/wishlistStore';
 import Button from '../components/ui/Button';
 import Price from '../components/ui/Price';
 import Spinner from '../components/ui/Spinner';
@@ -17,6 +19,10 @@ import AddressBook from '../components/account/AddressBook';
 const CRUMBS = [
   { label: 'Home', to: '/' },
   { label: 'Account' },
+];
+const TABS = [
+  { id: 'orders', label: 'Sacred Orders', key: 'tabOrders', Icon: Package },
+  { id: 'profile', label: 'Personal Dossier', key: 'tabProfile', Icon: User },
 ];
 
 export default function AccountPage() {
@@ -35,6 +41,8 @@ export default function AccountPage() {
   const [returnType, setReturnType] = useState('return');
   const [returnNote, setReturnNote] = useState({ id: '', text: '' });
   const [trackNote, setTrackNote] = useState({ id: '', text: '' });
+  const wishCount = useWishlistStore((s) => s.items.length);
+  const [tab, setTab] = useState(() => (typeof window !== 'undefined' && window.location.hash === '#addresses' ? 'profile' : 'orders'));
 
   useEffect(() => {
     if (!user) {
@@ -68,32 +76,89 @@ export default function AccountPage() {
   }, [user]);
 
   return (
-    <div className="nx nx-page at-commerce">
-      <PageIntro
-        crumbs={CRUMBS}
-        eyebrow={page.eyebrow}
-        title={page.title}
-        body={user ? `${user.name} · ${user.email}` : page.guestBody}
-        actions={
-          <div className="nx-intro-btns">
-            {isStaff(user) && (
-              <Link to="/admin" className="nx-btn nx-btn-o">
-                Admin
-              </Link>
-            )}
-            <button
-              type="button"
-              className="nx-btn nx-btn-o"
-              onClick={async () => {
-                await logout();
-                onLogout();
-              }}
-            >
-              Sign out
-            </button>
+    <div className={`nx nx-page at-commerce${user ? ' acct-page' : ''}`}>
+      {!user ? (
+        <PageIntro crumbs={CRUMBS} eyebrow={page.eyebrow} title={page.title} body={page.guestBody} />
+      ) : (
+        // Source: AuthPage.jsx account view — breadcrumbs, member banner with stats, tabs.
+        <div className="container-custom acct-top">
+          <nav className="acct-crumbs" aria-label="Breadcrumb">
+            <Link to="/">Home</Link>
+            <span>/</span>
+            <span className="is-on">{page.crumbLabel || 'Sanctuary Account'}</span>
+          </nav>
+
+          <div className="acct-hero">
+            <div className="acct-hero-row">
+              <div className="acct-id">
+                <div className="acct-avatar">
+                  <div>{(user.name || 'K').charAt(0).toUpperCase()}</div>
+                </div>
+                <div>
+                  <div className="acct-chip-row">
+                    <span className="acct-chip">
+                      <Sparkles size={11} /> {page.memberLabel || 'Member'}
+                    </span>
+                    {user.createdAt && <span className="acct-since">· Member since {new Date(user.createdAt).getFullYear()}</span>}
+                  </div>
+                  <h1 className="acct-name">
+                    {page.greeting || 'Namaste,'} {user.name}
+                  </h1>
+                  <p className="acct-contact">
+                    {user.email} {user.phone && `· ${user.phone}`}
+                  </p>
+                </div>
+              </div>
+              <div className="acct-actions">
+                {isStaff(user) && (
+                  <Link to="/admin" className="btn-outline acct-btn-o">
+                    Admin
+                  </Link>
+                )}
+                <Link to={page.designTo || '/customize'} className="btn-gold acct-btn">
+                  <Sparkles size={14} /> {page.designAction || 'Design In Atelier'}
+                </Link>
+                <button
+                  type="button"
+                  className="btn-outline acct-btn-o"
+                  onClick={async () => {
+                    await logout();
+                    onLogout();
+                  }}
+                >
+                  <LogOut size={14} /> Sign Out
+                </button>
+              </div>
+            </div>
+
+            <div className="acct-stats">
+              <div>
+                <span className="acct-stat-k">{page.statOrders || 'Orders'}</span>
+                <div className="acct-stat-v">{loading ? '—' : orders.length}</div>
+              </div>
+              <div>
+                <span className="acct-stat-k">{page.statWishlist || 'Sacred Wishlist'}</span>
+                <div className="acct-stat-v is-gold">{wishCount} saved</div>
+              </div>
+              <div>
+                <span className="acct-stat-k">{page.statAddresses || 'Saved Addresses'}</span>
+                <div className="acct-stat-v is-s">
+                  <MapPin size={15} /> {(user.addresses || []).length}
+                </div>
+              </div>
+            </div>
           </div>
-        }
-      />
+
+          <div className="acct-tabs" role="tablist">
+            {TABS.map(({ id, label, key, Icon }) => (
+              <button key={id} type="button" role="tab" aria-selected={tab === id} className={`acct-tab${tab === id ? ' is-on' : ''}`} onClick={() => setTab(id)}>
+                <Icon size={15} />
+                {page[key] || label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="nx-w nx-body">
         {placed && (
           <div className="nx-sum mb-12">
@@ -102,27 +167,30 @@ export default function AccountPage() {
           </div>
         )}
 
-        {user && <AddressBook />}
+        {user && tab === 'profile' && <AddressBook />}
 
+        {(!user || tab === 'orders') && (
         <section className="nx-acct-sec">
-          <div className="nx-acct-head">
-            <div>
-              <p className="nx-eb">{page.ordersEyebrow}</p>
-              <h2 className="nx-d nx-acct-t">{page.ordersTitle}</h2>
-              <p className="nx-note">
-                {loading
-                  ? page.ordersLoading
-                  : orders.length
-                    ? fillCopy(page.ordersFilledBody, { count: orders.length, orders: orders.length === 1 ? 'order' : 'orders' })
-                    : page.ordersEmptyBody}
-              </p>
+          {!user && (
+            <div className="nx-acct-head">
+              <div>
+                <p className="nx-eb">{page.ordersEyebrow}</p>
+                <h2 className="nx-d nx-acct-t">{page.ordersTitle}</h2>
+                <p className="nx-note">
+                  {loading
+                    ? page.ordersLoading
+                    : orders.length
+                      ? fillCopy(page.ordersFilledBody, { count: orders.length, orders: orders.length === 1 ? 'order' : 'orders' })
+                      : page.ordersEmptyBody}
+                </p>
+              </div>
+              {page.ordersAction && (
+                <Link to={page.ordersTo || '/customize'} className="nx-lnk">
+                  {String(page.ordersAction).replace(/\s*→\s*$/, '')} →
+                </Link>
+              )}
             </div>
-            {page.ordersAction && (
-              <Link to={page.ordersTo || '/customize'} className="nx-lnk">
-                {String(page.ordersAction).replace(/\s*→\s*$/, '')} →
-              </Link>
-            )}
-          </div>
+          )}
 
           {loading ? (
             <Spinner />
@@ -285,6 +353,7 @@ export default function AccountPage() {
             </div>
           )}
         </section>
+        )}
       </div>
     </div>
   );
