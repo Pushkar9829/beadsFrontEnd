@@ -5,7 +5,7 @@ import SeoHead from '../components/SeoHead';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
-import { BannerRow, CmsEmpty, GridSkeleton, PageHero, ProductListing, StudioBand } from '../components/home/nocturne/Listing';
+import { BannerRow, CmsEmpty, CollectionTiles, GridSkeleton, PageHero, ProductListing } from '../components/home/nocturne/Listing';
 
 export default function CollectionPage() {
   const site = useSite();
@@ -92,23 +92,17 @@ export default function CollectionPage() {
       {loading ? (
         <GridSkeleton />
       ) : (
-        <ProductListing eyebrow={site.pages.collections?.inEyebrow || 'In this collection'} title={site.pages.category?.listTitle || 'The pieces'} products={products} chips={chips} filterBy={filterBy} empty={<CmsEmpty block={site.pages.category.empty} />} />
+        <ProductListing eyebrow={site.pages.collections?.inEyebrow || 'In this collection'} title={site.pages.category?.listTitle || 'The pieces'} products={products} chips={chips} filterBy={filterBy} empty={<CmsEmpty block={site.pages.category.empty} />}>
+          {/* Closing "Inside the house" cards, as on the source listing pages: the other collections. */}
+          <CollectionTiles
+            inline
+            eyebrow={site.pages.collections?.moreTitle || 'More collections'}
+            title={`${collection?.name || 'The'} collections`}
+            items={others.slice(0, 6).map((c) => ({ key: c._id, to: `/collection/${c.slug}`, title: c.name, body: c.description, image: c.image ? mediaUrl(c.image) : null }))}
+          />
+        </ProductListing>
       )}
 
-      {others.length > 0 && (
-        <div className="nx-w nx-more">
-          <p className="nx-eb">{site.pages.collections?.moreTitle || 'More collections'}</p>
-          <div className="nx-more-row">
-            {others.map((c) => (
-              <Link key={c._id} to={`/collection/${c.slug}`}>
-                {c.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <StudioBand />
     </div>
   );
 }

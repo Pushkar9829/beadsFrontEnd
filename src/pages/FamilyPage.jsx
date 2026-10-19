@@ -7,7 +7,7 @@ import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import SeoHead from '../components/SeoHead';
 import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
-import { CmsEmpty, CollectionTiles, GridSkeleton, PageHero, ProductListing, StudioBand } from '../components/home/nocturne/Listing';
+import { CmsEmpty, CollectionTiles, GridSkeleton, PageHero, ProductListing } from '../components/home/nocturne/Listing';
 
 const clean = (s) => String(s || '').replace(/\s*→\s*$/, '');
 
@@ -104,16 +104,6 @@ export default function FamilyPage() {
         </ProductListing>
       )}
       {!loading && products.length > 0 && piecesBody && <p className="sr-only">{piecesBody}</p>}
-
-      <StudioBand
-        to={page.piecesTo || '/customize'}
-        cta={clean(page.piecesAction) || 'Open the studio'}
-      />
-      <div className="nx-w nx-back">
-        <Link to="/" className="nx-lnk">
-          <ArrowRight size={13} style={{ transform: 'rotate(180deg)', display: 'inline', verticalAlign: '-2px' }} /> {page.backLabel || 'Back to all houses'}
-        </Link>
-      </div>
     </div>
   );
 }

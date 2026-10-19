@@ -5,7 +5,7 @@ import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import useRefreshOnView from '../hooks/useRefreshOnView';
 import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
-import { CmsEmpty, CollectionTiles, GridSkeleton, PageHero, StudioBand } from '../components/home/nocturne/Listing';
+import { CmsEmpty, CollectionTiles, GridSkeleton, PageHero } from '../components/home/nocturne/Listing';
 
 const RULE_LABELS = {
   manual: 'Curated',
@@ -69,8 +69,6 @@ export default function CollectionsIndexPage() {
           }))}
         />
       )}
-
-      <StudioBand />
     </div>
   );
 }

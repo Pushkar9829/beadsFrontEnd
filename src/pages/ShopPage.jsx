@@ -8,7 +8,7 @@ import { useBrand, pageTitle } from '../store/settingsStore';
 import useRefreshOnView from '../hooks/useRefreshOnView';
 import SeoHead from '../components/SeoHead';
 import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
-import { BannerRow, CmsEmpty, GridSkeleton, NPager, PageHero, ProductListing, StudioBand } from '../components/home/nocturne/Listing';
+import { BannerRow, CmsEmpty, CollectionTiles, GridSkeleton, houseTiles, NPager, PageHero, ProductListing } from '../components/home/nocturne/Listing';
 
 const clean = (s) => String(s || '').replace(/\s*→\s*$/, '');
 
@@ -70,6 +70,8 @@ export default function ShopPage() {
   // A house filter shows that house's image (Homepage → Houses); otherwise the Shop page banner.
   const heroImage = house?.image ? mediaUrl(house.image) : family ? HOUSE_IMAGES[family] : page.image ? mediaUrl(page.image) : HOUSE_IMAGES.gemstones;
   const chips = houses.map((h) => ({ value: h.slug, label: h.name }));
+  // "Inside the house" cards closing the pieces section, as on the source Shop All page.
+  const tiles = houseTiles(site);
 
   const collectionSelect = collections.length > 0 && (
     <label className="cat-select">
@@ -119,9 +121,9 @@ export default function ShopPage() {
         total={loading ? undefined : pagination.total}
         empty={loading ? <GridSkeleton bare /> : <CmsEmpty block={page.empty} />}
         footer={<NPager page={pagination.page || pageNum} pages={pagination.pages || 1} onPage={(n) => { setFilter({ family, collection, page: n }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />}
-      />
-
-      <StudioBand />
+      >
+        <CollectionTiles inline eyebrow={page.tilesEyebrow || 'Inside the house'} title={`${page.title || 'Shop all'} collections`} items={tiles} />
+      </ProductListing>
     </div>
   );
 }

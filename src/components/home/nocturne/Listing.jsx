@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
 import { mediaUrl } from '../../../api/client';
-import { NCard, useReveal } from './Nocturne';
+import { HOUSE_IMAGES, NCard, useReveal } from './Nocturne';
 import { useSite } from '../../../store/contentStore';
 import { SectionTitle } from '../atelier/AtelierHome';
 
@@ -249,6 +249,21 @@ export function CollectionTiles({ eyebrow, title, items = [], inline = false }) 
       <div className="container-custom">{tiles}</div>
     </section>
   );
+}
+
+/** Tiles for the three houses plus the studio (Homepage → Houses / Studio copy), for CollectionTiles. */
+export function houseTiles(site) {
+  const studio = site.studio || {};
+  return [
+    ...(site.houses?.items || []).map((h) => ({
+      key: h.slug,
+      to: `/${h.slug}`,
+      title: h.name,
+      body: h.blurb,
+      image: h.image ? mediaUrl(h.image) : HOUSE_IMAGES[h.slug],
+    })),
+    { key: 'studio', to: studio.to || '/customize', title: studio.title || 'Customization', body: studio.body, kicker: 'Studio' },
+  ];
 }
 
 /** Quiet empty / not-found block. */

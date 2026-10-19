@@ -5,7 +5,7 @@ import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import useRefreshOnView from '../hooks/useRefreshOnView';
 import { HOUSE_IMAGES, useCountdown } from '../components/home/nocturne/Nocturne';
-import { CmsEmpty, EmptyBlock, GridSkeleton, PageHero, ProductListing } from '../components/home/nocturne/Listing';
+import { CmsEmpty, CollectionTiles, EmptyBlock, GridSkeleton, houseTiles, PageHero, ProductListing } from '../components/home/nocturne/Listing';
 
 const pad = (n) => String(n).padStart(2, '0');
 
@@ -76,7 +76,9 @@ export default function FlashSalePage() {
               <EmptyBlock title={copy.emptyProducts || 'Products for this sale are being placed.'} />
             </div>
           ) : (
-            <ProductListing eyebrow={copy.listEyebrow || 'On the tray'} title={copy.listTitle || 'Timed prices'} products={products} />
+            <ProductListing eyebrow={copy.listEyebrow || 'On the tray'} title={copy.listTitle || 'Timed prices'} products={products}>
+              <CollectionTiles inline eyebrow="Inside the house" title={`${sale.name} collections`} items={houseTiles(site)} />
+            </ProductListing>
           )}
         </>
       )}

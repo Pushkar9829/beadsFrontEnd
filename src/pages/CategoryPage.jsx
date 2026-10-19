@@ -6,7 +6,7 @@ import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import SeoHead from '../components/SeoHead';
 import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
-import { BannerRow, CmsEmpty, CollectionTiles, GridSkeleton, PageHero, ProductListing, StudioBand } from '../components/home/nocturne/Listing';
+import { BannerRow, CmsEmpty, CollectionTiles, GridSkeleton, PageHero, ProductListing } from '../components/home/nocturne/Listing';
 
 const clean = (s) => String(s || '').replace(/\s*→\s*$/, '');
 
@@ -125,8 +125,6 @@ export default function CategoryPage() {
           <CollectionTiles inline eyebrow={page.moreEyebrow || 'More from this house'} title={house ? `More ${house.name.toLowerCase()}` : 'More collections'} items={more} />
         </ProductListing>
       )}
-
-      <StudioBand to={page.to || '/customize'} cta={clean(page.action) || 'Open the studio'} />
     </div>
   );
 }
