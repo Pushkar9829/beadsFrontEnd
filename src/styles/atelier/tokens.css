@@ -503,3 +503,20 @@ body {
   --nx-g3: #8E7345;
   --nx-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
 }
+
+/* Ported areas follow the source's base type: 15px / 1.7 body text and browser-default headings.
+   The frontend's global h1-h4 rule (index.css) would otherwise leak Cinzel and letter-spacing into them.
+   Element-level specificity, so the ported class rules still win. */
+:where(.homepage-root, .at-header, .at-footer, .cat-hero, .category-pieces-section, .pd-page, .auth-split-layout) {
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+:where(.homepage-root, .at-header, .at-footer, .cat-hero, .category-pieces-section, .pd-page, .auth-split-layout, .modern-product-card) h1,
+:where(.homepage-root, .at-header, .at-footer, .cat-hero, .category-pieces-section, .pd-page, .auth-split-layout, .modern-product-card) h2,
+:where(.homepage-root, .at-header, .at-footer, .cat-hero, .category-pieces-section, .pd-page, .auth-split-layout, .modern-product-card) h3,
+:where(.homepage-root, .at-header, .at-footer, .cat-hero, .category-pieces-section, .pd-page, .auth-split-layout, .modern-product-card) h4 {
+  font-family: inherit;
+  font-weight: bold;
+  letter-spacing: normal;
+}
