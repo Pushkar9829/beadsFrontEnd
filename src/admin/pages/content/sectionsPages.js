@@ -31,49 +31,24 @@ export const PAGE_SECTIONS = [
     preview: '/about',
     base: 'about',
     fields: [
-      row([text('eyebrow', 'Eyebrow'), text('tagline', 'Tagline')]),
-      text('headline', 'Headline'),
-      strings('intro', 'Intro paragraphs', { multiline: true, itemLabel: 'Paragraph' }),
+      note('The headline and the card are under About layout. Headline and tagline here are used for search results.'),
+      row([text('headline', 'Search title'), text('tagline', 'Search description')]),
+      strings('intro', 'Paragraphs', { multiline: true, itemLabel: 'Paragraph' }),
       area('body', 'Extra body', { rows: 6 }),
-      group('More than a bracelet', [text('moreTitle', 'Title'), area('moreBody', 'Body'), strings('morePoints', 'Points', { itemLabel: 'Point' }), area('moreClose', 'Closing paragraph')]),
-      group('Collections', [
-        text('collectionsTitle', 'Title'),
-        list('collections', 'Collections', [row([text('name', 'Name'), text('to', 'Link', { placeholder: '/path' })]), area('body', 'Body', { rows: 2 })], {
-          itemLabel: 'Collection',
-          summary: (c) => c.name,
-          newItem: { name: '', to: '', body: '' },
-        }),
-      ]),
-      group('What makes us different', [
-        text('differentTitle', 'Title'),
-        list('different', 'Points', [text('title', 'Title'), area('body', 'Body', { rows: 2 })], {
-          itemLabel: 'Difference',
-          summary: (c) => c.title,
-          newItem: { title: '', body: '' },
-        }),
-      ]),
-      group('Approach', [
-        row([text('approachTitle', 'Eyebrow'), text('approachKicker', 'Title')]),
-        area('approachBody', 'Body'),
-        area('approachNote', 'Note'),
-        list('steps', 'Steps', [row([text('n', 'Number'), text('title', 'Title')]), area('body', 'Body', { rows: 2 })], {
-          itemLabel: 'Step',
-          summary: (s) => s.title,
-          newItem: (items) => ({ n: String(items.length + 1).padStart(2, '0'), title: '', body: '' }),
-        }),
-      ]),
-      group('Vision & promise', [text('visionTitle', 'Vision title'), area('vision', 'Vision'), text('promiseTitle', 'Promise title'), strings('promises', 'Promises', { itemLabel: 'Promise' })]),
-      group('Closing', [text('closeLine', 'Close line'), text('closeEntity', 'Close entity')]),
     ],
   },
   {
     key: 'pageAbout',
     label: 'About layout',
     group: 'Pages',
-    hint: 'About page image and link',
+    hint: 'About page headline and card',
     preview: '/about',
     base: 'pages.aboutPage',
-    fields: [text('eyebrow', 'Eyebrow'), linkPair(), media('image', 'Portrait image', { aspect: 'aspect-[3/4]' })],
+    fields: [
+      text('kicker', 'Eyebrow'),
+      row([text('titleLead', 'Headline'), text('titleTail', 'Headline, gold italic part')]),
+      group('Card', [text('cardTitle', 'Title'), area('cardBody', 'Text', { rows: 2 }), row([text('cardAction', 'Button label'), text('cardTo', 'Button link', { placeholder: '/customize' })])]),
+    ],
   },
   {
     key: 'pageCollections',

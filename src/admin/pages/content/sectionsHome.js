@@ -147,16 +147,6 @@ export const HOME_SECTIONS = [
         'studio'
       ),
       group(
-        'Studio band on other pages',
-        [
-          note('The "compose your own" band at the bottom of Shop, Collections, house, category, journal and product pages.'),
-          row([text('bandEyebrow', 'Eyebrow'), text('bandTitle', 'Title')]),
-          area('bandBody', 'Text', { rows: 2 }),
-          row([text('bandCta', 'Button label'), text('bandTo', 'Button link', { placeholder: '/customize' })]),
-        ],
-        'studio'
-      ),
-      group(
         'Ritual steps',
         [
           list('steps', 'Steps', [row([text('n', 'Number'), text('title', 'Title')]), area('body', 'Body', { rows: 2 })], {
@@ -287,7 +277,7 @@ export const HOME_SECTIONS = [
     key: 'reviews',
     label: 'Reviews',
     group: 'Homepage',
-    hint: 'Rating and customer notes',
+    hint: 'Rating, customer notes and the FAQ page heading',
     preview: '/',
     base: '',
     paths: ['reviews', 'voices', 'testimonials', 'faq'],
@@ -315,11 +305,10 @@ export const HOME_SECTIONS = [
       group(
         'On the FAQ page',
         [
-          row([text('pageEyebrow', 'Eyebrow'), text('pageTitle', 'Title')]),
-          area('pageBody', 'Body'),
+          text('kicker', 'Eyebrow'),
+          row([text('heading', 'Title'), text('headingTail', 'Title, gold italic part')]),
+          area('pageBody', 'Search description', { rows: 2 }),
           area('emptyBody', 'When there are no questions', { rows: 2 }),
-          row([text('helpKicker', 'Help box heading', { placeholder: 'Still unsure?' }), text('helpAction', 'Help box link', { placeholder: 'Contact us →' })]),
-          area('helpBody', 'Help box text', { rows: 2 }),
         ],
         'faq'
       ),
@@ -333,8 +322,11 @@ export const HOME_SECTIONS = [
     preview: '/journal',
     base: 'journal',
     fields: [
-      group('Short heading (fallback)', [eyebrowTitle(), linkPair()]),
-      group('On the journal page', [row([text('pageEyebrow', 'Eyebrow'), text('pageTitle', 'Title')]), area('pageBody', 'Body'), area('emptyBody', 'When there are no posts', { rows: 2 })]),
+      text('kicker', 'Eyebrow'),
+      row([text('heading', 'Title'), text('headingTail', 'Title, gold italic part')]),
+      area('intro', 'Text under the title', { rows: 2 }),
+      row([text('pageTitle', 'Browser tab title'), area('pageBody', 'Search description', { rows: 2 })]),
+      area('emptyBody', 'When there are no posts', { rows: 2 }),
     ],
   },
   {

@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import api, { mediaUrl } from '../api/client';
 import SeoHead from '../components/SeoHead';
 import { useBrand, pageTitle } from '../store/settingsStore';
-import { EmptyBlock, PageIntro, StudioBand } from '../components/home/nocturne/Listing';
+import { EmptyBlock, PageIntro } from '../components/home/nocturne/Listing';
 import { postDate } from './BlogListPage';
 
 export default function BlogPostPage() {
@@ -79,7 +79,6 @@ export default function BlogPostPage() {
           <ArrowLeft size={13} style={{ display: 'inline', verticalAlign: '-2px' }} /> All notes
         </Link>
       </article>
-      <StudioBand />
     </div>
   );
 }

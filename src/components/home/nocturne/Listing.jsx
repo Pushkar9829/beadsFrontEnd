@@ -4,8 +4,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
 import { mediaUrl } from '../../../api/client';
-import { HOUSE_IMAGES, NCard, useReveal } from './Nocturne';
-import { useSite } from '../../../store/contentStore';
+import { HOUSE_IMAGES, NCard } from './Nocturne';
 import { SectionTitle } from '../atelier/AtelierHome';
 
 /** Category hero banner with breadcrumbs, eyebrow, title, copy and pill row. `size`: tall | short. */
@@ -291,28 +290,6 @@ export function BannerRow({ banners = [] }) {
         ))}
       </div>
     </div>
-  );
-}
-
-/** Compact "studio" invitation used at the end of listing pages. */
-/** "Compose your own" band; its copy is edited in the admin under Homepage → Studio tile. */
-export function StudioBand({ title, body, to, cta }) {
-  const ref = useReveal();
-  const band = useSite().studio || {};
-  const text = body ?? band.bandBody;
-  return (
-    <section ref={ref} className="nx-band nx-reveal">
-      <div className="nx-w nx-band-row">
-        <div>
-          <p className="nx-eb">{band.bandEyebrow || 'The studio'}</p>
-          <p className="nx-d nx-band-t">{title || band.bandTitle || 'Compose your own strand.'}</p>
-          {text && <p className="nx-lede">{text}</p>}
-        </div>
-        <Link to={to || band.bandTo || '/customize'} className="nx-btn">
-          {cta || String(band.bandCta || 'Open the studio').replace(/\s*→\s*$/, '')} <ArrowRight size={15} strokeWidth={1.6} />
-        </Link>
-      </div>
-    </section>
   );
 }
 

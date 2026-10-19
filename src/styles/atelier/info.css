@@ -1,0 +1,164 @@
+/* Info pages (about, FAQ, policies), ported from beeds_ecommerce/src/pages/InfoPages.jsx inline styles. */
+
+.info-page {
+  background: #0A0810;
+  min-height: 85vh;
+  padding: 60px 0 96px;
+}
+
+.info-narrow {
+  max-width: 840px;
+}
+
+.info-page .info-title {
+  margin-bottom: 24px;
+}
+
+.info-page .info-title.is-faq {
+  margin-bottom: 32px;
+}
+
+.info-prose {
+  font-size: 16px;
+  color: #AAA3AF;
+  line-height: 1.8;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 48px;
+  white-space: pre-line;
+}
+
+.info-prose strong {
+  color: #EDE8E1;
+}
+
+.info-card {
+  padding: 32px;
+  background: #120D19;
+  border: 1px solid rgba(217, 174, 79, 0.25);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.info-page .info-card-title {
+  font-family: var(--font-brand);
+  font-size: 20px;
+  color: #EDE8E1;
+  margin-bottom: 4px;
+}
+
+.info-card-body {
+  font-size: 14px;
+  color: #AAA3AF;
+}
+
+.info-page a.btn-gold {
+  text-decoration: none;
+}
+
+/* FAQ */
+.info-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.info-faq {
+  background: #120D19;
+  border: 1px solid rgba(217, 174, 79, 0.16);
+  border-radius: 6px;
+  padding: 24px;
+  scroll-margin-top: 120px;
+}
+
+.info-page .info-faq-q {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 600;
+  color: #EDE8E1;
+  margin-bottom: 8px;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.info-faq-a {
+  font-size: 14px;
+  color: #AAA3AF;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+/* Policies */
+.info-policy {
+  background: #120D19;
+  border: 1px solid rgba(217, 174, 79, 0.16);
+  border-radius: 8px;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: #AAA3AF;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.info-policy strong,
+.info-page .info-policy-h {
+  color: #EDE8E1;
+}
+
+.info-page .info-policy-h {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+  margin: 0;
+}
+
+.info-policy ul {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-policy a {
+  color: #D9AE4F;
+}
+
+@media (max-width: 640px) {
+  .info-policy {
+    padding: 24px;
+  }
+}
+
+.info-policy section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-policy section .btn-gold {
+  align-self: flex-start;
+}
+
+/* Journal list header (source: InfoPages.jsx, journal) */
+.jr-head {
+  margin-bottom: 56px;
+  text-align: center;
+  padding-top: 60px;
+}
+
+.jr-head-p {
+  font-size: 16px;
+  color: #AAA3AF;
+  max-width: 600px;
+  margin: 10px auto 0;
+}

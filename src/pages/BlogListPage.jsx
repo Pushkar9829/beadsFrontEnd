@@ -6,7 +6,7 @@ import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import useRefreshOnView from '../hooks/useRefreshOnView';
 import { HOUSE_IMAGES, useReveal } from '../components/home/nocturne/Nocturne';
-import { EmptyBlock, PageIntro } from '../components/home/nocturne/Listing';
+import { EmptyBlock } from '../components/home/nocturne/Listing';
 
 export const postDate = (p) => {
   const d = new Date(p.publishedAt || p.createdAt);
@@ -34,7 +34,14 @@ export default function BlogListPage() {
   return (
     <div className="nx nx-page at-utility is-stage">
       <SeoHead title={pageTitle(title, brand)} description={copy.pageBody} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
-      <PageIntro crumbs={[{ label: 'Home', to: '/' }, { label: copy.title || 'Journal' }]} eyebrow={copy.pageEyebrow || copy.eyebrow} title={title} body={copy.pageBody} split />
+      {/* Source header (InfoPages.jsx, journal): centred eyebrow, "THE journal", one line. */}
+      <div className="container-custom jr-head">
+        {copy.kicker && <span className="section-eyebrow">{copy.kicker}</span>}
+        <h1 className="section-title">
+          {copy.heading || 'THE'} {(copy.headingTail ?? 'journal') && <span className="gold-italic">{copy.headingTail ?? 'journal'}</span>}
+        </h1>
+        {copy.intro && <p className="jr-head-p">{copy.intro}</p>}
+      </div>
 
       <section ref={ref} className="nx-sec nx-reveal">
         <div className="nx-w">

@@ -1,12 +1,11 @@
+// FAQ, ported from beeds_ecommerce/src/pages/InfoPages.jsx (type "faq"): eyebrow, "FREQUENTLY asked
+// questions" title and one open card per question. Questions: admin → FAQs; heading: Site pages → Reviews.
 import { useCallback, useState } from 'react';
-import { Link } from 'react-router-dom';
 import api from '../api/client';
 import SeoHead from '../components/SeoHead';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import useRefreshOnView from '../hooks/useRefreshOnView';
-import { useReveal } from '../components/home/nocturne/Nocturne';
-import { EmptyBlock, PageIntro } from '../components/home/nocturne/Listing';
 
 export default function FaqPage() {
   const site = useSite();
@@ -14,7 +13,6 @@ export default function FaqPage() {
   const copy = site.faq || {};
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const ref = useReveal();
   const load = useCallback(() => {
     api
       .get('/faqs')
@@ -24,43 +22,31 @@ export default function FaqPage() {
   }, []);
   useRefreshOnView(load);
 
-  const title = copy.pageTitle || copy.title || 'FAQ';
+  const lead = copy.heading || 'FREQUENTLY';
+  const tail = copy.headingTail ?? 'asked questions';
 
   return (
-    <div className="nx nx-page at-utility">
-      <SeoHead title={pageTitle(title, brand)} description={copy.pageBody} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
-      <PageIntro crumbs={[{ label: 'Home', to: '/' }, { label: copy.pageTitle || copy.title || 'FAQ' }]} eyebrow={copy.pageEyebrow || copy.eyebrow} title={title} body={copy.pageBody} split />
+    <div className="info-page">
+      <SeoHead title={pageTitle(`${lead} ${tail}`.trim(), brand)} description={copy.pageBody} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
+      <div className="container-custom info-narrow">
+        {copy.kicker && <span className="section-eyebrow">{copy.kicker}</span>}
+        <h1 className="section-title info-title is-faq">
+          {lead} {tail && <span className="gold-italic">{tail}</span>}
+        </h1>
 
-      <section ref={ref} className="nx-sec nx-reveal">
-        <div className="nx-w nx-split">
-          <aside className="nx-split-side">
-            <p className="nx-eb">{copy.helpKicker || 'Still unsure?'}</p>
-            <p className="nx-lede">{copy.helpBody || 'Write to us and the atelier will answer personally.'}</p>
-            <Link to="/grievance" className="nx-lnk nx-mt">
-              {copy.helpAction || 'Contact us →'}
-            </Link>
-          </aside>
-          <div>
-            {loading ? (
-              <div className="nx-skel nx-faq-skel" />
-            ) : !faqs.length ? (
-              <EmptyBlock title={copy.emptyBody || 'No questions published yet.'} />
-            ) : (
-              <div className="nx-faq">
-                {faqs.map((f, i) => (
-                  <details key={f._id} open={i === 0}>
-                    <summary>
-                      <span className="nx-faq-n">{String(i + 1).padStart(2, '0')}</span>
-                      <span className="nx-faq-q">{f.question}</span>
-                    </summary>
-                    <p>{f.answer}</p>
-                  </details>
-                ))}
+        {loading ? null : !faqs.length ? (
+          <p className="info-faq-a">{copy.emptyBody || 'No questions published yet.'}</p>
+        ) : (
+          <div className="info-faq-list">
+            {faqs.map((f) => (
+              <div key={f._id} id={f._id} className="info-faq">
+                <h3 className="info-faq-q">{f.question}</h3>
+                <p className="info-faq-a">{f.answer}</p>
               </div>
-            )}
+            ))}
           </div>
-        </div>
-      </section>
+        )}
+      </div>
     </div>
   );
 }
