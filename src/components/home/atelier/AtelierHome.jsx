@@ -753,7 +753,7 @@ export function AFinder({ copy = {}, purposes = [] }) {
                     <span className="date-field-sub">Year</span>
                   </div>
                 </div>
-                <button type="submit" disabled={!dobValid} className="oracle-date-btn" aria-label="Find stones for this birth date">
+                <button type="submit" className="oracle-date-btn" aria-label="Find stones for this birth date">
                   <ArrowRight size={16} strokeWidth={2} />
                 </button>
                 {state.byDate && r?.label && (
@@ -783,7 +783,7 @@ export function AFinder({ copy = {}, purposes = [] }) {
                   <div className="oracle-stones-trio">
                     {(r.stones || []).slice(0, 3).map((s, idx) => (
                       <div key={s.slug} className="oracle-stone-card">
-                        <div className="stone-card-visual" style={{ background: s.colorHex }}>
+                        <div className="stone-card-visual" style={s.image ? undefined : { background: s.colorHex }}>
                           {s.image && <img src={mediaUrl(s.image)} alt={s.name} className="stone-card-img" loading="lazy" />}
                           <div className="stone-specimen-badge">
                             <span>Specimen {idx + 1}</span>
@@ -835,7 +835,7 @@ export function AFinder({ copy = {}, purposes = [] }) {
                       <span>{clean(copy.cta || 'Compose with these')}</span>
                       <ArrowRight size={15} strokeWidth={2} />
                     </Link>
-                    {copy.ctaNote && <span className="oracle-cta-note">{copy.ctaNote}</span>}
+                    <span className="oracle-cta-note">{copy.ctaNote || 'Loads these specimens directly onto your strand in the studio'}</span>
                   </div>
                 </>
               )}
@@ -864,7 +864,7 @@ export function ACraft({ copy = {}, image }) {
         <div className="rudraksha-editorial-grid">
           <div className="rudraksha-visual-plate reveal-left">
             <img src={image} alt="" className="rudraksha-main-img" loading="lazy" />
-            {copy.plaque && <div className="rudraksha-origin-plaque">{copy.plaque}</div>}
+            <div className="rudraksha-origin-plaque">{copy.plaque || 'Nepal high-altitude origin · Grade A Vedic seed'}</div>
           </div>
           <div className="rudraksha-content reveal-right">
             {copy.eyebrow && <span className="section-eyebrow">{copy.eyebrow}</span>}
@@ -1028,7 +1028,9 @@ export function ANewsletter({ copy = {} }) {
           )}
           <span className="gold-italic">{tail}</span>
         </h2>
-        {copy.body && <p className="newsletter-subtext">{copy.body}</p>}
+        <p className="newsletter-subtext">
+          {copy.body || 'Subscribe for astrological transit advisories, lunar eclipse consecration updates, and exclusive access to uncirculated Himalayan gemstone drops.'}
+        </p>
         {state.done ? (
           <div className="newsletter-success-box">
             <Check size={14} color="#C5A572" />
@@ -1059,7 +1061,7 @@ export function ANewsletter({ copy = {} }) {
             {state.error}
           </p>
         )}
-        {copy.note && <div className="newsletter-disclaimer">{copy.note}</div>}
+        <div className="newsletter-disclaimer">{copy.note || 'We transmit only purposeful astrological notices. Zero superfluous communications.'}</div>
       </div>
     </section>
   );

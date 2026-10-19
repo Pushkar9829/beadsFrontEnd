@@ -167,10 +167,6 @@ a.hero-dock-specimen:hover {
   transition: opacity 0.2s ease;
 }
 
-.oracle-date-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 /* Newsletter */
 .newsletter-eyebrow {
@@ -204,5 +200,58 @@ a.hero-dock-specimen:hover {
   .collection-pill {
     flex: none;
     white-space: nowrap;
+  }
+}
+
+/* ---- Exactness pass (computed-style diff against the source app) ---- */
+
+/* Source buttons keep the browser's normal line-height; Tailwind's preflight makes them inherit 1.7.
+   Links that stand in for source buttons get the same. */
+:where(.homepage-root) button,
+:where(.homepage-root) input,
+.homepage-root a.btn-gold,
+.homepage-root a.btn-outline,
+.homepage-root a.collection-see-all-btn,
+.homepage-root a.btn-kundali-action,
+.homepage-root a.oracle-compose-btn {
+  line-height: normal;
+}
+
+.homepage-root a.collection-see-all-btn {
+  display: inline-block;
+}
+
+/* Source images are inline (no preflight). */
+.homepage-root .house-img {
+  display: inline;
+}
+
+/* The frontend's global input rule (index.css) forces light text on every input. */
+.homepage-root input.oracle-input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']) {
+  color: #1A160F;
+  -webkit-text-fill-color: #1A160F;
+  caret-color: #1A160F;
+}
+
+.homepage-root input.oracle-input::placeholder {
+  color: #A89C8A;
+  -webkit-text-fill-color: #A89C8A;
+}
+
+.homepage-root input.newsletter-input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']) {
+  color: #F4F1EC;
+  -webkit-text-fill-color: #F4F1EC;
+  caret-color: #F4F1EC;
+}
+
+.homepage-root input.newsletter-input::placeholder {
+  color: darkgray;
+  -webkit-text-fill-color: darkgray;
+}
+
+@media (max-width: 639px) {
+  .homepage-root input.oracle-input,
+  .homepage-root input.newsletter-input {
+    font-size: 14px;
   }
 }
