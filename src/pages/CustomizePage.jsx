@@ -83,7 +83,7 @@ export default function CustomizePage() {
             <p className="nx-error">{error}</p>
           </div>
         ) : (
-          <GridSkeleton n={8} />
+          <GridSkeleton n={8} tone="dark" />
         )}
       </div>
     );

@@ -72,7 +72,7 @@ export default function ShopPage() {
   const chips = houses.map((h) => ({ value: h.slug, label: h.name }));
 
   const collectionSelect = collections.length > 0 && (
-    <label className="nx-sort">
+    <label className="cat-select">
       <span className="sr-only">Collection</span>
       <select value={collection} onChange={(e) => setFilter({ family, collection: e.target.value })}>
         <option value="">All collections</option>
@@ -99,7 +99,7 @@ export default function ShopPage() {
         meta={loading ? [] : [`${pagination.total ?? products.length} ${pagination.total === 1 ? 'piece' : 'pieces'}`, activeCollection?.name].filter(Boolean)}
         actions={
           page.to && (
-            <Link to={page.to} className="nx-lnk">
+            <Link to={page.to}>
               {clean(page.action) || 'Customization'} →
             </Link>
           )

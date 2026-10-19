@@ -81,7 +81,7 @@ export default function CollectionPage() {
         body={collection?.description}
         meta={loading ? [] : [`${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`]}
         actions={
-          <Link to="/collections" className="nx-lnk">
+          <Link to="/collections">
             All collections →
           </Link>
         }

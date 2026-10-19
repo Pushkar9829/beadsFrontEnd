@@ -109,7 +109,7 @@ export default function CategoryPage() {
         meta={loading ? [] : [`${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`]}
         actions={
           page.to && (
-            <Link to={page.to} className="nx-lnk">
+            <Link to={page.to}>
               {clean(page.action) || 'Customization'} →
             </Link>
           )
@@ -121,10 +121,10 @@ export default function CategoryPage() {
       {loading ? (
         <GridSkeleton />
       ) : (
-        <ProductListing eyebrow={house?.name ? `${house.name} · collection` : 'Collection'} title={page.listTitle || 'The pieces'} products={products} empty={<CmsEmpty block={page.empty} />} />
+        <ProductListing eyebrow={house?.name ? `${house.name} · collection` : 'Collection'} title={page.listTitle || 'The pieces'} products={products} empty={<CmsEmpty block={page.empty} />}>
+          <CollectionTiles inline eyebrow={page.moreEyebrow || 'More from this house'} title={house ? `More ${house.name.toLowerCase()}` : 'More collections'} items={more} />
+        </ProductListing>
       )}
-
-      <CollectionTiles eyebrow={page.moreEyebrow || 'More from this house'} title={house ? `More ${house.name.toLowerCase()}` : 'More collections'} items={more} />
 
       <StudioBand to={page.to || '/customize'} cta={clean(page.action) || 'Open the studio'} />
     </div>

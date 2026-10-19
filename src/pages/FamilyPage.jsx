@@ -82,8 +82,8 @@ export default function FamilyPage() {
         meta={loading ? [] : [`${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`, children.length ? `${children.length} collections` : null].filter(Boolean)}
         actions={
           page.shopTo && (
-            <Link to={page.shopTo} className="nx-lnk">
-              {clean(page.shopAction) || 'Shop all'} →
+            <Link to={page.shopTo}>
+              {clean(page.shopAction) || 'Shop all'} <ArrowRight size={12} />
             </Link>
           )
         }
@@ -99,11 +99,11 @@ export default function FamilyPage() {
           chips={chips}
           filterBy={filterBy}
           empty={<CmsEmpty block={page.empty} />}
-        />
+        >
+          <CollectionTiles inline eyebrow={page.tilesEyebrow || 'Inside the house'} title={`${title} collections`} items={subs} />
+        </ProductListing>
       )}
       {!loading && products.length > 0 && piecesBody && <p className="sr-only">{piecesBody}</p>}
-
-      <CollectionTiles eyebrow={page.tilesEyebrow || 'Inside the house'} title={`${title} collections`} items={subs} />
 
       <StudioBand
         to={page.piecesTo || '/customize'}

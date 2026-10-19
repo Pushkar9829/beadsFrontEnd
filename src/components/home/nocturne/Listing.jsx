@@ -1,20 +1,22 @@
-// Nocturne building blocks for listing pages (house and category pages).
+// Building blocks for listing pages (house, shop, category, collection, flash sale). The hero, pieces
+// section and collection tiles follow beeds_ecommerce/src/pages/CategoryPage.jsx (styles/atelier/listing.css).
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
 import { mediaUrl } from '../../../api/client';
 import { NCard, useReveal } from './Nocturne';
 import { useSite } from '../../../store/contentStore';
+import { SectionTitle } from '../atelier/AtelierHome';
 
-/** Full-bleed page hero with breadcrumbs. Height is set per page via `size` (tall | short). */
+/** Category hero banner with breadcrumbs, eyebrow, title, copy and pill row. `size`: tall | short. */
 export function PageHero({ image, crumbs = [], eyebrow, title, body, meta = [], actions, size = 'tall' }) {
   return (
-    <section className={`nx-phero is-${size}`}>
-      {image && <img src={image} alt="" fetchPriority="high" />}
-      <div className="nx-phero-shade" />
-      <div className="nx-w nx-phero-in">
+    <section className={`cat-hero${size === 'short' ? ' is-short' : ''}`}>
+      {image && <img src={image} alt="" className="cat-hero-img" fetchPriority="high" />}
+      <div className="cat-hero-shade" />
+      <div className="container-custom cat-hero-in">
         {crumbs.length > 0 && (
-          <nav className="nx-crumbs" aria-label="Breadcrumb">
+          <nav className="cat-crumbs" aria-label="Breadcrumb">
             <ol>
               {crumbs.map((c, i) => (
                 <li key={`${c.label}-${i}`}>
@@ -24,23 +26,19 @@ export function PageHero({ image, crumbs = [], eyebrow, title, body, meta = [], 
             </ol>
           </nav>
         )}
-        <div className="nx-phero-copy">
-          {eyebrow && <p className="nx-eb nx-rise">{eyebrow}</p>}
-          <h1 className={`nx-d nx-phero-t nx-rise${String(title || '').length > 26 ? ' is-long' : ''}`}>{title}</h1>
-          {body && <p className="nx-phero-sub nx-rise">{body}</p>}
-          {(meta.length > 0 || actions) && (
-            <div className="nx-phero-row nx-rise">
-              {meta.length > 0 && (
-                <ul className="nx-phero-meta">
-                  {meta.map((m) => (
-                    <li key={m}>{m}</li>
-                  ))}
-                </ul>
-              )}
-              {actions}
-            </div>
-          )}
-        </div>
+        {eyebrow && <span className="section-eyebrow">{eyebrow}</span>}
+        <h1 className={`cat-hero-title${String(title || '').length > 26 ? ' is-long' : ''}`}>{title}</h1>
+        {body && <p className="cat-hero-desc">{body}</p>}
+        {(meta.length > 0 || actions) && (
+          <div className="cat-hero-pills">
+            {meta.map((m) => (
+              <span key={m} className="cat-hero-pill">
+                {m}
+              </span>
+            ))}
+            {actions && <span className="cat-hero-action">{actions}</span>}
+          </div>
+        )}
       </div>
     </section>
   );
@@ -65,11 +63,11 @@ function sortProducts(list, sort) {
 }
 
 /**
- * Product grid with an optional chip filter (e.g. by sub-collection) and a sort menu.
- * chips: [{ value, label, count }] ; filterBy(product, value) → boolean
+ * Cream "pieces" section: product grid with an optional pill filter (e.g. by sub-collection) and a sort menu.
+ * chips: [{ value, label, count }] ; filterBy(product, value) → boolean. `children` render after the grid
+ * inside the same section (e.g. inline CollectionTiles).
  */
-export function ProductListing({ products = [], chips = [], filterBy, empty, title = 'The pieces', eyebrow, activeChip, onChip, extra, total, footer }) {
-  const ref = useReveal();
+export function ProductListing({ products = [], chips = [], filterBy, empty, title = 'The pieces', eyebrow, activeChip, onChip, extra, total, footer, children }) {
   const [ownChip, setOwnChip] = useState('all');
   // Controlled chips (onChip) filter on the server; otherwise filter the list we were given.
   const chip = onChip ? activeChip || 'all' : ownChip;
@@ -82,30 +80,29 @@ export function ProductListing({ products = [], chips = [], filterBy, empty, tit
   const count = total ?? shown.length;
 
   return (
-    <section ref={ref} className="nx-sec nx-reveal">
-      <div className="nx-w">
-        <div className="nx-head nx-head-tight">
-          <div>
-            {eyebrow && <p className="nx-eb">{eyebrow}</p>}
-            <h2 className="nx-d nx-h2 nx-h2-s">{title}</h2>
-          </div>
+    <section className="category-pieces-section">
+      <div className="container-custom">
+        <div className="cat-pieces-head reveal-on-scroll">
+          {eyebrow && <span className="section-eyebrow">{eyebrow}</span>}
+          <h2 className="section-title">{String(title).toUpperCase()}</h2>
         </div>
-        <div className="nx-toolbar">
-          <div className="nx-chips-row" role="tablist" aria-label="Filter">
+
+        <div className="cat-filter-bar reveal-on-scroll">
+          <div className="cat-filter-pills" role="tablist" aria-label="Filter">
             {chips.length > 1 &&
               [{ value: 'all', label: 'All', count: onChip ? undefined : products.length }, ...chips].map((c) => (
-                <button key={c.value} type="button" role="tab" aria-selected={chip === c.value} className={chip === c.value ? 'is-on' : ''} onClick={() => setChip(c.value)}>
+                <button key={c.value} type="button" role="tab" aria-selected={chip === c.value} className={`pill-tab ${chip === c.value ? 'active' : ''}`} onClick={() => setChip(c.value)}>
                   {c.label}
-                  {c.count != null && <span>{c.count}</span>}
+                  {c.count != null && <span className="pill-count">({c.count})</span>}
                 </button>
               ))}
           </div>
-          <div className="nx-toolbar-r">
+          <div className="cat-sort-row">
             {extra}
-            <span className="nx-count">
-              {count} {count === 1 ? 'piece' : 'pieces'}
+            <span className="cat-count">
+              {count} {count === 1 ? 'piece' : 'pieces'} shown
             </span>
-            <label className="nx-sort">
+            <label className="cat-select">
               <span className="sr-only">Sort by</span>
               <select value={sort} onChange={(e) => setSort(e.target.value)}>
                 {SORTS.map((s) => (
@@ -118,18 +115,18 @@ export function ProductListing({ products = [], chips = [], filterBy, empty, tit
             </label>
           </div>
         </div>
+
         {shown.length === 0 ? (
-          empty
+          <div className="cat-empty-wrap">{empty}</div>
         ) : (
-          <div className="nx-grid">
-            {shown.map((p, i) => (
-              <div key={p._id} className="nx-grid-item" style={{ '--i': Math.min(i, 12) }}>
-                <NCard product={p} />
-              </div>
+          <div className="category-products-grid reveal-stagger">
+            {shown.map((p) => (
+              <NCard key={p._id} product={p} />
             ))}
           </div>
         )}
         {footer}
+        {children}
       </div>
     </section>
   );
@@ -139,30 +136,46 @@ export function ProductListing({ products = [], chips = [], filterBy, empty, tit
 export function NPager({ page = 1, pages = 1, onPage }) {
   if (pages <= 1) return null;
   return (
-    <nav className="nx-pager" aria-label="Pages">
-      <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)}>
+    <nav className="cat-pager" aria-label="Pages">
+      <button type="button" className="pill-tab" disabled={page <= 1} onClick={() => onPage(page - 1)}>
         <ArrowLeft size={14} strokeWidth={1.6} /> Previous
       </button>
       <span>
         Page {page} of {pages}
       </span>
-      <button type="button" disabled={page >= pages} onClick={() => onPage(page + 1)}>
+      <button type="button" className="pill-tab" disabled={page >= pages} onClick={() => onPage(page + 1)}>
         Next <ArrowRight size={14} strokeWidth={1.6} />
       </button>
     </nav>
   );
 }
 
-/** Skeleton grid while a listing loads. */
-export function GridSkeleton({ n = 4, bare = false }) {
+/** Skeleton grid while a listing loads (cream pieces section; `tone="dark"` for Nocturne pages). */
+export function GridSkeleton({ n = 4, bare = false, tone = 'cream' }) {
+  if (tone === 'dark') {
+    const grid = (
+      <div className="nx-grid">
+        {Array.from({ length: n }).map((_, i) => (
+          <div key={i} className="nx-skel" />
+        ))}
+      </div>
+    );
+    return bare ? grid : <div className="nx-w nx-sec">{grid}</div>;
+  }
   const grid = (
-    <div className="nx-grid">
+    <div className="category-products-grid" aria-busy="true">
       {Array.from({ length: n }).map((_, i) => (
-        <div key={i} className="nx-skel" />
+        <div key={i} className="cat-skel" />
       ))}
     </div>
   );
-  return bare ? grid : <div className="nx-w nx-sec">{grid}</div>;
+  return bare ? (
+    grid
+  ) : (
+    <section className="category-pieces-section">
+      <div className="container-custom">{grid}</div>
+    </section>
+  );
 }
 
 const cleanLabel = (s) => String(s || '').replace(/\s*→\s*$/, '');
@@ -192,38 +205,48 @@ export function CmsEmpty({ block }) {
   );
 }
 
-/** Large photo tiles linking to sub-collections. items: [{ key, to, title, body, image, count, kicker }] */
-export function CollectionTiles({ eyebrow, title, items = [] }) {
-  const ref = useReveal();
+/** "Inside the house" tiles linking to sub-collections. items: [{ key, to, title, body, image, count, kicker }].
+ * `inline` renders just the block (as ProductListing children); otherwise it gets its own cream section. */
+export function CollectionTiles({ eyebrow, title, items = [], inline = false }) {
   if (!items.length) return null;
-  return (
-    <section ref={ref} className="nx-sec nx-reveal nx-pb0">
-      <div className="nx-w">
-        <div className="nx-head nx-head-tight">
-          <div>
-            {eyebrow && <p className="nx-eb">{eyebrow}</p>}
-            {title && <h2 className="nx-d nx-h2 nx-h2-s">{title}</h2>}
-          </div>
-        </div>
-        <div className={`nx-subs is-${Math.min(items.length, 4)}`}>
-          {items.map((it, i) => (
-            <Link key={it.key} to={it.to} className="nx-sub">
-              {it.image ? <img src={it.image} alt="" loading="lazy" /> : <span className="nx-pt-tone" />}
-              <span className="nx-sub-top">
-                <span>{it.kicker || String(i + 1).padStart(2, '0')}</span>
-                {it.count != null && it.count > 0 && <span className="nx-pill">{it.count} {it.count === 1 ? 'piece' : 'pieces'}</span>}
-              </span>
-              <span className="nx-sub-c">
-                <span className="nx-d nx-sub-h">{it.title}</span>
-                {it.body && <span className="nx-sub-p">{it.body}</span>}
-              </span>
-              <span className="nx-arrow nx-sub-arrow" aria-hidden>
-                <ArrowRight size={16} strokeWidth={1.5} />
-              </span>
-            </Link>
-          ))}
-        </div>
+  const tiles = (
+    <div className="cat-tiles reveal-on-scroll">
+      <div className="cat-tiles-head">
+        {eyebrow && <span className="section-eyebrow">{eyebrow}</span>}
+        {title && <SectionTitle text={title} />}
       </div>
+      <div className="cat-tiles-grid reveal-stagger">
+        {items.map((it, i) => {
+          const studio = it.kicker === 'Studio';
+          return (
+            <Link key={it.key} to={it.to} className={`luxury-card cat-tile${studio ? ' is-studio' : ''}`}>
+              {it.image ? <img src={it.image} alt="" loading="lazy" /> : <span className="cat-tile-tone" />}
+              <div className="cat-tile-shade" />
+              <div className="cat-tile-top">
+                <span className="cat-tile-n">{studio ? 'STUDIO' : it.kicker || String(i + 1).padStart(2, '0')}</span>
+                {it.count != null && it.count > 0 && (
+                  <span className="cat-tile-count">
+                    {it.count} {it.count === 1 ? 'piece' : 'pieces'}
+                  </span>
+                )}
+              </div>
+              <div className="cat-tile-body">
+                <h3 className="cat-tile-h">{it.title}</h3>
+                {it.body && <p className="cat-tile-p">{it.body}</p>}
+                <div className="cat-tile-arrow" aria-hidden>
+                  <ArrowRight size={14} />
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+  if (inline) return tiles;
+  return (
+    <section className="category-pieces-section is-tiles-only">
+      <div className="container-custom">{tiles}</div>
     </section>
   );
 }
