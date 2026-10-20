@@ -1,743 +1,1493 @@
-/* Customization studio in the atelier look, from beeds_ecommerce/src/pages/StudioBuilderPage.jsx:
-   purple stage, cream option cards with a gold check, underlined step rail, glass side panels,
-   gold gradient actions and the cream crystal popup (source commit 00a6eaf).
-   The studio markup is the frontend's own; cream surfaces re-point the Nocturne colour variables
-   so every child picks up dark-on-cream text without per-element overrides. */
+/* Customization studio — exact port of beeds_ecommerce/src/pages/StudioBuilderPage.jsx (source commit
+   00a6eaf). The source is all inline styles and no class names; each `sb-*` class below names the
+   source block it was lifted from (the comments give the source JSX comment and line numbers).
+   Personal beads live in personal-beads.css, charm + thread in studio-charm.css, the bottom bar in
+   studio-dock.css and the crystal popup in crystal-modal.css.
 
-:root .nx.nx-studio {
+   Fonts, as the source resolves them:
+   - text in <div>/<span>: body font (Outfit, 15px, line-height 1.7)
+   - <button>, <input>, <select>: no font set in the source, so the browser default (Arial 13.33px)
+   - var(--font-serif, serif): --font-serif is not defined in the source, so plain `serif`
+   The source has no media queries; the phone rules at the bottom are the frontend's own stacking
+   (the source layout overflows at 390px — see docs/source-parity/studio.md). */
+
+/* ---- Page shell (source L381-391: page wrapper) ---- */
+:root .nx.sb-page {
+  position: relative;
   min-height: 100vh;
+  padding-bottom: 120px;
   background:
     radial-gradient(ellipse 90% 55% at 50% -10%, rgba(191, 0, 255, 0.35), transparent 75%),
     radial-gradient(circle 600px at 85% 30%, rgba(160, 0, 255, 0.22), transparent),
     radial-gradient(circle 500px at 10% 65%, rgba(191, 0, 255, 0.16), transparent),
     linear-gradient(180deg, #320054 0%, #200038 35%, #130022 75%, #0B0014 100%);
   color: #EDE8E1;
-  --nx-line: rgba(191, 0, 255, 0.22);
-  --nx-line2: rgba(191, 0, 255, 0.35);
-  --nx-muted: #8E8A9A;
-  --nx-soft: #6B6676;
-  --nx-champ: #E5C378;
-}
-
-/* Cream surfaces */
-.nx-studio .nx-ptile,
-.nx-studio .nx-itile,
-.nx-studio .nx-chosen,
-.nx-studio .nx-crystal-sum,
-.nx-studio .nx-pb,
-.nx-studio .nx-opt,
-.nx-studio .nx-birth-date,
-.nx-studio .nx-rv-hero,
-.nx-studio .nx-rv-block,
-.nx-studio .nx-rv-bill,
-.nx-cm-layer .nx-cm {
-  --nx-ink: #1A160F;
-  --nx-muted: #695B44;
-  --nx-soft: #8C7245;
-  --nx-champ: #B8913F;
-  --nx-line: rgba(197, 165, 114, 0.35);
-  --nx-line2: rgba(197, 165, 114, 0.55);
-  --nx-tile: #FAF5EB;
-  --nx-bg: #1A160F;
-  --nx-bg2: #FAF4E8;
-  --nx-bg3: #EFE4CF;
-  color: #1A160F;
-}
-
-.nx-studio .nx-ptile,
-.nx-studio .nx-itile,
-.nx-studio .nx-opt,
-.nx-studio .nx-pb {
-  background: #FAF5EB;
-  border: 1px solid rgba(197, 165, 114, 0.35);
-  border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(160, 126, 68, 0.08);
-  transition: all 0.2s ease;
-}
-
-.nx-studio .nx-ptile:hover:not(:disabled),
-.nx-studio .nx-itile:hover:not(:disabled),
-.nx-studio .nx-opt:hover,
-.nx-studio .nx-pb:hover {
-  border-color: rgba(197, 165, 114, 0.7);
-  background-color: #FAF5EB;
-  box-shadow: 0 8px 22px rgba(160, 126, 68, 0.16);
-}
-
-.nx-studio .nx-ptile.is-on,
-.nx-studio .nx-itile.is-on,
-.nx-studio .nx-opt.is-on,
-.nx-studio .nx-pb.is-on {
-  border: 2px solid #D9AE4F;
-  box-shadow: 0 8px 24px rgba(160, 126, 68, 0.22), 0 0 16px rgba(217, 174, 79, 0.28);
-}
-
-.nx-studio .nx-chosen,
-.nx-studio .nx-crystal-sum,
-.nx-studio .nx-birth-date,
-.nx-studio .nx-rv-hero,
-.nx-studio .nx-rv-block,
-.nx-studio .nx-rv-bill {
-  background: #FAF5EB;
-  border: 1px solid rgba(197, 165, 114, 0.4);
-  border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(160, 126, 68, 0.08);
-}
-
-/* Option card type (purpose, intention, charm, thread) */
-.nx-studio .nx-ptile {
-  min-height: 236px;
-  padding: 16px 12px;
-}
-
-.nx-studio .nx-ptiles {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.nx-studio .nx-ptile-n,
-.nx-studio .nx-itile-n {
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: #8C7245;
-}
-
-.nx-studio .nx-ptile.is-on .nx-ptile-n,
-.nx-studio .nx-itile.is-on .nx-itile-n {
-  color: #8C7245;
-}
-
-.nx-studio .nx-ptile-check {
-  top: 12px;
-  right: 12px;
-  width: 18px;
-  height: 18px;
-  background: #D9AE4F;
-  color: #1A160F;
-}
-
-.nx-studio .nx-ptile-check svg {
-  width: 12px;
-  height: 12px;
-}
-
-.nx-studio .nx-ptile-art {
-  width: 104px;
-  height: 104px;
-  margin: 4px auto 14px;
-}
-
-.nx-studio .nx-ptile-art img {
-  filter: drop-shadow(0 4px 14px rgba(217, 174, 79, 0.25));
-}
-
-.nx-studio .nx-ptile-h,
-.nx-studio .nx-opt-h {
-  font-family: var(--font-editorial);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  line-height: 1.3;
-  text-transform: uppercase;
-  color: #1A160F;
-}
-
-.nx-studio .nx-ptile-p,
-.nx-studio .nx-opt-p {
-  margin-top: auto;
-  padding-top: 6px;
-  font-size: 11px;
-  line-height: 1.45;
-  color: #695B44;
-}
-
-.nx-studio .nx-itile {
-  min-height: 160px;
-  padding: 16px 14px;
-}
-
-.nx-studio .nx-itile-h {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #1A160F;
-}
-
-.nx-studio .nx-itile-b {
-  font-size: 11px;
-  font-style: italic;
-  font-weight: 600;
-  color: #8C6F3D;
-}
-
-.nx-studio .nx-itile-p {
-  font-size: 11px;
-  line-height: 1.45;
-  color: #695B44;
-  margin-bottom: 14px;
-  /* Source shows the whole description (no one-line clamp). */
-  display: block;
-  -webkit-line-clamp: unset;
-  overflow: visible;
-}
-
-.nx-studio .nx-itile-go,
-.nx-studio .nx-itile.is-on .nx-itile-go {
-  font-size: 11px;
-  font-weight: 600;
-  color: #8C6F3D;
-}
-
-.nx-studio .nx-chosen-art {
-  border: 1px solid rgba(197, 165, 114, 0.3);
-  background: #EFE4CF;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-.nx-studio .nx-chosen-h {
-  font-family: var(--font-editorial);
+  font-family: var(--font-sans, system-ui, sans-serif);
   font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #1A160F;
+  line-height: 1.7;
 }
 
-.nx-studio .nx-chosen .nx-eb,
-.nx-studio .nx-crystal-sum .nx-eb,
-.nx-studio .nx-rv-block .nx-eb,
-.nx-studio .nx-rv-hero .nx-eb {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: #8C6F3D;
+.sb-page button,
+.sb-page input,
+.sb-page select {
+  font-family: Arial, sans-serif;
+  line-height: normal;
 }
 
-.nx-studio .nx-chosen-edit {
-  font-size: 12px;
-  font-weight: 600;
-  color: #8C6F3D;
-  text-decoration: underline;
+/* Cards that are <div> in the source but <button>/<a> here keep the body font. */
+.sb-page .sb-card,
+.sb-page .sb-icard,
+.sb-page .sb-opt {
+  font-family: var(--font-sans, system-ui, sans-serif);
+  line-height: 1.7;
+  text-align: left;
+  color: inherit;
 }
 
-.nx-studio .nx-pick-head,
-.nx-studio .nx-pick-head > span {
-  color: #8E8A9A;
+/* TOP WORKSPACE CONTAINER (L395-400) */
+.sb-wrap {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 36px 36px 0;
+  box-sizing: border-box;
 }
 
-/* Page header */
-.nx-studio .nx-intro.is-compact {
-  padding-top: 36px;
+/* HEADER TITLE AREA (L402-406) */
+.sb-head {
+  margin-bottom: 22px;
 }
 
-.nx.nx-studio .nx-intro.is-compact .nx-intro-t {
-  font-family: var(--font-editorial);
+.sb-page .sb-title {
+  font-family: "Playfair Display", "Cormorant Garamond", serif;
   font-size: clamp(28px, 3.2vw, 38px);
   font-weight: 500;
   letter-spacing: 0.04em;
-  line-height: 1.15;
-  text-transform: uppercase;
   color: #FFFFFF;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  line-height: 1.15;
 }
 
-.nx.nx-studio .nx-intro.is-compact .nx-intro-sub {
+.sb-page .sb-sub {
   font-size: 13.5px;
   color: #8E8A9A;
+  margin: 0;
+  line-height: 1.5;
 }
 
-/* Begin-by pills */
-.nx-studio .nx-paths {
+/* STEP 1 BEGIN BY PILLS (L409-448) */
+.sb-begin {
+  display: flex;
+  align-items: center;
   gap: 10px;
   margin-bottom: 26px;
-  border: 0;
-  /* Source wraps the pills on phones and keeps the BEGIN BY label. */
   flex-wrap: wrap;
-  overflow-x: visible;
 }
 
-.nx-studio .nx-paths a {
-  flex: none;
-}
-
-.nx-studio .nx-paths-l {
-  display: inline;
-  margin-right: 4px;
+.sb-begin-l {
   font-size: 10.5px;
-  font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: rgba(237, 232, 225, 0.65);
+  font-weight: 600;
+  margin-right: 4px;
 }
 
-.nx-studio .nx-paths a {
-  padding: 6px 18px;
+.sb-page .sb-pill {
+  display: inline-block;
+  background: rgba(32, 10, 54, 0.72);
+  color: #EDE8E1;
   border: 1px solid rgba(191, 0, 255, 0.25);
   border-radius: 9999px;
-  background: rgba(32, 10, 54, 0.72);
-  backdrop-filter: blur(8px);
-  color: #EDE8E1;
+  padding: 6px 18px;
+  font-family: Arial, sans-serif;
   font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.02em;
-  text-transform: none;
+  line-height: normal;
+  cursor: pointer;
   transition: all 0.2s ease;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  text-decoration: none;
 }
 
-.nx-studio .nx-paths a:hover {
-  border-color: rgba(229, 195, 120, 0.6);
-}
-
-.nx-studio .nx-paths a.is-on {
-  border-color: #F5E8BA;
+.sb-page .sb-pill.is-on {
   background: #F5E8BA;
   color: #0A0810;
+  border-color: #F5E8BA;
   font-weight: 600;
 }
 
-/* Step rail */
-.nx-studio.nx-studio.nx-studio .studio-steps {
+/* 5-STEP HORIZONTAL STEPPER BAR (L451-500) */
+.sb-steps {
+  display: flex;
+  align-items: center;
   gap: 36px;
-  margin-bottom: 32px;
   border-bottom: 1px solid rgba(191, 0, 255, 0.22);
+  margin-bottom: 32px;
+  overflow-x: auto;
+  padding-bottom: 0;
+  scrollbar-width: none;
 }
 
-.nx-studio.nx-studio.nx-studio .studio-chip,
-.nx-studio.nx-studio.nx-studio .studio-chip:not(.is-on):not(.is-done) {
-  gap: 8px;
-  margin: 0 0 -1px;
+.sb-steps::-webkit-scrollbar {
+  display: none;
+}
+
+.sb-page .sb-step {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
   padding: 8px 0 12px;
-  font-family: var(--font-sans);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6B6676;
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #6B6676;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
-.nx-studio.nx-studio.nx-studio .studio-chip-n {
+.sb-page .sb-step:disabled {
+  cursor: default;
+}
+
+.sb-step-n {
+  color: #6B6676;
   font-weight: 600;
-  color: #6B6676;
 }
 
-.nx-studio.nx-studio.nx-studio .studio-chip-n::before {
-  content: none;
+.sb-page .sb-step.is-done {
+  color: #BBB5C3;
 }
 
-.nx-studio.nx-studio.nx-studio .studio-chip.is-on {
+.sb-page .sb-step.is-done .sb-step-n {
+  color: #D4AF37;
+}
+
+.sb-page .sb-step.is-on {
   border-bottom-color: #E5C378;
   color: #FFFFFF;
   font-weight: 600;
 }
 
-.nx-studio.nx-studio.nx-studio .studio-chip.is-on .studio-chip-n {
+.sb-page .sb-step.is-on .sb-step-n {
   color: #E5C378;
 }
 
-.nx-studio.nx-studio.nx-studio .studio-chip.is-done {
-  color: #BBB5C3;
+/* MAIN TWO-COLUMN WORKSPACE (L505-510) */
+.sb-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 345px;
+  gap: 36px;
+  align-items: start;
 }
 
-.nx-studio.nx-studio.nx-studio .studio-chip.is-done .studio-chip-n {
-  color: #D4AF37;
+.sb-main {
+  min-width: 0;
 }
 
-/* Glass side panels: how it works, live strand, review side */
-.nx-studio .nx-guide,
-.nx-studio .studio-preview,
-.nx-studio .nx-rv-side {
-  border: 1px solid rgba(191, 0, 255, 0.24);
-  border-radius: 6px;
-  background: rgba(28, 7, 46, 0.82);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 8px 32px rgba(12, 0, 22, 0.45);
-}
-
-.nx-studio .nx-guide {
-  padding: 24px 22px;
-}
-
-.nx-studio .nx-guide > .nx-eb {
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  color: #E5C378;
-}
-
-.nx-studio .nx-guide-steps li {
-  border-top-color: rgba(255, 255, 255, 0.06);
-}
-
-.nx-studio .nx-guide-steps li > span:first-child,
-.nx-studio .nx-guide-steps b {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  color: #6B6676;
-}
-
-.nx-studio .nx-guide-steps em {
-  font-size: 12.5px;
-  color: #8E8A9A;
-}
-
-.nx-studio .nx-guide-steps li.is-on > span:first-child,
-.nx-studio .nx-guide-steps li.is-on b {
-  color: #E5C378;
-}
-
-.nx-studio .nx-guide-steps li.is-on em {
-  color: #FFFFFF;
-  font-weight: 600;
-}
-
-.nx-studio .nx-guide-note {
-  font-size: 11px;
-  line-height: 1.5;
-  color: #6B6676;
-  border-top-color: rgba(255, 255, 255, 0.06);
-}
-
-.nx-studio .nx-stage {
-  border: 1px solid rgba(191, 0, 255, 0.25);
-  border-radius: 6px;
-  background: radial-gradient(circle at 50% 50%, rgba(191, 0, 255, 0.2) 0%, rgba(16, 2, 28, 0.95) 100%);
-}
-
-/* Gold gradient actions */
-.nx-studio .nx-btn,
-.nx-studio.nx-studio.nx-studio .studio-actions-next,
-.nx-cm-layer .nx-cm-actions .nx-btn {
-  border: none;
-  border-radius: 4px;
-  background: linear-gradient(135deg, #ECC26A 0%, #D9AE4F 60%, #B88E3E 100%);
-  box-shadow: 0 4px 16px rgba(217, 174, 79, 0.25);
-  color: #0A0810 !important;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.nx-studio .nx-btn:disabled,
-.nx-studio.nx-studio.nx-studio .studio-actions-next:disabled {
-  opacity: 0.45;
-  box-shadow: none;
-}
-
-/* Action dock */
-.nx-studio.nx-studio.nx-studio .studio-actions {
-  border-top: 1px solid rgba(191, 0, 255, 0.3);
-  background: rgba(20, 3, 34, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 -10px 30px rgba(12, 0, 22, 0.8);
-}
-
-.nx-studio.nx-studio.nx-studio .studio-actions-hint {
-  font-size: 12px;
-  color: #8E8A9A;
-}
-
-.nx-studio.nx-studio.nx-studio .studio-actions-back {
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #BBB5C3;
-}
-
-.nx-studio.nx-studio.nx-studio .studio-actions-back:disabled {
-  color: #444;
-}
-
-.nx-studio.nx-studio.nx-studio .studio-actions-meta span {
-  font-size: 9.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #6B6676;
-}
-
-.nx-studio.nx-studio.nx-studio .studio-actions-meta strong {
-  font-size: 13px;
-  font-weight: 600;
-  color: #FFFFFF;
-}
-
-/* Inputs and toggles on cream */
-.nx-studio .nx-birth-date .nx-input,
-.nx-studio .nx-pb .nx-input,
-.nx-cm-layer .nx-cm .nx-input {
-  border: 1px solid rgba(197, 165, 114, 0.45);
-  background: #FFFDF8;
-  color: #1A160F;
-  -webkit-text-fill-color: #1A160F;
-}
-
-.nx-studio .nx-yn button,
-.nx-studio .nx-chips-pick button,
-.nx-cm-layer .nx-cm-sizes button {
-  border-color: rgba(197, 165, 114, 0.45);
-  background: #FAF4E8;
-  color: #3B3120;
-}
-
-.nx-studio .nx-yn button.is-on,
-.nx-studio .nx-chips-pick button.is-on,
-.nx-cm-layer .nx-cm-sizes button.is-on {
-  border-color: #967439;
-  background: #967439;
-  color: #FFFFFF;
-}
-
-/* Strand rows (source: cream rows with square thumbs and pill counters) */
-.nx-studio .nx-cm-lines li,
-.nx-cm-layer .nx-cm-lines li {
-  padding: 10px 12px;
-  border: 1px solid rgba(197, 165, 114, 0.35);
-  border-radius: 8px;
-  background: #FAF4E8;
-  box-shadow: 0 2px 8px rgba(160, 126, 68, 0.06);
-  color: #1A160F;
-}
-
-.nx-studio .nx-cm-lines .nx-cm-name,
-.nx-cm-layer .nx-cm-lines .nx-cm-name {
-  color: #1A160F;
-  font-weight: 600;
-}
-
-.nx-studio .nx-cm-dot,
-.nx-cm-layer .nx-cm-dot {
-  border-radius: 6px;
-  border: 1px solid rgba(197, 165, 114, 0.3);
-  background: #EFE4CF;
-}
-
-.nx-studio .nx-qty.nx-cm-qty,
-.nx-cm-layer .nx-qty.nx-cm-qty {
-  border: 1px solid rgba(197, 165, 114, 0.5);
-  border-radius: 9999px;
-  background: #FAF5EB;
-  color: #1A160F;
-}
-
-/* Crystal popup (cream, as in the source after 00a6eaf) */
-.nx-cm-layer .nx-cm-scrim {
-  background: rgba(12, 9, 6, 0.72);
-}
-
-.nx-cm-layer .nx-cm {
-  border: 1px solid rgba(197, 165, 114, 0.4);
-  border-radius: 16px;
-  background: #FAF5EB;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(160, 126, 68, 0.15);
-}
-
-.nx-cm-layer .nx-cm .nx-eb {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  color: #8C6F3D;
-}
-
-.nx.nx-studio .nx-cm-layer .nx-cm-t,
-.nx-cm-layer .nx-cm .nx-cm-t {
-  font-family: var(--font-editorial);
-  font-weight: 700;
-  color: #1A160F;
-}
-
-.nx-cm-layer .nx-cm-x {
-  border: 1px solid rgba(197, 165, 114, 0.35);
+/* ---- Shared cream pieces ---- */
+.sb-check {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: #FAF4E8;
-  box-shadow: 0 2px 8px rgba(140, 105, 50, 0.12);
+  background: #D9AE4F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #1A160F;
+  z-index: 5;
 }
 
-.nx-cm-layer .nx-cm-tabs button {
-  color: #8C7245;
-}
-
-.nx-cm-layer .nx-cm-tabs button.is-on {
-  border-bottom-color: #B8913F;
-  color: #1A160F;
-}
-
-.nx-cm-layer .nx-cm-tile {
-  border: 1px solid rgba(197, 165, 114, 0.35);
+/* Cream banner / box (YOUR PURPOSE banner L766-776, summary L904-913, DOB box L955-962) */
+.sb-box {
+  background: #FAF5EB;
+  border: 1px solid rgba(197, 165, 114, 0.4);
+  box-shadow: 0 4px 16px rgba(160, 126, 68, 0.08);
   border-radius: 10px;
-  background: #FAF4E8;
-}
-
-.nx-cm-layer .nx-cm-tile.is-on {
-  border: 2px solid #D9AE4F;
-}
-
-.nx-cm-layer .nx-cm-ph {
-  background: #EFE4CF;
-}
-
-.nx-cm-layer .nx-cm-foot {
-  border-top: 1px solid rgba(197, 165, 114, 0.3);
-  background: #FAF5EB;
-}
-
-.nx-cm-layer .nx-cm-addbtn {
-  border: 1px dashed rgba(150, 116, 57, 0.6);
-  border-radius: 8px;
-  background: #FAF4E8;
-  color: #8C6F3D;
-  font-weight: 600;
-}
-
-/* Review */
-.nx.nx-studio .nx-rv-t {
-  font-family: var(--font-editorial);
-  font-weight: 600;
   color: #1A160F;
 }
 
-.nx-studio .nx-rv-bill .is-total dd,
-.nx-studio .nx-rv-bill .is-total dt {
-  color: #1A160F;
-}
-
-.nx-studio .nx-rv-side-total b {
-  color: #FFFFFF;
-}
-
-@media (max-width: 1200px) {
-  .nx-studio .nx-ptiles {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
-  .nx-studio .nx-ptiles {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 767px) {
-  .nx-studio .nx-ptiles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .nx-studio .nx-ptile {
-    min-height: 0;
-  }
-
-  .nx-studio .nx-ptile-art {
-    width: 76px;
-    height: 76px;
-  }
-
-  .nx-studio.nx-studio.nx-studio .studio-steps {
-    gap: 22px;
-  }
-}
-
-/* The old stone-finder rules (.nx-opts button) also match the charm and thread cards. */
-.nx-studio .nx-opts .nx-opt,
-.nx-studio .nx-opts .nx-opt:hover,
-.nx-studio .nx-opts .nx-opt.is-on {
-  background: #FAF5EB;
-  color: #1A160F;
-  font-size: inherit;
-}
-
-/* ---- Exactness pass (computed-style diff against the source studio) ---- */
-:root .nx.nx-studio {
-  font-size: 15px;
-  line-height: 1.7;
-  padding-bottom: 120px;
-}
-
-.nx.nx-studio .nx-intro.is-compact .nx-intro-t {
-  font-family: "Playfair Display", "Cormorant Garamond", serif;
-}
-
-.nx.nx-studio .nx-intro.is-compact .nx-intro-sub {
-  line-height: 1.5;
-}
-
-/* Source buttons carry no font, so they render in the browser default. */
-.nx-studio .nx-paths a,
-.nx-studio.nx-studio.nx-studio .studio-chip,
-.nx-studio.nx-studio.nx-studio .studio-chip:not(.is-on):not(.is-done) {
-  font-family: Arial, sans-serif;
-  line-height: normal;
-}
-
-.nx-studio .nx-ptile-n,
-.nx-studio .nx-itile-n {
-  letter-spacing: normal;
-}
-
-/* The source's card titles use var(--font-serif, serif) with the variable unset: the browser serif. */
-.nx-studio .nx-ptile-h {
-  font-family: serif;
-  font-size: 11.5px;
-  letter-spacing: 0.04em;
-  line-height: 1.3;
-  margin-bottom: 6px;
-}
-
-.nx-studio .nx-ptile-p {
+/* Section kicker on the purple stage: PERSONAL BEADS, YOUR STRAND, CHARM AT THE CLASP, THREAD */
+.sb-k {
   font-size: 10.5px;
-  line-height: 1.4;
-  padding-top: 0;
+  letter-spacing: 0.12em;
+  color: #E5C378;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 4px;
 }
 
-.nx-studio .nx-guide > .nx-eb {
-  line-height: 1.7;
-}
-
-.nx-studio.nx-studio.nx-studio .studio-actions-hint {
-  line-height: 1.7;
-}
-
-.nx-studio.nx-studio.nx-studio .studio-actions-next {
-  height: auto;
-  min-height: 0;
-  min-width: 150px;
-  padding: 12px 28px;
-  font-family: Arial, sans-serif;
+.sb-hint {
   font-size: 12.5px;
-  letter-spacing: 0.04em;
-  line-height: normal;
-  box-shadow: 0 4px 16px rgba(217, 174, 79, 0.25);
+  color: #8E8A9A;
+  margin-bottom: 16px;
 }
 
-@media (min-width: 1024px) {
-  .nx-studio.nx-studio.nx-studio .studio-actions {
-    padding: 0 40px;
-  }
+/* Kicker on cream: YOUR PURPOSE, YOUR DATE OF BIRTH, block titles */
+.sb-ck {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #8C6F3D;
+  text-transform: uppercase;
+  font-weight: 700;
 }
 
-/* The source's Next button never looks disabled; the frontend still blocks it until a choice is made. */
-.nx-studio.nx-studio.nx-studio .studio-actions-next:disabled {
-  opacity: 1;
-  box-shadow: 0 4px 16px rgba(217, 174, 79, 0.25);
+.sb-page .sb-link {
+  background: none;
+  border: none;
+  color: #8C6F3D;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.sb-page .sb-btn-ghost {
+  background: #FAF4E8;
+  border: 1px solid rgba(197, 165, 114, 0.5);
+  color: #8C6F3D;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sb-page .sb-btn-gold {
+  background: linear-gradient(135deg, #ECC26A 0%, #D4AF37 100%);
+  color: #0A0810;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sb-page .sb-btn-gold:disabled {
   cursor: not-allowed;
 }
 
-/* Birth date (source: grid 1fr 1fr 1.2fr, number boxes for day and year) */
-.nx-studio .nx-date {
+.sb-empty {
+  font-size: 13px;
+  color: #8E8A9A;
+}
+
+/* ---- STEP 1: purpose cards, 5 columns (L637-743) ---- */
+.sb-cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.sb-page .sb-card {
+  background: #FAF5EB;
+  border: 1px solid rgba(197, 165, 114, 0.35);
+  box-shadow: 0 4px 16px rgba(160, 126, 68, 0.08);
+  border-radius: 10px;
+  padding: 16px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all 0.2s ease;
+  min-height: 260px;
+  box-sizing: border-box;
+  min-width: 0;
+  color: #1A160F;
+  text-decoration: none;
+}
+
+.sb-page .sb-card.is-on {
+  border: 2px solid #D9AE4F;
+  box-shadow: 0 8px 24px rgba(160, 126, 68, 0.22), 0 0 16px rgba(217, 174, 79, 0.28);
+}
+
+.sb-page .sb-card:disabled {
+  cursor: wait;
+}
+
+.sb-card-n {
+  font-size: 10.5px;
+  color: #8C7245;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.sb-card-art {
+  width: 104px;
+  height: 104px;
+  margin: 4px auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  -webkit-mask-image: radial-gradient(ellipse 46% 46% at 50% 49%, black 52%, rgba(0, 0, 0, 0.75) 68%, transparent 88%);
+  mask-image: radial-gradient(ellipse 46% 46% at 50% 49%, black 52%, rgba(0, 0, 0, 0.75) 68%, transparent 88%);
+  font-size: 44px;
+  line-height: 1;
+}
+
+.sb-card-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: drop-shadow(0 4px 14px rgba(217, 174, 79, 0.25));
+}
+
+.sb-card-t {
+  font-family: serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #1A160F;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.sb-card-p {
+  font-size: 10.5px;
+  color: #695B44;
+  line-height: 1.4;
+  margin-top: auto;
+}
+
+/* ZODIAC GRID PATH (L531-633): 28px gold square with the sign's initial */
+.sb-page .sb-card.is-sign {
+  min-height: 235px;
+}
+
+.sb-card.is-sign .sb-card-n {
+  font-size: 10px;
+  margin-bottom: 8px;
+}
+
+.sb-sign {
+  width: 28px;
+  height: 28px;
+  margin: 4px 0 14px;
+  background: radial-gradient(circle, #ECC26A 0%, #B88E3E 100%);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0A0810;
+  font-weight: 700;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+.sb-sign img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sb-card.is-sign .sb-card-t {
+  font-size: 12.5px;
+  margin-bottom: 2px;
+}
+
+.sb-card-hi {
+  font-size: 11px;
+  color: #8C6F3D;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.sb-card.is-sign .sb-card-p {
+  font-size: 10px;
+  line-height: 1.45;
+  margin-top: 0;
+}
+
+.sb-skel {
+  min-height: 260px;
+  border-radius: 10px;
+  background: rgba(250, 245, 235, 0.08);
+  animation: sb-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes sb-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ---- STEP 2: intention (L763-947) ---- */
+.sb-banner {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.sb-banner-l {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.sb-banner-art {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(197, 165, 114, 0.3);
+  background: #EFE4CF;
+  flex-shrink: 0;
+  font-size: 20px;
+}
+
+.sb-banner-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sb-banner-t {
+  font-family: serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1A160F;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sb-ihead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.sb-ihead-p {
+  font-size: 12.5px;
+  color: #8E8A9A;
+}
+
+.sb-ihead-n {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #6B6676;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sb-icards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sb-page .sb-icard {
+  background: #FAF5EB;
+  border: 1px solid rgba(197, 165, 114, 0.35);
+  box-shadow: 0 4px 16px rgba(160, 126, 68, 0.08);
+  border-radius: 10px;
+  padding: 16px 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all 0.2s ease;
+  min-height: 160px;
+  min-width: 0;
+  color: #1A160F;
+}
+
+.sb-page .sb-icard.is-on {
+  border: 2px solid #D9AE4F;
+  box-shadow: 0 8px 24px rgba(160, 126, 68, 0.22), 0 0 16px rgba(217, 174, 79, 0.28);
+}
+
+.sb-icard-n {
+  font-size: 10.5px;
+  color: #8C7245;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.sb-icard-t {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1A160F;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.sb-icard-t.has-badge {
+  margin-bottom: 2px;
+}
+
+.sb-icard.is-on .sb-icard-t {
+  padding-right: 22px;
+}
+
+.sb-icard-b {
+  font-size: 11px;
+  font-style: italic;
+  color: #8C6F3D;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.sb-icard-p {
+  font-size: 11px;
+  color: #695B44;
+  line-height: 1.45;
+  margin-bottom: 14px;
+}
+
+.sb-icard-go {
+  margin-top: auto;
+  font-size: 11px;
+  color: #8C7245;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sb-icard.is-on .sb-icard-go {
+  color: #8C6F3D;
+}
+
+/* BOTTOM INTENTION SUMMARY BOX (L904-946) */
+.sb-sum {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.sb-sum .sb-ck {
+  margin-bottom: 2px;
+}
+
+.sb-sum-v {
+  font-size: 13px;
+  color: #1A160F;
+  font-weight: 600;
+}
+
+.sb-sum-a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ---- STEP 3: date of birth (L955-1063) ---- */
+.sb-dob {
+  padding: 18px 20px;
+  margin-bottom: 26px;
+}
+
+.sb-dob .sb-ck {
+  font-size: 10.5px;
+  margin-bottom: 4px;
+}
+
+.sb-dob-p {
+  font-size: 12.5px;
+  color: #695B44;
+  margin-bottom: 14px;
+}
+
+.sb-date {
+  display: grid;
   grid-template-columns: 1fr 1fr 1.2fr;
   gap: 14px;
 }
 
-.nx-studio .nx-date input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
+.sb-date-l {
+  display: block;
+  font-size: 10.5px;
+  color: #8C7245;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
 }
 
-.nx-studio .nx-date input.nx-input {
-  /* beats the storefront's global light input text */
+.sb-page .sb-input {
+  width: 100%;
+  background: #FAF4E8;
+  border: 1px solid rgba(197, 165, 114, 0.5);
+  border-radius: 4px;
+  /* !important: the storefront's global input rule (index.css) is more specific */
   color: #1A160F !important;
   -webkit-text-fill-color: #1A160F !important;
+  caret-color: #1A160F !important;
+  padding: 10px 12px;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+  box-shadow: none;
+  height: auto;
+}
+
+/* PERSONAL BEADS SECTION wrapper (L1065) */
+.sb-pb {
+  margin-bottom: 28px;
+}
+
+/* YOUR STRAND CRYSTAL ROWS WITH COUNTERS (L1355-1489) */
+.sb-strand-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sb-strand .sb-k {
+  margin-bottom: 2px;
+}
+
+.sb-strand-c {
+  font-size: 12px;
+  color: #8E8A9A;
+  margin-bottom: 8px;
+}
+
+.sb-page .sb-balance {
+  background: #FAF5EB;
+  border: 1px solid rgba(197, 165, 114, 0.5);
+  color: #8C6F3D;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 5px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.sb-rule {
+  height: 1px;
+  background: rgba(217, 174, 79, 0.4);
+  margin-bottom: 14px;
+}
+
+.sb-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sb-row {
+  background: #FAF4E8;
+  border: 1px solid rgba(197, 165, 114, 0.35);
+  box-shadow: 0 2px 8px rgba(160, 126, 68, 0.06);
+  border-radius: 8px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #1A160F;
+}
+
+.sb-row.is-off {
+  opacity: 0.55;
+}
+
+.sb-row-l {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.sb-page .sb-row-img {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid rgba(197, 165, 114, 0.3);
+  background: #EFE4CF;
+  overflow: hidden;
+}
+
+.sb-row-nm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sb-row-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1A160F;
+}
+
+.sb-badge {
+  font-size: 9.5px;
+  color: #8C6F3D;
+  border: 1px solid rgba(197, 165, 114, 0.4);
+  border-radius: 3px;
+  padding: 1px 5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: #FAF5EB;
+  font-weight: 600;
+  font-style: normal;
+  line-height: 1.7;
+}
+
+.sb-row-p {
+  font-size: 11px;
+  color: #695B44;
+  margin-top: 2px;
+}
+
+.sb-counter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #FAF5EB;
+  border: 1px solid rgba(197, 165, 114, 0.5);
+  border-radius: 4px;
+  padding: 4px 10px;
+  flex-shrink: 0;
+}
+
+.sb-page .sb-counter button {
+  background: none;
+  border: none;
+  color: #1A160F;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+
+.sb-page .sb-counter button:disabled {
+  color: #C5A572;
+  cursor: not-allowed;
+}
+
+.sb-counter span {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1A160F;
+  min-width: 16px;
+  text-align: center;
+}
+
+.sb-wait {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #8E8A9A;
+}
+
+/* Number cards (numerology path, frontend-only flow) use the personal-bead card look. */
+.sb-nums {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+/* ---- STEP 5: review (L1683-1968) ---- */
+.sb-rv-hero {
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.sb-rv-art {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sb-rv-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sb-rv-hero .sb-ck {
+  margin-bottom: 2px;
+}
+
+.sb-rv-t {
+  font-family: serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #1A160F;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0 0 2px;
+  line-height: 1.7;
+}
+
+.sb-rv-s {
+  font-size: 12px;
+  color: #695B44;
+}
+
+.sb-rv-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sb-rv-block {
+  border-color: rgba(197, 165, 114, 0.35);
+  padding: 16px 14px;
+}
+
+.sb-rv-bh {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.sb-rv-bh .sb-ck {
+  letter-spacing: 0.1em;
+}
+
+.sb-page .sb-rv-bh .sb-link {
+  font-size: 11px;
+}
+
+.sb-rv-v {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1A160F;
+  margin-bottom: 2px;
+}
+
+.sb-rv-v.is-date {
+  margin-bottom: 6px;
+}
+
+.sb-rv-x {
+  font-size: 11px;
+  color: #695B44;
+  margin-bottom: 2px;
+}
+
+.sb-rv-x:last-child {
+  margin-bottom: 0;
+}
+
+.sb-rv-read {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 10.5px;
+}
+
+.sb-rv-read > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #695B44;
+}
+
+.sb-rv-read .is-skip {
+  color: #999;
+  font-weight: 400;
+}
+
+.sb-rv-read .is-add {
+  color: #8C6F3D;
+  font-weight: 600;
+}
+
+.sb-rv-crystals {
+  border-color: rgba(197, 165, 114, 0.35);
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+
+.sb-rv-crystals .sb-rv-bh {
+  margin-bottom: 14px;
+}
+
+.sb-rv-crystals .sb-ck {
+  font-size: 10.5px;
+}
+
+.sb-rv-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sb-rv-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(197, 165, 114, 0.2);
+}
+
+.sb-rv-line-l {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sb-page .sb-rv-dot {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(197, 165, 114, 0.5);
+  overflow: hidden;
+}
+
+.sb-rv-nm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sb-rv-name {
+  font-size: 12.5px;
+  color: #1A160F;
+  font-weight: 600;
+}
+
+.sb-rv-line .sb-badge {
+  font-size: 9px;
+  border-color: rgba(197, 165, 114, 0.5);
+  border-radius: 2px;
+  padding: 1px 4px;
+  background: none;
+}
+
+.sb-rv-q {
+  font-size: 11px;
+  color: #695B44;
+}
+
+.sb-rv-amt {
+  font-size: 12.5px;
+  color: #1A160F;
+  font-weight: 600;
+}
+
+.sb-rv-bill {
+  border-color: rgba(197, 165, 114, 0.35);
+  padding: 20px 22px;
+}
+
+.sb-rv-bill-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 14px;
+}
+
+.sb-rv-bill-rows > div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #695B44;
+}
+
+.sb-rv-total {
+  border-top: 1px solid rgba(197, 165, 114, 0.3);
+  padding-top: 14px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.sb-rv-total span {
+  font-size: 12px;
+  font-weight: 700;
+  color: #8C7245;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sb-rv-total b {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1A160F;
+}
+
+.sb-rv-note {
+  font-size: 11px;
+  color: #8C7245;
+}
+
+/* ---- RIGHT COLUMN glass panels (L1979-1987, L2062-2072) ---- */
+.sb-panel {
+  background: rgba(28, 7, 46, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(191, 0, 255, 0.24);
+  box-shadow: 0 8px 32px rgba(12, 0, 22, 0.45);
+  border-radius: 6px;
+  color: #EDE8E1;
+}
+
+/* HOW IT WORKS CARD (L1979-2059) */
+.sb-how {
+  padding: 24px 22px;
+}
+
+.sb-how > .sb-k {
+  margin-bottom: 18px;
+}
+
+.sb-how-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sb-how-list li {
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sb-how-k {
+  font-size: 10px;
+  color: #6B6676;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+}
+
+.sb-how-t {
+  font-size: 12.5px;
+  color: #8E8A9A;
+}
+
+.sb-how-list li.is-on .sb-how-k {
+  color: #E5C378;
+}
+
+.sb-how-list li.is-on .sb-how-t {
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.sb-how-note {
+  font-size: 11px;
+  color: #6B6676;
+  line-height: 1.5;
+  margin-top: 16px;
+}
+
+/* LIVE STRAND RIGHT PANEL (L2062-2258) */
+.sb-live {
+  padding: 18px 18px;
+  position: sticky;
+  top: 90px;
+}
+
+/* 3D STRAND VISUAL CONTAINER (L2074-2089). The frontend keeps its WebGL canvas inside this frame. */
+.sb-stage {
+  background: radial-gradient(circle at 50% 50%, rgba(191, 0, 255, 0.2) 0%, rgba(16, 2, 28, 0.95) 100%);
+  border-radius: 6px;
+  border: 1px solid rgba(191, 0, 255, 0.25);
+  height: 240px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 16px;
+  cursor: grab;
+}
+
+.sb-stage .nx-preview,
+.sb-stage .nx-stage {
+  width: 100%;
+  height: 100%;
+}
+
+.sb-stage .nx-stage {
+  aspect-ratio: auto;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+/* The source's still image (studio2_img_2.png etc.) carries a Front / On the wrist pill pair at the
+   top left; the canvas's real tabs take that place. Its own hint is replaced by .sb-stage-hint. */
+.sb-stage .nx-stage-hint {
+  display: none;
+}
+
+.sb-stage .nx-view-tabs {
+  top: 10px;
+  left: 10px;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  background: rgba(10, 8, 16, 0.6);
+}
+
+.sb-page .sb-stage .nx-view-tabs button {
+  padding: 7px 14px;
+  border-radius: 9999px;
+  background: none;
+  color: #EDE8E1;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 12.5px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.sb-page .sb-stage .nx-view-tabs button.is-on {
+  background: linear-gradient(135deg, #ECC26A 0%, #D9AE4F 60%, #B88E3E 100%);
+  color: #0A0810;
+}
+
+/* Drag to turn indicator (L2119-2145) */
+.sb-stage-hint {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  z-index: 6;
+  background: rgba(10, 8, 16, 0.5);
+  padding: 2px 6px;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.sb-live-k {
+  font-size: 10px;
+  color: #E5C378;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.sb-page .sb-live-t {
+  font-family: serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #FFFFFF;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0 0 2px;
+  line-height: 1.7;
+}
+
+.sb-live-s {
+  font-size: 11.5px;
+  color: #8E8A9A;
+  margin-bottom: 16px;
+}
+
+.sb-live-pb {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+  margin-bottom: 14px;
+}
+
+.sb-live-pb-k {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: #6B6676;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.sb-live-r1 {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #BBB5C3;
+  margin-bottom: 2px;
+}
+
+.sb-live-r2 {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10.5px;
+  color: #6B6676;
+}
+
+.sb-live-total {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.sb-live-total > span {
+  font-size: 12px;
+  color: #BBB5C3;
+}
+
+.sb-live-total b {
+  font-size: 22px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.sb-live-err {
+  margin: -6px 0 12px;
+  font-size: 11px;
+  color: #E59A9A;
+}
+
+.sb-live-a {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+}
+
+.sb-page .sb-live-a button {
+  background: none;
+  border: none;
+  color: #8E8A9A;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  /* the source sets 10.5px on the row, which <button> does not inherit: browser default size */
+  font-size: 13.333px;
+  padding: 1px 6px;
+}
+
+.sb-page .sb-live-a button:first-child {
+  padding-left: 0;
+}
+
+/* Step 5 right panel (L2149-2191) */
+.sb-rs-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.sb-rs-total > span {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #6B6676;
+  text-transform: uppercase;
+}
+
+.sb-rs-total b {
+  font-size: 26px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.sb-page .sb-order {
+  width: 100%;
+  background: linear-gradient(135deg, #ECC26A 0%, #D9AE4F 60%, #B88E3E 100%);
+  color: #0A0810;
+  border: none;
+  border-radius: 4px;
+  padding: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(217, 174, 79, 0.25);
+  margin-bottom: 10px;
+  transition: transform 0.15s ease;
+}
+
+.sb-page .sb-order:active {
+  transform: scale(0.98);
+}
+
+.sb-page .sb-order:disabled {
+  cursor: wait;
+}
+
+.sb-order-err {
+  margin-bottom: 10px;
+  font-size: 11.5px;
+  color: #E59A9A;
+}
+
+.sb-rs-note {
+  font-size: 11px;
+  color: #6B6676;
+  line-height: 1.45;
+}
+
+/* Phones and tablets: the live strand folds above the step (frontend only; no source rule). */
+.sb-fold {
+  display: none;
+}
+
+/* ---- Frontend-only responsive rules (the source has none) ---- */
+@media (max-width: 1200px) {
+  .sb-cards {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 1023px) {
+  .sb-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sb-side {
+    display: none;
+  }
+
+  .sb-fold {
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .sb-fold .sb-live {
+    position: static;
+  }
+
+  .sb-page .sb-fold-t {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: none;
+    border: 0;
+    padding: 0;
+    color: #E5C378;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .sb-fold-b {
+    margin-top: 14px;
+  }
+
+  .sb-fold-ic {
+    transition: transform 0.2s ease;
+  }
+
+  .sb-fold-ic.is-open {
+    transform: rotate(180deg);
+  }
+
+  .sb-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .sb-icards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .sb-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sb-page .sb-card {
+    min-height: 0;
+  }
+
+  .sb-card-art {
+    width: 88px;
+    height: 88px;
+  }
+
+  .sb-steps {
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .sb-ihead {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .sb-sum {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sb-row {
+    padding: 10px 12px;
+  }
+
+  .sb-rv-grid,
+  .sb-nums {
+    grid-template-columns: 1fr;
+  }
+
+  .sb-rv-hero {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .sb-icards {
+    grid-template-columns: 1fr;
+  }
+
+  .sb-date {
+    gap: 8px;
+  }
+
+  .sb-page .sb-input {
+    padding: 10px 8px;
+  }
 }

@@ -1,5 +1,5 @@
-// Step 3 of the purpose path: date of birth, the three personal beads it unlocks
-// (Mulank, Bhagyank, zodiac), and the strand count.
+// Step 3 of the purpose path, beeds_ecommerce StudioBuilderPage.jsx "STEP 3" (L952-1490): date of
+// birth box, the three personal beads it unlocks (Mulank, Bhagyank, zodiac), and the strand rows.
 import { useCustomizerStore } from '../../../store/customizerStore';
 import { qtyOf } from '../../../lib/studioFlow';
 import { bhagyankFromDate, dateRangeLabel, findBeadByName, mulankFromDate, zodiacFromDate, MULANK_TABLE } from '../../../lib/calibration';
@@ -78,6 +78,7 @@ export default function PurposeBirth() {
   const mulankName = numbers ? MULANK_TABLE[numbers.mulank]?.beadName : '';
   const bhagyankName = numbers ? MULANK_TABLE[numbers.bhagyank]?.beadName : '';
   const signName = numbers?.sign?.beadName || '';
+  const signBead = findBeadByName(catalogBeads, signName);
   const numberIds = new Set((numberBeadIds || []).map(String));
   // A personal crystal that the intention already put on the strand adds no extra bead.
   const alreadyOn = (name) =>
@@ -91,17 +92,15 @@ export default function PurposeBirth() {
   }
 
   return (
-    <div className="nx-birth">
-      <section className="nx-birth-date">
-        <div className="nx-birth-date-c">
-          <p className="nx-eb">Your date of birth</p>
-          <p className="nx-birth-hint">Your Mulank, Bhagyank and zodiac sign are read from this date.</p>
-        </div>
+    <div>
+      <section className="sb-box sb-dob">
+        <div className="sb-ck">Your date of birth</div>
+        <div className="sb-dob-p">Your Mulank, Bhagyank and zodiac sign are read from this date.</div>
         <DateFields value={dateOfBirth} onChange={setDateOfBirth} />
       </section>
 
       {numbers && (
-        <section className="nx-birth-sec">
+        <section className="sb-pb">
           <div className="pbx-head">
             <div>
               <div className="pbx-head-k">Personal beads</div>
@@ -150,8 +149,9 @@ export default function PurposeBirth() {
               value={String(numbers.sign.sign || '').toUpperCase()}
               small
               sub={dateRangeLabel(numbers.sign)}
-              bead={findBeadByName(catalogBeads, signName)}
+              bead={signBead}
               beadName={signName}
+              reason={signName ? `Calibrated with ${signName}${signBead?.powerUse ? ` for ${String(signBead.powerUse).toLowerCase()}` : ''}.` : ''}
               note={alreadyOn(signName) ? 'Already on your strand from the intention.' : ''}
               choice={includeZodiacBead}
               onChange={setIncludeZodiacBead}
@@ -161,10 +161,10 @@ export default function PurposeBirth() {
       )}
 
       {numbers && (
-        <div className="nx-birth-sec">
+        <>
           <StrandList busy={calibrating} />
-          {!answered && <p className="nx-birth-hint nx-birth-wait">Choose add or skip for each personal bead to finish this step.</p>}
-        </div>
+          {!answered && <p className="sb-wait">Choose add or skip for each personal bead to finish this step.</p>}
+        </>
       )}
     </div>
   );

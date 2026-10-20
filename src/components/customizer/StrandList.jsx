@@ -1,14 +1,14 @@
-// The strand as a list: one row per crystal with -/+ counts, a progress line against the
-// strand length and a one-tap "Balance the strand". Used by every studio path.
+// "YOUR STRAND CRYSTAL ROWS WITH COUNTERS" (beeds_ecommerce StudioBuilderPage.jsx L1355-1489): one row
+// per crystal with -/+ counts. "Balance the strand" is frontend-only (the strand must match its
+// length before the step can be left). Used by every studio path.
 import { Minus, Plus } from 'lucide-react';
 import { useCustomizerStore } from '../../store/customizerStore';
 import { qtyOf } from '../../lib/studioFlow';
 import { formatInr } from '../../lib/format';
 import GemVisual from '../ui/GemVisual';
 
+// Source badges only the personal beads (NUMBER / ZODIAC); intention crystals carry none.
 const ROLE_LABEL = {
-  'intention-primary': 'Intention',
-  intention: 'Intention',
   number: 'Number',
   zodiac: 'Zodiac',
   Mulank: 'Mulank',
@@ -70,49 +70,49 @@ export default function StrandList({ title = 'Your strand', rows: rowsProp, busy
   }
 
   return (
-    <section>
-      <div className="nx-birth-head">
+    <section className="sb-strand">
+      <div className="sb-strand-head">
         <div>
-          <p className="nx-eb">{title}</p>
-          <p className={`nx-birth-count${over ? ' is-over' : short ? ' is-short' : ' is-full'}`}>
+          <div className="sb-k">{title}</div>
+          <div className="sb-strand-c">
             {total} of {target} beads
             {over ? ` · ${over} too many` : short ? ` · ${short} to place` : ' · the strand matches'}
-          </p>
+          </div>
         </div>
         {total !== target && total > 0 && (
-          <button type="button" className="nx-cm-addbtn" onClick={balance}>
+          <button type="button" className="sb-balance" onClick={balance}>
             Balance the strand
           </button>
         )}
       </div>
-      <div className="nx-cm-bar" aria-hidden>
-        <span style={{ width: `${Math.min(100, (total / target) * 100)}%` }} />
-      </div>
+      <div className="sb-rule" />
       {busy ? (
-        <p className="nx-birth-hint">{busyLabel}</p>
+        <p className="sb-wait">{busyLabel}</p>
       ) : (
-        <ul className="nx-cm-lines">
+        <ul className="sb-rows">
           {rows.map((bead) => {
             const qty = qtyOf(quantities, bead._id);
             const labels = { ...ROLE_LABEL, ...roleLabels };
-            const roles = [...new Set((bead.roles || []).map((key) => labels[key] || key).filter(Boolean))];
+            const roles = [...new Set((bead.roles || []).map((key) => labels[key]).filter(Boolean))];
             return (
-              <li key={bead._id} className={qty ? '' : 'is-off'}>
-                <GemVisual color={bead.colorHex} image={bead.image} name={bead.name} className="nx-cm-dot" />
-                <span className="nx-cm-line-c">
-                  <span className="nx-cm-name">
-                    {bead.name}
-                    {roles.map((r) => (
-                      <i key={r} className="nx-role">
-                        {r}
-                      </i>
-                    ))}
-                  </span>
-                  <span className="nx-cm-price">
-                    {formatInr(bead.pricePerBead)} / bead{qty ? ` · ${formatInr((bead.pricePerBead || 0) * qty)}` : ' · not on the strand'}
-                  </span>
-                </span>
-                <span className="nx-qty nx-cm-qty" aria-label={`${bead.name} quantity`}>
+              <li key={bead._id} className={`sb-row${qty ? '' : ' is-off'}`}>
+                <div className="sb-row-l">
+                  <GemVisual color={bead.colorHex} image={bead.image} name={bead.name} className="sb-row-img" />
+                  <div>
+                    <div className="sb-row-nm">
+                      <span className="sb-row-name">{bead.name}</span>
+                      {roles.map((r) => (
+                        <span key={r} className="sb-badge">
+                          {r}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="sb-row-p">
+                      {formatInr(bead.pricePerBead)}/ bead{qty ? ` · ${formatInr((bead.pricePerBead || 0) * qty)}` : ' · not on the strand'}
+                    </div>
+                  </div>
+                </div>
+                <div className="sb-counter" aria-label={`${bead.name} quantity`}>
                   <button type="button" aria-label={`One less ${bead.name}`} disabled={qty <= 0} onClick={() => setBeadQty(bead._id, qty - 1)}>
                     <Minus size={13} />
                   </button>
@@ -120,7 +120,7 @@ export default function StrandList({ title = 'Your strand', rows: rowsProp, busy
                   <button type="button" aria-label={`One more ${bead.name}`} disabled={total >= target} onClick={() => setBeadQty(bead._id, qty + 1, { force: qty === 0 })}>
                     <Plus size={13} />
                   </button>
-                </span>
+                </div>
               </li>
             );
           })}

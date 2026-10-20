@@ -45,27 +45,25 @@ export default function StudioBeads() {
   const waiting = seeds && Boolean(dateOfBirth) && (!zodiacAdded || calibrating);
 
   return (
-    <div className="nx-birth">
+    <div>
       {seeds && (
-        <section className="nx-birth-date">
-          <div className="nx-birth-date-c">
-            <p className="nx-eb">Your zodiac crystal</p>
-            <p className="nx-birth-hint">
-              {signName && signBead
-                ? `${signName} (${signRange}) · ${signBead} joins the strand.`
-                : 'Enter your date of birth and the crystal for your sign joins the strand.'}
-            </p>
+        <section className="sb-box sb-dob">
+          <div className="sb-ck">Your zodiac crystal</div>
+          <div className="sb-dob-p">
+            {signName && signBead
+              ? `${signName} (${signRange}) · ${signBead} joins the strand.`
+              : 'Enter your date of birth and the crystal for your sign joins the strand.'}
           </div>
           <DateFields value={dateOfBirth} onChange={setDateOfBirth} />
         </section>
       )}
       {path === 'zodiac' && signName && (
-        <div className="nx-chosen">
-          <span className="nx-chosen-c">
-            <span className="nx-eb">Zodiac</span>
-            <span className="nx-chosen-h">{signName}</span>
-            <span className="nx-birth-hint">{[signRange, layerItem?.theme].filter(Boolean).join(' · ')}</span>
-          </span>
+        <div className="sb-box sb-banner">
+          <div>
+            <div className="sb-ck">Zodiac</div>
+            <div className="sb-banner-t">{signName}</div>
+            <div className="sb-rv-s">{[signRange, layerItem?.theme].filter(Boolean).join(' · ')}</div>
+          </div>
         </div>
       )}
       <StrandList rows={recommended} busy={waiting} roleLabels={{ intention: CORE_LABEL[path], 'intention-primary': CORE_LABEL[path] }} />

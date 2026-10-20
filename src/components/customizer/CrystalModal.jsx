@@ -116,8 +116,8 @@ export default function CrystalModal({ open, onClose, onComplete }) {
       : intention?.name || layer?.name || 'Your crystals';
 
   return (
-    <div className="nx-cm-layer">
-      <button type="button" className="nx-cm-scrim" aria-label="Close crystal selection" onClick={onClose} />
+    <div className="cmx-layer">
+      <button type="button" className="cmx-scrim" aria-label="Close crystal selection" onClick={onClose} />
       <div className={`cmx${building ? ' is-build' : ''}`} role="dialog" aria-modal="true" aria-labelledby="cmx-title">
         <div className={`cmx-head${building ? ' is-build' : ''}`}>
           <button type="button" className={building ? 'cmx-x-plain' : 'cmx-x'} onClick={onClose} aria-label="Close">
@@ -137,7 +137,7 @@ export default function CrystalModal({ open, onClose, onComplete }) {
           {building && <div className="cmx-rule" />}
         </div>
 
-        {stepError && <p className="nx-error cmx-msg">{stepError}</p>}
+        {stepError && <p className="cmx-msg">{stepError}</p>}
 
         {/* View 1: recommended crystals */}
         {!building && !cataloging && (
@@ -145,7 +145,7 @@ export default function CrystalModal({ open, onClose, onComplete }) {
             {selecting ? (
               <div className="cmx-grid">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="nx-skel cmx-skel" />
+                  <div key={i} className="cmx-skel" />
                 ))}
               </div>
             ) : recommended.length === 0 ? (
@@ -243,7 +243,7 @@ export default function CrystalModal({ open, onClose, onComplete }) {
 
         {/* View 3: catalog (add another crystal) */}
         {cataloging && (
-          <div className="cmx-body">
+          <div className="cmx-body is-catalog">
             <div className="cmx-grid is-catalog">
               {offer.map((bead) => {
                 const added = isAdded(bead);
@@ -283,8 +283,8 @@ export default function CrystalModal({ open, onClose, onComplete }) {
             </>
           ) : cataloging ? (
             <>
-              <span className="cmx-sum">{addedCount ? `${addedCount} added` : 'Tap a crystal to add it'}</span>
-              <button type="button" className="cmx-gold" onClick={() => setView('build')}>
+              <span className="cmx-sum is-catalog">{addedCount ? `${addedCount} added` : 'Tap a crystal to add it'}</span>
+              <button type="button" className="cmx-gold is-catalog" onClick={() => setView('build')}>
                 {addedCount ? 'Done' : 'Close'}
               </button>
             </>

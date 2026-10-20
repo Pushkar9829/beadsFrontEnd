@@ -22,16 +22,22 @@ export default function StudioCrystals() {
 
   return (
     <div>
-      <p className="nx-pick-head">Select the stones, then set the strand to 16, 18 or 22 beads.</p>
-      <button type="button" className="nx-crystal-sum" onClick={() => setOpen(true)}>
-        <span>
-          <span className="nx-eb">{layer?.name || 'Crystals'}</span>
-          <span className="nx-crystal-sum-h">
+      <div className="sb-ihead">
+        <span className="sb-ihead-p">Select the stones, then set the strand to 16, 18 or 22 beads.</span>
+      </div>
+      <div className="sb-box sb-sum">
+        <div>
+          <div className="sb-ck">{layer?.name || 'Crystals'}</div>
+          <div className="sb-sum-v">
             {picked.length ? `${picked.length} ${picked.length === 1 ? 'crystal' : 'crystals'} · ${total} of ${strandCount || 18} beads` : 'Choose your crystals'}
-          </span>
-        </span>
-        <span className="nx-chosen-edit">{picked.length ? 'Edit' : 'Open'}</span>
-      </button>
+          </div>
+        </div>
+        <div className="sb-sum-a">
+          <button type="button" className="sb-btn-ghost" onClick={() => setOpen(true)}>
+            {picked.length ? 'Edit crystals' : 'Open'}
+          </button>
+        </div>
+      </div>
       <CrystalModal open={open} onClose={() => setOpen(false)} onComplete={onComplete} />
     </div>
   );

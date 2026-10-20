@@ -1,13 +1,15 @@
+// /customize/purpose — no page of its own in the source; it renders the source's studio step 1
+// (header, BEGIN BY pills and the purpose cards, beeds_ecommerce StudioBuilderPage.jsx L402-743),
+// with each card linking into the purpose path. Classes: styles/atelier/studio.css.
 import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
 import SeoHead from '../components/SeoHead';
-import { PurposeIcon, purposeHasImage, purposeToneStyle } from '../components/customizer/PurposeGrid';
 import StudioPaths from '../components/customizer/StudioPaths';
+import { PurposeCard } from '../components/customizer/steps/PurposePick';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import useRefreshOnView from '../hooks/useRefreshOnView';
-import { PageIntro } from '../components/home/nocturne/Listing';
 
 export default function ShopByPurposePage() {
   const site = useSite();
@@ -26,34 +28,31 @@ export default function ShopByPurposePage() {
   useRefreshOnView(load);
 
   const title = copy.pageTitle || copy.title || 'Customise by purpose';
+  const body = copy.pageBody || copy.body;
 
   return (
-    <div className="nx nx-page nx-studio">
-      <SeoHead title={pageTitle(title, brand)} description={copy.pageBody || copy.body} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
-      <PageIntro compact crumbs={[{ label: 'Home', to: '/' }, { label: brand.nav.customize, to: '/customize' }, { label: copy.title || 'By purpose' }]} title={title} body={copy.pageBody || copy.body} />
-      <div className="nx-w nx-studio-body">
+    <div className="nx nx-studio sb-page">
+      <SeoHead title={pageTitle(title, brand)} description={body} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
+      <div className="sb-wrap">
+        <div className="sb-head">
+          <h1 className="sb-title">{title}</h1>
+          {body && <p className="sb-sub">{body}</p>}
+        </div>
         <StudioPaths />
         {loading ? (
-          <div className="nx-ptiles">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="nx-skel nx-ptile-skel" />
+          <div className="sb-cards">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="sb-skel" />
             ))}
           </div>
         ) : purposes.length ? (
-          <div className="nx-ptiles">
+          <div className="sb-cards">
             {purposes.map((p, i) => (
-              <Link key={p._id || p.slug} to={`/customize?path=purpose&purpose=${p.slug}`} className="nx-ptile" style={purposeToneStyle(p)}>
-                <span className="nx-ptile-n">{String(i + 1).padStart(2, '0')}</span>
-                <span className={`nx-ptile-art${purposeHasImage(p) ? ' is-photo' : ' is-glyph'}`} aria-hidden>
-                  <PurposeIcon purpose={p} />
-                </span>
-                <span className="nx-ptile-h">{p.name}</span>
-                {p.description && <span className="nx-ptile-p">{p.description}</span>}
-              </Link>
+              <PurposeCard key={p._id || p.slug} as={Link} to={`/customize?path=purpose&purpose=${p.slug}`} purpose={p} index={i} />
             ))}
           </div>
         ) : (
-          <p className="nx-lede">Purposes will appear here once the studio is configured.</p>
+          <p className="sb-empty">Purposes will appear here once the studio is configured.</p>
         )}
       </div>
     </div>

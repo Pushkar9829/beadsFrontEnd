@@ -1,12 +1,13 @@
+// "Place order" (beeds_ecommerce StudioBuilderPage.jsx L2165-2186 on the review panel, L2337-2369 in the
+// action bar). The caller passes the source class: `sb-order` (panel) or `sb-dock-next` (bar).
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomizerStore, useCustomizerQuote } from '../../store/customizerStore';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
-import Button from '../ui/Button';
 import { useStudioLabels } from '../../lib/studioTheme';
 
-export default function PlaceOrderButton({ className = 'w-full' }) {
+export default function PlaceOrderButton({ className = 'sb-order', showErrors = true }) {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const quote = useCustomizerQuote();
@@ -21,7 +22,7 @@ export default function PlaceOrderButton({ className = 'w-full' }) {
   async function place() {
     setErr('');
     if (!charm) {
-      setErr(labels.charmMissing);
+      setErr(labels.charmMissing || 'Choose a charm before placing the order.');
       return;
     }
     setBusy(true);
@@ -31,21 +32,20 @@ export default function PlaceOrderButton({ className = 'w-full' }) {
       if (user) navigate('/checkout');
       else navigate('/login', { state: { from: { pathname: '/checkout' } } });
     } catch (e) {
-      setErr(e.message || labels.orderFailed);
+      setErr(e.message || labels.orderFailed || 'Could not place the order.');
     } finally {
       setBusy(false);
     }
   }
 
+  const message = err || (quote.errors?.length ? quote.errors.join(' ') : '');
+
   return (
-    <div>
-      {err && <p className="nx-bad mb-3">{err}</p>}
-      {quote.errors?.length > 0 && !err && (
-        <p className="nx-note mb-3">{quote.errors.join(' ')}</p>
-      )}
-      <Button onClick={place} disabled={busy} className={className}>
-        {busy ? labels.placingOrder : labels.placeOrder}
-      </Button>
-    </div>
+    <>
+      {showErrors && message && <p className="sb-order-err">{message}</p>}
+      <button type="button" onClick={place} disabled={busy} className={className}>
+        {busy ? labels.placingOrder || 'Placing order…' : labels.placeOrder || 'Place order'}
+      </button>
+    </>
   );
 }

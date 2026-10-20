@@ -1,73 +1,132 @@
-/* Studio action bar, as in beeds_ecommerce StudioBuilderPage.jsx: fixed to the bottom of the window, full
-   width, 74px tall; hint on the left, Back · step · Next on the right. (Phones keep their pinned dock.) */
+/* Studio bottom action bar — beeds_ecommerce StudioBuilderPage.jsx "BOTTOM STICKY ACTION BAR" (L2268-2371):
+   fixed to the bottom of the window at every width, 74px tall; helper text on the left,
+   Back · step counter · Next (Place order on the last step) on the right. */
 
-@media (min-width: 1024px) {
-  .nx-studio.nx-studio.nx-studio {
-    padding-bottom: 96px;
+.sb-dock {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 74px;
+  background: rgba(20, 3, 34, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(191, 0, 255, 0.3);
+  box-shadow: 0 -10px 30px rgba(12, 0, 22, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  z-index: 50;
+  box-sizing: border-box;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  line-height: 1.7;
+}
+
+.sb-dock-hint {
+  font-size: 12px;
+  color: #8E8A9A;
+  min-width: 220px;
+}
+
+.sb-dock-hint.is-error {
+  color: #E59A9A;
+}
+
+.sb-dock-r {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.sb-page .sb-dock-back {
+  background: none;
+  border: none;
+  color: #BBB5C3;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 8px 12px;
+}
+
+.sb-page .sb-dock-back:disabled {
+  color: #444;
+  cursor: not-allowed;
+}
+
+.sb-dock-meta {
+  text-align: right;
+}
+
+.sb-dock-step {
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: #6B6676;
+  text-transform: uppercase;
+}
+
+.sb-dock-v {
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.sb-page .sb-dock-next {
+  background: linear-gradient(135deg, #ECC26A 0%, #D9AE4F 60%, #B88E3E 100%);
+  color: #0A0810;
+  border: none;
+  border-radius: 4px;
+  padding: 12px 28px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(217, 174, 79, 0.25);
+  min-width: 150px;
+  text-align: center;
+}
+
+/* The source's Next never looks disabled; the frontend still blocks it until the step is complete. */
+.sb-page .sb-dock-next:disabled {
+  cursor: not-allowed;
+}
+
+/* Frontend-only: the source bar does not fit a phone (it overflows), so the helper text drops
+   and the padding tightens below 768px. */
+@media (max-width: 767px) {
+  .sb-dock {
+    padding: 0 16px;
   }
 
-  .nx-studio.nx-studio.nx-studio .studio-actions {
-    position: fixed;
+  .sb-dock-hint {
+    display: none;
+  }
+
+  .sb-dock-hint.is-error {
+    display: block;
+    position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
-    z-index: 50;
-    height: 74px;
-    margin: 0;
-    padding: 0 40px;
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    border-top: 1px solid rgba(191, 0, 255, 0.3);
+    bottom: 100%;
+    min-width: 0;
+    padding: 6px 16px;
     background: rgba(20, 3, 34, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 -10px 30px rgba(12, 0, 22, 0.8);
   }
 
-  .nx-studio.nx-studio.nx-studio .studio-actions-shell {
+  .sb-dock-r {
     width: 100%;
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
     justify-content: space-between;
-    gap: 24px;
+    gap: 12px;
   }
 
-  .nx-studio.nx-studio.nx-studio .studio-actions-hint {
-    flex: 0 1 auto;
-    min-width: 220px;
-    margin: 0;
-    font-size: 12px;
-    color: #8E8A9A;
+  .sb-page .sb-dock-back {
+    padding: 8px 0;
   }
 
-  .nx-studio.nx-studio.nx-studio .studio-actions-row {
-    flex: 0 0 auto;
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 32px;
-  }
-
-  .nx-studio.nx-studio.nx-studio .studio-actions-back {
-    padding: 8px 12px;
-  }
-
-  .nx-studio.nx-studio.nx-studio .studio-actions-meta {
-    text-align: right;
-  }
-
-  .nx-studio.nx-studio.nx-studio .studio-actions-next {
-    min-width: 150px;
-    min-height: 0;
-    padding: 12px 28px;
-    font-size: 12.5px;
-  }
-
-  /* Last step: Place order sits at the right end of the bar. */
-  .nx-studio.nx-studio.nx-studio .studio-actions-shell > div:not(.studio-actions-row) {
-    margin-top: 0;
-    flex: 0 0 auto;
+  .sb-page .sb-dock-next {
+    min-width: 0;
+    padding: 12px 18px;
   }
 }

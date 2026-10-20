@@ -19,7 +19,6 @@ import PreviewPanel from '../components/customizer/PreviewPanel';
 import SeoHead from '../components/SeoHead';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
-import { GridSkeleton, PageIntro } from '../components/home/nocturne/Listing';
 
 // One screen per step id (see lib/studioFlow.js for the order on each path).
 const PANE = {
@@ -33,6 +32,8 @@ const PANE = {
   review: StudioReview,
 };
 
+// Markup follows beeds_ecommerce StudioBuilderPage.jsx: header (L402), begin-by pills (L409),
+// stepper (L451), two-column workspace (L505) and the fixed action bar (L2268). Classes: styles/atelier/studio.css.
 export default function CustomizePage() {
   const brand = useBrand();
   const cmsSteps = useSite().pages.customize?.steps || [];
@@ -68,29 +69,46 @@ export default function CustomizePage() {
     if (fresh && fresh !== search) navigate(`/customize?${fresh}`, { replace: true });
   }, [urlSyncing, canonical, search, navigate]);
 
+  // Source scrolls to the top on every step change (L373-376).
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [step]);
+
   const mode = studioMode(path, config);
   const copy = stepCopy(step, cmsSteps, path);
   const entry = stepAt(step, path);
   const Pane = PANE[entry.id];
   const selectionName = layer?.name || purpose?.name || '';
+  const sub = selectionName && step > 1 ? `${mode.short} · ${selectionName}` : copy.body;
+
+  const head = (
+    <div className="sb-head">
+      <h1 className="sb-title">{copy.title}</h1>
+      {sub && <p className="sb-sub">{sub}</p>}
+    </div>
+  );
 
   if (loading || error) {
     return (
-      <div className="nx nx-page nx-studio">
-        <PageIntro compact title={copy.title} />
-        {error ? (
-          <div className="nx-w nx-sec">
-            <p className="nx-error">{error}</p>
-          </div>
-        ) : (
-          <GridSkeleton n={8} tone="dark" />
-        )}
+      <div className="nx nx-studio sb-page">
+        <div className="sb-wrap">
+          {head}
+          {error ? (
+            <p className="sb-empty">{error}</p>
+          ) : (
+            <div className="sb-cards">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div key={i} className="sb-skel" />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="nx nx-page nx-studio">
+    <div className="nx nx-studio sb-page">
       <SeoHead
         title={pageTitle(copy.title || brand.nav.customize, brand)}
         description={copy.body || mode.body}
@@ -98,23 +116,21 @@ export default function CustomizePage() {
         image={brand.seo?.ogImage}
         noIndex={brand.seo?.noIndex}
       />
-      <PageIntro compact title={copy.title} body={selectionName && step > 1 ? `${mode.short} · ${selectionName}` : copy.body} />
-      <div className="nx-w nx-studio-body">
+      <div className="sb-wrap">
+        {head}
         {step === 1 && <StudioPaths />}
         <Stepper />
         {step > 1 && (
-          <div className="mt-6 lg:hidden">
+          <div className="sb-fold">
             <PreviewPanel mobile />
           </div>
         )}
-        <div className="studio-stage">
-          <div className="studio-pane">
-            {Pane ? <Pane /> : null}
-            <StudioDock />
-          </div>
-          <div className="hidden lg:block">{step === 1 ? <StudioGuide /> : entry.id === 'review' ? <ReviewSide /> : <PreviewPanel />}</div>
+        <div className="sb-grid">
+          <div className="sb-main">{Pane ? <Pane /> : null}</div>
+          <div className="sb-side">{step === 1 ? <StudioGuide /> : entry.id === 'review' ? <ReviewSide /> : <PreviewPanel />}</div>
         </div>
       </div>
+      <StudioDock />
     </div>
   );
 }

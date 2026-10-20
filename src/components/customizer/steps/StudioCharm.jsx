@@ -1,5 +1,6 @@
-// Charm step for every studio path: charm at the clasp, its finish, the thread and (for
-// steel core) the wrist size.
+// Charm step for every studio path, beeds_ecommerce StudioBuilderPage.jsx "STEP 4: CHARM AND THREAD"
+// (L1496-1676): charm at the clasp and the thread (glyphs as the source: ≈ elastic, ◎ steel core).
+// Finish and wrist size are frontend-only data rows. Classes: styles/atelier/studio-charm.css.
 import { Check } from 'lucide-react';
 import { useCustomizerStore, useCustomizerQuote } from '../../../store/customizerStore';
 import { mediaUrl } from '../../../api/client';
@@ -10,14 +11,9 @@ import { useStudioLabels } from '../../../lib/studioTheme';
 function CharmMark({ charm }) {
   if (charm.image) return <img src={mediaUrl(charm.image)} alt="" />;
   const key = `${charm.slug || ''} ${charm.name || ''}`.toLowerCase();
-  if (key.includes('om')) return <span className="nx-charm-glyph" lang="sa">ॐ</span>;
-  if (key.includes('yantra')) return <span className="nx-charm-glyph">✡</span>;
-  return <span className="nx-charm-glyph">{String(charm.name || '?').charAt(0)}</span>;
-}
-
-// Same glyphs as the source: ≈ elastic, ◎ steel core.
-function ThreadMark({ steel }) {
-  return <span className="nx-charm-glyph">{steel ? '◎' : '≈'}</span>;
+  if (key.includes('om')) return <span lang="sa">ॐ</span>;
+  if (key.includes('yantra')) return <span>✡</span>;
+  return <span>{String(charm.name || '?').charAt(0)}</span>;
 }
 
 export default function StudioCharm() {
@@ -44,18 +40,14 @@ export default function StudioCharm() {
   const steel = threadType === 'steel-core';
 
   return (
-    <div className="nx-birth">
-      <section>
-        <div className="nx-birth-head">
-          <div>
-            <p className="nx-eb">{labels.charmLabel || 'Charm at the clasp'}</p>
-            <p className="nx-birth-hint">One charm sits at the clasp of every strand.</p>
-          </div>
-        </div>
+    <div>
+      <section className="sb-charm-sec">
+        <div className="sb-k">{labels.charmLabel || 'Charm at the clasp'}</div>
+        <div className="sb-hint">One charm sits at the clasp of every strand.</div>
         {!charms.length ? (
-          <p className="nx-birth-hint">{labels.charmsLoading || 'Charms are loading.'}</p>
+          <p className="sb-empty">{labels.charmsLoading || 'Charms are loading.'}</p>
         ) : (
-          <div className="nx-opts is-charms" role="radiogroup" aria-label="Charm">
+          <div className="sb-opts" role="radiogroup" aria-label="Charm">
             {charms.map((c) => {
               const on = String(charm?._id) === String(c._id);
               return (
@@ -65,18 +57,18 @@ export default function StudioCharm() {
                   role="radio"
                   aria-checked={on}
                   onClick={() => selectCharm(c, finish?.key ? c.finishes?.find((f) => f.key === finish.key) : undefined)}
-                  className={`nx-opt${on ? ' is-on' : ''}`}
+                  className={`sb-opt${on ? ' is-on' : ''}`}
                 >
                   {on && (
-                    <span className="nx-ptile-check" aria-hidden>
-                      <Check size={13} strokeWidth={2.4} />
+                    <span className="sb-check" aria-hidden>
+                      <Check size={12} strokeWidth={3} />
                     </span>
                   )}
-                  <span className="nx-opt-art">
+                  <span className="sb-opt-art">
                     <CharmMark charm={c} />
                   </span>
-                  <span className="nx-opt-h">{c.name}</span>
-                  {c.description && <span className="nx-opt-p">{c.description}</span>}
+                  <span className="sb-opt-t">{c.name}</span>
+                  {c.description && <span className="sb-opt-p">{c.description}</span>}
                 </button>
               );
             })}
@@ -85,12 +77,12 @@ export default function StudioCharm() {
       </section>
 
       {finishes.length > 1 && (
-        <section>
-          <p className="nx-eb nx-opt-label">{labels.finishLabel || 'Finish'}</p>
-          <div className="nx-chips-pick" role="radiogroup" aria-label="Finish">
+        <section className="sb-finish">
+          <div className="sb-k">{labels.finishLabel || 'Finish'}</div>
+          <div className="sb-chips" role="radiogroup" aria-label="Finish">
             {finishes.map((row) => (
               <button key={row.key} type="button" role="radio" aria-checked={finish?.key === row.key} onClick={() => setFinish(row)} className={finish?.key === row.key ? 'is-on' : ''}>
-                {row.metalColor && <i style={{ background: row.metalColor }} />}
+                {row.metalColor && <i style={{ '--sb-metal': row.metalColor }} />}
                 {row.label || row.key}
                 {row.price ? <em>+{formatInr(row.price)}</em> : null}
               </button>
@@ -100,28 +92,22 @@ export default function StudioCharm() {
       )}
 
       <section>
-        <div className="nx-birth-head">
-          <div>
-            <p className="nx-eb">{labels.threadLabel || 'Thread'}</p>
-            <p className="nx-birth-hint">Elastic slips on at any size; steel core is cut to your wrist.</p>
-          </div>
-        </div>
-        <div className="nx-opts is-threads" role="radiogroup" aria-label="Thread">
+        <div className="sb-k">{labels.threadLabel || 'Thread'}</div>
+        <div className="sb-hint">Elastic slips on at any size; steel core is cut to your wrist size.</div>
+        <div className="sb-opts is-threads" role="radiogroup" aria-label="Thread">
           {threads.map((t) => {
             const on = threadType === t.key;
             return (
-              <button key={t.key} type="button" role="radio" aria-checked={on} onClick={() => setThreadType(t.key)} className={`nx-opt is-row${on ? ' is-on' : ''}`}>
+              <button key={t.key} type="button" role="radio" aria-checked={on} onClick={() => setThreadType(t.key)} className={`sb-opt is-row${on ? ' is-on' : ''}`}>
                 {on && (
-                  <span className="nx-ptile-check" aria-hidden>
-                    <Check size={13} strokeWidth={2.4} />
+                  <span className="sb-check" aria-hidden>
+                    <Check size={12} strokeWidth={3} />
                   </span>
                 )}
-                <span className="nx-opt-art is-small">
-                  <ThreadMark steel={t.key === 'steel-core'} />
-                </span>
+                <span className="sb-opt-art">{t.key === 'steel-core' ? '◎' : '≈'}</span>
                 <span>
-                  <span className="nx-opt-h">{t.label}</span>
-                  {t.detail && <span className="nx-opt-p">{t.detail}</span>}
+                  <span className="sb-opt-t">{t.label}</span>
+                  {t.detail && <span className="sb-opt-p">{t.detail}</span>}
                 </span>
               </button>
             );
@@ -129,10 +115,10 @@ export default function StudioCharm() {
         </div>
 
         {steel && (
-          <div className="nx-wrist">
-            <p className="nx-eb nx-opt-label">{labels.wristLabel || 'Wrist size'}</p>
-            <p className="nx-birth-hint">Measure around your wrist with a soft tape and pick the nearest size.</p>
-            <div className="nx-chips-pick" role="radiogroup" aria-label="Wrist size">
+          <div className="sb-wrist">
+            <div className="sb-k">{labels.wristLabel || 'Wrist size'}</div>
+            <div className="sb-hint">Measure around your wrist with a soft tape and pick the nearest size.</div>
+            <div className="sb-chips" role="radiogroup" aria-label="Wrist size">
               {wristSizes.map((size) => (
                 <button key={size} type="button" role="radio" aria-checked={wristSize === size} onClick={() => setWristSize(size)} className={wristSize === size ? 'is-on' : ''}>
                   {size}
@@ -140,9 +126,9 @@ export default function StudioCharm() {
               ))}
             </div>
             {wristSize && quote.beadCount ? (
-              <p className="nx-birth-hint nx-wrist-note">
+              <div className="sb-hint sb-wrist-note">
                 Steel core is cut to fit, so a {wristSize} wrist takes {quote.beadCount} beads. The live price includes them.
-              </p>
+              </div>
             ) : null}
           </div>
         )}

@@ -29,7 +29,7 @@
   flex-shrink: 0;
 }
 
-.nx-studio .pbx-quick button {
+.sb-page .pbx-quick button {
   background: #FAF5EB;
   border: 1px solid rgba(197, 165, 114, 0.5);
   color: #8C6F3D;
@@ -38,7 +38,6 @@
   padding: 5px 12px;
   font-size: 11px;
   cursor: pointer;
-  line-height: 1.2;
 }
 
 .pbx-grid {
@@ -83,7 +82,6 @@
   font-size: 26px;
   font-weight: 700;
   color: #1A160F;
-  line-height: 1.3;
 }
 
 .pbx-v.is-s {
@@ -97,7 +95,7 @@
   min-width: 0;
 }
 
-.nx-studio .pbx-gem {
+.sb-page .pbx-gem {
   width: 24px;
   height: 24px;
   min-width: 24px;
@@ -150,7 +148,7 @@
   margin-top: auto;
 }
 
-.nx-studio .pbx-yn button {
+.sb-page .pbx-yn button {
   border-radius: 4px;
   padding: 8px 4px;
   font-size: 11px;
@@ -159,24 +157,23 @@
   background: #FAF4E8;
   color: #8C7245;
   border: 1px solid rgba(197, 165, 114, 0.4);
-  line-height: 1.2;
 }
 
-.nx-studio .pbx-yn .pbx-add {
+.sb-page .pbx-yn .pbx-add {
   font-weight: 600;
 }
 
-.nx-studio .pbx-yn .pbx-skip {
+.sb-page .pbx-yn .pbx-skip {
   font-weight: 500;
 }
 
-.nx-studio .pbx-yn .pbx-add.is-on {
+.sb-page .pbx-yn .pbx-add.is-on {
   background: #EAD7A5;
   color: #1A160F;
   border-color: #D9AE4F;
 }
 
-.nx-studio .pbx-yn .pbx-skip.is-on {
+.sb-page .pbx-yn .pbx-skip.is-on {
   background: #1A160F;
   color: #FAF5EB;
   border-color: #1A160F;

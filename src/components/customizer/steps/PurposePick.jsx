@@ -1,10 +1,29 @@
 import { Check } from 'lucide-react';
 import { useCustomizerStore } from '../../../store/customizerStore';
-import { PurposeIcon, purposeHasImage, purposeToneStyle } from '../PurposeGrid';
+import { PurposeIcon } from '../PurposeGrid';
 import { useStudioLabels } from '../../../lib/studioTheme';
 
-// Step 1 of the purpose path: one tile per purpose. The purpose's tone tints only the
-// artwork well, so the grid stays calm while each tile keeps its own colour.
+// Step 1 of the purpose path: "17 PURPOSE CARDS (EXACT 5 COLUMNS)" in beeds_ecommerce
+// StudioBuilderPage.jsx (L637-743).
+export function PurposeCard({ purpose, index, on = false, disabled, onClick, as: Tag = 'button', ...rest }) {
+  const props = Tag === 'button' ? { type: 'button', role: 'radio', 'aria-checked': on, disabled, onClick } : rest;
+  return (
+    <Tag className={`sb-card${on ? ' is-on' : ''}`} {...props}>
+      {on && (
+        <span className="sb-check" aria-hidden>
+          <Check size={12} strokeWidth={3} />
+        </span>
+      )}
+      <span className="sb-card-n">{String(index + 1).padStart(2, '0')}</span>
+      <span className="sb-card-art" aria-hidden>
+        <PurposeIcon purpose={purpose} />
+      </span>
+      <span className="sb-card-t">{purpose.name}</span>
+      {purpose.description && <span className="sb-card-p">{purpose.description}</span>}
+    </Tag>
+  );
+}
+
 export default function PurposePick() {
   const purposes = useCustomizerStore((s) => s.purposes);
   const selected = useCustomizerStore((s) => s.purpose);
@@ -13,38 +32,21 @@ export default function PurposePick() {
   const labels = useStudioLabels();
 
   if (!purposes.length) {
-    return <p className="nx-lede">{labels.emptyPurposes || 'Purposes will appear here once the studio is configured.'}</p>;
+    return <p className="sb-empty">{labels.emptyPurposes || 'Purposes will appear here once the studio is configured.'}</p>;
   }
 
   return (
-    <div className="nx-ptiles" role="radiogroup" aria-label="Purpose">
-      {purposes.map((p, i) => {
-        const on = String(selected?._id) === String(p._id);
-        return (
-          <button
-            key={p._id}
-            type="button"
-            role="radio"
-            aria-checked={on}
-            disabled={selecting}
-            onClick={() => selectPurpose(p)}
-            className={`nx-ptile${on ? ' is-on' : ''}`}
-            style={purposeToneStyle(p)}
-          >
-            <span className="nx-ptile-n">{String(i + 1).padStart(2, '0')}</span>
-            {on && (
-              <span className="nx-ptile-check" aria-hidden>
-                <Check size={13} strokeWidth={2.4} />
-              </span>
-            )}
-            <span className={`nx-ptile-art${purposeHasImage(p) ? '' : ' is-glyph'}`} aria-hidden>
-              <PurposeIcon purpose={p} />
-            </span>
-            <span className="nx-ptile-h">{p.name}</span>
-            {p.description && <span className="nx-ptile-p">{p.description}</span>}
-          </button>
-        );
-      })}
+    <div className="sb-cards" role="radiogroup" aria-label="Purpose">
+      {purposes.map((p, i) => (
+        <PurposeCard
+          key={p._id}
+          purpose={p}
+          index={i}
+          on={String(selected?._id) === String(p._id)}
+          disabled={selecting}
+          onClick={() => selectPurpose(p)}
+        />
+      ))}
     </div>
   );
 }

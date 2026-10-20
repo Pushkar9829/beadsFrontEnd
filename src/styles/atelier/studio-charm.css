@@ -1,68 +1,57 @@
-/* Studio step 4 (charm and thread), sized as in beeds_ecommerce StudioBuilderPage.jsx inline styles. */
+/* Studio step 4 — beeds_ecommerce StudioBuilderPage.jsx "STEP 4: CHARM AND THREAD" (L1496-1676).
+   Finish chips and wrist sizes have no source block (frontend data: charm finishes, steel-core
+   sizing); they use the source's pill button look ("Add all three", L1089-1101). */
 
-.nx-studio.nx-studio.nx-studio .nx-opts.is-charms {
+/* CHARM AT THE CLASP (L1499) */
+.sb-charm-sec {
+  margin-bottom: 32px;
+}
+
+.sb-opts {
   display: grid;
   grid-template-columns: repeat(2, 220px);
   gap: 14px;
 }
 
-.nx-studio.nx-studio.nx-studio .nx-opts.is-threads {
-  display: grid;
+.sb-opts.is-threads {
   grid-template-columns: repeat(2, 280px);
-  gap: 14px;
 }
 
-.nx-studio.nx-studio.nx-studio .nx-opts.is-charms .nx-opt,
-.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-opt {
-  position: relative;
+.sb-page .sb-opt {
   background: #FAF5EB;
   border: 1px solid rgba(197, 165, 114, 0.35);
   box-shadow: 0 4px 16px rgba(160, 126, 68, 0.08);
   border-radius: 10px;
   padding: 22px 18px;
-  text-align: left;
-  transition: all 0.2s;
-}
-
-.nx-studio.nx-studio.nx-studio .nx-opts.is-charms .nx-opt {
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  color: #1A160F;
+  min-width: 0;
 }
 
-.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-opt {
-  display: flex;
+.sb-page .sb-opt.is-row {
   flex-direction: row;
   align-items: center;
   gap: 14px;
 }
 
-.nx-studio.nx-studio.nx-studio .nx-opts.is-charms .nx-opt.is-on,
-.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-opt.is-on {
+.sb-page .sb-opt.is-on {
   border: 2px solid #D9AE4F;
   box-shadow: 0 8px 24px rgba(160, 126, 68, 0.22), 0 0 16px rgba(217, 174, 79, 0.28);
 }
 
-.nx-studio.nx-studio.nx-studio .nx-opts.is-charms .nx-ptile-check,
-.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-ptile-check {
-  position: absolute;
+.sb-opt .sb-check {
   top: 14px;
   right: 14px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #D9AE4F;
-  color: #1A160F;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.nx-studio.nx-studio.nx-studio .nx-opts.is-charms .nx-opt-art,
-.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-opt-art {
+.sb-opt-art {
   width: 44px;
   height: 44px;
-  min-width: 44px;
   border-radius: 50%;
   border: 1px solid rgba(197, 165, 114, 0.5);
   background: #FAF4E8;
@@ -71,35 +60,32 @@
   justify-content: center;
   color: #8C6F3D;
   font-size: 20px;
-  margin: 0 0 16px;
+  line-height: 1;
+  margin-bottom: 16px;
   overflow: hidden;
-  box-shadow: none;
-}
-
-.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-opt-art {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  font-size: 16px;
-  margin: 0;
   flex-shrink: 0;
 }
 
-.nx-studio.nx-studio.nx-studio .nx-opt-art img {
+.sb-opt-art img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.nx-studio.nx-studio.nx-studio .nx-opt-art .nx-charm-glyph {
-  font-size: inherit;
-  line-height: 1;
-  color: inherit;
+.sb-opt.is-row .sb-opt-art {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+  margin-bottom: 0;
 }
 
-.nx-studio.nx-studio.nx-studio .nx-opts.is-charms .nx-opt-h {
+.sb-opt-t,
+.sb-opt-p {
   display: block;
-  font-family: var(--font-serif, serif);
+}
+
+.sb-opt-t {
+  font-family: serif;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -108,39 +94,85 @@
   margin-bottom: 6px;
 }
 
-.nx-studio.nx-studio.nx-studio .nx-opts.is-charms .nx-opt-p {
-  display: block;
+.sb-opt-p {
   font-size: 11.5px;
   color: #695B44;
   line-height: 1.45;
-  padding: 0;
 }
 
-.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-opt-h {
-  display: block;
-  font-family: var(--font-serif, serif);
+.sb-opt.is-row .sb-opt-t {
   font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #1A160F;
-  text-transform: uppercase;
   margin-bottom: 2px;
 }
 
-.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-opt-p {
-  display: block;
+.sb-opt.is-row .sb-opt-p {
   font-size: 11px;
+  line-height: 1.7;
+}
+
+/* Finish and wrist-size pills (frontend-only data) */
+.sb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sb-page .sb-chips button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FAF5EB;
+  border: 1px solid rgba(197, 165, 114, 0.5);
+  color: #8C6F3D;
+  font-weight: 600;
+  border-radius: 9999px;
+  padding: 5px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sb-page .sb-chips button.is-on {
+  background: #EAD7A5;
+  border-color: #D9AE4F;
+  color: #1A160F;
+}
+
+.sb-chips i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--sb-metal, #D4AF37);
+}
+
+.sb-chips em {
+  font-style: normal;
+  font-weight: 500;
   color: #695B44;
-  padding: 0;
+}
+
+.sb-finish {
+  margin-bottom: 32px;
+}
+
+.sb-wrist {
+  margin-top: 22px;
+}
+
+.sb-wrist .sb-hint {
+  margin-bottom: 12px;
+}
+
+.sb-wrist-note {
+  margin: 12px 0 0;
 }
 
 @media (max-width: 640px) {
-  .nx-studio.nx-studio.nx-studio .nx-opts.is-charms,
-  .nx-studio.nx-studio.nx-studio .nx-opts.is-threads {
+  .sb-opts {
     grid-template-columns: 1fr 1fr;
   }
 
-  .nx-studio.nx-studio.nx-studio .nx-opts.is-threads {
+  .sb-opts.is-threads {
     grid-template-columns: 1fr;
   }
 }

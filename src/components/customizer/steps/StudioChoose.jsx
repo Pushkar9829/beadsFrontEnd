@@ -1,25 +1,33 @@
 // Step 1 for the numerology, zodiac, planetary and profession paths (the purpose path
 // starts with PurposePick).
+//  - zodiac: "ZODIAC GRID PATH" cards (beeds_ecommerce StudioBuilderPage.jsx L531-633)
+//  - planetary, profession: the source shows its purpose cards for these, so the same card is used
+//  - numerology: frontend-only flow (date of birth, then Mulank/Bhagyank), in the step 3 cream look
 import { Check } from 'lucide-react';
 import { useCustomizerStore } from '../../../store/customizerStore';
 import { useStudioLabels } from '../../../lib/studioTheme';
-import { PurposeIcon, purposeToneStyle } from '../PurposeGrid';
-import DateFields from '../DateFields';
 import { mediaUrl } from '../../../api/client';
+import DateFields from '../DateFields';
+import { PurposeCard } from './PurposePick';
 
-// Text presentation selector keeps these as symbols rather than colour emoji.
-const T = '︎';
-const SIGN_GLYPH = {
-  aries: '♈', taurus: '♉', gemini: '♊', cancer: '♋', leo: '♌', virgo: '♍',
-  libra: '♎', scorpio: '♏', sagittarius: '♐', capricorn: '♑', aquarius: '♒', pisces: '♓',
-};
-const PLANET_GLYPH = { sun: '☉', moon: '☽', mars: '♂', mercury: '☿', jupiter: '♃', venus: '♀', saturn: '♄', rahu: '☊', ketu: '☋' };
-
-function ItemArt({ item, path }) {
-  if (item.image) return <img src={mediaUrl(item.image)} alt="" />;
-  const glyph = path === 'zodiac' ? SIGN_GLYPH[item.slug] : path === 'planetary' ? PLANET_GLYPH[item.slug] : null;
-  if (glyph) return <span className="nx-glyph">{glyph + T}</span>;
-  return <PurposeIcon purpose={item} />;
+function SignCard({ item, index, on, onClick }) {
+  const initial = String(item.hindi || item.name || '?').charAt(0);
+  return (
+    <button type="button" role="radio" aria-checked={on} onClick={onClick} className={`sb-card is-sign${on ? ' is-on' : ''}`}>
+      {on && (
+        <span className="sb-check" aria-hidden>
+          <Check size={12} strokeWidth={3} />
+        </span>
+      )}
+      <span className="sb-card-n">{String(index + 1).padStart(2, '0')}</span>
+      <span className="sb-sign" aria-hidden>
+        {item.image ? <img src={mediaUrl(item.image)} alt="" /> : initial}
+      </span>
+      <span className="sb-card-t">{item.name}</span>
+      {item.hindi && <span className="sb-card-hi">{item.hindi}</span>}
+      <span className="sb-card-p">{[item.dates, item.theme].filter(Boolean).join(' · ') || item.description}</span>
+    </button>
+  );
 }
 
 function LayerPick() {
@@ -30,10 +38,9 @@ function LayerPick() {
   const selectLayerItem = useCustomizerStore((s) => s.selectLayerItem);
   const goNext = useCustomizerStore((s) => s.goNext);
   const labels = useStudioLabels();
-  const glyphs = path === 'zodiac' || path === 'planetary';
 
-  // One pick is the whole step on these paths, so carry on without a Next click
-  // (kept out of the store action so a deep link never jumps forward).
+  // One pick is the whole step on these paths, so carry on without a Next click, as the
+  // source does (kept out of the store action so a deep link never jumps forward).
   function pick(item) {
     selectLayerItem(item);
     goNext();
@@ -41,35 +48,29 @@ function LayerPick() {
 
   if (loading && !items.length) {
     return (
-      <div className="nx-ptiles">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="nx-skel nx-ptile-skel" />
+      <div className="sb-cards">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div key={i} className="sb-skel" />
         ))}
       </div>
     );
   }
-  if (!items.length) return <p className="nx-lede">{labels.emptyLayer || 'No combinations in this catalog yet.'}</p>;
+  if (!items.length) return <p className="sb-empty">{labels.emptyLayer || 'No combinations in this catalog yet.'}</p>;
 
   return (
-    <div className="nx-ptiles" role="radiogroup">
+    <div className="sb-cards" role="radiogroup">
       {items.map((item, i) => {
         const on = layerItem?.slug === item.slug;
-        const art = item.image || !glyphs ? ' is-photo' : ' is-sym';
-        return (
-          <button key={item.slug} type="button" role="radio" aria-checked={on} onClick={() => pick(item)} className={`nx-ptile${on ? ' is-on' : ''}`} style={purposeToneStyle(item)}>
-            <span className="nx-ptile-n">{String(i + 1).padStart(2, '0')}</span>
-            {on && (
-              <span className="nx-ptile-check" aria-hidden>
-                <Check size={13} strokeWidth={2.4} />
-              </span>
-            )}
-            <span className={`nx-ptile-art${art}`} aria-hidden>
-              <ItemArt item={item} path={path} />
-            </span>
-            <span className="nx-ptile-h">{item.name}</span>
-            {item.hindi && <span className="nx-ptile-hi">{item.hindi}</span>}
-            <span className="nx-ptile-p">{item.description || [item.dates, item.theme].filter(Boolean).join(' · ')}</span>
-          </button>
+        return path === 'zodiac' ? (
+          <SignCard key={item.slug} item={item} index={i} on={on} onClick={() => pick(item)} />
+        ) : (
+          <PurposeCard
+            key={item.slug}
+            purpose={{ ...item, description: item.description || [item.dates, item.theme].filter(Boolean).join(' · ') }}
+            index={i}
+            on={on}
+            onClick={() => pick(item)}
+          />
         );
       })}
     </div>
@@ -79,11 +80,13 @@ function LayerPick() {
 function NumberCard({ label, sub, value, items }) {
   const theme = items.find((it) => Number(it.number) === Number(value))?.name || '';
   return (
-    <article className="nx-pb is-read nx-numcard">
-      <span className="nx-eb">{label}</span>
-      <p className="nx-pb-v">{value}</p>
-      <p className="nx-pb-sub">{sub}</p>
-      {theme && <p className="nx-numrow-t">{theme}</p>}
+    <article className="pbx">
+      <div className="pbx-k">{label}</div>
+      <div className="pbx-row">
+        <span className="pbx-v">{value}</span>
+      </div>
+      <div className="pbx-sub">{sub}</div>
+      {theme && <div className="pbx-why">{theme}</div>}
     </article>
   );
 }
@@ -98,18 +101,16 @@ function NumerologyPick() {
   const labels = useStudioLabels();
 
   return (
-    <div className="nx-birth">
-      <section className="nx-birth-date">
-        <div className="nx-birth-date-c">
-          <p className="nx-eb">Your date of birth</p>
-          <p className="nx-birth-hint">Your Mulank and Bhagyank are read from this date, and each sets crystals for the strand.</p>
-        </div>
+    <div>
+      <section className="sb-box sb-dob">
+        <div className="sb-ck">Your date of birth</div>
+        <div className="sb-dob-p">Your Mulank and Bhagyank are read from this date, and each sets crystals for the strand.</div>
         <DateFields value={dateOfBirth} onChange={setDateOfBirth} />
       </section>
       {dateOfBirth && (mulankNumber || bhagyankNumber) ? (
-        <section>
-          <p className="nx-eb nx-opt-label">Your numbers</p>
-          <div className="nx-pbs is-2">
+        <section className="sb-pb">
+          <div className="sb-k">Your numbers</div>
+          <div className="sb-nums">
             {mulankNumber ? <NumberCard label={labels.mulankLabel || 'Mulank'} sub="Your birth-day number" value={mulankNumber} items={items} /> : null}
             {bhagyankNumber ? <NumberCard label={labels.bhagyankLabel || 'Bhagyank'} sub="Your full-date number" value={bhagyankNumber} items={items} /> : null}
           </div>

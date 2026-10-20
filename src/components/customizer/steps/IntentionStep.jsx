@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useCustomizerStore } from '../../../store/customizerStore';
 import { qtyOf } from '../../../lib/studioFlow';
 import { PurposeIcon } from '../PurposeGrid';
@@ -11,8 +11,8 @@ function cleanDescription(it) {
   return it.braceletName ? text.replace(/\s*Design name:.*$/i, '').trim() : text;
 }
 
-// Step 2 of the purpose path. Intentions share their purpose's artwork, so the cards are
-// text-led; the artwork appears once, on the chosen-purpose strip above them.
+// Step 2 of the purpose path, beeds_ecommerce StudioBuilderPage.jsx "STEP 2: CHOOSE AN INTENTION"
+// (L760-947): purpose banner, intention cards (4 columns) and the summary box.
 export default function IntentionStep() {
   const purpose = useCustomizerStore((s) => s.purpose);
   const intentions = useCustomizerStore((s) => s.intentions);
@@ -40,28 +40,30 @@ export default function IntentionStep() {
   return (
     <div>
       {purpose && (
-        <div className="nx-chosen">
-          <span className="nx-chosen-art" aria-hidden>
-            <PurposeIcon purpose={purpose} />
-          </span>
-          <span className="nx-chosen-c">
-            <span className="nx-eb">Your purpose</span>
-            <span className="nx-chosen-h">{purpose.name}</span>
-          </span>
-          <button type="button" className="nx-chosen-edit" onClick={() => setStep(1)}>
+        <div className="sb-box sb-banner">
+          <div className="sb-banner-l">
+            <span className="sb-banner-art" aria-hidden>
+              <PurposeIcon purpose={purpose} />
+            </span>
+            <div>
+              <div className="sb-ck">Your purpose</div>
+              <div className="sb-banner-t">{purpose.name}</div>
+            </div>
+          </div>
+          <button type="button" className="sb-link" onClick={() => setStep(1)}>
             Change
           </button>
         </div>
       )}
 
-      <div className="nx-pick-head">
-        <p>Choose one intention. Its crystals open next, and you can turn any of them off.</p>
-        <span>
+      <div className="sb-ihead">
+        <span className="sb-ihead-p">Choose one intention. Its crystals open next, and you can turn any of them off.</span>
+        <span className="sb-ihead-n">
           {intentions.length} {intentions.length === 1 ? 'intention' : 'intentions'}
         </span>
       </div>
 
-      <div className="nx-itiles" role="radiogroup" aria-label="Intention">
+      <div className="sb-icards" role="radiogroup" aria-label="Intention">
         {intentions.map((it, i) => {
           const on = String(intention?._id) === String(it._id);
           const desc = cleanDescription(it);
@@ -73,21 +75,20 @@ export default function IntentionStep() {
               aria-checked={on}
               disabled={selecting}
               onClick={() => onPick(it)}
-              className={`nx-itile${on ? ' is-on' : ''}`}
+              className={`sb-icard${on ? ' is-on' : ''}`}
             >
-              <span className="nx-itile-top">
-                <span className="nx-itile-n">{String(i + 1).padStart(2, '0')}</span>
-                {on && (
-                  <span className="nx-ptile-check" aria-hidden>
-                    <Check size={13} strokeWidth={2.4} />
-                  </span>
-                )}
-              </span>
-              <span className="nx-itile-h">{it.name}</span>
-              {it.braceletName && <span className="nx-itile-b">{it.braceletName}</span>}
-              {desc && <span className="nx-itile-p">{desc}</span>}
-              <span className="nx-itile-go">
-                {on ? 'Edit crystals' : 'See crystals'} <ArrowRight size={13} strokeWidth={1.6} />
+              {on && (
+                <span className="sb-check" aria-hidden>
+                  <Check size={12} strokeWidth={3} />
+                </span>
+              )}
+              <span className="sb-icard-n">{String(i + 1).padStart(2, '0')}</span>
+              <span className={`sb-icard-t${it.braceletName ? ' has-badge' : ''}`}>{it.name}</span>
+              {it.braceletName && <span className="sb-icard-b">{it.braceletName}</span>}
+              {desc && <span className="sb-icard-p">{desc}</span>}
+              <span className="sb-icard-go">
+                <span>{on ? 'Edit crystals' : 'See crystals'}</span>
+                <span>→</span>
               </span>
             </button>
           );
@@ -95,15 +96,22 @@ export default function IntentionStep() {
       </div>
 
       {intention && picked.length ? (
-        <button type="button" className="nx-crystal-sum" onClick={() => setOpen(true)}>
-          <span>
-            <span className="nx-eb">{intention.name}</span>
-            <span className="nx-crystal-sum-h">
+        <div className="sb-box sb-sum">
+          <div>
+            <div className="sb-ck">{intention.name}</div>
+            <div className="sb-sum-v">
               {picked.length} {picked.length === 1 ? 'crystal' : 'crystals'} · {strandCount} beads
-            </span>
-          </span>
-          <span className="nx-chosen-edit">Edit</span>
-        </button>
+            </div>
+          </div>
+          <div className="sb-sum-a">
+            <button type="button" className="sb-btn-ghost" onClick={() => setOpen(true)}>
+              Edit crystals
+            </button>
+            <button type="button" className="sb-btn-gold" onClick={() => goNext()}>
+              Continue →
+            </button>
+          </div>
+        </div>
       ) : null}
 
       <CrystalModal open={open} onClose={() => setOpen(false)} onComplete={onComplete} />

@@ -1,54 +1,31 @@
-// Side column on the first step: the road ahead (step copy comes from the CMS, same as the
-// page header) and, once chosen, the purpose itself. Replaces the empty bracelet preview,
-// which has nothing to show before any crystals are picked.
+// "HOW IT WORKS" card beside step 1 (beeds_ecommerce StudioBuilderPage.jsx L1979-2059).
+// Step labels and titles come from the flow and the CMS, same as the page header.
 import { useCustomizerStore } from '../../store/customizerStore';
 import { flowFor, stepCopy } from '../../lib/studioFlow';
 import { useSite } from '../../store/contentStore';
-import { PurposeIcon } from './PurposeGrid';
 
 export default function StudioGuide() {
   const path = useCustomizerStore((s) => s.path);
-  const purpose = useCustomizerStore((s) => s.purpose);
-  const layer = useCustomizerStore((s) => s.layer);
   const cmsSteps = useSite().pages.customize?.steps || [];
   const flow = flowFor(path);
 
   return (
-    <aside className="nx-guide">
-      {path !== 'purpose' && layer ? (
-        <div className="nx-guide-pick">
-          <span>
-            <span className="nx-eb">{layer.modeLabel || 'Your choice'}</span>
-            <span className="nx-guide-name">{layer.name}</span>
-          </span>
-        </div>
-      ) : path === 'purpose' && purpose ? (
-        <div className="nx-guide-pick">
-          <span className="nx-guide-art" aria-hidden>
-            <PurposeIcon purpose={purpose} />
-          </span>
-          <span>
-            <span className="nx-eb">Your purpose</span>
-            <span className="nx-guide-name">{purpose.name}</span>
-          </span>
-        </div>
-      ) : null}
-      <p className="nx-eb">How it works</p>
-      <ol className="nx-guide-steps">
+    <aside className="sb-panel sb-how">
+      <div className="sb-k">How it works</div>
+      <ol className="sb-how-list">
         {flow.map((entry, i) => {
           const copy = stepCopy(i + 1, cmsSteps, path);
           return (
             <li key={entry.id} className={i === 0 ? 'is-on' : ''}>
-              <span>{String(i + 1).padStart(2, '0')}</span>
-              <span>
-                <b>{entry.label}</b>
-                <em>{copy.title}</em>
-              </span>
+              <div className="sb-how-k">
+                {String(i + 1).padStart(2, '0')} {entry.label}
+              </div>
+              <div className="sb-how-t">{copy.title}</div>
             </li>
           );
         })}
       </ol>
-      <p className="nx-guide-note">Each strand is composed from your choices. The live price appears once crystals are on the strand.</p>
+      <div className="sb-how-note">Each strand is composed from your choices. The live price appears once crystals are on the strand.</div>
     </aside>
   );
 }

@@ -48,12 +48,12 @@ export default function DateFields({ value, onChange }) {
   }
 
   return (
-    <div className="nx-date">
-      {/* Source: number boxes for day and year, a dropdown for the month. */}
-      <label className="nx-lab">
-        <span>Day</span>
+    <div className="sb-date">
+      {/* Source L966-1062: number boxes for day and year, a dropdown for the month. */}
+      <label>
+        <span className="sb-date-l">Day</span>
         <input
-          className="nx-input"
+          className="sb-input"
           type="number"
           inputMode="numeric"
           min="1"
@@ -66,10 +66,10 @@ export default function DateFields({ value, onChange }) {
           }}
         />
       </label>
-      <label className="nx-lab">
-        <span>Month</span>
+      <label>
+        <span className="sb-date-l">Month</span>
         <select
-          className="nx-input"
+          className="sb-input"
           value={month}
           onChange={(e) => emit(year, Number(e.target.value) || '', day)}
         >
@@ -79,10 +79,10 @@ export default function DateFields({ value, onChange }) {
           ))}
         </select>
       </label>
-      <label className="nx-lab">
-        <span>Year</span>
+      <label>
+        <span className="sb-date-l">Year</span>
         <input
-          className="nx-input"
+          className="sb-input"
           type="number"
           inputMode="numeric"
           min={years[years.length - 1]}
