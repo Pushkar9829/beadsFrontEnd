@@ -1,6 +1,5 @@
 // Step 3 of the purpose path: date of birth, the three personal beads it unlocks
 // (Mulank, Bhagyank, zodiac), and the strand count.
-import { Check } from 'lucide-react';
 import { useCustomizerStore } from '../../../store/customizerStore';
 import { qtyOf } from '../../../lib/studioFlow';
 import { bhagyankFromDate, dateRangeLabel, findBeadByName, mulankFromDate, zodiacFromDate, MULANK_TABLE } from '../../../lib/calibration';
@@ -22,42 +21,38 @@ function readDate(dateOfBirth) {
   }
 }
 
+// Personal bead cards, as in the source (StudioBuilderPage.jsx, "3 NATAL BEAD CARDS"): label, the number
+// with its crystal on one row, a short line, the reason, then Add / Skip.
 function Choice({ value, onChange, label }) {
   return (
-    <div className="nx-yn" role="radiogroup" aria-label={label}>
-      <button type="button" role="radio" aria-checked={value === true} className={value === true ? 'is-on' : ''} onClick={() => onChange(true)}>
-        {value === true && <Check size={13} strokeWidth={2.4} />} Add to strand
+    <div className="pbx-yn" role="radiogroup" aria-label={label}>
+      <button type="button" role="radio" aria-checked={value === true} className={`pbx-add${value === true ? ' is-on' : ''}`} onClick={() => onChange(true)}>
+        {value === true ? '✔ Add to strand' : 'Add to strand'}
       </button>
-      <button type="button" role="radio" aria-checked={value === false} className={value === false ? 'is-off' : ''} onClick={() => onChange(false)}>
+      <button type="button" role="radio" aria-checked={value === false} className={`pbx-skip${value === false ? ' is-on' : ''}`} onClick={() => onChange(false)}>
         Skip
       </button>
     </div>
   );
 }
 
-function PersonalCard({ kicker, value, sub, bead, beadName, reason, note, choice, onChange }) {
-  const state = choice === true ? ' is-on' : choice === false ? ' is-off' : ' is-open';
+function PersonalCard({ kicker, value, sub, bead, beadName, reason, note, choice, onChange, small = false }) {
   return (
-    <article className={`nx-pb${state}`}>
-      <div className="nx-pb-top">
-        <span className="nx-eb">{kicker}</span>
-        {choice == null && <span className="nx-pb-flag">Choose</span>}
-      </div>
-      <div className="nx-pb-mid">
-        <div>
-          <p className="nx-pb-v">{value}</p>
-          {sub && <p className="nx-pb-sub">{sub}</p>}
-        </div>
-        <div className="nx-pb-bead">
-          <GemVisual color={bead?.colorHex || '#C6A75E'} image={bead?.image} name="" className="nx-pb-gem" />
-          <span>
-            <b>{beadName || 'Crystal'}</b>
-            {bead?.pricePerBead != null && <em>{formatInr(bead.pricePerBead)} / bead</em>}
-          </span>
+    <article className={`pbx${choice === true ? ' is-on' : ''}`}>
+      <div className="pbx-k">{kicker}</div>
+      <div className="pbx-row">
+        <span className={`pbx-v${small ? ' is-s' : ''}`}>{value}</span>
+        <div className="pbx-bead">
+          <GemVisual color={bead?.colorHex || '#C6A75E'} image={bead?.image} name="" className="pbx-gem" />
+          <div className="pbx-bead-t">
+            <div className="pbx-name">{beadName || 'Crystal'}</div>
+            {bead?.pricePerBead != null && <div className="pbx-price">{formatInr(bead.pricePerBead)}/ bead</div>}
+          </div>
         </div>
       </div>
-      {reason && <p className="nx-pb-why">{reason}</p>}
-      {note && <p className="nx-pb-note">{note}</p>}
+      {sub && <div className="pbx-sub">{sub}</div>}
+      {reason && <div className="pbx-why">{reason}</div>}
+      {note && <div className="pbx-note">{note}</div>}
       <Choice value={choice} onChange={onChange} label={`${kicker} bead`} />
     </article>
   );
@@ -107,12 +102,12 @@ export default function PurposeBirth() {
 
       {numbers && (
         <section className="nx-birth-sec">
-          <div className="nx-birth-head">
+          <div className="pbx-head">
             <div>
-              <p className="nx-eb">Personal beads</p>
-              <p className="nx-birth-hint">Each one adds a single bead of its crystal to the strand. Choose add or skip for all three.</p>
+              <div className="pbx-head-k">Personal beads</div>
+              <div className="pbx-head-p">Each one adds a single bead of its crystal to the strand. Choose add or skip for all three.</div>
             </div>
-            <div className="nx-birth-quick">
+            <div className="pbx-quick">
               <button type="button" onClick={() => setAll(true)}>
                 Add all three
               </button>
@@ -121,7 +116,7 @@ export default function PurposeBirth() {
               </button>
             </div>
           </div>
-          <div className="nx-pbs">
+          <div className="pbx-grid">
             <PersonalCard
               kicker="Mulank"
               value={numbers.mulank}
@@ -152,7 +147,8 @@ export default function PurposeBirth() {
             />
             <PersonalCard
               kicker="Zodiac"
-              value={numbers.sign.sign}
+              value={String(numbers.sign.sign || '').toUpperCase()}
+              small
               sub={dateRangeLabel(numbers.sign)}
               bead={findBeadByName(catalogBeads, signName)}
               beadName={signName}

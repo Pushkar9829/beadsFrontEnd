@@ -167,15 +167,20 @@ export const HOME_SECTIONS = [
     hint: 'Carousel heading + tab titles',
     preview: '/',
     base: '',
-    paths: ['featured', 'rails'],
+    paths: ['featured'],
     fields: [
-      group('Heading', [eyebrowTitle(), area('body', 'Body'), linkPair()], 'featured'),
-      note('The first tab shows the featured products. The other tabs fill themselves from sales, new arrivals and trends.'),
-      ...[
-        ['bestsellers', 'Best sellers tab'],
-        ['newArrivals', 'New arrivals tab'],
-        ['trending', 'Trending tab'],
-      ].map(([k, title]) => group(title, [eyebrowTitle(), linkPair()], `rails.${k}`)),
+      group(
+        'Heading and tabs',
+        [
+          eyebrowTitle(),
+          area('body', 'Body'),
+          linkPair(),
+          note('Tabs: featured products, newest pieces, and pieces at or under a price.'),
+          row([text('tabFeatured', 'Featured tab', { placeholder: 'Featured' }), text('tabNew', 'Newest tab', { placeholder: 'New In' })]),
+          row([text('tabUnder', 'Price tab', { placeholder: 'Under {price}', hint: '{price} is the amount on the right.' }), number('underPrice', 'Price limit (₹)')]),
+        ],
+        'featured'
+      ),
     ],
   },
   {
@@ -473,8 +478,7 @@ export const SITE_SECTIONS = [
         links('shopLinks', 'Shop links'),
         text('careHeading', 'Customer care heading'),
         links('careLinks', 'Customer care links'),
-        text('legalHeading', 'Legal heading'),
-        links('legalLinks', 'Legal links'),
+        links('legalLinks', 'Policy links (shown under the customer care links)'),
       ]),
     ],
   },

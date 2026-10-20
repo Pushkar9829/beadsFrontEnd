@@ -1,7 +1,7 @@
 // Crystal popup used by every studio path: pick the recommended stones, then build the
 // strand (length, counts, extra crystals from the catalog).
 import { useEffect, useState } from 'react';
-import { Check, Minus, Plus, X } from 'lucide-react';
+import { CheckCircle2, Minus, Plus, X } from 'lucide-react';
 import { useCustomizerStore, useCustomizerQuote } from '../../store/customizerStore';
 import { qtyOf } from '../../lib/studioFlow';
 import { formatInr } from '../../lib/format';
@@ -47,6 +47,7 @@ function priceForCount(count, beads, quantities, config, finish, currentCount) {
 
 export default function CrystalModal({ open, onClose, onComplete }) {
   const intention = useCustomizerStore((s) => s.intention);
+  const purpose = useCustomizerStore((s) => s.purpose);
   const layer = useCustomizerStore((s) => s.layer);
   const recommended = useCustomizerStore((s) => s.recommended);
   const catalogBeads = useCustomizerStore((s) => s.catalogBeads);
@@ -62,7 +63,6 @@ export default function CrystalModal({ open, onClose, onComplete }) {
   const strandCount = useCustomizerStore((s) => s.strandCount) || 18;
   const quote = useCustomizerQuote();
   const [view, setView] = useState('pick');
-  const [adding, setAdding] = useState(false);
   const [offerIds, setOfferIds] = useState([]);
   const picked = recommended.filter((b) => qtyOf(quantities, b._id) > 0);
   const placed = quote.beadCount || 0;
@@ -77,13 +77,14 @@ export default function CrystalModal({ open, onClose, onComplete }) {
 
   function openPicker() {
     setOfferIds(extras.map((bead) => String(bead._id)));
-    setAdding(true);
+    setView('catalog');
   }
+  // Views, as in the source popup: 'pick' (recommended crystals), 'build' (strand), 'catalog' (add another).
   const building = view === 'build';
+  const cataloging = view === 'catalog';
 
   useEffect(() => {
     if (!open) {
-      setAdding(false);
       setView('pick');
       return undefined;
     }
@@ -91,7 +92,7 @@ export default function CrystalModal({ open, onClose, onComplete }) {
     document.body.style.overflow = 'hidden';
     const onKey = (e) => {
       if (e.key !== 'Escape') return;
-      if (adding) setAdding(false);
+      if (cataloging) setView('build');
       else onClose();
     };
     window.addEventListener('keydown', onKey);
@@ -99,63 +100,58 @@ export default function CrystalModal({ open, onClose, onComplete }) {
       document.body.style.overflow = prev;
       window.removeEventListener('keydown', onKey);
     };
-  }, [open, onClose, adding]);
+  }, [open, onClose, cataloging]);
 
   function goBuild() {
     applyBeadCount(strandCount);
-    setAdding(false);
     setView('build');
   }
 
   if (!open) return null;
 
+  const eyebrow = building
+    ? [purpose?.name, intention?.name || layer?.name].filter(Boolean).join(' / ')
+    : cataloging
+      ? 'Catalog'
+      : intention?.name || layer?.name || 'Your crystals';
+
   return (
     <div className="nx-cm-layer">
       <button type="button" className="nx-cm-scrim" aria-label="Close crystal selection" onClick={onClose} />
-      <div className="nx-cm" role="dialog" aria-modal="true" aria-labelledby="nx-cm-title">
-        <div className="nx-cm-head">
-          <div className="nx-cm-head-row">
-            <div className="min-w-0">
-              <p className="nx-eb">{intention?.name || layer?.name || 'Your crystals'}</p>
-              <h2 id="nx-cm-title" className="nx-cm-t">
-                {building ? 'Build your bracelet' : 'Recommended crystals'}
-              </h2>
-            </div>
-            <button type="button" className="nx-cm-x" onClick={onClose} aria-label="Close">
-              <X size={18} strokeWidth={1.5} />
-            </button>
-          </div>
-          <ol className="nx-cm-tabs">
-            <li>
-              <button type="button" className={building ? '' : 'is-on'} onClick={() => setView('pick')}>
-                <span>01</span> Crystals
-              </button>
-            </li>
-            <li>
-              <button type="button" className={building ? 'is-on' : ''} disabled={picked.length < 1 || selecting} onClick={goBuild}>
-                <span>02</span> Strand
-              </button>
-            </li>
-          </ol>
+      <div className={`cmx${building ? ' is-build' : ''}`} role="dialog" aria-modal="true" aria-labelledby="cmx-title">
+        <div className={`cmx-head${building ? ' is-build' : ''}`}>
+          <button type="button" className={building ? 'cmx-x-plain' : 'cmx-x'} onClick={onClose} aria-label="Close">
+            <X size={building ? 18 : 15} strokeWidth={building ? 2.2 : 2} />
+          </button>
+          <div className="cmx-eb">{eyebrow}</div>
+          <h2 id="cmx-title" className={building ? 'cmx-t-serif' : 'cmx-t'}>
+            {building ? 'Build your bracelet' : cataloging ? 'Add another crystal' : 'Recommended crystals'}
+          </h2>
+          <p className={building ? 'cmx-sub' : 'cmx-lede'}>
+            {building
+              ? `Choose ${BEAD_COUNTS.slice(0, -1).join(', ')}, or ${BEAD_COUNTS[BEAD_COUNTS.length - 1]} beads, then set how many of each crystal.`
+              : cataloging
+                ? 'Each one joins the strand with a single bead. Adjust the counts afterwards.'
+                : 'These are the traditional stones for your choice. All start on the strand; tap one to leave it out.'}
+          </p>
+          {building && <div className="cmx-rule" />}
         </div>
 
-        <div className="nx-cm-body">
-          {stepError && <p className="nx-error nx-cm-msg">{stepError}</p>}
+        {stepError && <p className="nx-error cmx-msg">{stepError}</p>}
 
-          {selecting && (
-            <div className="nx-cm-grid">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="nx-skel nx-cm-skel" />
-              ))}
-            </div>
-          )}
-
-          {!selecting && recommended.length === 0 && !stepError && <p className="nx-cm-empty">No crystals are mapped to this intention yet.</p>}
-
-          {!selecting && recommended.length > 0 && !building && (
-            <>
-              <p className="nx-cm-lede">These are the traditional stones for your choice. All start on the strand; tap one to leave it out.</p>
-              <div className="nx-cm-grid">
+        {/* View 1: recommended crystals */}
+        {!building && !cataloging && (
+          <div className="cmx-body">
+            {selecting ? (
+              <div className="cmx-grid">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="nx-skel cmx-skel" />
+                ))}
+              </div>
+            ) : recommended.length === 0 ? (
+              !stepError && <p className="cmx-empty">No crystals are mapped to this intention yet.</p>
+            ) : (
+              <div className="cmx-grid">
                 {recommended.map((bead) => {
                   const on = qtyOf(quantities, bead._id) > 0;
                   return (
@@ -165,167 +161,145 @@ export default function CrystalModal({ open, onClose, onComplete }) {
                       role="checkbox"
                       aria-checked={on}
                       onClick={() => setIntentionBead(bead._id, !on)}
-                      className={`nx-cm-tile${on ? ' is-on' : ''}`}
+                      className={`cmx-tile${on ? ' is-on' : ''}`}
                     >
-                      <span className="nx-cm-ph">
-                        <GemVisual color={bead.colorHex} image={bead.image} name={bead.name} className="nx-cm-img" />
-                        <span className="nx-cm-mark" aria-hidden>
-                          {on ? <Check size={13} strokeWidth={2.4} /> : <Plus size={13} strokeWidth={2} />}
-                        </span>
+                      <span className="cmx-ph">
+                        <GemVisual color={bead.colorHex} image={bead.image} name={bead.name} className="cmx-img" />
+                        {!on && (
+                          <span className="cmx-removed">
+                            <span>Removed</span>
+                          </span>
+                        )}
                       </span>
-                      <span className="nx-cm-name">{bead.name}</span>
-                      <span className="nx-cm-price">{formatInr(bead.pricePerBead)} / bead</span>
+                      <span className="cmx-name">{bead.name}</span>
+                      <span className="cmx-price">{formatInr(bead.pricePerBead)} / bead</span>
                     </button>
                   );
                 })}
               </div>
-            </>
-          )}
-
-          {!selecting && recommended.length > 0 && building && (
-            <>
-              <div className="nx-cm-top">
-                <p>Set the strand length, then how many of each crystal.</p>
-                <button type="button" className="nx-cm-addbtn" onClick={openPicker} disabled={!extras.length}>
-                  <Plus size={14} strokeWidth={1.8} />
-                  {extras.length ? 'Add another crystal' : 'No other crystals'}
-                </button>
-              </div>
-              <p className="nx-cm-label">Strand length</p>
-              <div className="nx-cm-sizes" role="radiogroup" aria-label="Strand length">
-                {BEAD_COUNTS.map((count) => {
-                  const on = Number(strandCount) === count;
-                  return (
-                    <button key={count} type="button" role="radio" aria-checked={on} onClick={() => applyBeadCount(count)} className={on ? 'is-on' : ''}>
-                      <b>{count} beads</b>
-                      <span>{formatInr(priceForCount(count, recommended, quantities, config, finish, strandCount))}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="nx-cm-count">
-                <p className="nx-cm-label">Beads on the strand</p>
-                <p className={over ? 'is-over' : remaining ? 'is-short' : 'is-full'}>
-                  {placed} of {strandCount}
-                  {over ? ` · ${over} over, lower a crystal` : remaining ? ` · ${remaining} to place` : ' · complete'}
-                </p>
-              </div>
-              <div className="nx-cm-bar" aria-hidden>
-                <span style={{ width: `${Math.min(100, (placed / strandCount) * 100)}%` }} />
-              </div>
-
-              <ul className="nx-cm-lines">
-                {picked.map((bead) => {
-                  const qty = qtyOf(quantities, bead._id);
-                  return (
-                    <li key={bead._id}>
-                      <GemVisual color={bead.colorHex} image={bead.image} name={bead.name} className="nx-cm-dot" />
-                      <span className="nx-cm-line-c">
-                        <span className="nx-cm-name">{bead.name}</span>
-                        <span className="nx-cm-price">
-                          {formatInr(bead.pricePerBead)} / bead · {formatInr((bead.pricePerBead || 0) * qty)}
-                        </span>
-                      </span>
-                      <span className="nx-qty nx-cm-qty" aria-label={`${bead.name} quantity`}>
-                        <button type="button" aria-label={`One less ${bead.name}`} disabled={qty <= 1} onClick={() => setBeadQty(bead._id, qty - 1)}>
-                          <Minus size={13} />
-                        </button>
-                        <span aria-live="polite">{qty}</span>
-                        <button type="button" aria-label={`One more ${bead.name}`} disabled={remaining <= 0} onClick={() => setBeadQty(bead._id, qty + 1)}>
-                          <Plus size={13} />
-                        </button>
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-
-            </>
-          )}
-        </div>
-
-        <div className="nx-cm-foot">
-          <p className="nx-cm-sum">
-            <span>{building ? `${placed} beads` : `${picked.length} of ${recommended.length} selected`}</span>
-            {building && <b>{formatInr(quote.total)}</b>}
-          </p>
-          <div className="nx-cm-actions">
-            {building ? (
-              <>
-                <button type="button" className="nx-btn nx-btn-o" onClick={() => setView('pick')}>
-                  Back
-                </button>
-                <button type="button" className="nx-btn" onClick={onComplete || onClose} disabled={picked.length < 1}>
-                  Use these crystals
-                </button>
-              </>
-            ) : (
-              <button type="button" className="nx-btn" onClick={goBuild} disabled={selecting || picked.length < 1}>
-                {picked.length < 1 ? 'Select a crystal' : 'Next · build the strand'}
-              </button>
             )}
           </div>
-        </div>
-      </div>
+        )}
 
-      {adding && (
-        <div className="nx-cm-layer is-inner">
-          <button type="button" className="nx-cm-scrim" aria-label="Close crystal catalog" onClick={() => setAdding(false)} />
-          <div className="nx-cm is-picker" role="dialog" aria-modal="true" aria-labelledby="nx-cm-pick-title">
-            <div className="nx-cm-head">
-              <div className="nx-cm-head-row">
-                <div className="min-w-0">
-                  <p className="nx-eb">Catalog</p>
-                  <h2 id="nx-cm-pick-title" className="nx-cm-t">
-                    Add another crystal
-                  </h2>
-                  <p className="nx-cm-sub">Each one joins the strand with a single bead. Adjust the counts afterwards.</p>
-                </div>
-                <button type="button" className="nx-cm-x" onClick={() => setAdding(false)} aria-label="Close">
-                  <X size={18} strokeWidth={1.5} />
-                </button>
-              </div>
+        {/* View 2: build the strand */}
+        {building && (
+          <div className="cmx-body is-scroll">
+            <div className="cmx-sizes" role="radiogroup" aria-label="Strand length">
+              {BEAD_COUNTS.map((count) => {
+                const on = Number(strandCount) === count;
+                return (
+                  <button key={count} type="button" role="radio" aria-checked={on} onClick={() => applyBeadCount(count)} className={`cmx-size${on ? ' is-on' : ''}`}>
+                    <b>{count} beads</b>
+                    <span>{formatInr(priceForCount(count, recommended, quantities, config, finish, strandCount))}</span>
+                  </button>
+                );
+              })}
             </div>
-            <div className="nx-cm-body">
-              <div className="nx-cm-grid">
-                {offer.map((bead) => {
-                  const added = isAdded(bead);
-                  return (
-                    <button
-                      key={bead._id}
-                      type="button"
-                      disabled={added}
-                      onClick={() => addCatalogBead(bead)}
-                      className={`nx-cm-tile is-catalog${added ? ' is-on' : ''}`}
-                      aria-label={added ? `${bead.name} added` : `Add ${bead.name}`}
-                    >
-                      <span className="nx-cm-ph">
-                        <GemVisual color={bead.colorHex} image={bead.image} name={bead.name} className="nx-cm-img" />
-                        <span className="nx-cm-mark" aria-hidden>
-                          {added ? <Check size={13} strokeWidth={2.4} /> : <Plus size={13} strokeWidth={2} />}
-                        </span>
+
+            <div className="cmx-label-row">
+              <span className="cmx-label">
+                <CheckCircle2 size={16} strokeWidth={2.2} /> Select crystals (recommended)
+              </span>
+              <span className={`cmx-count${over ? ' is-over' : remaining ? '' : ' is-full'}`}>
+                {placed} of {strandCount}
+                {over ? ` · ${over} over` : remaining ? ` · ${remaining} to place` : ''}
+              </span>
+            </div>
+
+            <div className="cmx-lines">
+              {picked.map((bead) => {
+                const qty = qtyOf(quantities, bead._id);
+                return (
+                  <div key={bead._id} className="cmx-line">
+                    <div className="cmx-line-l">
+                      <GemVisual color={bead.colorHex} image={bead.image} name={bead.name} className="cmx-dot" />
+                      <div>
+                        <div className="cmx-line-name">{bead.name}</div>
+                        <div className="cmx-line-price">
+                          {formatInr((bead.pricePerBead || 0) * qty)} · {formatInr(bead.pricePerBead)} / bead
+                        </div>
+                      </div>
+                    </div>
+                    <div className="cmx-stepper" aria-label={`${bead.name} quantity`}>
+                      <button type="button" aria-label={`One less ${bead.name}`} disabled={qty <= 1} onClick={() => setBeadQty(bead._id, qty - 1)}>
+                        <Minus size={13} strokeWidth={2.2} />
+                      </button>
+                      <span aria-live="polite">{qty}</span>
+                      <button type="button" aria-label={`One more ${bead.name}`} disabled={remaining <= 0} onClick={() => setBeadQty(bead._id, qty + 1)}>
+                        <Plus size={13} strokeWidth={2.2} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <button type="button" className="cmx-addmore" onClick={openPicker} disabled={!extras.length}>
+              <Plus size={14} strokeWidth={2.5} />
+              <span>{extras.length ? 'Add more crystals' : 'No other crystals'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* View 3: catalog (add another crystal) */}
+        {cataloging && (
+          <div className="cmx-body">
+            <div className="cmx-grid is-catalog">
+              {offer.map((bead) => {
+                const added = isAdded(bead);
+                return (
+                  <button
+                    key={bead._id}
+                    type="button"
+                    disabled={added}
+                    onClick={() => addCatalogBead(bead)}
+                    className={`cmx-tile is-catalog${added ? ' is-added' : ''}`}
+                    aria-label={added ? `${bead.name} added` : `Add ${bead.name}`}
+                  >
+                    <span className="cmx-ph">
+                      <GemVisual color={bead.colorHex} image={bead.image} name={bead.name} className="cmx-img" />
+                      <span className="cmx-plus" aria-hidden>
+                        <Plus size={11} strokeWidth={2.5} />
                       </span>
-                      <span className="nx-cm-name">{bead.name}</span>
-                      <span className="nx-cm-price">{added ? 'Added to the strand' : `${formatInr(bead.pricePerBead)} / bead`}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="nx-cm-foot">
-              <p className="nx-cm-sum">
-                <span>{addedCount ? `${addedCount} added` : 'Tap a crystal to add it'}</span>
-              </p>
-              <div className="nx-cm-actions">
-                <button type="button" className="nx-btn" onClick={() => setAdding(false)}>
-                  {addedCount ? 'Done' : 'Close'}
-                </button>
-              </div>
+                    </span>
+                    <span className="cmx-name">{bead.name}</span>
+                    <span className="cmx-price">{added ? 'Added to the strand' : `${formatInr(bead.pricePerBead)} / bead`}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
+        )}
+
+        <div className="cmx-foot">
+          {building ? (
+            <>
+              <button type="button" className="cmx-back" onClick={() => setView('pick')}>
+                Back
+              </button>
+              <button type="button" className="cmx-use" onClick={onComplete || onClose} disabled={picked.length < 1}>
+                Use these crystals
+              </button>
+            </>
+          ) : cataloging ? (
+            <>
+              <span className="cmx-sum">{addedCount ? `${addedCount} added` : 'Tap a crystal to add it'}</span>
+              <button type="button" className="cmx-gold" onClick={() => setView('build')}>
+                {addedCount ? 'Done' : 'Close'}
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="cmx-sum">
+                {picked.length} of {recommended.length} selected
+              </span>
+              <button type="button" className="cmx-gold" onClick={goBuild} disabled={selecting || picked.length < 1}>
+                {picked.length < 1 ? 'Select a crystal' : 'Next · build the strand'}
+              </button>
+            </>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

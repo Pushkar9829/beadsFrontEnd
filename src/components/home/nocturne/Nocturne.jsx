@@ -381,10 +381,10 @@ const FOOTER_TRUST = [
 export function NFooter({ footer = {}, brandName = 'KUBERSTONES' }) {
   const name = footer.brandName || brandName;
   const trust = (footer.trust?.length ? footer.trust : FOOTER_TRUST).slice(0, 4);
+  // Two link columns, as in the source footer: policy links follow the care links in the second column.
   const groups = [
     [footer.shopHeading || 'Shop', footer.shopLinks || []],
-    [footer.careHeading || 'Help', footer.careLinks || []],
-    [footer.legalHeading || 'House', footer.legalLinks || []],
+    [footer.careHeading || 'Help', [...(footer.careLinks || []), ...(footer.legalLinks || [])]],
   ].filter(([, links]) => links.length);
   const payments = String(footer.payments || 'UPI, Cards, Netbanking')
     .split(',')

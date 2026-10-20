@@ -81,8 +81,8 @@ export default function CollectionPage() {
         body={collection?.description}
         meta={loading ? [] : [`${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`]}
         actions={
-          <Link to="/collections">
-            All collections →
+          <Link to={site.pages.shop?.heroTo || '/customize'}>
+            {String(site.pages.shop?.heroAction || 'Custom Studio').replace(/\s*→\s*$/, '')} →
           </Link>
         }
       />

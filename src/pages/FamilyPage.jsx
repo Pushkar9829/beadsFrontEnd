@@ -81,11 +81,10 @@ export default function FamilyPage() {
         body={meta?.blurb}
         meta={loading ? [] : [`${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`, children.length ? `${children.length} collections` : null].filter(Boolean)}
         actions={
-          page.shopTo && (
-            <Link to={page.shopTo}>
-              {clean(page.shopAction) || 'Shop all'} <ArrowRight size={12} />
-            </Link>
-          )
+          // Source hero: a gold "Custom Studio" pill (shared setting: Site pages → Shop).
+          <Link to={site.pages.shop?.heroTo || '/customize'}>
+            {clean(site.pages.shop?.heroAction) || 'Custom Studio'} <ArrowRight size={12} />
+          </Link>
         }
       />
 

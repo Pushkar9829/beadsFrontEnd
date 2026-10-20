@@ -11,33 +11,13 @@ function CharmMark({ charm }) {
   if (charm.image) return <img src={mediaUrl(charm.image)} alt="" />;
   const key = `${charm.slug || ''} ${charm.name || ''}`.toLowerCase();
   if (key.includes('om')) return <span className="nx-charm-glyph" lang="sa">ॐ</span>;
-  if (key.includes('yantra')) {
-    return (
-      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" aria-hidden>
-        <circle cx="32" cy="32" r="27" />
-        <path d="M32 12 L50 43 H14 Z" />
-        <path d="M32 52 L14 21 H50 Z" />
-        <path d="M32 21 L42 38 H22 Z" />
-        <circle cx="32" cy="32" r="1.8" fill="currentColor" stroke="none" />
-      </svg>
-    );
-  }
+  if (key.includes('yantra')) return <span className="nx-charm-glyph">✡</span>;
   return <span className="nx-charm-glyph">{String(charm.name || '?').charAt(0)}</span>;
 }
 
+// Same glyphs as the source: ≈ elastic, ◎ steel core.
 function ThreadMark({ steel }) {
-  return steel ? (
-    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden>
-      <circle cx="32" cy="32" r="18" />
-      <circle cx="32" cy="32" r="14" strokeDasharray="2 3" />
-      <path d="M46 20 L52 14" strokeLinecap="round" />
-    </svg>
-  ) : (
-    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" aria-hidden>
-      <path d="M14 32 C20 22 26 42 32 32 C38 22 44 42 50 32" />
-      <path d="M14 40 C20 30 26 50 32 40 C38 30 44 50 50 40" opacity="0.5" />
-    </svg>
-  );
+  return <span className="nx-charm-glyph">{steel ? '◎' : '≈'}</span>;
 }
 
 export default function StudioCharm() {

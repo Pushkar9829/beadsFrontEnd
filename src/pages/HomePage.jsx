@@ -37,6 +37,8 @@ export default function HomePage() {
   const brand = useBrand();
   const [featured, setFeatured] = useState([]);
   const [rails, setRails] = useState({ bestsellers: [], newArrivals: [], trending: [] });
+  const [under, setUnder] = useState([]);
+  const underPrice = Number(home.featured?.underPrice) > 0 ? Number(home.featured.underPrice) : 1500;
   const [purposes, setPurposes] = useState([]);
   const [flash, setFlash] = useState(null);
   const [flashProducts, setFlashProducts] = useState([]);
@@ -50,6 +52,7 @@ export default function HomePage() {
     return Promise.all([
       api.get('/products?featured=true').then(({ data }) => setFeatured(data.products || [])).catch(() => {}),
       api.get('/home/collections').then(({ data }) => setRails(data)).catch(() => {}),
+      api.get('/products', { params: { maxPrice: underPrice, limit: 12, page: 1 } }).then(({ data }) => setUnder(data.products || [])).catch(() => {}),
       api.get('/customizer/purposes').then(({ data }) => setPurposes(data.purposes || [])).catch(() => {}),
       api.get('/flash-sales/active').then(({ data }) => {
         setFlash(data.sale);
@@ -57,7 +60,7 @@ export default function HomePage() {
       }).catch(() => {}),
       api.get('/home/summary').then(({ data }) => setSummary(data)).catch(() => {}),
     ]).finally(() => markPageReady());
-  }, [markPageReady]);
+  }, [markPageReady, underPrice]);
 
   useRefreshOnView(loadCatalog);
 
@@ -99,12 +102,12 @@ export default function HomePage() {
     [summary]
   );
 
-  const railCopy = home.rails || {};
+  // Same three tabs as the source home: Featured · New In · Under ₹1,500.
+  const fc = home.featured || {};
   const tabs = [
-    { key: 'featured', label: 'Featured', products: featured, to: home.featured?.to || '/shop', action: home.featured?.action },
-    { key: 'bestsellers', label: railCopy.bestsellers?.title || 'Best sellers', products: rails.bestsellers, to: railCopy.bestsellers?.to, action: railCopy.bestsellers?.action },
-    { key: 'new', label: railCopy.newArrivals?.title || 'New arrivals', products: rails.newArrivals, to: railCopy.newArrivals?.to, action: railCopy.newArrivals?.action },
-    { key: 'trending', label: railCopy.trending?.title || 'Trending', products: rails.trending, to: railCopy.trending?.to, action: railCopy.trending?.action },
+    { key: 'featured', label: fc.tabFeatured || 'Featured', products: featured },
+    { key: 'new', label: fc.tabNew || 'New In', products: rails.newArrivals },
+    { key: 'under', label: String(fc.tabUnder || 'Under {price}').replace('{price}', formatInr(underPrice)), products: under },
   ];
 
   const blocks = {

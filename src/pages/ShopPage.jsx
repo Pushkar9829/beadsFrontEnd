@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 import api, { mediaUrl } from '../api/client';
 import { fillCopy, houseMeta } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
@@ -100,11 +100,9 @@ export default function ShopPage() {
         body={body}
         meta={loading ? [] : [`${pagination.total ?? products.length} ${pagination.total === 1 ? 'piece' : 'pieces'}`, activeCollection?.name].filter(Boolean)}
         actions={
-          page.to && (
-            <Link to={page.to}>
-              {clean(page.action) || 'Customization'} →
-            </Link>
-          )
+          <Link to={page.heroTo || '/customize'}>
+            {clean(page.heroAction) || 'Custom Studio'} <ArrowRight size={12} />
+          </Link>
         }
       />
 

@@ -20,6 +20,7 @@ export default function DateFields({ value, onChange }) {
   // the parent holds '' until all three are set, so it cannot round-trip the partial pick.
   const [parts, setParts] = useState(() => splitDate(value));
   const [synced, setSynced] = useState(value);
+  const [typed, setTyped] = useState(null);
   const { year, month, day } = parts;
 
   // A complete date arriving from outside (deep link, or a reset) replaces the local pick.
@@ -48,18 +49,22 @@ export default function DateFields({ value, onChange }) {
 
   return (
     <div className="nx-date">
+      {/* Source: number boxes for day and year, a dropdown for the month. */}
       <label className="nx-lab">
         <span>Day</span>
-        <select
+        <input
           className="nx-input"
+          type="number"
+          inputMode="numeric"
+          min="1"
+          max={maxDay}
+          placeholder="DD"
           value={day}
-          onChange={(e) => emit(year, month, Number(e.target.value) || '')}
-        >
-          <option value="">Day</option>
-          {Array.from({ length: maxDay }, (_, i) => i + 1).map((n) => (
-            <option key={n} value={n}>{n}</option>
-          ))}
-        </select>
+          onChange={(e) => {
+            const n = Number(e.target.value);
+            emit(year, month, n >= 1 && n <= 31 ? n : '');
+          }}
+        />
       </label>
       <label className="nx-lab">
         <span>Month</span>
@@ -76,16 +81,23 @@ export default function DateFields({ value, onChange }) {
       </label>
       <label className="nx-lab">
         <span>Year</span>
-        <select
+        <input
           className="nx-input"
-          value={year}
-          onChange={(e) => emit(Number(e.target.value) || '', month, day)}
-        >
-          <option value="">Year</option>
-          {years.map((y) => (
-            <option key={y} value={y}>{y}</option>
-          ))}
-        </select>
+          type="number"
+          inputMode="numeric"
+          min={years[years.length - 1]}
+          max={maxYear}
+          placeholder="YYYY"
+          value={typed ?? year}
+          onChange={(e) => {
+            // A year only counts once it has four digits and is in range; keep partial typing local.
+            const raw = e.target.value.slice(0, 4);
+            const n = Number(raw);
+            const ok = raw.length === 4 && n >= years[years.length - 1] && n <= maxYear;
+            setTyped(ok ? null : raw);
+            emit(ok ? n : '', month, day);
+          }}
+        />
       </label>
     </div>
   );

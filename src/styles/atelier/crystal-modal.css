@@ -1,0 +1,576 @@
+/* Crystal popup, ported from beeds_ecommerce/src/pages/StudioBuilderPage.jsx ("EDIT CRYSTALS MODAL"
+   inline styles): Recommended crystals, Build your bracelet and Add another crystal views. */
+
+.nx-cm-layer {
+  z-index: 9999;
+  padding: 20px;
+}
+
+.nx-cm-layer .nx-cm-scrim {
+  background: rgba(12, 9, 6, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.cmx {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #FAF5EB;
+  border: 1px solid rgba(197, 165, 114, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(160, 126, 68, 0.15);
+  color: #1A160F;
+  font-family: var(--font-sans);
+}
+
+.nx-cm-layer .cmx.is-build {
+  max-width: 550px;
+}
+
+.cmx-head {
+  position: relative;
+  padding: 24px 26px 14px;
+  flex-shrink: 0;
+}
+
+.cmx-head.is-build {
+  padding: 24px 26px 0;
+}
+
+.cmx-x {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(197, 165, 114, 0.35);
+  background: #FAF4E8;
+  color: #1A160F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(140, 105, 50, 0.12);
+}
+
+.cmx-x-plain {
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  background: none;
+  border: none;
+  color: #695B44;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  z-index: 10;
+  transition: color 0.2s ease;
+}
+
+.cmx-x-plain:hover {
+  color: #1A160F;
+}
+
+.cmx-eb {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8C6F3D;
+  font-weight: 700;
+  margin-bottom: 4px;
+  padding-right: 44px;
+}
+
+.cmx-head.is-build .cmx-eb {
+  margin-bottom: 6px;
+}
+
+.cmx .cmx-t {
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: #1A160F;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin: 0 0 16px;
+  line-height: 1.3;
+}
+
+.cmx .cmx-t-serif {
+  font-family: var(--font-brand, 'Cinzel', Georgia, serif);
+  font-size: 23px;
+  font-weight: 600;
+  color: #8C6F3D;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.cmx-lede {
+  font-size: 12.5px;
+  color: #695B44;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.cmx-sub {
+  font-size: 13px;
+  color: #695B44;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.cmx-rule {
+  height: 1px;
+  background: rgba(197, 165, 114, 0.35);
+  margin: 18px 0 20px;
+}
+
+.cmx-msg {
+  margin: 0 26px 10px;
+}
+
+.cmx-body {
+  padding: 4px 26px 24px;
+  overflow-y: auto;
+}
+
+.cmx-body.is-scroll {
+  padding: 0 26px 20px;
+  max-height: 430px;
+}
+
+.cmx-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.cmx-grid.is-catalog {
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 4px 2px 14px;
+}
+
+.cmx-tile {
+  display: block;
+  text-align: left;
+  background: rgba(239, 228, 207, 0.45);
+  border: 1px solid rgba(197, 165, 114, 0.32);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(160, 126, 68, 0.05);
+  font: inherit;
+  color: inherit;
+  min-width: 0;
+}
+
+.cmx-tile.is-on {
+  background: #FAF4E8;
+  border: 1.5px solid #D9AE4F;
+  box-shadow: 0 4px 16px rgba(160, 126, 68, 0.18);
+}
+
+.cmx-tile.is-catalog {
+  background: #FAF4E8;
+  border: 1px solid rgba(197, 165, 114, 0.35);
+  box-shadow: 0 2px 8px rgba(160, 126, 68, 0.08);
+}
+
+.cmx-tile.is-added {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.cmx-ph {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 6px;
+  background: #EFE4CF;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.cmx .cmx-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.2s ease;
+}
+
+.cmx-tile:not(.is-on):not(.is-catalog) .cmx .cmx-img {
+  opacity: 0.4;
+}
+
+.cmx-removed {
+  position: absolute;
+  inset: 0;
+  background: rgba(250, 245, 235, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cmx-removed span {
+  font-size: 10px;
+  color: #8C6F3D;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.cmx-plus {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #FAF5EB;
+  border: 1px solid rgba(197, 165, 114, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1A160F;
+  box-shadow: 0 2px 4px rgba(140, 105, 50, 0.15);
+}
+
+.cmx-name {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1A160F;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cmx-tile:not(.is-on):not(.is-catalog) .cmx-name {
+  color: #8C7245;
+}
+
+.cmx-price {
+  display: block;
+  font-size: 10.5px;
+  color: #695B44;
+}
+
+.cmx-skel {
+  aspect-ratio: 3 / 4;
+  border-radius: 8px;
+}
+
+.cmx-empty {
+  font-size: 13px;
+  color: #695B44;
+}
+
+.cmx-sizes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.cmx-size {
+  background: rgba(239, 228, 207, 0.45);
+  border: 1px solid rgba(197, 165, 114, 0.35);
+  border-radius: 14px;
+  padding: 14px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  font: inherit;
+}
+
+.cmx-size.is-on {
+  background: #FAF4E8;
+  border: 1.5px solid #D9AE4F;
+  box-shadow: 0 4px 16px rgba(160, 126, 68, 0.16);
+}
+
+.cmx-size b {
+  font-family: var(--font-brand, 'Cinzel', Georgia, serif);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1A160F;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cmx-size span {
+  font-size: 11.5px;
+  color: #8C6F3D;
+  font-weight: 600;
+}
+
+.cmx-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.cmx-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8C6F3D;
+  font-weight: 700;
+}
+
+.cmx-count {
+  font-size: 11px;
+  color: #8C6F3D;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cmx-count.is-over {
+  color: #B4232F;
+}
+
+.cmx-count.is-full {
+  color: #3F7A4A;
+}
+
+.cmx-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cmx-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  background: #FAF4E8;
+  border: 1px solid rgba(197, 165, 114, 0.4);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(160, 126, 68, 0.06);
+}
+
+.cmx-line-l {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.cmx .cmx-dot {
+  width: 46px;
+  min-width: 46px;
+  max-width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(197, 165, 114, 0.35);
+  background: #EFE4CF;
+  flex-shrink: 0;
+}
+
+.cmx-line-name {
+  font-family: var(--font-brand, 'Cinzel', Georgia, serif);
+  font-size: 15px;
+  font-weight: 600;
+  color: #1A160F;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.cmx-line-price {
+  font-size: 12px;
+  color: #8C6F3D;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.cmx-stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #FAF5EB;
+  border: 1.2px solid rgba(197, 165, 114, 0.55);
+  border-radius: 9999px;
+  padding: 3px 8px;
+  box-shadow: 0 1px 4px rgba(160, 126, 68, 0.08);
+  flex-shrink: 0;
+}
+
+.cmx-stepper button {
+  background: none;
+  border: none;
+  color: #1A160F;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+
+.cmx-stepper button:hover:not(:disabled) {
+  background: rgba(197, 165, 114, 0.25);
+}
+
+.cmx-stepper button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.cmx-stepper span {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1A160F;
+  min-width: 22px;
+  text-align: center;
+}
+
+.cmx-addmore {
+  width: 100%;
+  background: rgba(239, 228, 207, 0.25);
+  border: 1.5px dashed rgba(197, 165, 114, 0.65);
+  border-radius: 14px;
+  padding: 13px 18px;
+  color: #8C6F3D;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  transition: all 0.2s ease;
+}
+
+.cmx-addmore:hover:not(:disabled) {
+  background: rgba(239, 228, 207, 0.55);
+  border-color: #D9AE4F;
+}
+
+.cmx-addmore:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cmx-foot {
+  border-top: 1px solid rgba(197, 165, 114, 0.3);
+  padding: 16px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #FAF4E8;
+  flex-shrink: 0;
+}
+
+.cmx-sum {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8C6F3D;
+  font-weight: 700;
+}
+
+.cmx-gold {
+  background: linear-gradient(135deg, #ECC26A 0%, #D4AF37 100%);
+  color: #0A0810;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 10px 22px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3);
+}
+
+.cmx-gold:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cmx-back {
+  background: none;
+  border: none;
+  color: #8C6F3D;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 8px 4px;
+  transition: color 0.2s ease;
+}
+
+.cmx-back:hover {
+  color: #1A160F;
+}
+
+.cmx-use {
+  background: #1A160F;
+  color: #EAD7A5;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 12px 26px;
+  border-radius: 9999px;
+  border: 1.5px solid #C5A572;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(26, 22, 15, 0.2);
+  transition: all 0.2s ease;
+}
+
+.cmx-use:hover:not(:disabled) {
+  background: #2B2319;
+  border-color: #D9AE4F;
+}
+
+.cmx-use:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+  .cmx-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cmx-line {
+    padding: 10px 12px;
+  }
+
+  .cmx-line-name {
+    font-size: 13px;
+  }
+}

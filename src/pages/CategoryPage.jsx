@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import api, { mediaUrl } from '../api/client';
 import { houseMeta } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
@@ -108,11 +109,9 @@ export default function CategoryPage() {
         body={category?.description}
         meta={loading ? [] : [`${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`]}
         actions={
-          page.to && (
-            <Link to={page.to}>
-              {clean(page.action) || 'Customization'} →
-            </Link>
-          )
+          <Link to={site.pages.shop?.heroTo || '/customize'}>
+            {clean(site.pages.shop?.heroAction) || 'Custom Studio'} <ArrowRight size={12} />
+          </Link>
         }
       />
 

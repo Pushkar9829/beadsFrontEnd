@@ -176,6 +176,11 @@
   font-size: 11px;
   line-height: 1.45;
   color: #695B44;
+  margin-bottom: 14px;
+  /* Source shows the whole description (no one-line clamp). */
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 
 .nx-studio .nx-itile-go,
@@ -718,4 +723,21 @@
   opacity: 1;
   box-shadow: 0 4px 16px rgba(217, 174, 79, 0.25);
   cursor: not-allowed;
+}
+
+/* Birth date (source: grid 1fr 1fr 1.2fr, number boxes for day and year) */
+.nx-studio .nx-date {
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 14px;
+}
+
+.nx-studio .nx-date input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.nx-studio .nx-date input.nx-input {
+  /* beats the storefront's global light input text */
+  color: #1A160F !important;
+  -webkit-text-fill-color: #1A160F !important;
 }

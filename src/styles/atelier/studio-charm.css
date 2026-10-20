@@ -1,0 +1,146 @@
+/* Studio step 4 (charm and thread), sized as in beeds_ecommerce StudioBuilderPage.jsx inline styles. */
+
+.nx-studio.nx-studio.nx-studio .nx-opts.is-charms {
+  display: grid;
+  grid-template-columns: repeat(2, 220px);
+  gap: 14px;
+}
+
+.nx-studio.nx-studio.nx-studio .nx-opts.is-threads {
+  display: grid;
+  grid-template-columns: repeat(2, 280px);
+  gap: 14px;
+}
+
+.nx-studio.nx-studio.nx-studio .nx-opts.is-charms .nx-opt,
+.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-opt {
+  position: relative;
+  background: #FAF5EB;
+  border: 1px solid rgba(197, 165, 114, 0.35);
+  box-shadow: 0 4px 16px rgba(160, 126, 68, 0.08);
+  border-radius: 10px;
+  padding: 22px 18px;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.nx-studio.nx-studio.nx-studio .nx-opts.is-charms .nx-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-opt {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+}
+
+.nx-studio.nx-studio.nx-studio .nx-opts.is-charms .nx-opt.is-on,
+.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-opt.is-on {
+  border: 2px solid #D9AE4F;
+  box-shadow: 0 8px 24px rgba(160, 126, 68, 0.22), 0 0 16px rgba(217, 174, 79, 0.28);
+}
+
+.nx-studio.nx-studio.nx-studio .nx-opts.is-charms .nx-ptile-check,
+.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-ptile-check {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #D9AE4F;
+  color: #1A160F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nx-studio.nx-studio.nx-studio .nx-opts.is-charms .nx-opt-art,
+.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-opt-art {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(197, 165, 114, 0.5);
+  background: #FAF4E8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8C6F3D;
+  font-size: 20px;
+  margin: 0 0 16px;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-opt-art {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  font-size: 16px;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.nx-studio.nx-studio.nx-studio .nx-opt-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nx-studio.nx-studio.nx-studio .nx-opt-art .nx-charm-glyph {
+  font-size: inherit;
+  line-height: 1;
+  color: inherit;
+}
+
+.nx-studio.nx-studio.nx-studio .nx-opts.is-charms .nx-opt-h {
+  display: block;
+  font-family: var(--font-serif, serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #1A160F;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.nx-studio.nx-studio.nx-studio .nx-opts.is-charms .nx-opt-p {
+  display: block;
+  font-size: 11.5px;
+  color: #695B44;
+  line-height: 1.45;
+  padding: 0;
+}
+
+.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-opt-h {
+  display: block;
+  font-family: var(--font-serif, serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #1A160F;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.nx-studio.nx-studio.nx-studio .nx-opts.is-threads .nx-opt-p {
+  display: block;
+  font-size: 11px;
+  color: #695B44;
+  padding: 0;
+}
+
+@media (max-width: 640px) {
+  .nx-studio.nx-studio.nx-studio .nx-opts.is-charms,
+  .nx-studio.nx-studio.nx-studio .nx-opts.is-threads {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .nx-studio.nx-studio.nx-studio .nx-opts.is-threads {
+    grid-template-columns: 1fr;
+  }
+}

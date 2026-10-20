@@ -77,7 +77,7 @@ export const PAGE_SECTIONS = [
       eyebrowTitle(),
       area('body', 'Body'),
       area('familyBody', 'Body when filtered by house', { hint: '{house} is filled in automatically.' }),
-      linkPair(),
+      row([text('heroAction', 'Hero button (all listing pages)', { placeholder: 'Custom Studio' }), text('heroTo', 'Hero button link', { placeholder: '/customize' })]),
       row([text('listEyebrow', 'Pieces eyebrow', { placeholder: 'Every house' }), text('listTitle', 'Pieces title', { placeholder: 'All pieces' })]),
       media('image', 'Banner image', { folder: 'banner', hint: 'Used for "all pieces". A house filter shows the image of that house (set under Homepage → Houses).' }),
       emptyState(),
@@ -91,7 +91,6 @@ export const PAGE_SECTIONS = [
     preview: '/crystals',
     base: 'pages.family',
     fields: [
-      linkPair('shopAction', 'shopTo', 'Shop '),
       row([text('piecesEyebrow', 'Pieces eyebrow'), text('piecesTitle', 'Pieces title')]),
       area('piecesBody', 'Pieces body', { hint: '{count} and {pieces} are filled in automatically.' }),
       text('tilesEyebrow', 'Collections eyebrow', { placeholder: 'Inside the house' }),
@@ -106,7 +105,6 @@ export const PAGE_SECTIONS = [
     preview: '/shop',
     base: 'pages.category',
     fields: [
-      linkPair(),
       row([text('listTitle', 'Pieces title', { placeholder: 'The pieces' }), text('moreEyebrow', 'Related collections eyebrow', { placeholder: 'More from this house' })]),
       emptyState('missing', 'Category not found'),
       emptyState('empty', 'Category without pieces'),
