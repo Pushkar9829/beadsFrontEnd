@@ -1,29 +1,35 @@
+// 404. The source has no 404 page, so this follows the nearest source pattern, the About page of
+// beeds_ecommerce/src/pages/InfoPages.jsx (lines 104-165): eyebrow, section title, text, action card.
+// Copy: admin → Site pages → 404. Styles: styles/atelier/info.css.
 import { Link } from 'react-router-dom';
 import { useSite } from '../store/contentStore';
-import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
-import { PageHero } from '../components/home/nocturne/Listing';
-import { mediaUrl } from '../api/client';
 
 export default function NotFoundPage() {
-  const page = useSite().pages.notFound;
+  const page = useSite().pages.notFound || {};
   return (
-    <div className="nx nx-page">
-      <PageHero
-        image={page.image ? mediaUrl(page.image) : HOUSE_IMAGES.rudraksha}
-        eyebrow="404"
-        title={page.title || 'Page not found'}
-        body={page.body}
-        actions={
-          <>
-            <Link to={page.to || '/'} className="nx-btn">
+    <div className="info-page">
+      <div className="container-custom info-narrow">
+        <span className="section-eyebrow">404</span>
+        <h1 className="section-title info-title">{page.title || 'Page not found'}</h1>
+        {page.body && (
+          <div className="info-prose">
+            <p>{page.body}</p>
+          </div>
+        )}
+        <div className="info-card">
+          <div>
+            <h3 className="info-card-title">Explore The House</h3>
+          </div>
+          <div className="info-card-acts">
+            <Link to={page.to || '/'} className="btn-gold">
               {page.cta || 'Return home'}
             </Link>
-            <Link to="/shop" className="nx-btn nx-btn-o">
+            <Link to="/shop" className="btn-outline">
               Shop all
             </Link>
-          </>
-        }
-      />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

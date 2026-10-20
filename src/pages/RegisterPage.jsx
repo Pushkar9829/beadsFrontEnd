@@ -1,18 +1,37 @@
+// Create account. Source: beeds_ecommerce/src/pages/AuthPage.jsx sign-up form (lines 1305-1535). Styles: styles/atelier/auth.css.
+// Not ported: the date-of-birth field (the account API stores no birth date).
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import { useSite } from '../store/contentStore';
-import AuthShell, { Field } from '../components/home/nocturne/AuthShell';
+import AuthShell from '../components/home/nocturne/AuthShell';
+import { showToast } from '../components/layout/QuickToast';
 
-const FIELDS = [
-  { key: 'name', label: 'Name', type: 'text', autoComplete: 'name', required: true, placeholder: 'e.g. Maharani Gayatri / Devendra Sharma' },
-  { key: 'email', label: 'Email', type: 'email', autoComplete: 'email', required: true, placeholder: 'name@domain.com' },
-  { key: 'phone', label: 'Phone (optional)', type: 'tel', autoComplete: 'tel', required: false, placeholder: '+91 98201 XXXXX' },
-  { key: 'password', label: 'Password', type: 'password', autoComplete: 'new-password', required: true, placeholder: 'Min 8 characters' },
-  // Confirm password and the terms box are checked here only (as in the source form).
-  { key: 'confirm', label: 'Confirm password', type: 'password', autoComplete: 'new-password', required: true, placeholder: 'Re-enter password' },
-];
+// Source strength meter (AuthPage.jsx lines 61-76).
+function strength(pass) {
+  if (!pass) return { score: 0, label: '', color: 'transparent' };
+  let score = 0;
+  if (pass.length >= 8) score++;
+  if (/[A-Z]/.test(pass)) score++;
+  if (/[0-9]/.test(pass)) score++;
+  if (/[^A-Za-z0-9]/.test(pass)) score++;
+  if (score <= 1) return { score: 1, label: 'Gentle', tone: 'is-1' };
+  if (score === 2) return { score: 2, label: 'Moderate', tone: 'is-2' };
+  if (score === 3) return { score: 3, label: 'Sacred & Strong', tone: 'is-3' };
+  return { score: 4, label: 'Impenetrable Aura', tone: 'is-4' };
+}
+
+function Field({ id, label, ...input }) {
+  return (
+    <div>
+      <label className="auth-label is-s" htmlFor={id}>
+        {label}
+      </label>
+      <input id={id} className="auth-input is-s" {...input} />
+    </div>
+  );
+}
 
 export default function RegisterPage() {
   const page = useSite().pages.register;
@@ -23,7 +42,8 @@ export default function RegisterPage() {
   const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const meter = strength(form.password);
 
   async function submit(e) {
     e.preventDefault();
@@ -41,6 +61,7 @@ export default function RegisterPage() {
       const { confirm: _confirm, ...payload } = form;
       await register(payload);
       await onLogin();
+      showToast(`Sacred initiation complete. Welcome to Kuberstones, ${payload.name}!`, 'gold');
       navigate('/account');
     } catch (err) {
       setError(err.message);
@@ -51,28 +72,54 @@ export default function RegisterPage() {
 
   return (
     <AuthShell page={page} wide>
-      <form onSubmit={submit} className="nx-form">
-        {FIELDS.map((field) => (
-          <Field key={field.key} label={field.label} value={form[field.key]} onChange={(e) => set(field.key, e.target.value)} type={field.type} required={field.required} autoComplete={field.autoComplete} placeholder={field.placeholder} />
-        ))}
-        <label className="nx-check">
+      <form onSubmit={submit} className="auth-form is-signup">
+        <Field id="reg-name" label="Full name *" value={form.name} onChange={set('name')} type="text" required autoComplete="name" placeholder="e.g. Maharani Gayatri / Devendra Sharma" />
+
+        <div className="auth-two">
+          <Field id="reg-email" label="Sacred email *" value={form.email} onChange={set('email')} type="email" required autoComplete="email" placeholder="name@domain.com" />
+          <Field id="reg-phone" label="Phone (+91)" value={form.phone} onChange={set('phone')} type="tel" autoComplete="tel" placeholder="+91 98201 XXXXX" />
+        </div>
+
+        <div className="auth-two">
+          <Field id="reg-password" label="Password *" value={form.password} onChange={set('password')} type="password" required autoComplete="new-password" placeholder="Min 8 characters" />
+          <Field id="reg-confirm" label="Confirm password *" value={form.confirm} onChange={set('confirm')} type="password" required autoComplete="new-password" placeholder="Re-enter password" />
+        </div>
+
+        {form.password && (
+          <div>
+            <div className="auth-meter-head">
+              <span>Aura Security</span>
+              <span className={`auth-meter-label ${meter.tone}`}>{meter.label}</span>
+            </div>
+            <div className="auth-meter">
+              {[1, 2, 3, 4].map((step) => (
+                <div key={step} className={step <= meter.score ? meter.tone : ''} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <label className="auth-check">
           <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
           <span>
-            {page.termsLabel || 'I accept the'} <Link to="/terms">Terms</Link> &amp; <Link to="/privacy">Privacy Policy</Link>
+            I accept the <Link to="/terms">House Rules</Link> &amp; <Link to="/privacy">Sacred Privacy Charter</Link>.
           </span>
         </label>
+
         {error && (
-          <p className="nx-error" role="alert">
+          <p className="auth-error" role="alert">
             {error}
           </p>
         )}
-        <button type="submit" disabled={busy} className="nx-btn nx-btn-block">
+
+        <button type="submit" disabled={busy} className="auth-submit is-signup">
           {busy ? page.submitBusy : page.submitLabel}
         </button>
+
+        <div className="auth-foot is-signup">
+          {page.footer} <Link to="/login">{page.footerLink}</Link>
+        </div>
       </form>
-      <p className="nx-auth-foot">
-        {page.footer} <Link to="/login">{page.footerLink}</Link>
-      </p>
     </AuthShell>
   );
 }

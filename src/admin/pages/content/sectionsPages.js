@@ -9,7 +9,7 @@ const authFields = [
   eyebrowTitle(),
   area('body', 'Body'),
   linkPair(),
-  row([text('cardKicker', 'Card kicker'), text('cardTitle', 'Card title')]),
+  text('cardKicker', 'Card kicker'),
   row([text('submitLabel', 'Submit label'), text('submitBusy', 'Busy label')]),
   row([text('footer', 'Footer text'), text('footerLink', 'Footer link text')]),
   media('image', 'Side photo', { folder: 'banner', aspect: 'aspect-[4/5]', hint: 'Leave empty to use the built-in photo.' }),
@@ -18,7 +18,7 @@ const bagFields = [
   eyebrowTitle(),
   area('emptyBody', 'Body when empty'),
   area('filledBody', 'Body with items', { hint: '{count} and {pieces} are filled in automatically.' }),
-  linkPair(),
+  text('to', 'Continue shopping link', { placeholder: '/shop' }),
   emptyState(),
 ];
 
@@ -135,7 +135,7 @@ export const PAGE_SECTIONS = [
     hint: 'Cart page',
     preview: '/cart',
     base: 'pages.cart',
-    fields: [...bagFields, row([text('summaryKicker', 'Summary kicker', { placeholder: 'To pay' }), text('summaryTitle', 'Summary title', { placeholder: 'Checkout.' })])],
+    fields: bagFields,
   },
   {
     key: 'pageWishlist',
@@ -159,11 +159,8 @@ export const PAGE_SECTIONS = [
     preview: '/checkout',
     base: 'pages.checkout',
     fields: [
-      text('title', 'Title'),
-      area('body', 'Body'),
       row([text('emptyTitle', 'Empty title'), text('emptyBody', 'Empty body')]),
       row([text('submitLabel', 'Submit label'), text('submitBusy', 'Busy label')]),
-      text('summaryTitle', 'Summary title'),
     ],
   },
   { key: 'pageLogin', label: 'Sign in', group: 'Pages', hint: 'Login page', preview: '/login', base: 'pages.login', fields: authFields },
@@ -176,21 +173,12 @@ export const PAGE_SECTIONS = [
     preview: '/account',
     base: 'pages.account',
     fields: [
-      eyebrowTitle(),
-      area('guestBody', 'Guest body'),
       group('Member banner', [
         row([text('crumbLabel', 'Breadcrumb', { placeholder: 'Sanctuary Account' }), text('memberLabel', 'Badge', { placeholder: 'Member' })]),
         text('greeting', 'Greeting before the name', { placeholder: 'Namaste,' }),
         row([text('designAction', 'Button label', { placeholder: 'Design In Atelier' }), text('designTo', 'Button link', { placeholder: '/customize' })]),
         row([text('statOrders', 'Orders stat', { placeholder: 'Orders' }), text('statWishlist', 'Wishlist stat', { placeholder: 'Sacred Wishlist' }), text('statAddresses', 'Addresses stat', { placeholder: 'Saved Addresses' })]),
         row([text('tabOrders', 'Orders tab', { placeholder: 'Sacred Orders' }), text('tabProfile', 'Profile tab', { placeholder: 'Personal Dossier' })]),
-      ]),
-      group('Orders', [
-        row([text('ordersEyebrow', 'Eyebrow'), text('ordersTitle', 'Title')]),
-        text('ordersLoading', 'Loading message'),
-        area('ordersEmptyBody', 'Body without orders'),
-        area('ordersFilledBody', 'Body with orders', { hint: '{count} and {orders} are filled in automatically.' }),
-        row([text('ordersAction', 'Link label'), text('ordersTo', 'Link', { placeholder: '/customize' })]),
       ]),
       group('Order placed', [text('placedKicker', 'Kicker'), area('placedBody', 'Body', { hint: '{number} is the order number.' })]),
       emptyState(),
@@ -207,7 +195,6 @@ export const PAGE_SECTIONS = [
       text('title', 'Title'),
       area('body', 'Body'),
       row([text('cta', 'Button label'), text('to', 'Button link', { placeholder: '/' })]),
-      media('image', 'Banner image', { folder: 'banner', hint: 'Leave empty to use the built-in photo.' }),
     ],
   },
 ];

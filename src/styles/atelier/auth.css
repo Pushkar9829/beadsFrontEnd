@@ -159,28 +159,18 @@ a.auth-switch:hover {
   margin-bottom: 32px;
 }
 
-.auth-form-title {
-  font-family: var(--font-brand);
-  font-size: clamp(24px, 2.6vw, 30px);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #EDE8E1;
-  margin: 0;
-  line-height: 1.15;
-  text-transform: uppercase;
-}
-
-.auth-split-layout .nx-form {
+/* Forms (source lines 1028-1536). Source inputs and buttons carry no font-family, so they render in Arial. */
+.auth-form {
   display: flex;
   flex-direction: column;
   gap: 22px;
 }
 
-.auth-split-layout .nx-field {
-  display: block;
+.auth-form.is-signup {
+  gap: 18px;
 }
 
-.auth-split-layout .nx-field > span {
+.auth-label {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.2em;
@@ -190,36 +180,85 @@ a.auth-switch:hover {
   margin-bottom: 8px;
 }
 
-.auth-split-layout .nx-field input {
+.auth-label.is-s {
+  margin-bottom: 6px;
+}
+
+.auth-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.auth-label-row .auth-label {
+  margin-bottom: 0;
+}
+
+.nx.auth-split-layout .auth-input {
   width: 100%;
   background: #0D0A14;
   border: 1px solid rgba(217, 174, 79, 0.22);
   border-radius: 2px;
   padding: 14px 16px;
   color: #EDE8E1;
+  -webkit-text-fill-color: #EDE8E1;
+  caret-color: #EDE8E1;
+  font-family: Arial, sans-serif;
   font-size: 14px;
-  font-family: var(--font-sans);
+  line-height: normal;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
   color-scheme: dark;
 }
 
-.auth-split-layout .nx-field input:focus {
+.nx.auth-split-layout .auth-input.has-eye {
+  padding: 14px 44px 14px 16px;
+}
+
+.nx.auth-split-layout .auth-input.is-s {
+  padding: 13px 14px;
+}
+
+.nx.auth-split-layout .auth-input:focus {
   border-color: #D9AE4F;
   box-shadow: 0 0 0 1px rgba(217, 174, 79, 0.35);
 }
 
-.auth-split-layout .nx-btn.nx-btn-block {
+.auth-pass {
+  position: relative;
+}
+
+.nx.auth-split-layout .auth-eye {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  background: none;
+  border: none;
+  color: #AAA3AF;
+  cursor: pointer;
+  padding: 4px;
+  line-height: normal;
+}
+
+.auth-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.nx.auth-split-layout .auth-submit {
   width: 100%;
   background: linear-gradient(135deg, #ECC26A 0%, #D9AE4F 50%, #B88E38 100%);
   color: #0A0810;
+  -webkit-text-fill-color: #0A0810;
   border: none;
   border-radius: 2px;
   padding: 14px;
-  min-height: 0;
   font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 600;
+  line-height: normal;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   cursor: pointer;
@@ -227,49 +266,130 @@ a.auth-switch:hover {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.auth-split-layout .nx-btn.nx-btn-block:hover:not(:disabled) {
+.nx.auth-split-layout .auth-submit.is-signup {
+  margin-top: 6px;
+  transition: none;
+}
+
+.nx.auth-split-layout .auth-submit:not(.is-signup):hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 12px 30px rgba(217, 174, 79, 0.42);
 }
 
-.auth-split-layout .nx-btn.nx-btn-block:disabled {
+.nx.auth-split-layout .auth-submit:disabled {
   opacity: 0.6;
 }
 
-.auth-split-layout .nx-auth-foot {
+.auth-foot {
   text-align: center;
   font-size: 13px;
   color: #AAA3AF;
-  margin: 20px 0 0;
+  margin-top: 2px;
 }
 
-.auth-split-layout .nx-auth-foot a {
+.auth-foot.is-signup {
+  margin-top: 0;
+}
+
+.nx.auth-split-layout .auth-foot a {
   color: #EDE8E1;
   text-decoration: underline;
   text-underline-offset: 3px;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
   font-weight: 500;
+  line-height: normal;
 }
 
-.auth-split-layout .nx-auth-foot a:hover {
+.nx.auth-split-layout .auth-foot a:hover {
   color: #D9AE4F;
 }
 
-.auth-split-layout .nx-auth-note {
-  margin-top: 16px;
+.nx.auth-split-layout .auth-demo {
   background: rgba(217, 174, 79, 0.08);
   border: 1px dashed rgba(217, 174, 79, 0.32);
   border-radius: 4px;
   color: #D9AE4F;
   padding: 9px 14px;
+  font-family: Arial, sans-serif;
   font-size: 11px;
+  line-height: normal;
   letter-spacing: 0.08em;
-  text-align: center;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
 }
 
-.auth-split-layout .nx-error {
+.auth-error {
   font-size: 13px;
   color: #F0A0A0;
   margin: -8px 0 0;
+}
+
+/* Password strength (source lines 1454-1476) */
+.auth-meter-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 10px;
+  color: #AAA3AF;
+}
+
+.auth-meter-label {
+  font-weight: 600;
+}
+
+.auth-meter {
+  display: flex;
+  gap: 4px;
+  height: 3px;
+}
+
+.auth-meter > div {
+  flex-grow: 1;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.auth-meter-label.is-1 { color: #E06A6A; }
+.auth-meter-label.is-2 { color: #D9AE4F; }
+.auth-meter-label.is-3 { color: #88C999; }
+.auth-meter-label.is-4 { color: #C5A572; }
+.auth-meter > .is-1 { background: #E06A6A; }
+.auth-meter > .is-2 { background: #D9AE4F; }
+.auth-meter > .is-3 { background: #88C999; }
+.auth-meter > .is-4 { background: #C5A572; }
+
+/* Terms checkbox (source lines 1478-1488) */
+.auth-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #AAA3AF;
+  margin-top: 4px;
+}
+
+.auth-check input {
+  accent-color: #D9AE4F;
+  width: 15px;
+  height: 15px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.nx.auth-split-layout .auth-check a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.nx.auth-split-layout .auth-check a:hover {
+  color: #D9AE4F;
 }
 
 @media (max-width: 960px) {
@@ -285,13 +405,9 @@ a.auth-switch:hover {
   .auth-split-edge-fade {
     display: none;
   }
-
-  .auth-form-panel {
-    padding: 40px 24px 56px;
-  }
 }
 
-/* ---- Exactness pass (computed-style diff against the source sign-in) ---- */
+/* Inherited text metrics of the source page (body: 15px / 1.7) */
 .nx.auth-split-layout {
   font-size: 15px;
   line-height: 1.7;
@@ -301,48 +417,9 @@ a.auth-switch {
   line-height: normal;
 }
 
-.nx.auth-split-layout .nx-field input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']) {
-  font-family: Arial, sans-serif;
-  line-height: normal;
-  color: #EDE8E1;
-  -webkit-text-fill-color: #EDE8E1;
-  caret-color: #EDE8E1;
-}
-
-.nx.auth-split-layout .nx-form .nx-btn.nx-btn-block {
-  line-height: normal;
-  color: #0A0810 !important;
-  -webkit-text-fill-color: #0A0810;
-}
-
-.nx.auth-split-layout .nx-auth-foot {
-  line-height: 1.7;
-}
-
-.nx.auth-split-layout .nx-auth-foot a {
-  font-family: Arial, sans-serif;
-  line-height: normal;
-  border-bottom: 0;
-}
-
-/* Terms checkbox (source: AuthPage.jsx signup form) */
-.nx.auth-split-layout .nx-check {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  cursor: pointer;
-  font-size: 12px;
-  color: #AAA3AF;
-  margin-top: 4px;
-}
-.nx.auth-split-layout .nx-check input {
-  accent-color: #D9AE4F;
-  width: 15px;
-  height: 15px;
-  margin-top: 1px;
-  flex-shrink: 0;
-}
-.nx.auth-split-layout .nx-check a {
-  color: #D9AE4F;
-  text-decoration: none;
+/* Source inputs show the browser-default placeholder colour */
+.nx.auth-split-layout .auth-input::placeholder {
+  color: #757575;
+  -webkit-text-fill-color: #757575;
+  opacity: 1;
 }

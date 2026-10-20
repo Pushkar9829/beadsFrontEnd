@@ -1,5 +1,16 @@
 /* Info pages (about, FAQ, policies), ported from beeds_ecommerce/src/pages/InfoPages.jsx inline styles. */
 
+/* Source body text metrics (index.css: body 15px / 1.7, p 1.75) */
+.info-page,
+.info-jr-page {
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+:where(.info-page, .info-jr-page) p {
+  line-height: 1.75;
+}
+
 .info-page {
   background: #0A0810;
   min-height: 85vh;
@@ -48,6 +59,10 @@
 .info-page .info-card-title {
   font-family: var(--font-brand);
   font-size: 20px;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: normal;
+  text-transform: none;
   color: #EDE8E1;
   margin-bottom: 4px;
 }
@@ -133,12 +148,6 @@
   color: #D9AE4F;
 }
 
-@media (max-width: 640px) {
-  .info-policy {
-    padding: 24px;
-  }
-}
-
 .info-policy section {
   display: flex;
   flex-direction: column;
@@ -161,4 +170,117 @@
   color: #AAA3AF;
   max-width: 600px;
   margin: 10px auto 0;
+}
+
+/* ===== Journal (source: InfoPages.jsx, journal, lines 8-102) ===== */
+.info-jr-page {
+  min-height: 85vh;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -10%, rgba(191, 0, 255, 0.35), transparent 75%),
+    radial-gradient(circle 600px at 85% 30%, rgba(160, 0, 255, 0.22), transparent),
+    radial-gradient(circle 500px at 10% 65%, rgba(191, 0, 255, 0.16), transparent),
+    linear-gradient(180deg, #320054 0%, #200038 35%, #130022 75%, #0B0014 100%);
+  padding: 60px 0 96px;
+}
+
+.info-jr-page .jr-head {
+  padding-top: 0;
+}
+
+.info-jr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 36px;
+}
+
+a.info-jr-card {
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  color: inherit;
+  text-decoration: none;
+}
+
+.info-jr-ph {
+  height: 220px;
+  overflow: hidden;
+}
+
+.info-jr-ph img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.info-jr-body {
+  padding: 24px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.info-jr-k {
+  font-size: 11px;
+  color: #D9AE4F;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+}
+
+.info-jr-page .info-jr-h {
+  font-family: var(--font-brand);
+  font-size: 18px;
+  font-weight: 700;
+  color: #EDE8E1;
+  margin: 8px 0 10px;
+  line-height: 1.3;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.info-jr-page .info-jr-p {
+  font-size: 13px;
+  color: #AAA3AF;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.info-jr-go {
+  margin-top: auto;
+  font-size: 12px;
+  color: #F5DC93;
+  font-weight: 600;
+}
+
+.info-jr-empty {
+  text-align: center;
+  font-size: 16px;
+  color: #AAA3AF;
+}
+
+/* Journal post and 404 (frontend-only pages in the InfoPages About pattern) */
+.info-post-ph {
+  margin: 0 0 32px;
+  border: 1px solid rgba(217, 174, 79, 0.25);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #120D19;
+}
+
+.info-post-ph img {
+  display: block;
+  width: 100%;
+  max-height: 460px;
+  object-fit: cover;
+}
+
+.info-card-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.info-page a.btn-outline {
+  text-decoration: none;
 }

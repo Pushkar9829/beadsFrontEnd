@@ -43,12 +43,3 @@ export default function AuthShell({ page, image = authHero, wide = false, childr
     </div>
   );
 }
-
-export function Field({ label, ...input }) {
-  return (
-    <label className="nx-field">
-      <span>{label}</span>
-      <input {...input} />
-    </label>
-  );
-}

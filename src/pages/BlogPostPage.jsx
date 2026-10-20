@@ -1,10 +1,11 @@
+// Journal post. The source has no post page, so this follows the nearest source pattern, the About page of
+// beeds_ecommerce/src/pages/InfoPages.jsx (lines 104-165): dark page, 840px column, eyebrow, section title,
+// prose paragraphs, then a card. Styles: styles/atelier/info.css.
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
 import api, { mediaUrl } from '../api/client';
 import SeoHead from '../components/SeoHead';
 import { useBrand, pageTitle } from '../store/settingsStore';
-import { EmptyBlock, PageIntro } from '../components/home/nocturne/Listing';
 import { postDate } from './BlogListPage';
 
 export default function BlogPostPage() {
@@ -26,24 +27,22 @@ export default function BlogPostPage() {
     };
   }, [slug]);
 
-  const crumbs = [{ label: 'Home', to: '/' }, { label: 'Journal', to: '/journal' }, { label: post?.title || 'Note' }];
-
-  if (loading) {
-    return (
-      <div className="nx nx-page at-utility">
-        <div className="nx-w nx-article">
-          <div className="nx-skel nx-post-skel" />
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="info-page" />;
 
   if (!post) {
     return (
-      <div className="nx nx-page at-utility">
-        <PageIntro crumbs={crumbs} eyebrow="Journal" title="Note not found." />
-        <div className="nx-w nx-sec">
-          <EmptyBlock title="This note is not published." actions={<Link to="/journal" className="nx-btn">All notes</Link>} />
+      <div className="info-page">
+        <div className="container-custom info-narrow">
+          <span className="section-eyebrow">Journal</span>
+          <h1 className="section-title info-title">Note not found.</h1>
+          <div className="info-card">
+            <div>
+              <h3 className="info-card-title">This note is not published.</h3>
+            </div>
+            <Link to="/journal" className="btn-gold">
+              All notes
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -55,7 +54,7 @@ export default function BlogPostPage() {
     .filter(Boolean);
 
   return (
-    <div className="nx nx-page at-utility">
+    <div className="info-page">
       <SeoHead
         title={post.seo?.title || pageTitle(post.title, brand)}
         description={post.seo?.description || post.excerpt}
@@ -63,21 +62,32 @@ export default function BlogPostPage() {
         image={post.seo?.ogImage || post.image}
         noIndex={post.seo?.noIndex}
       />
-      <PageIntro crumbs={crumbs} eyebrow={[post.author, postDate(post)].filter(Boolean).join(' · ')} title={post.title} body={post.excerpt} narrow />
-      <article className="nx-w nx-article">
+      <article className="container-custom info-narrow">
+        <span className="section-eyebrow">{[post.author, postDate(post)].filter(Boolean).join(' · ')}</span>
+        <h1 className="section-title info-title">{post.title}</h1>
         {post.image && (
-          <figure className="nx-article-ph">
+          <figure className="info-post-ph">
             <img src={mediaUrl(post.image)} alt="" />
           </figure>
         )}
-        <div className="nx-prose">
+        <div className="info-prose">
+          {post.excerpt && (
+            <p>
+              <strong>{post.excerpt}</strong>
+            </p>
+          )}
           {paragraphs.map((p, i) => (
             <p key={i}>{p}</p>
           ))}
         </div>
-        <Link to="/journal" className="nx-lnk nx-article-back">
-          <ArrowLeft size={13} style={{ display: 'inline', verticalAlign: '-2px' }} /> All notes
-        </Link>
+        <div className="info-card">
+          <div>
+            <h3 className="info-card-title">More from the journal</h3>
+          </div>
+          <Link to="/journal" className="btn-gold">
+            All notes
+          </Link>
+        </div>
       </article>
     </div>
   );

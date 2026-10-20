@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { MapPin } from 'lucide-react';
-import Button from '../ui/Button';
 import { useAuthStore } from '../../store/authStore';
 import { detectCurrentAddress } from '../../lib/location';
 import {
@@ -132,48 +131,46 @@ export default function AddressBook() {
 
   const preferred = defaultAddress(user);
 
+  // Panel, labels and inputs follow the source "Personal Dossier" tab (AuthPage.jsx lines 658-680);
+  // address cards follow the source matrix cards (lines 630-646). Styles: styles/atelier/commerce.css "Account".
   return (
-    <section id="addresses" className="nx-acct-sec">
-      <div className="nx-acct-head">
-        <div>
-          <p className="nx-eb">Addresses</p>
-          <h2 className="nx-d nx-acct-t">Delivery addresses</h2>
-          <p className="nx-note">Save a default address for checkout, or fill one from your current location.</p>
-        </div>
+    <section id="addresses" className="acct-panel acct-addr-panel">
+      <div className="acct-panel-head">
+        <h3 className="acct-panel-t">Delivery Addresses</h3>
         {!draft && (
-          <Button variant="ghost" size="s" onClick={() => edit(null)}>
+          <button type="button" className="btn-outline acct-btn-o" onClick={() => edit(null)}>
             Add address
-          </Button>
+          </button>
         )}
       </div>
 
       {preferred && !draft && (
-        <p className="nx-msg mb-4">
+        <p className="acct-muted">
           Default address: {preferred.label || 'Home'} · {formatAddress(preferred)}
         </p>
       )}
 
       {addresses.length > 0 && (
-        <div className="nx-addrs">
+        <div className="acct-addrs">
           {addresses.map((row) => (
-            <article key={addressId(row)} className={`nx-addr${row.isDefault ? ' is-default' : ''}`}>
-              <p className="nx-k">
-                {row.label || 'Home'}
-                {addressBadges(row).length ? ` · ${addressBadges(row).join(' · ')}` : ''}
-              </p>
-              <p className="nx-note">{formatAddress(row)}</p>
-              {row.display && <p className="nx-note">{row.display}</p>}
-              {row.phone && <p className="nx-note">{row.phone}</p>}
-              <div className="nx-addr-acts">
+            <article key={addressId(row)} className={`acct-addr${row.isDefault ? ' is-default' : ''}`}>
+              <span className="acct-addr-k">
+                {(row.label || 'Home').toUpperCase()}
+                {addressBadges(row).length ? ` · ${addressBadges(row).join(' · ').toUpperCase()}` : ''}
+              </span>
+              <p className="acct-addr-p">{formatAddress(row)}</p>
+              {row.display && <p className="acct-addr-p">{row.display}</p>}
+              {row.phone && <p className="acct-addr-p">{row.phone}</p>}
+              <div className="acct-addr-acts">
                 {!row.isDefault && (
-                  <button type="button" className="nx-mini is-c" disabled={busy === addressId(row)} onClick={() => makeDefault(row)}>
+                  <button type="button" className="acct-link is-gold" disabled={busy === addressId(row)} onClick={() => makeDefault(row)}>
                     Set default
                   </button>
                 )}
-                <button type="button" className="nx-mini" onClick={() => edit(row)}>
+                <button type="button" className="acct-link" onClick={() => edit(row)}>
                   Edit
                 </button>
-                <button type="button" className="nx-mini" disabled={busy === addressId(row)} onClick={() => remove(row)}>
+                <button type="button" className="acct-link" disabled={busy === addressId(row)} onClick={() => remove(row)}>
                   Remove
                 </button>
               </div>
@@ -181,25 +178,29 @@ export default function AddressBook() {
           ))}
         </div>
       )}
-      {!addresses.length && !draft && <p className="nx-note">No saved addresses yet. Add one or use your current location.</p>}
+      {!addresses.length && !draft && <p className="acct-muted">No saved addresses yet. Add one or use your current location.</p>}
 
       {draft && (
-        <form onSubmit={saveDraft} className="nx-sum mt-6" noValidate>
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-            <p className="nx-k">{draft._id ? 'Edit address' : 'New address'}</p>
-            <Button variant="ghost" size="s" disabled={busy === 'gps'} onClick={useCurrentLocation}>
+        <form onSubmit={saveDraft} className="acct-addr-form" noValidate>
+          <div className="acct-panel-head">
+            <span className="acct-addr-k">{draft._id ? 'EDIT ADDRESS' : 'NEW ADDRESS'}</span>
+            <button type="button" className="btn-outline acct-btn-o" disabled={busy === 'gps'} onClick={useCurrentLocation}>
               <MapPin size={14} strokeWidth={1.6} /> {busy === 'gps' ? 'Locating…' : 'Use current location'}
-            </Button>
+            </button>
           </div>
-          <div className="nx-fields is-2">
+          <div className="acct-fields">
             {FIELDS.map(([key, label, required]) => {
               const invalid = Boolean(fieldErrors[key]);
               const isNumber = key === 'phone' || key === 'pincode';
               return (
-                <label key={key} className={`nx-lab${key === 'line1' || key === 'line2' ? ' is-wide' : ''}`}>
-                  <span>{label}{required || isNumber ? ' *' : ''}</span>
+                <div key={key} className={key === 'line1' || key === 'line2' ? 'is-wide' : ''}>
+                  <label className="acct-label" htmlFor={`ab-${key}`}>
+                    {label}
+                    {required || isNumber ? ' *' : ''}
+                  </label>
                   <input
-                    className="nx-input"
+                    id={`ab-${key}`}
+                    className="acct-input"
                     type={isNumber ? 'tel' : 'text'}
                     inputMode={isNumber ? 'numeric' : undefined}
                     maxLength={key === 'phone' ? 10 : key === 'pincode' ? 6 : undefined}
@@ -217,16 +218,16 @@ export default function AddressBook() {
                     }}
                   />
                   {invalid ? (
-                    <span className="nx-bad">{fieldErrors[key]}</span>
+                    <span className="acct-bad">{fieldErrors[key]}</span>
                   ) : key === 'phone' ? (
-                    <span className="nx-note">10-digit Indian mobile</span>
+                    <span className="acct-hint">10-digit Indian mobile</span>
                   ) : key === 'pincode' ? (
-                    <span className="nx-note">6-digit pincode</span>
+                    <span className="acct-hint">6-digit pincode</span>
                   ) : null}
-                </label>
+                </div>
               );
             })}
-            <label className="nx-check is-wide">
+            <label className="acct-check is-wide">
               <input
                 type="checkbox"
                 checked={Boolean(draft.isDefault) || addresses.length === 0}
@@ -235,13 +236,13 @@ export default function AddressBook() {
               Use as default delivery address
             </label>
           </div>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Button type="submit" size="s" disabled={busy === 'save'}>
+          <div className="acct-form-acts">
+            <button type="submit" className="btn-gold acct-btn" disabled={busy === 'save'}>
               {busy === 'save' ? 'Saving…' : 'Save address'}
-            </Button>
-            <Button
-              variant="ghost"
-              size="s"
+            </button>
+            <button
+              type="button"
+              className="btn-outline acct-btn-o"
               onClick={() => {
                 setDraft(null);
                 setNote('');
@@ -249,11 +250,11 @@ export default function AddressBook() {
               }}
             >
               Cancel
-            </Button>
+            </button>
           </div>
         </form>
       )}
-      {note && <p className="nx-msg mt-3">{note}</p>}
+      {note && <p className="acct-muted">{note}</p>}
     </section>
   );
 }

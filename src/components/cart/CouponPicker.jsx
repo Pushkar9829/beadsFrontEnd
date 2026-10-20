@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Check, Ticket } from 'lucide-react';
+import { Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../../api/client';
 import Popup from '../ui/Popup';
+import { showToast } from '../layout/QuickToast';
 
 function audienceNote(audience) {
   if (audience === 'new') return 'First order';
@@ -10,7 +11,7 @@ function audienceNote(audience) {
   return '';
 }
 
-export default function CouponPicker({ appliedCode, onQuote, signedIn, refreshKey, fromPath = '/cart' }) {
+export default function CouponPicker({ appliedCode, onQuote, onRemove, signedIn, refreshKey, fromPath = '/checkout' }) {
   const [coupons, setCoupons] = useState([]);
   const [count, setCount] = useState(0);
   const [usableCount, setUsableCount] = useState(0);
@@ -37,7 +38,8 @@ export default function CouponPicker({ appliedCode, onQuote, signedIn, refreshKe
     try {
       const { data } = await api.post('/cart/coupon', { code });
       if (data.quote?.coupon) {
-        onQuote?.(data.quote, 'Applied.');
+        onQuote?.(data.quote, '');
+        showToast(`✨ Coupon ${data.quote.coupon.code} applied!`, 'gold');
         setOpen(false);
       } else {
         onQuote?.(data.quote, data.quote?.couponError || '');
@@ -56,65 +58,60 @@ export default function CouponPicker({ appliedCode, onQuote, signedIn, refreshKe
       ? `${usableCount} eligible · ${count} ${noun}`
       : `${count} ${noun} available`;
 
+  // Source: CheckoutPage.jsx lines 428-458 (sub-bar) and 786-915 (coupons popup).
   return (
     <>
-      <button type="button" className="nx-coupons-toggle" onClick={() => count && setOpen(true)} disabled={!count}>
-        <span>
-          <Ticket size={14} strokeWidth={1.6} />
-          {usableLabel}
-        </span>
-        {count > 0 && <span>See all</span>}
-      </button>
+      <div className="co-coupon-bar">
+        <div className="co-coupon-count">
+          <Tag size={12} color="#D9AE4F" />
+          <span>{usableLabel}</span>
+        </div>
+        {count > 0 && (
+          <button type="button" className="co-see-all" onClick={() => setOpen(true)}>
+            SEE ALL
+          </button>
+        )}
+      </div>
 
       {open && (
-        <Popup eyebrow="Coupons" title="All coupons" titleId="coupon-modal-title" label="Close coupons" onClose={() => setOpen(false)}>
-          <p className="nx-note mb-4">
-            {usableCount} eligible · {count - usableCount} not eligible
-          </p>
-          <ul className="nx-coupon-list">
+        <Popup eyebrow="Available offers" title={`${count} Sacred ${count === 1 ? 'Coupon' : 'Coupons'}`} titleId="coupon-modal-title" label="Close coupons" onClose={() => setOpen(false)}>
+          <div className="co-cpn-list">
             {coupons.map((c) => {
               const applied = appliedCode && appliedCode.toUpperCase() === c.code;
               const eligible = Boolean(c.usable);
               const canApply = signedIn && eligible && !applied && !busy;
+              const note = [
+                c.minOrder ? `Min ₹${Number(c.minOrder).toLocaleString('en-IN')}` : 'No minimum',
+                audienceNote(c.audience),
+                c.endsAt ? `till ${new Date(c.endsAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}` : '',
+                !eligible && c.reason ? c.reason : '',
+              ].filter(Boolean).join(' · ');
               return (
-                <li key={c.code} className={`nx-coupon${applied ? ' is-on' : ''}${eligible ? ' is-ok' : ' is-locked'}`}>
-                  <div className="min-w-0">
-                    <p>
-                      <span className="nx-coupon-code">{c.code}</span>
-                      <span className="nx-coupon-tag">
-                        {eligible ? (
-                          <>
-                            <Check size={11} strokeWidth={2.4} />
-                            Eligible
-                          </>
-                        ) : (
-                          'Not eligible'
-                        )}
-                      </span>
-                    </p>
-                    <p className="nx-coupon-offer">{c.label}</p>
-                    <p className="nx-note">
-                      {c.minOrder ? `Min ₹${Number(c.minOrder).toLocaleString('en-IN')}` : 'No minimum'}
-                      {audienceNote(c.audience) ? ` · ${audienceNote(c.audience)}` : ''}
-                      {c.endsAt ? ` · till ${new Date(c.endsAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}` : ''}
-                    </p>
-                    {!eligible && c.reason ? <p className="nx-note">{c.reason}</p> : null}
+                <div key={c.code} className={`co-cpn${applied ? ' is-on' : ''}${eligible ? '' : ' is-locked'}`}>
+                  <div>
+                    <div className="co-cpn-head">
+                      <span className="co-cpn-code">{c.code}</span>
+                      <span className="co-cpn-title">{c.label}</span>
+                    </div>
+                    <p className="co-cpn-desc">{note}</p>
                   </div>
                   {applied ? (
-                    <span className="nx-mini is-c">Applied</span>
+                    <button type="button" className="co-cpn-btn is-remove" onClick={() => onRemove?.()} disabled={!onRemove}>
+                      Remove
+                    </button>
                   ) : signedIn ? (
-                    <button type="button" className="nx-mini is-c" disabled={!canApply} onClick={() => apply(c.code)}>
+                    <button type="button" className="co-cpn-btn" disabled={!canApply} onClick={() => apply(c.code)}>
                       {busy === c.code ? '…' : eligible ? 'Apply' : 'Locked'}
                     </button>
                   ) : (
-                    <Link to="/login" state={{ from: { pathname: fromPath } }} className="nx-mini is-c" onClick={() => setOpen(false)}>
+                    <Link to="/login" state={{ from: { pathname: fromPath } }} className="co-cpn-btn" onClick={() => setOpen(false)}>
                       Sign in
                     </Link>
                   )}
-                </li>
+                </div>
               );
             })}
-          </ul>
+          </div>
         </Popup>
       )}
     </>

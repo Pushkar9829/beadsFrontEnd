@@ -1,25 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Check, X } from 'lucide-react';
 import api from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
-import Button from '../components/ui/Button';
-import Price from '../components/ui/Price';
 import { useSite } from '../store/contentStore';
 import { startCashfreeCheckout } from '../lib/cashfree';
+import { formatInr } from '../lib/format';
+import { itemTitle } from '../lib/cartItems';
+import GemVisual from '../components/ui/GemVisual';
 import AddressPicker from '../components/checkout/AddressPicker';
 import AddressFormModal from '../components/checkout/AddressFormModal';
 import CouponPicker from '../components/cart/CouponPicker';
+import { showToast } from '../components/layout/QuickToast';
 import { detectCurrentAddress } from '../lib/location';
-import BagLine from '../components/cart/BagLine';
-import { EmptyBlock, PageIntro } from '../components/home/nocturne/Listing';
+import emblem from '../assets/brand/emblem.png';
 import { addressId, addressReady, checkoutFromAddress, defaultAddress, digitsOnly, emptyAddress, normalizePhone, upsertAddress, validateAddress } from '../lib/addresses';
-
-const CRUMBS = [
-  { label: 'Home', to: '/' },
-  { label: 'Bag', to: '/cart' },
-  { label: 'Checkout' },
-];
 
 function emptyDraft(user) {
   const base = checkoutFromAddress(emptyAddress({ phone: user?.phone || '' }), user);
@@ -103,25 +99,23 @@ export default function CheckoutPage() {
     }).catch(() => {});
   }, [items.length, form.pincode, amount]);
 
+  // Source: CheckoutPage.jsx lines 124-146 (empty bag card in the left column).
   if (!items.length) {
     return (
-      <div className="nx nx-page at-commerce is-flow">
-        <PageIntro crumbs={CRUMBS} eyebrow="Secure checkout" title={page.title} />
-        <div className="nx-w nx-sec">
-          <EmptyBlock
-            title={page.emptyTitle}
-            body={page.emptyBody}
-            actions={
-              <>
-                <Link to="/shop" className="nx-btn">
-                  Shop all
+      <div className="co-page">
+        <div className="container-custom co-wrap">
+          <div className="co-grid">
+            <div className="co-left">
+              <div className="co-empty">
+                <img src={emblem} alt="Kuberstones" className="co-empty-logo" />
+                <h3 className="co-empty-t">{page.emptyTitle || 'Your Bag is Empty'}</h3>
+                <p className="co-empty-p">{page.emptyBody || 'Choose your sacred intention and return to checkout.'}</p>
+                <Link to="/shop" className="btn-gold co-empty-btn">
+                  Explore Catalogue
                 </Link>
-                <Link to="/customize" className="nx-btn nx-btn-o">
-                  Customization
-                </Link>
-              </>
-            }
-          />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -227,6 +221,7 @@ export default function CheckoutPage() {
       const created = (saved.addresses || []).find((row) => !prev.has(addressId(row)))
         || defaultAddress(saved);
       if (created) applySaved(created, nextDraft.contactName);
+      showToast('✨ Delivery address updated!', 'gold');
     } catch (err) {
       setAddressError(err.message || 'Could not save address.');
     } finally {
@@ -241,7 +236,8 @@ export default function CheckoutPage() {
       const { data } = await api.post('/cart/coupon', { code: coupon });
       setQuote(data.quote);
       if (data.quote?.coupon?.code) setCoupon(data.quote.coupon.code);
-      setCouponMsg(data.quote?.coupon ? 'Applied.' : data.quote?.couponError || '');
+      setCouponMsg(data.quote?.coupon ? '' : data.quote?.couponError || '');
+      if (data.quote?.coupon?.code) showToast(`✨ Coupon ${data.quote.coupon.code} applied!`, 'gold');
       if (data.quote?.couponError) setError(data.quote.couponError);
     } catch (err) {
       setError(err.message);
@@ -302,6 +298,7 @@ export default function CheckoutPage() {
           /* account page will verify on return */
         }
       }
+      showToast(`Order #${data.order.orderNumber} consecrated & placed!`, 'gold');
       navigate(`/account?placed=${data.order.orderNumber}${method === 'gateway' ? '&cf=1' : ''}`);
     } catch (err) {
       setError(err.message);
@@ -312,25 +309,61 @@ export default function CheckoutPage() {
 
   const q = quote || {};
   const pay = q.payment || { cod: true, upi: true };
-  const eta = q.settings?.estimatedDays ? `About ${q.settings.estimatedDays} days` : 'Standard';
+  const eta = `About ${q.settings?.estimatedDays || 5} days`;
   const canContinue = Boolean(selected && addressReady(form));
+  const threshold = q.settings?.freeThreshold;
+  const offerOff = !q.coupon?.code && q.offer?.discount ? q.discount : 0;
+  const couponOff = q.coupon?.code ? q.discount : 0;
+  const deliveryLabel = q.shippingFee
+    ? null
+    : ['Free', q.offer?.freeShipping && q.offer.shippingName ? q.offer.shippingName : threshold ? `Free shipping over ${formatInr(threshold)}` : '']
+        .filter(Boolean)
+        .join(' · ');
 
+  async function removeAppliedCoupon() {
+    await api.delete('/cart/coupon');
+    setCouponMsg('');
+    await refreshQuote();
+    showToast('Coupon removed', 'muted');
+  }
+
+  // Source: beeds_ecommerce/src/pages/CheckoutPage.jsx (items left, side panel right). Styles: styles/atelier/commerce.css "Checkout".
   return (
-    <div className="nx nx-page at-commerce is-flow">
-      <PageIntro crumbs={CRUMBS} eyebrow="Secure checkout" title={page.title} body={page.body} />
-      <div className="nx-w nx-body">
-        <div className="nx-bag">
-          <section aria-label="Your pieces">
-            <div className="nx-lines">
-              {items.map((item) => (
-                <BagLine key={item._id} item={item} aside={<span className="nx-mini">{eta}</span>}>
-                  <span className="nx-note">Qty {item.quantity}</span>
-                </BagLine>
-              ))}
+    <div className="co-page">
+      <div className="container-custom co-wrap">
+        <div className="co-grid">
+          {/* LEFT COLUMN: items list (source lines 122-239) */}
+          <div className="co-left">
+            <div className="co-items">
+              {items.map((item) => {
+                const snap = item.snapshot || {};
+                const title = itemTitle(item);
+                const href = item.kind === 'product' && snap.slug ? `/p/${snap.slug}` : null;
+                return (
+                  <div key={item._id} className="co-item">
+                    <div className="co-thumb">
+                      <GemVisual color={snap.colorHex || snap.beads?.[0]?.colorHex} image={snap.image} className="co-thumb-img" name={title} />
+                    </div>
+                    <div className="co-item-body">
+                      <span className="co-label is-item">{item.kind === 'custom_bracelet' ? 'Studio' : snap.family || 'Crystals'}</span>
+                      <h4 className="co-item-name">{href ? <Link to={href}>{title}</Link> : title}</h4>
+                      <div className="co-item-row">
+                        <span className="co-qty">Qty {item.quantity}</span>
+                        <div className="co-item-price">
+                          <span className="co-price">{formatInr(item.lineTotal)}</span>
+                          <span className="co-eta">{eta}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </section>
+          </div>
 
-          <form onSubmit={submit} className="nx-sum">
+          {/* RIGHT COLUMN: side panel (source lines 241-656) */}
+          <form onSubmit={submit} className="co-panel">
+            {/* BLOCK 1: DELIVERY TO */}
             <AddressPicker
               addresses={addresses}
               selectedId={selectedId}
@@ -341,11 +374,11 @@ export default function CheckoutPage() {
               missing={needAddress && !canContinue}
             />
 
-            <div className={`nx-gate${canContinue ? '' : ' is-locked'}`}>
+            <div className={`co-gate${canContinue ? '' : ' is-locked'}`}>
               {!canContinue && (
                 <button
                   type="button"
-                  className="nx-gate-hit"
+                  className="co-gate-hit"
                   onClick={() => {
                     setNeedAddress(true);
                     setError('Add a delivery address to continue.');
@@ -354,30 +387,61 @@ export default function CheckoutPage() {
                   aria-label="Add a delivery address to continue"
                 />
               )}
-              <div className="nx-gate-c">
-                {q.pincode && !q.pincode.serviceable && <p className="nx-bad mt-4">We do not deliver to this pincode yet.</p>}
+              <div className="co-gate-c">
+                {q.pincode && !q.pincode.serviceable && <p className="co-bad">We do not deliver to this pincode yet.</p>}
                 {q.pincode?.serviceable && q.pincode.source === 'ithink' && (
-                  <p className="nx-note mt-4">
+                  <p className="co-note">
                     Delivery is available via iThink Logistics
                     {q.settings?.estimatedDays ? ` · about ${q.settings.estimatedDays} days after dispatch` : ''}.
                     Customized bracelets may need extra preparation time.
                   </p>
                 )}
                 {q.pincode?.serviceable && q.pincode.cod === false && (
-                  <p className="nx-note mt-4">Cash on delivery is not available for this pincode. Please pay online.</p>
+                  <p className="co-note">Cash on delivery is not available for this pincode. Please pay online.</p>
                 )}
 
-                <div className="nx-part">
-                  <p className="nx-k">Apply coupon</p>
-                  <div className="nx-inline">
-                    <input className="nx-input" placeholder="Enter coupon code" aria-label="Coupon code" value={coupon} onChange={(e) => setCoupon(e.target.value)} />
-                    <Button variant="ghost" size="s" onClick={applyCoupon}>Apply</Button>
-                  </div>
+                {/* BLOCK 2: APPLY COUPON */}
+                <div className="co-block">
+                  <span className="co-label">Apply coupon</span>
+                  {!q.coupon?.code ? (
+                    <div className="co-coupon">
+                      <input
+                        className="co-coupon-input"
+                        placeholder="Enter coupon code"
+                        aria-label="Coupon code"
+                        value={coupon}
+                        onChange={(e) => setCoupon(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            applyCoupon();
+                          }
+                        }}
+                      />
+                      <button type="button" className="co-coupon-btn" onClick={applyCoupon}>
+                        Apply
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="co-applied">
+                      <div className="co-applied-l">
+                        <Check size={14} color="#34D399" />
+                        <div>
+                          <span className="co-applied-code">{q.coupon.code}</span>
+                          <span className="co-applied-label">· -{formatInr(q.discount)}</span>
+                        </div>
+                      </div>
+                      <button type="button" className="co-applied-x" title="Remove coupon" aria-label="Remove coupon" onClick={removeAppliedCoupon}>
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
                   <CouponPicker
                     signedIn
                     fromPath="/checkout"
                     appliedCode={q.coupon?.code || coupon}
                     refreshKey={`${items.length}-${amount}-${form.pincode}`}
+                    onRemove={removeAppliedCoupon}
                     onQuote={(next, message) => {
                       if (next) {
                         setQuote(next);
@@ -386,87 +450,86 @@ export default function CheckoutPage() {
                       if (message) setCouponMsg(message);
                     }}
                   />
-                  {q.coupon?.code && (
-                    <button
-                      type="button"
-                      className="nx-mini is-c justify-self-start"
-                      onClick={async () => {
-                        await api.delete('/cart/coupon');
-                        setCouponMsg('');
-                        await refreshQuote();
-                      }}
-                    >
-                      Remove {q.coupon.code}
-                    </button>
-                  )}
-                  {couponMsg && <p className="nx-msg">{couponMsg}</p>}
+                  {couponMsg && <p className="co-note">{couponMsg}</p>}
                 </div>
 
-                <div className="nx-part">
-                  <p className="nx-k">{page.summaryTitle || 'Bill summary'}</p>
-                  <dl className="nx-rows">
-                    <div>
-                      <dt>Item total</dt>
-                      <dd><Price value={q.subtotal ?? amount} /></dd>
+                {/* BLOCK 3: SUMMARY */}
+                <div className="co-block">
+                  <span className="co-label is-sum">Summary</span>
+                  <div className="co-rows">
+                    <div className="co-row">
+                      <span>Item total</span>
+                      <span className="is-v">{formatInr(q.subtotal ?? amount)}</span>
                     </div>
-                    <div>
-                      <dt>{q.coupon?.code ? `Coupon (${q.coupon.code})` : q.offer?.discount ? `Offer (${q.offer.name})` : 'Coupon'}</dt>
-                      <dd>{q.discount ? <>-<Price value={q.discount} /></> : '—'}</dd>
-                    </div>
-                    <div>
-                      <dt>Delivery</dt>
-                      <dd>{q.shippingFee === 0 ? (q.offer?.freeShipping ? `Free${q.offer.shippingName ? ` · ${q.offer.shippingName}` : ''}` : 'Free') : <Price value={q.shippingFee || 0} />}</dd>
-                    </div>
-                    {q.tax ? (
-                      <div>
-                        <dt>GST</dt>
-                        <dd><Price value={q.tax} /></dd>
+                    {offerOff > 0 && (
+                      <div className="co-row is-offer">
+                        <span>Offer ({q.offer.name})</span>
+                        <span className="is-v">-{formatInr(offerOff)}</span>
                       </div>
-                    ) : null}
-                    <div className="is-total">
-                      <dt>Total</dt>
-                      <dd><Price value={q.total ?? amount} /></dd>
+                    )}
+                    {couponOff > 0 && (
+                      <div className="co-row is-coupon">
+                        <span>Coupon ({q.coupon.code})</span>
+                        <span>-{formatInr(couponOff)}</span>
+                      </div>
+                    )}
+                    <div className="co-row">
+                      <span>Delivery</span>
+                      {deliveryLabel ? <span className="is-ship">{deliveryLabel}</span> : <span className="is-v">{formatInr(q.shippingFee)}</span>}
                     </div>
-                  </dl>
+                    <div className="co-row">
+                      <span>GST</span>
+                      <span className="is-v">{formatInr(q.tax || 0)}</span>
+                    </div>
+                  </div>
+                  <div className="co-total">
+                    <span className="co-total-k">Total</span>
+                    <span className="co-total-v">{formatInr(q.total ?? amount)}</span>
+                  </div>
                 </div>
 
-                <div className="nx-part">
-                  <p className="nx-k">Choose payment</p>
+                {/* BLOCK 4: CHOOSE PAYMENT */}
+                <div className="co-block">
+                  <span className="co-label is-pay">Choose payment</span>
                   {pay.cod && (
-                    <label className="nx-choice">
-                      <span>Cash on delivery</span>
-                      <input type="radio" name="pay" checked={method === 'cod'} onChange={() => setMethod('cod')} />
+                    <label className={`co-pay${method === 'cod' ? ' is-on' : ''}`}>
+                      <input type="radio" name="pay" className="co-sr" checked={method === 'cod'} onChange={() => setMethod('cod')} />
+                      Cash on delivery
                     </label>
                   )}
                   {pay.gateway && (
-                    <label className="nx-choice">
-                      <span>Online payment{pay.gatewayName ? ` · ${pay.gatewayName}` : ''}</span>
-                      <input type="radio" name="pay" checked={method === 'gateway'} onChange={() => setMethod('gateway')} />
+                    <label className={`co-pay${method === 'gateway' ? ' is-on' : ''}`}>
+                      <input type="radio" name="pay" className="co-sr" checked={method === 'gateway'} onChange={() => setMethod('gateway')} />
+                      Online payment{pay.gatewayName ? ` · ${pay.gatewayName}` : ''}
                     </label>
                   )}
                   {pay.upi && (
-                    <label className="nx-choice">
-                      <span>UPI{pay.upiId ? ` · ${pay.upiId}` : ''}</span>
-                      <input type="radio" name="pay" checked={method === 'upi'} onChange={() => setMethod('upi')} />
+                    <label className={`co-pay${method === 'upi' ? ' is-on' : ''}`}>
+                      <input type="radio" name="pay" className="co-sr" checked={method === 'upi'} onChange={() => setMethod('upi')} />
+                      UPI{pay.upiId ? ` · ${pay.upiId}` : ''}
                     </label>
                   )}
                   {method === 'upi' && (
-                    <input className="nx-input" placeholder="UPI reference (optional)" aria-label="UPI reference" value={upiRef} onChange={(e) => setUpiRef(e.target.value)} />
+                    <input className="co-input" placeholder="UPI reference (optional)" aria-label="UPI reference" value={upiRef} onChange={(e) => setUpiRef(e.target.value)} />
                   )}
                 </div>
               </div>
             </div>
 
-            {error && <p className="nx-bad mt-4">{error}</p>}
-            <div className="nx-actions">
-              <Button type="submit" className="nx-btn-block" disabled={busy || (canContinue && (!method || q.pincode?.serviceable === false))}>
-                {canContinue ? (busy ? page.submitBusy : page.submitLabel) : 'Add address to continue'}
-              </Button>
-            </div>
-            <div className="nx-links">
-              <Link to="/cart" className="nx-mini is-c">Back to bag</Link>
-              <Link to="/shop" className="nx-mini">Continue shopping</Link>
-              <Link to="/wishlist" className="nx-mini">Wishlist</Link>
+            {error && <p className="co-bad">{error}</p>}
+            <button type="submit" className="co-place" disabled={busy || (canContinue && (!method || q.pincode?.serviceable === false))}>
+              {canContinue ? (busy ? page.submitBusy || 'Placing…' : page.submitLabel || 'Place order') : 'Add address to continue'}
+            </button>
+
+            {/* Links footer (source lines 602-653) */}
+            <div className="co-links">
+              <div className="co-links-row">
+                <Link to="/cart" className="co-link">Back to bag</Link>
+                <Link to="/" className="co-link">Continue shopping</Link>
+              </div>
+              <div className="co-links-row2">
+                <Link to="/wishlist" className="co-link">Wishlist</Link>
+              </div>
             </div>
           </form>
         </div>
