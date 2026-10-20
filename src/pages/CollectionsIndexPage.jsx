@@ -5,7 +5,7 @@ import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import useRefreshOnView from '../hooks/useRefreshOnView';
 import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
-import { CmsEmpty, CollectionTiles, GridSkeleton, PageHero } from '../components/home/nocturne/Listing';
+import { CatEmpty, CollectionTiles, GridSkeleton, HERO_SEAL, PageHero, StudioAction } from '../components/home/nocturne/Listing';
 
 const RULE_LABELS = {
   manual: 'Curated',
@@ -40,21 +40,24 @@ export default function CollectionsIndexPage() {
     <div className="nx nx-page">
       <SeoHead title={pageTitle(copy.title || 'Collections', brand)} description={copy.body} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
       <PageHero
-        size="short"
+       
         image={copy.image ? mediaUrl(copy.image) : HOUSE_IMAGES.rudraksha}
         crumbs={[{ label: 'Home', to: '/' }, { label: copy.title || 'Collections' }]}
         eyebrow={copy.eyebrow}
         title={copy.title || 'Collections'}
         body={copy.body}
-        meta={loading ? [] : [`${collections.length} ${collections.length === 1 ? 'collection' : 'collections'}`]}
+        meta={loading ? [] : [`${collections.length} ${collections.length === 1 ? 'collection' : 'collections'}`, HERO_SEAL]}
+        actions={<StudioAction site={site} />}
       />
 
       {loading ? (
         <GridSkeleton />
       ) : collections.length === 0 ? (
-        <div className="nx-w nx-sec">
-          <CmsEmpty block={copy.empty} />
-        </div>
+        <section className="category-pieces-section">
+          <div className="container-custom">
+            <CatEmpty block={copy.empty} />
+          </div>
+        </section>
       ) : (
         <CollectionTiles
           eyebrow={copy.listEyebrow || 'Every collection'}

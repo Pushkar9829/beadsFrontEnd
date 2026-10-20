@@ -13,7 +13,6 @@
 
 .pd-page .pd-crumbs ol {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   font-size: 13px;
@@ -73,15 +72,18 @@
 
 .pd-page .pd-hero img,
 .pd-page .pd-hero .pd-hero-tone {
-  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.pd-page .pd-hero .modern-badge-wrap {
-  top: 14px;
-  left: 14px;
+.pd-page .pd-hero img {
+  display: inline;
+  max-width: none;
+}
+
+.pd-page .pd-hero .pd-hero-tone {
+  display: block;
 }
 
 .pd-page .pd-thumbs {
@@ -138,6 +140,9 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 20px;
+}
+
+.pd-page .pd-rating span {
   font-size: 13px;
 }
 
@@ -181,18 +186,6 @@
   text-decoration: line-through;
 }
 
-.pd-page .pd-sale {
-  margin: -12px 0 22px;
-  font-size: 13px;
-  color: #DFCA9E;
-  letter-spacing: 0.04em;
-}
-
-.pd-page .pd-sale b {
-  color: #D9AE4F;
-  font-weight: 600;
-}
-
 .pd-page .pd-desc {
   font-size: 15px;
   color: #AAA3AF;
@@ -222,7 +215,7 @@
 
 .pd-page .pd-option-pills .pill-tab {
   cursor: default;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   line-height: normal;
 }
 
@@ -250,8 +243,11 @@
   color: #AAA3AF;
   padding: 8px 12px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
+  font: 13.3333px Arial;
+}
+
+.pd-page .pd-stepper button svg {
+  display: inline;
 }
 
 .pd-page .pd-stepper button:disabled {
@@ -291,6 +287,7 @@
   justify-content: center;
   cursor: pointer;
   color: #EDE8E1;
+  font: 13.3333px Arial;
   transition: all 0.2s ease;
 }
 
@@ -342,15 +339,15 @@
   margin-bottom: 4px;
 }
 
+.pd-page .pd-seal a {
+  color: #DFCA9E;
+}
+
 .pd-page .pd-seal p {
   font-size: 13px;
   color: #AAA3AF;
   line-height: 1.5;
   margin: 0;
-}
-
-.pd-page .pd-seal a {
-  color: #DFCA9E;
 }
 
 /* Benefits-style list */
@@ -360,7 +357,6 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 20px;
 }
 
 .pd-page .pd-list-h {
@@ -393,15 +389,6 @@
   color: #D9AE4F;
 }
 
-.pd-page .pd-list a {
-  color: #EDE8E1;
-  text-decoration: none;
-}
-
-.pd-page .pd-list a:hover {
-  color: #D9AE4F;
-}
-
 /* You may also like */
 .pd-page .pd-related {
   border-top: 1px solid rgba(217, 174, 79, 0.16);
@@ -409,22 +396,7 @@
 }
 
 .pd-page .pd-related-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
   margin-bottom: 40px;
-}
-
-.pd-page .pd-related-all {
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #D9AE4F;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(217, 174, 79, 0.5);
-  padding-bottom: 2px;
 }
 
 .pd-page .pd-related-grid {
@@ -439,17 +411,4 @@
   background: linear-gradient(90deg, #120D19 0%, #1F1134 50%, #120D19 100%);
   background-size: 200% 100%;
   animation: catSkel 1.4s ease-in-out infinite;
-}
-
-@media (max-width: 560px) {
-  .pd-page .pd-grid {
-    grid-template-columns: 1fr;
-    gap: 32px;
-    margin-bottom: 64px;
-  }
-
-  .pd-page .pd-related-grid {
-    grid-template-columns: 1fr;
-    justify-items: center;
-  }
 }

@@ -10,22 +10,10 @@ import { formatInr } from '../lib/format';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import SeoHead from '../components/SeoHead';
-import { HOUSE_IMAGES, NCard, useCountdown } from '../components/home/nocturne/Nocturne';
+import { HOUSE_IMAGES, NCard } from '../components/home/nocturne/Nocturne';
 import { SectionTitle } from '../components/home/atelier/AtelierHome';
 import emblem from '../assets/brand/emblem.png';
 import { CmsEmpty, PageHero } from '../components/home/nocturne/Listing';
-
-const pad = (n) => String(n).padStart(2, '0');
-
-function SaleTimer({ sale }) {
-  const t = useCountdown(sale?.endsAt);
-  if (!sale || !t || t.done) return null;
-  return (
-    <p className="pd-sale">
-      <b>{sale.name || 'Flash sale'}</b> · ends in {t.d}d {pad(t.h)}h {pad(t.m)}m
-    </p>
-  );
-}
 
 function Related({ product, copy = {} }) {
   const [items, setItems] = useState([]);
@@ -52,13 +40,19 @@ function Related({ product, copy = {} }) {
   }, [product._id, product.family, product.categoryId?.slug]);
 
   if (!items.length) return null;
+  // Source (ProductDetailPage.jsx 389-405): "YOU MAY <i>also like</i>", no eyebrow.
+  const title = copy.relatedTitle || 'You may also like';
+  const split = title.match(/^(you may)\s+(.+)$/i);
   return (
     <div className="pd-related reveal-on-scroll">
       <div className="pd-related-head">
-        <div>
-          {copy.relatedEyebrow && <span className="section-eyebrow">{copy.relatedEyebrow}</span>}
-          <SectionTitle text={copy.relatedTitle || 'You may also like'} />
-        </div>
+        {split ? (
+          <h2 className="section-title">
+            {split[1].toUpperCase()} <span className="gold-italic">{split[2]}</span>
+          </h2>
+        ) : (
+          <SectionTitle text={title} />
+        )}
       </div>
       <div className="pd-related-grid reveal-stagger">
         {items.map((p) => (
@@ -115,7 +109,7 @@ export default function ProductPage() {
     const missing = site.pages.product.missing;
     return (
       <div className="nx nx-page">
-        <PageHero size="short" image={HOUSE_IMAGES.gemstones} crumbs={[{ label: 'Home', to: '/' }, { label: 'Not found' }]} eyebrow={missing?.kicker} title={missing?.title || 'Piece not found.'} body={missing?.copy} />
+        <PageHero image={HOUSE_IMAGES.gemstones} crumbs={[{ label: 'Home', to: '/' }, { label: 'Not found' }]} eyebrow={missing?.kicker} title={missing?.title || 'Piece not found.'} body={missing?.copy} />
         <div className="nx-w nx-sec">
           <CmsEmpty block={{ ...missing, title: 'Keep exploring.', copy: '' }} />
         </div>
@@ -137,9 +131,8 @@ export default function ProductPage() {
   const crumbs = [
     { label: 'Home', to: '/' },
     house ? { label: house.name, to: `/${house.slug}` } : { label: 'Shop all', to: '/shop' },
-    product.categoryId?.slug && { label: product.categoryId.name, to: `/c/${product.categoryId.slug}` },
     { label: product.name },
-  ].filter(Boolean);
+  ];
 
   async function add() {
     if (soldOut) return;
@@ -172,11 +165,6 @@ export default function ProductPage() {
                 <img key={shot} src={mediaUrl(images[shot])} alt={product.name} fetchPriority="high" />
               ) : (
                 <span className="pd-hero-tone" style={{ background: product.colorHex || '#22173A' }} />
-              )}
-              {off > 0 && (
-                <div className="modern-badge-wrap">
-                  <span className={`modern-card-badge ${product.flashSale ? 'badge-flash' : 'badge-default'}`}>{product.flashSale ? `FLASH −${off}%` : `−${off}%`}</span>
-                </div>
               )}
             </div>
             {images.length > 1 && (
@@ -214,11 +202,10 @@ export default function ProductPage() {
               {off > 0 && (
                 <>
                   <span className="pd-was">{formatInr(was)}</span>
-                  <span className="badge-flash">Save {off}%</span>
+                  <span className="badge-flash">{product.flashSale ? `Flash −${off}%` : `−${off}%`}</span>
                 </>
               )}
             </div>
-            <SaleTimer sale={product.flashSale} />
 
             {(product.description || product.shortDescription) && <p className="pd-desc">{product.description || product.shortDescription}</p>}
 
@@ -273,8 +260,12 @@ export default function ProductPage() {
               <div>
                 <div className="pd-seal-t">{site.pages.product?.shippingTitle || 'Shipping & returns'}</div>
                 <p>
-                  {site.pages.product?.shippingBody ? `${site.pages.product.shippingBody} ` : ''}
-                  See our <Link to="/shipping">shipping</Link>, <Link to="/returns">returns</Link> and <Link to="/exchanges">exchanges</Link> policies.
+                  {site.pages.product?.shippingBody || (
+                    // No CMS body: link the policies so the card keeps its second line (source lines 357-359).
+                    <>
+                      See our <Link to="/shipping">shipping</Link>, <Link to="/returns">returns</Link> and <Link to="/exchanges">exchanges</Link> policies.
+                    </>
+                  )}
                 </p>
               </div>
             </div>

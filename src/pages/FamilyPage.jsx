@@ -1,15 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import api, { mediaUrl } from '../api/client';
 import { fillCopy, houseMeta } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import SeoHead from '../components/SeoHead';
 import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
-import { CmsEmpty, CollectionTiles, GridSkeleton, PageHero, ProductListing } from '../components/home/nocturne/Listing';
-
-const clean = (s) => String(s || '').replace(/\s*→\s*$/, '');
+import { CatEmpty, CollectionTiles, GridSkeleton, heroMeta, PageHero, ProductListing, StudioAction } from '../components/home/nocturne/Listing';
 
 export default function FamilyPage() {
   const site = useSite();
@@ -68,6 +65,7 @@ export default function FamilyPage() {
     [children, products]
   );
   const filterBy = useCallback((p, slug) => p.categoryId?.slug === slug, []);
+  // Admin "Pieces body" copy: screen-reader only (the source has no visible line here).
   const piecesBody = fillCopy(page.piecesBody, { count: products.length, pieces: products.length === 1 ? 'piece' : 'pieces' });
 
   return (
@@ -79,13 +77,8 @@ export default function FamilyPage() {
         eyebrow={meta?.roman ? `House ${meta.roman}` : 'The house'}
         title={title}
         body={meta?.blurb}
-        meta={loading ? [] : [`${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`, children.length ? `${children.length} collections` : null].filter(Boolean)}
-        actions={
-          // Source hero: a gold "Custom Studio" pill (shared setting: Site pages → Shop).
-          <Link to={site.pages.shop?.heroTo || '/customize'}>
-            {clean(site.pages.shop?.heroAction) || 'Custom Studio'} <ArrowRight size={12} />
-          </Link>
-        }
+        meta={loading ? [] : heroMeta(products.length)}
+        actions={<StudioAction site={site} />}
       />
 
       {loading ? (
@@ -93,11 +86,11 @@ export default function FamilyPage() {
       ) : (
         <ProductListing
           eyebrow={page.piecesEyebrow}
-          title={page.piecesTitle ? `${page.piecesTitle}` : 'Pieces'}
+          title={page.piecesTitle || 'Pieces'}
           products={products}
           chips={chips}
           filterBy={filterBy}
-          empty={<CmsEmpty block={page.empty} />}
+          empty={<CatEmpty block={page.empty} />}
         >
           <CollectionTiles inline eyebrow={page.tilesEyebrow || 'Inside the house'} title={`${title} collections`} items={subs} />
         </ProductListing>

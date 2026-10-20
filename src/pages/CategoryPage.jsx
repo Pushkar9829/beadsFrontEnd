@@ -1,15 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 import api, { mediaUrl } from '../api/client';
 import { houseMeta } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import SeoHead from '../components/SeoHead';
 import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
-import { BannerRow, CmsEmpty, CollectionTiles, GridSkeleton, PageHero, ProductListing } from '../components/home/nocturne/Listing';
-
-const clean = (s) => String(s || '').replace(/\s*→\s*$/, '');
+import { CatEmpty, CollectionTiles, GridSkeleton, heroMeta, PageHero, ProductListing, StudioAction } from '../components/home/nocturne/Listing';
 
 export default function CategoryPage() {
   const site = useSite();
@@ -20,7 +17,6 @@ export default function CategoryPage() {
   const [products, setProducts] = useState([]);
   const [siblings, setSiblings] = useState([]);
   const [houseProducts, setHouseProducts] = useState([]);
-  const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [missing, setMissing] = useState(false);
 
@@ -45,10 +41,6 @@ export default function CategoryPage() {
       })
       .catch(() => alive && setMissing(true))
       .finally(() => alive && setLoading(false));
-    api
-      .get('/banners', { params: { placement: 'category' } })
-      .then(({ data }) => alive && setBanners(data.banners || []))
-      .catch(() => {});
     return () => {
       alive = false;
     };
@@ -58,7 +50,6 @@ export default function CategoryPage() {
   const houseImage = house?.image ? mediaUrl(house.image) : HOUSE_IMAGES[category?.family];
   const heroImage = category?.image ? mediaUrl(category.image) : products[0]?.images?.[0] ? mediaUrl(products[0].images[0]) : houseImage;
   const crumbs = [{ label: 'Home', to: '/' }, house ? { label: house.name, to: `/${house.slug}` } : { label: 'Shop all', to: '/shop' }, { label: category?.name || 'Collection' }];
-  const ownBanners = banners.filter((b) => !b.link || String(b.link).includes(`/c/${slug}`));
 
   const more = useMemo(() => {
     // Borrow a photo from the first piece in each sibling collection.
@@ -81,10 +72,12 @@ export default function CategoryPage() {
   if (missing) {
     return (
       <div className="nx nx-page">
-        <PageHero image={HOUSE_IMAGES.crystals} crumbs={[{ label: 'Home', to: '/' }, { label: 'Not found' }]} eyebrow={page.missing?.kicker} title={page.missing?.title || 'Collection not found.'} body={page.missing?.copy} size="short" />
-        <div className="nx-w nx-sec">
-          <CmsEmpty block={{ ...page.missing, title: 'Keep exploring.', copy: '' }} />
-        </div>
+        <PageHero image={HOUSE_IMAGES.crystals} crumbs={[{ label: 'Home', to: '/' }, { label: 'Not found' }]} eyebrow={page.missing?.kicker} title={page.missing?.title || 'Collection not found.'} body={page.missing?.copy} />
+        <section className="category-pieces-section">
+          <div className="container-custom">
+            <CatEmpty block={{ title: 'Keep exploring.', primaryCta: page.missing?.primaryCta }} />
+          </div>
+        </section>
       </div>
     );
   }
@@ -101,27 +94,21 @@ export default function CategoryPage() {
         />
       )}
       <PageHero
-        size="short"
+       
         image={loading ? houseImage : heroImage}
         crumbs={crumbs}
-        eyebrow={house?.name || category?.family}
+        eyebrow={house?.roman ? `House ${house.roman}` : house?.name || category?.family}
         title={category?.name || ' '}
         body={category?.description}
-        meta={loading ? [] : [`${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`]}
-        actions={
-          <Link to={site.pages.shop?.heroTo || '/customize'}>
-            {clean(site.pages.shop?.heroAction) || 'Custom Studio'} <ArrowRight size={12} />
-          </Link>
-        }
+        meta={loading ? [] : heroMeta(products.length)}
+        actions={<StudioAction site={site} />}
       />
-
-      <BannerRow banners={ownBanners} />
 
       {loading ? (
         <GridSkeleton />
       ) : (
-        <ProductListing eyebrow={house?.name ? `${house.name} · collection` : 'Collection'} title={page.listTitle || 'The pieces'} products={products} empty={<CmsEmpty block={page.empty} />}>
-          <CollectionTiles inline eyebrow={page.moreEyebrow || 'More from this house'} title={house ? `More ${house.name.toLowerCase()}` : 'More collections'} items={more} />
+        <ProductListing title={page.listTitle || 'Pieces'} products={products} empty={<CatEmpty block={page.empty} />}>
+          <CollectionTiles inline eyebrow={page.moreEyebrow || 'Inside the house'} title={`${house?.name || category?.name || 'More'} collections`} items={more} />
         </ProductListing>
       )}
     </div>

@@ -1,33 +1,13 @@
+// Flash sale: the source renders this as CategoryPage houseId="flash-sale" (hero, cream pieces
+// section, "Inside the house" tiles). The live sale and its products come from /flash-sales/active.
 import { useCallback, useState } from 'react';
 import api, { mediaUrl } from '../api/client';
 import SeoHead from '../components/SeoHead';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import useRefreshOnView from '../hooks/useRefreshOnView';
-import { HOUSE_IMAGES, useCountdown } from '../components/home/nocturne/Nocturne';
-import { CmsEmpty, CollectionTiles, EmptyBlock, GridSkeleton, houseTiles, PageHero, ProductListing } from '../components/home/nocturne/Listing';
-
-const pad = (n) => String(n).padStart(2, '0');
-
-function Clock({ endsAt }) {
-  const t = useCountdown(endsAt);
-  if (!t || t.done) return null;
-  return (
-    <div className="nx-clock" role="timer" aria-label="Time left">
-      {[
-        [t.d, 'Days'],
-        [pad(t.h), 'Hours'],
-        [pad(t.m), 'Min'],
-        [pad(t.s), 'Sec'],
-      ].map(([v, l]) => (
-        <span key={l}>
-          <b>{v}</b>
-          {l}
-        </span>
-      ))}
-    </div>
-  );
-}
+import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
+import { CatEmpty, CollectionTiles, GridSkeleton, heroMeta, houseTiles, PageHero, ProductListing, StudioAction } from '../components/home/nocturne/Listing';
 
 export default function FlashSalePage() {
   const site = useSite();
@@ -52,35 +32,20 @@ export default function FlashSalePage() {
   const label = copy.label || 'Flash sale';
   const crumbs = [{ label: 'Home', to: '/' }, { label }];
   const image = copy.pageImage ? mediaUrl(copy.pageImage) : products[0]?.images?.[0] ? mediaUrl(products[0].images[0]) : HOUSE_IMAGES.gemstones;
+  const title = loading ? ' ' : sale ? sale.name : copy.emptyTitle || 'No sale is running.';
+  const body = sale ? copy.pageBody || copy.body : copy.emptyBody || copy.pageBody;
+  const empty = sale ? { title: copy.emptyProducts || 'Products for this sale are being placed.' } : { title: 'Keep exploring.', primaryCta: { label: 'Shop all', to: '/shop' } };
 
   return (
     <div className="nx nx-page">
       <SeoHead title={pageTitle(sale?.name || label, brand)} description={copy.pageBody || copy.body} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
+      <PageHero image={loading ? null : image} crumbs={crumbs} eyebrow={label} title={title} body={loading ? null : body} meta={loading ? [] : heroMeta(products.length)} actions={<StudioAction site={site} />} />
       {loading ? (
-        <>
-          <PageHero size="short" crumbs={crumbs} eyebrow={label} title=" " />
-          <GridSkeleton />
-        </>
-      ) : !sale ? (
-        <>
-          <PageHero size="short" image={copy.pageImage ? mediaUrl(copy.pageImage) : HOUSE_IMAGES.gemstones} crumbs={crumbs} eyebrow={label} title={copy.emptyTitle || 'No sale is running.'} body={copy.emptyBody || copy.pageBody} />
-          <div className="nx-w nx-sec">
-            <CmsEmpty block={{ title: 'Keep exploring.', primaryCta: { label: 'Shop all', to: '/shop' }, secondaryCta: { label: 'Customization', to: '/customize' } }} />
-          </div>
-        </>
+        <GridSkeleton />
       ) : (
-        <>
-          <PageHero size="short" image={image} crumbs={crumbs} eyebrow={label} title={sale.name} body={copy.pageBody || copy.body} actions={<Clock endsAt={sale.endsAt} />} />
-          {products.length === 0 ? (
-            <div className="nx-w nx-sec">
-              <EmptyBlock title={copy.emptyProducts || 'Products for this sale are being placed.'} />
-            </div>
-          ) : (
-            <ProductListing eyebrow={copy.listEyebrow || 'On the tray'} title={copy.listTitle || 'Timed prices'} products={products}>
-              <CollectionTiles inline eyebrow="Inside the house" title={`${sale.name} collections`} items={houseTiles(site)} />
-            </ProductListing>
-          )}
-        </>
+        <ProductListing eyebrow={copy.listEyebrow} title={copy.listTitle || 'Pieces'} products={products} empty={<CatEmpty block={empty} />}>
+          <CollectionTiles inline eyebrow="Inside the house" title={`${sale?.name || label} collections`} items={houseTiles(site)} />
+        </ProductListing>
       )}
     </div>
   );

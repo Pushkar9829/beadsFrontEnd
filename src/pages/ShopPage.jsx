@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import api, { mediaUrl } from '../api/client';
 import { fillCopy, houseMeta } from '../lib/homeContent';
 import { useSite } from '../store/contentStore';
@@ -8,9 +7,7 @@ import { useBrand, pageTitle } from '../store/settingsStore';
 import useRefreshOnView from '../hooks/useRefreshOnView';
 import SeoHead from '../components/SeoHead';
 import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
-import { BannerRow, CmsEmpty, CollectionTiles, GridSkeleton, houseTiles, NPager, PageHero, ProductListing } from '../components/home/nocturne/Listing';
-
-const clean = (s) => String(s || '').replace(/\s*→\s*$/, '');
+import { CatEmpty, CollectionTiles, GridSkeleton, heroMeta, houseTiles, NPager, PageHero, ProductListing, StudioAction } from '../components/home/nocturne/Listing';
 
 export default function ShopPage() {
   const site = useSite();
@@ -23,7 +20,6 @@ export default function ShopPage() {
   const pageNum = Math.max(1, Number(params.get('page') || 1));
   const [products, setProducts] = useState([]);
   const [collections, setCollections] = useState([]);
-  const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [tick, setTick] = useState(0);
@@ -53,7 +49,6 @@ export default function ShopPage() {
 
   useEffect(() => {
     api.get('/collections').then(({ data }) => setCollections(data.collections || [])).catch(() => {});
-    api.get('/banners?placement=shop').then(({ data }) => setBanners(data.banners || [])).catch(() => {});
   }, [tick]);
 
   function setFilter(next) {
@@ -73,51 +68,30 @@ export default function ShopPage() {
   // "Inside the house" cards closing the pieces section, as on the source Shop All page.
   const tiles = houseTiles(site);
 
-  const collectionSelect = collections.length > 0 && (
-    <label className="cat-select">
-      <span className="sr-only">Collection</span>
-      <select value={collection} onChange={(e) => setFilter({ family, collection: e.target.value })}>
-        <option value="">All collections</option>
-        {collections.map((c) => (
-          <option key={c._id} value={c.slug}>
-            {c.name}
-          </option>
-        ))}
-      </select>
-      <ChevronDown size={14} aria-hidden />
-    </label>
-  );
-
   return (
     <div className="nx nx-page">
       <SeoHead title={pageTitle(house?.name || page.title, brand)} description={body} keywords={brand.seo?.keywords} image={brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
       <PageHero
-        size="short"
+       
         image={heroImage}
         crumbs={[{ label: 'Home', to: '/' }, { label: page.title || 'Shop all' }]}
         eyebrow={page.eyebrow}
         title={page.title || 'Shop all'}
         body={body}
-        meta={loading ? [] : [`${pagination.total ?? products.length} ${pagination.total === 1 ? 'piece' : 'pieces'}`, activeCollection?.name].filter(Boolean)}
-        actions={
-          <Link to={page.heroTo || '/customize'}>
-            {clean(page.heroAction) || 'Custom Studio'} <ArrowRight size={12} />
-          </Link>
-        }
+        meta={loading ? [] : heroMeta(pagination.total ?? products.length)}
+        actions={<StudioAction site={site} />}
       />
 
-      <BannerRow banners={banners} />
-
       <ProductListing
-        eyebrow={house ? `House of ${house.name.toLowerCase()}` : page.listEyebrow || 'Every house'}
-        title={activeCollection?.name || house?.name || page.listTitle || 'All pieces'}
+        eyebrow={page.listEyebrow}
+        title={activeCollection?.name || house?.name || page.listTitle || 'Pieces'}
         products={loading ? [] : products}
         chips={chips}
         activeChip={family || 'all'}
         onChip={(v) => setFilter({ family: v === 'all' ? '' : v, collection })}
-        extra={collectionSelect}
+        allCount={!family && !collection && !loading ? pagination.total : undefined}
         total={loading ? undefined : pagination.total}
-        empty={loading ? <GridSkeleton bare /> : <CmsEmpty block={page.empty} />}
+        empty={loading ? <GridSkeleton bare /> : <CatEmpty block={page.empty} />}
         footer={<NPager page={pagination.page || pageNum} pages={pagination.pages || 1} onPage={(n) => { setFilter({ family, collection, page: n }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />}
       >
         <CollectionTiles inline eyebrow={page.tilesEyebrow || 'Inside the house'} title={`${page.title || 'Shop all'} collections`} items={tiles} />

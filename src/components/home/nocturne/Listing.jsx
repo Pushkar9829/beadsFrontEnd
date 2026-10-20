@@ -7,10 +7,27 @@ import { mediaUrl } from '../../../api/client';
 import { HOUSE_IMAGES, NCard } from './Nocturne';
 import { SectionTitle } from '../atelier/AtelierHome';
 
-/** Category hero banner with breadcrumbs, eyebrow, title, copy and pill row. `size`: tall | short. */
-export function PageHero({ image, crumbs = [], eyebrow, title, body, meta = [], actions, size = 'tall' }) {
+/** Category hero banner with breadcrumbs, eyebrow, title, copy and pill row
+ * (source CategoryPage.jsx lines 47-159: "{n} pieces", "Consecrated", gold "Custom Studio" pill). */
+export const HERO_SEAL = 'Consecrated';
+
+/** Hero pill row for a listing: "{n} pieces" + "Consecrated" (source lines 118-138). */
+export const heroMeta = (n, noun = 'piece') => [`${n} ${n === 1 ? noun : `${noun}s`}`, HERO_SEAL];
+
+/** The gold "Custom Studio →" hero pill (source lines 139-156); label/link from Site pages → Shop. */
+export function StudioAction({ site }) {
+  const shop = site.pages?.shop || {};
   return (
-    <section className={`cat-hero${size === 'short' ? ' is-short' : ''}`}>
+    <Link to={shop.heroTo || '/customize'}>
+      <span>{cleanLabel(shop.heroAction) || 'Custom Studio'}</span>
+      <ArrowRight size={12} />
+    </Link>
+  );
+}
+
+export function PageHero({ image, crumbs = [], eyebrow, title, body, meta = [], actions }) {
+  return (
+    <section className="cat-hero">
       {image && <img src={image} alt="" className="cat-hero-img" fetchPriority="high" />}
       <div className="cat-hero-shade" />
       <div className="container-custom cat-hero-in">
@@ -26,7 +43,7 @@ export function PageHero({ image, crumbs = [], eyebrow, title, body, meta = [], 
           </nav>
         )}
         {eyebrow && <span className="section-eyebrow">{eyebrow}</span>}
-        <h1 className={`cat-hero-title${String(title || '').length > 26 ? ' is-long' : ''}`}>{title}</h1>
+        <h1 className="cat-hero-title">{title}</h1>
         {body && <p className="cat-hero-desc">{body}</p>}
         {(meta.length > 0 || actions) && (
           <div className="cat-hero-pills">
@@ -43,12 +60,14 @@ export function PageHero({ image, crumbs = [], eyebrow, title, body, meta = [], 
   );
 }
 
+// Source sort menu (CategoryPage.jsx lines 250-253).
+const cleanLabel = (s) => String(s || '').replace(/\s*→\s*$/, '');
+
 const SORTS = [
   { value: 'featured', label: 'Featured' },
-  { value: 'new', label: 'Newest' },
-  { value: 'price-asc', label: 'Price: low to high' },
-  { value: 'price-desc', label: 'Price: high to low' },
-  { value: 'rating', label: 'Top rated' },
+  { value: 'price-asc', label: 'Price: Low to High' },
+  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'rating', label: 'Highest Rated' },
 ];
 
 function sortProducts(list, sort) {
@@ -56,7 +75,6 @@ function sortProducts(list, sort) {
   if (sort === 'price-asc') out.sort((a, b) => a.price - b.price);
   else if (sort === 'price-desc') out.sort((a, b) => b.price - a.price);
   else if (sort === 'rating') out.sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0) || (b.reviewCount || 0) - (a.reviewCount || 0));
-  else if (sort === 'new') out.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   else out.sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)) || (a.featuredSort || 0) - (b.featuredSort || 0));
   return out;
 }
@@ -66,7 +84,7 @@ function sortProducts(list, sort) {
  * chips: [{ value, label, count }] ; filterBy(product, value) → boolean. `children` render after the grid
  * inside the same section (e.g. inline CollectionTiles).
  */
-export function ProductListing({ products = [], chips = [], filterBy, empty, title = 'The pieces', eyebrow, activeChip, onChip, extra, total, footer, children }) {
+export function ProductListing({ products = [], chips = [], filterBy, empty, title = 'Pieces', eyebrow = 'The collection', activeChip, onChip, allCount, total, footer, children }) {
   const [ownChip, setOwnChip] = useState('all');
   // Controlled chips (onChip) filter on the server; otherwise filter the list we were given.
   const chip = onChip ? activeChip || 'all' : ownChip;
@@ -88,16 +106,14 @@ export function ProductListing({ products = [], chips = [], filterBy, empty, tit
 
         <div className="cat-filter-bar reveal-on-scroll">
           <div className="cat-filter-pills" role="tablist" aria-label="Filter">
-            {chips.length > 1 &&
-              [{ value: 'all', label: 'All', count: onChip ? undefined : products.length }, ...chips].map((c) => (
-                <button key={c.value} type="button" role="tab" aria-selected={chip === c.value} className={`pill-tab ${chip === c.value ? 'active' : ''}`} onClick={() => setChip(c.value)}>
-                  {c.label}
-                  {c.count != null && <span className="pill-count">({c.count})</span>}
-                </button>
-              ))}
+            {/* Source always shows "All (n)" first, then the filters. */}
+            {[{ value: 'all', label: 'All', count: onChip ? allCount : products.length }, ...chips].map((c) => (
+              <button key={c.value} type="button" role="tab" aria-selected={chip === c.value} className={`pill-tab ${chip === c.value ? 'active' : ''}`} onClick={() => setChip(c.value)}>
+                {c.count != null ? `${c.label} (${c.count})` : c.label}
+              </button>
+            ))}
           </div>
           <div className="cat-sort-row">
-            {extra}
             <span className="cat-count">
               {count} {count === 1 ? 'piece' : 'pieces'} shown
             </span>
@@ -116,7 +132,7 @@ export function ProductListing({ products = [], chips = [], filterBy, empty, tit
         </div>
 
         {shown.length === 0 ? (
-          <div className="cat-empty-wrap">{empty}</div>
+          chip !== 'all' ? <CatEmpty onReset={() => setChip('all')} /> : empty || <CatEmpty />
         ) : (
           <div className="category-products-grid reveal-stagger">
             {shown.map((p) => (
@@ -177,7 +193,25 @@ export function GridSkeleton({ n = 4, bare = false, tone = 'cream' }) {
   );
 }
 
-const cleanLabel = (s) => String(s || '').replace(/\s*→\s*$/, '');
+/** Source empty state inside the pieces section (lines 261-271): one line and a "View all" pill.
+ * block: CMS { title, copy, primaryCta }; `onReset` clears a filter instead of linking. */
+export function CatEmpty({ block = {}, onReset }) {
+  const label = cleanLabel(block.primaryCta?.label);
+  return (
+    <div className="cat-empty">
+      <p>{block.title || block.copy || 'No pieces found under this selected intention.'}</p>
+      {onReset ? (
+        <button type="button" className="pill-tab active" onClick={onReset}>
+          View All Pieces
+        </button>
+      ) : (
+        <Link to={block.primaryCta?.to || '/shop'} className="pill-tab active">
+          {label || 'View All Pieces'}
+        </Link>
+      )}
+    </div>
+  );
+}
 
 /** CMS empty / missing block ({ title, copy, primaryCta, secondaryCta }) as a Nocturne empty state. */
 export function CmsEmpty({ block }) {
@@ -272,23 +306,6 @@ export function EmptyBlock({ title, body, actions }) {
       <p className="nx-d nx-empty-t">{title}</p>
       {body && <p className="nx-lede">{body}</p>}
       {actions && <div className="nx-empty-a">{actions}</div>}
-    </div>
-  );
-}
-
-/** Small editorial banners (admin "category" placement). */
-export function BannerRow({ banners = [] }) {
-  if (!banners.length) return null;
-  return (
-    <div className="nx-w">
-      <div className={`nx-banners is-${Math.min(2, banners.length)}`}>
-        {banners.slice(0, 2).map((b) => (
-          <Link key={b._id} to={b.link || '#'} className="nx-banner">
-            <img src={mediaUrl(b.image)} alt="" loading="lazy" />
-            {b.title && <span>{b.title}</span>}
-          </Link>
-        ))}
-      </div>
     </div>
   );
 }

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import api, { mediaUrl } from '../api/client';
 import SeoHead from '../components/SeoHead';
 import { useSite } from '../store/contentStore';
 import { useBrand, pageTitle } from '../store/settingsStore';
 import { HOUSE_IMAGES } from '../components/home/nocturne/Nocturne';
-import { BannerRow, CmsEmpty, CollectionTiles, GridSkeleton, PageHero, ProductListing } from '../components/home/nocturne/Listing';
+import { CatEmpty, CollectionTiles, GridSkeleton, heroMeta, PageHero, ProductListing, StudioAction } from '../components/home/nocturne/Listing';
 
 export default function CollectionPage() {
   const site = useSite();
@@ -16,7 +16,6 @@ export default function CollectionPage() {
   const [others, setOthers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [missing, setMissing] = useState(false);
-  const [banners, setBanners] = useState([]);
 
   useEffect(() => {
     let alive = true;
@@ -31,10 +30,6 @@ export default function CollectionPage() {
       })
       .catch(() => alive && setMissing(true))
       .finally(() => alive && setLoading(false));
-    api
-      .get('/banners?placement=collection')
-      .then(({ data }) => alive && setBanners(data.banners || []))
-      .catch(() => {});
     api
       .get('/collections')
       .then(({ data }) => alive && setOthers((data.collections || []).filter((c) => c.slug !== slug)))
@@ -53,7 +48,6 @@ export default function CollectionPage() {
     [houses, products]
   );
   const filterBy = useCallback((p, family) => p.family === family, []);
-  const ownBanners = banners.filter((b) => !b.link || String(b.link).includes(`/collection/${slug}`));
   const heroImage = collection?.image ? mediaUrl(collection.image) : products[0]?.images?.[0] ? mediaUrl(products[0].images[0]) : HOUSE_IMAGES.crystals;
   const crumbs = [{ label: 'Home', to: '/' }, { label: 'Collections', to: '/collections' }, { label: collection?.name || 'Collection' }];
 
@@ -61,10 +55,12 @@ export default function CollectionPage() {
     const block = site.pages.category.missing;
     return (
       <div className="nx nx-page">
-        <PageHero size="short" image={HOUSE_IMAGES.crystals} crumbs={crumbs} eyebrow={block?.kicker} title={block?.title || 'Collection not found.'} body={block?.copy} />
-        <div className="nx-w nx-sec">
-          <CmsEmpty block={{ ...block, title: 'Keep exploring.', copy: '' }} />
-        </div>
+        <PageHero image={HOUSE_IMAGES.crystals} crumbs={crumbs} eyebrow={block?.kicker} title={block?.title || 'Collection not found.'} body={block?.copy} />
+        <section className="category-pieces-section">
+          <div className="container-custom">
+            <CatEmpty block={{ title: 'Keep exploring.', primaryCta: block?.primaryCta }} />
+          </div>
+        </section>
       </div>
     );
   }
@@ -73,30 +69,24 @@ export default function CollectionPage() {
     <div className="nx nx-page">
       <SeoHead title={pageTitle(collection?.name || 'Collection', brand)} description={collection?.description} keywords={brand.seo?.keywords} image={collection?.image || brand.seo?.ogImage} noIndex={brand.seo?.noIndex} />
       <PageHero
-        size="short"
+       
         image={loading ? null : heroImage}
         crumbs={crumbs}
-        eyebrow="Collection"
+        eyebrow="Sacred collection"
         title={collection?.name || ' '}
         body={collection?.description}
-        meta={loading ? [] : [`${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`]}
-        actions={
-          <Link to={site.pages.shop?.heroTo || '/customize'}>
-            {String(site.pages.shop?.heroAction || 'Custom Studio').replace(/\s*→\s*$/, '')} →
-          </Link>
-        }
+        meta={loading ? [] : heroMeta(products.length)}
+        actions={<StudioAction site={site} />}
       />
-
-      <BannerRow banners={ownBanners} />
 
       {loading ? (
         <GridSkeleton />
       ) : (
-        <ProductListing eyebrow={site.pages.collections?.inEyebrow || 'In this collection'} title={site.pages.category?.listTitle || 'The pieces'} products={products} chips={chips} filterBy={filterBy} empty={<CmsEmpty block={site.pages.category.empty} />}>
+        <ProductListing eyebrow={site.pages.collections?.inEyebrow} title={site.pages.category?.listTitle || 'Pieces'} products={products} chips={chips} filterBy={filterBy} empty={<CatEmpty block={site.pages.category.empty} />}>
           {/* Closing "Inside the house" cards, as on the source listing pages: the other collections. */}
           <CollectionTiles
             inline
-            eyebrow={site.pages.collections?.moreTitle || 'More collections'}
+            eyebrow={site.pages.collections?.moreTitle || 'Inside the house'}
             title={`${collection?.name || 'The'} collections`}
             items={others.slice(0, 6).map((c) => ({ key: c._id, to: `/collection/${c.slug}`, title: c.name, body: c.description, image: c.image ? mediaUrl(c.image) : null }))}
           />
