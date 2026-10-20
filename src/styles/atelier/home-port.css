@@ -41,8 +41,9 @@
   margin: 0;
 }
 
-.hero-editorial-wrap {
-  animation: fadeIn 0.6s ease both;
+/* Source inline style on the hero image: objectPosition = slide.objectPosition || 'center 30%' */
+.hero-bg-img {
+  object-position: center 30%;
 }
 
 a.hero-dock-specimen:hover {
@@ -129,6 +130,11 @@ a.hero-dock-specimen:hover {
 .review-name {
   color: #F4F1EC;
   font-weight: 500;
+}
+
+/* Stone finder: second eyebrow ("STONE FINDER"), source inline style color #967439 */
+.oracle-eyebrow-row .oracle-eyebrow-accent {
+  color: #967439;
 }
 
 /* Stone finder: loading state for the live result */

@@ -62,7 +62,7 @@ export function SectionTitle({ text, as: Tag = 'h2', className = 'section-title'
 
 /* ---------------- 1. hero ---------------- */
 
-export function AHero({ hero = {}, products = {} }) {
+export function AHero({ hero = {}, products = {}, children }) {
   const slides = useMemo(() => [hero, ...(hero.slides || []).filter((s) => s && (s.image || s.title))], [hero]);
   const count = slides.length;
   const [index, setIndex] = useState(0);
@@ -128,7 +128,7 @@ export function AHero({ hero = {}, products = {} }) {
       )}
 
       <div className="hero-content container-custom">
-        <div className="hero-editorial-wrap" key={index}>
+        <div className="hero-editorial-wrap">
           <div className="hero-eyebrow-row">
             <img src={emblem} alt="" className="hero-eyebrow-emblem" />
             {slide.eyebrow && <span className="section-eyebrow hero-eyebrow">{slide.eyebrow}</span>}
@@ -209,6 +209,9 @@ export function AHero({ hero = {}, products = {} }) {
           </div>
         )}
       </div>
+
+      {/* Architectural value bar: inside the hero section, as in the source */}
+      {children}
     </section>
   );
 }
@@ -223,7 +226,7 @@ export function AValueBar({ items = [], vars = {} }) {
   return (
     <div className="hero-value-bar reveal-on-scroll">
       <div className="container-custom">
-        <div className="value-bar-grid is-auto" style={{ '--n': rows.length }}>
+        <div className={`value-bar-grid${rows.length === 3 ? '' : ' is-auto'}`} style={rows.length === 3 ? undefined : { '--n': rows.length }}>
           {rows.map((r, i) => (
             <div key={i} className={`value-bar-item${i === 1 ? " value-bar-item-border" : ""}`}>
               <span className="value-roman">{ROMAN[i]}</span>
@@ -256,7 +259,7 @@ export function AHouses({ houses = {}, studio = {}, counts = {} }) {
         <div className="house-plate-content">
           <div className="house-plate-top">
             <span className="house-roman-label">House {roman}{h.kicker ? ` · ${h.kicker}` : ''}</span>
-            {n > 0 && <span className="house-specimen-count">{n} {n === 1 ? 'piece' : 'pieces'}</span>}
+            {n > 0 && <span className="house-specimen-count">{n} {n === 1 ? 'PIECE' : 'PIECES'}</span>}
           </div>
           <h3 className={primary ? 'house-title' : 'house-title-sm'}>{String(h.name).toUpperCase()}</h3>
           {h.blurb && <p className={primary ? 'house-desc' : 'house-desc-sm'}>{h.blurb}</p>}
@@ -460,7 +463,7 @@ export function AFlash({ sale, products = [], copy = {} }) {
                         </div>
                         <button type="button" onClick={() => addProduct(p, 1)} className="flash-acquire-btn">
                           <ShoppingBag size={12} />
-                          <span>{copy.addLabel || 'Add'}</span>
+                          <span>{copy.addLabel || 'Acquire'}</span>
                         </button>
                       </div>
                     </div>
@@ -889,8 +892,9 @@ export function AFinder({ copy = {}, purposes = [] }) {
           <div className="oracle-grid-layout">
             <div className="oracle-left-col">
               <div className="collection-eyebrow-wrap oracle-eyebrow-row">
-                <span className="collection-eyebrow">{copy.eyebrow || 'Stone finder'}</span>
+                <span className="collection-eyebrow">THE ORACLE</span>
                 <span className="collection-eyebrow-dash" />
+                <span className="collection-eyebrow oracle-eyebrow-accent">{copy.eyebrow || 'Stone finder'}</span>
               </div>
               <h2 className="collection-title oracle-title">
                 {head && `${head.toUpperCase()} `}
@@ -926,7 +930,7 @@ export function AFinder({ copy = {}, purposes = [] }) {
 
               <div className="oracle-date-divider">
                 <span className="date-divider-line" />
-                <span className="date-divider-text">{copy.orLabel || 'Or by birth date'}</span>
+                <span className="date-divider-text">{copy.orLabel || 'Or by natal birth date'}</span>
                 <span className="date-divider-line" />
               </div>
 
@@ -1004,7 +1008,7 @@ export function AFinder({ copy = {}, purposes = [] }) {
                   <div className="oracle-step-header">
                     <div className="oracle-step-badge">II</div>
                     <span className="oracle-step-label">
-                      {copy.stonesLabel || 'Your stones'} · {r.label}
+                      {copy.stonesLabel || 'Consecrated minerals'} · {r.label}
                     </span>
                   </div>
 
@@ -1033,7 +1037,7 @@ export function AFinder({ copy = {}, purposes = [] }) {
                         </div>
                         <div className="featured-info">
                           <div className="featured-badge-row">
-                            <span className="modern-card-badge badge-bestseller">Ready-made</span>
+                            <span className="modern-card-badge badge-bestseller">READY-MADE SPECIMEN</span>
                             {productRating > 0 && (
                               <div className="featured-stars">
                                 <Star size={11} fill="#C5A572" color="#C5A572" />
@@ -1044,13 +1048,13 @@ export function AFinder({ copy = {}, purposes = [] }) {
                           <h5 className="featured-title">{r.product.name}</h5>
                           <div className="featured-price-line">
                             <span className="featured-price">{formatInr(r.product.price)}</span>
-                            <span className="featured-subtext">· {copy.readyLabel || 'Ready-made with these stones'}</span>
+                            <span className="featured-subtext">· {copy.readyLabel || 'Ready to wear with these specimens'}</span>
                           </div>
                         </div>
                       </div>
                       <div className="featured-bracelet-action">
                         <span className="featured-acquire-btn">
-                          <span>View</span>
+                          <span>Acquire</span>
                           <ArrowRight size={13} strokeWidth={2} />
                         </span>
                       </div>
@@ -1060,10 +1064,10 @@ export function AFinder({ copy = {}, purposes = [] }) {
                   <div className="oracle-cta-row">
                     <Link to={r.composeTo || '/customize'} className="oracle-compose-btn">
                       <Sparkles size={15} />
-                      <span>{clean(copy.cta || 'Compose with these')}</span>
+                      <span>{clean(copy.cta || 'Compose in Atelier')}</span>
                       <ArrowRight size={15} strokeWidth={2} />
                     </Link>
-                    <span className="oracle-cta-note">{copy.ctaNote || 'Loads these specimens directly onto your strand in the studio'}</span>
+                    <span className="oracle-cta-note">{copy.ctaNote || 'Loads these specimens directly onto your Rishikesh master strand'}</span>
                   </div>
                 </>
               )}
@@ -1257,13 +1261,13 @@ export function ANewsletter({ copy = {} }) {
               type="email"
               required
               autoComplete="email"
-              placeholder={copy.placeholder || 'Your email address'}
+              placeholder={copy.placeholder || 'Enter your sacred email...'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="newsletter-input"
             />
             <button type="submit" disabled={state.busy} className="btn-gold newsletter-btn">
-              {state.busy ? copy.actionBusy || 'Joining…' : clean(copy.action) || 'Join'}
+              {state.busy ? copy.actionBusy || 'Joining…' : clean(copy.action) || 'Join the Circle'}
             </button>
           </form>
         )}

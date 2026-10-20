@@ -244,7 +244,14 @@
   font-weight: 400;
   line-height: 1;
 }
-      
+
+/* Tailwind's preflight makes buttons inherit the card's line-height; the source buttons keep the
+   browser default (normal), which sets the Quick Add bar to 30px tall. */
+.modern-quick-add-btn,
+.modern-wishlist-btn {
+  line-height: normal;
+}
+
 /* Router links inside the card (the source card was one clickable div). */
 .modern-card-visual > a {
   display: block;

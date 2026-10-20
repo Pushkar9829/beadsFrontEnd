@@ -397,21 +397,6 @@ export const HOME_SECTIONS = [
       media('image', 'Background image', { folder: 'banner', hint: 'Leave empty to use the built-in photo.' }),
     ],
   },
-  {
-    key: 'finale',
-    label: 'Closing banner',
-    group: 'Pages',
-    hint: 'Last block on About and legal pages',
-    preview: '/about',
-    base: 'finale',
-    fields: [
-      media('image', 'Image', { folder: 'banner' }),
-      row([text('kicker', 'Kicker'), text('title', 'Title')]),
-      area('copy', 'Copy'),
-      cta('primaryCta', 'Primary button'),
-      cta('secondaryCta', 'Secondary button'),
-    ],
-  },
 ];
 
 export const SITE_SECTIONS = [
@@ -452,9 +437,9 @@ export const SITE_SECTIONS = [
     fields: [
       group('Brand', [
         note('The logo (crystal emblem and gold wordmark) is part of the site design.'),
-        row([text('brandName', 'Brand name'), text('tagline', 'Tagline')]),
+        text('brandName', 'Brand name'),
         area('blurb', 'Blurb'),
-        row([text('email', 'Email link', { placeholder: 'mailto:hello@…' }), text('instagram', 'Instagram URL')]),
+        text('email', 'Email link', { placeholder: 'mailto:hello@…' }),
         text('payments', 'Payment badges', { placeholder: 'UPI, Cards, Netbanking', hint: 'Comma separated.' }),
         text('cta', 'Contact button label (policy pages)'),
         text('location', 'Location'),

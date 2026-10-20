@@ -1,8 +1,8 @@
 // Header bar: notice strip, house menus, studio and collection dropdowns, wishlist, bag and account.
 // Markup and styling follow beeds_ecommerce/src/components/Header.jsx (styles/atelier/header.css).
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Heart, Menu, ShoppingBag, User, X } from 'lucide-react';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import emblem from '../../assets/brand/emblem.png';
 
 function Count({ n }) {
@@ -44,6 +44,9 @@ export default function HomeHeaderBar({
   onLogout,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { pathname } = useLocation();
+  // The source tints the account icon on the account and sign-in pages and while its menu is open.
+  const accountOn = mega === 'account' || /^\/(account|login|register)(\/|$)/.test(pathname);
   const hover = (key) => ({ onMouseEnter: () => openMega(key), onMouseLeave: closeMega, onFocus: () => openMega(key), onBlur: closeMega });
   const item = (key) => `at-nav-item${mega === key ? ' is-hover' : ''}`;
   const close = () => openMega(null);
@@ -54,10 +57,10 @@ export default function HomeHeaderBar({
       {notices.length > 0 && (
         <div className="at-header-notice">
           {notices.map((n, i) => (
-            <span key={n} className={i ? 'at-header-notice-rest' : ''}>
-              {i > 0 && <span className="at-header-notice-sep">· </span>}
-              {n}
-            </span>
+            <Fragment key={n}>
+              {i > 0 && <span className="at-header-notice-sep">·</span>}
+              <span>{n}</span>
+            </Fragment>
           ))}
         </div>
       )}
@@ -186,7 +189,7 @@ export default function HomeHeaderBar({
               <Count n={cartCount} />
             </button>
             <div className="at-account" {...hover('account')}>
-              <button type="button" className={`at-icon${mega === 'account' ? ' is-active' : ''}`} aria-label={user ? 'Your account' : 'Sign in'} onClick={onProfile}>
+              <button type="button" className={`at-icon at-icon-account${accountOn ? ' is-active' : ''}`} aria-label={user ? 'Your account' : 'Sign in'} onClick={onProfile}>
                 <User size={18} strokeWidth={1.5} />
                 {user && <span className="at-icon-dot" />}
               </button>

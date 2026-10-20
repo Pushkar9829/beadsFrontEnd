@@ -188,6 +188,7 @@
   font-weight: 400;
   text-align: left;
   padding: 3px 0;
+  line-height: normal;
   cursor: pointer;
   transition: color 0.15s ease;
 }
@@ -227,6 +228,7 @@
   font-weight: 500;
   text-align: left;
   padding: 0 0 3px;
+  line-height: normal;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -246,6 +248,27 @@
 .at-dd-all.is-gold {
   color: #D9AE4F;
   border-bottom-width: 1px;
+}
+
+/* Right-nav (collections) panel: the source spaces it slightly tighter than the left menus. */
+.at-nav-right .at-dd-panel {
+  gap: 12px;
+}
+
+.at-nav-right .at-dd-eyebrow {
+  margin-bottom: 2px;
+}
+
+.at-nav-right .at-dd-links {
+  gap: 11px;
+}
+
+.at-nav-right .at-dd-link {
+  padding: 2px 0;
+}
+
+.at-nav-right .at-dd-foot {
+  padding-top: 6px;
 }
 
 .at-dd-greeting {
@@ -311,20 +334,32 @@
   gap: 16px;
 }
 
-.at-icon {
+.at-header .at-icon {
   background: none;
   border: none;
   color: #A8A39D;
   cursor: pointer;
   position: relative;
   padding: 6px;
+  display: inline-block;
+  font-family: Arial, sans-serif;
+  font-size: 13.3333px;
+  line-height: normal;
+}
+
+/* Tailwind's preflight makes svg block; the source icons sit inline on the text baseline. */
+.at-header .at-icon svg {
+  display: inline;
+  vertical-align: baseline;
+}
+
+.at-icon.at-icon-account {
   display: flex;
   align-items: center;
   gap: 4px;
   transition: color 0.2s ease;
 }
 
-.at-icon:hover,
 .at-icon.is-active {
   color: #C5A572;
 }
@@ -418,8 +453,10 @@
   padding: 0;
 }
 
-.at-mobile-link {
+.at-header .at-mobile-link {
   display: block;
+  font-family: Arial, sans-serif;
+  line-height: normal;
   color: #F4F1EC;
   font-size: 13px;
   font-weight: 500;
@@ -441,6 +478,12 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* Source auth buttons are <button>s, so normal line-height. */
+.at-mobile-auth .btn-gold,
+.at-mobile-auth .btn-outline {
+  line-height: normal;
 }
 
 .at-mobile-auth .btn-gold {
@@ -473,28 +516,9 @@
   }
 }
 
-@media (max-width: 899px) {
-  .at-header-notice {
-    font-size: 8.5px;
-    letter-spacing: 0.16em;
-    gap: 8px;
-  }
-
-  .at-brand-word {
-    font-size: 15px;
-    letter-spacing: 0.18em;
-  }
-
-  .at-brand-emblem {
-    height: 34px;
-  }
-}
-
+/* Not in the source: on phones its wordmark pushes the bag and account icons off screen,
+   so the wordmark is dropped below 481px to keep them reachable. */
 @media (max-width: 480px) {
-  .at-header-notice span:not(:first-child) {
-    display: none;
-  }
-
   .at-brand-word {
     display: none;
   }

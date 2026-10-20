@@ -27,6 +27,34 @@
   --font-editorial: 'Cormorant Garamond', Georgia, serif;
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
 
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-full: 0px;
+}
+
+/* Custom page scrollbar (source index.css). The frontend's index.css hides the page scrollbar across the
+   site; storefront pages (any page with the atelier header) bring back the source's thin gold bar. */
+html:has(.at-header) {
+  scrollbar-width: auto;
+}
+
+html:has(.at-header)::-webkit-scrollbar {
+  display: block;
+  width: 5px;
+  height: 5px;
+}
+
+html:has(.at-header)::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+html:has(.at-header)::-webkit-scrollbar-thumb {
+  background: rgba(197, 165, 114, 0.2);
+}
+
+html:has(.at-header)::-webkit-scrollbar-thumb:hover {
+  background: rgba(197, 165, 114, 0.4);
 }
 
 body {
@@ -332,6 +360,47 @@ body {
   border-color: var(--gold-primary);
   transform: translateY(-3px);
   box-shadow: 0 12px 28px rgba(197, 165, 114, 0.4);
+}
+
+/* Quick toast, from beeds_ecommerce/src/components/QuickToast.jsx (inline styles moved here) */
+.quick-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 110;
+  background: rgba(21, 15, 29, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(217, 174, 79, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(217, 174, 79, 0.2);
+  border-radius: 8px;
+  padding: 14px 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 380px;
+  font-family: var(--font-sans);
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.quick-toast-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(217, 174, 79, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #F5DC93;
+  flex-shrink: 0;
+}
+
+.quick-toast-msg {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.75;
+  color: #EDE8E1;
+  margin: 0;
 }
 
 /* =========================================================================

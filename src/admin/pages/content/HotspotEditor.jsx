@@ -7,7 +7,7 @@ import { ProductPickerModal } from '../../ui/pickers';
 import { moveItem, useRowKeys } from './SchemaFields';
 
 /*
- * Visual hotspot editor for "Shop the look" (many numbered points) and the hero (one point).
+ * Visual hotspot editor for the hero product tag (one point; the editor also supports several numbered points).
  *
  * A point is stored as { productSlug, x, y, productName, productImage }:
  *   - productSlug   what the storefront resolves (via GET /products?slugs=…)
@@ -322,16 +322,6 @@ export function HeroHotspotField({ field, value, onChange, parent }) {
   return (
     <div className="space-y-1.5">
       <HotspotEditor single image={parent?.image} points={[point]} onChange={(pts) => onChange(pts[0])} label={field.label} />
-      {field.hint && <p className="text-xs text-lilac/70">{field.hint}</p>}
-    </div>
-  );
-}
-
-/** Schema control for a look's `items`: numbered points on the look's sibling `image`. */
-export function LookPointsField({ field, value, onChange, parent }) {
-  return (
-    <div className="space-y-1.5">
-      <HotspotEditor image={parent?.image} points={Array.isArray(value) ? value : []} onChange={onChange} max={field.max || 8} label={field.label} />
       {field.hint && <p className="text-xs text-lilac/70">{field.hint}</p>}
     </div>
   );

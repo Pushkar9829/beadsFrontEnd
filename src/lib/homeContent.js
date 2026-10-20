@@ -22,12 +22,6 @@ export const HOME_DEFAULTS = {
       { value: 'Composed', label: 'by sacred numerology' },
     ],
   },
-  look: {
-    eyebrow: 'Shop the look',
-    title: 'The calm stack.',
-    body: 'Amethyst for stillness, rose quartz for tenderness — layered on one wrist, worn every day.',
-    looks: [],
-  },
   finder: {
     eyebrow: 'Stone finder',
     title: 'Find your stone.',
@@ -253,14 +247,6 @@ export const HOME_DEFAULTS = {
     body: 'Crystal associations are traditional and spiritual. They are not medical claims. The making, however, is exact.',
   },
   trustClaims: [],
-  finale: {
-    image: '',
-    kicker: 'Begin',
-    title: 'A bracelet with a reason.',
-    copy: 'Start with a purpose in the studio, or walk the three houses until a piece finds you.',
-    primaryCta: { label: 'Customization', to: '/customize' },
-    secondaryCta: { label: 'Shop All', to: '/shop' },
-  },
   about: {
     eyebrow: ABOUT_BRAND.eyebrow,
     headline: ABOUT_BRAND.headline,

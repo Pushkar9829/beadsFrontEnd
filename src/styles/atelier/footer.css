@@ -109,7 +109,6 @@
 
 .at-footer-pills {
   display: flex;
-  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -147,7 +146,10 @@
   padding: 0;
 }
 
+/* The source links are <button>s: inline-block with normal line-height. */
 .at-footer-links a {
+  display: inline-block;
+  line-height: normal;
   color: #A8A39D;
   font-size: 13px;
   transition: color 0.2s ease;
@@ -174,16 +176,7 @@
 
 .at-footer-bottom-right {
   display: flex;
-  flex-wrap: wrap;
   gap: 24px;
-}
-
-.at-footer-bottom a {
-  color: inherit;
-}
-
-.at-footer-bottom a:hover {
-  color: #C5A572;
 }
 
 .at-footer-note {
@@ -191,19 +184,4 @@
   font-size: 11px;
   line-height: 1.7;
   color: #75716B;
-}
-
-@media (max-width: 560px) {
-  .at-footer {
-    padding-top: 56px;
-  }
-
-  .at-footer-brand-col {
-    grid-column: auto;
-  }
-
-  .at-footer-cols {
-    grid-template-columns: 1fr;
-    gap: 36px;
-  }
 }

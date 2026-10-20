@@ -69,7 +69,7 @@ export default function ScrollExperience() {
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         className={`back-to-top-btn ${showTop ? 'visible' : ''}`}
         aria-label="Scroll back to top"
-        title="Back to top"
+        title="Ascend to Top"
       >
         <ArrowUp size={16} strokeWidth={1.75} />
       </button>

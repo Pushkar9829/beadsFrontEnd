@@ -110,9 +110,15 @@ export default function HomePage() {
     { key: 'under', label: String(fc.tabUnder || 'Under {price}').replace('{price}', formatInr(underPrice)), products: under },
   ];
 
+  // The value bar (facts) sits inside the hero section, as in the source; on its own only when the hero is off.
+  const valueBar = live('facts') && <AValueBar key="facts" items={home.facts?.items || []} vars={vars} />;
   const blocks = {
-    hero: live('hero') && <AHero key="hero" hero={home.hero} products={linked} />,
-    facts: live('facts') && <AValueBar key="facts" items={home.facts?.items || []} vars={vars} />,
+    hero: live('hero') && (
+      <AHero key="hero" hero={home.hero} products={linked}>
+        {valueBar}
+      </AHero>
+    ),
+    facts: !live('hero') && valueBar,
     houses: live('houses') && <AHouses key="houses" houses={home.houses} studio={home.studio} counts={summary?.houses || {}} />,
     collection: live('collection') && <ACollection key="collection" copy={home.featured} tabs={tabs} />,
     flash_sale: live('flash_sale') && flash && <AFlash key="flash_sale" sale={flash} products={flashProducts} copy={home.flash} />,
