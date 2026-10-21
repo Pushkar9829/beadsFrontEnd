@@ -33,7 +33,7 @@ import {
   useForm,
 } from '../ui';
 import { STUDIO, STUDIO_INVALIDATE, ZODIAC_SIGNS, checkDayMonth, dateRange, idOf, moveItem, newKey, slugify, useStudioBeads } from './studio/api';
-import { BeadField, BeadPickerModal, BeadThumb, CardColorFields, DateRangeFields } from './studio/shared';
+import { BeadField, BeadPickerModal, BeadThumb, DateRangeFields } from './studio/shared';
 
 const bySort = (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || String(a.name).localeCompare(String(b.name));
 
@@ -307,12 +307,14 @@ function PurposesTab({ selectedId, onSelect }) {
 function CardIcon({ item }) {
   if (item.image) return <img src={mediaUrl(item.image)} alt="" className="h-9 w-9 shrink-0 rounded-lg border border-white/10 object-cover" />;
   return (
-    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/10 text-base" style={{ background: item.cardBg || 'color-mix(in oklab, var(--color-white) 4%, transparent)', borderColor: item.cardAccent || undefined }}>
+    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/10 text-base" style={{ background: 'color-mix(in oklab, var(--color-white) 4%, transparent)' }}>
       {item.icon || <Gem size={14} className="text-lilac" />}
     </span>
   );
 }
 
+// cardBg / cardAccent are no longer edited (the storefront cards are all cream, as in the design);
+// they stay in the form only so saving keeps whatever is stored.
 const CARD_EMPTY = { name: '', description: '', image: '', icon: '', cardBg: '', cardAccent: '', isActive: true };
 const pickCard = (row, extra = {}) => ({
   name: row.name || '',
@@ -342,7 +344,6 @@ function CardFields({ form, folder, nameLabel, namePlaceholder, isNew }) {
             {({ id }) => <Input id={id} {...form.bind('icon')} placeholder="✨" className="w-24 text-lg" />}
           </Field>
         </FormGrid>
-        <CardColorFields values={v} set={form.set} />
       </FormSection>
       <Switch label="Active" description="Hidden entries are not shown in the studio." checked={v.isActive} onChange={(x) => form.set('isActive', x)} />
     </>

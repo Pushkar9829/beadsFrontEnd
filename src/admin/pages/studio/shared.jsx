@@ -21,20 +21,6 @@ export function ColorInput({ id, value = '', onChange, placeholder = '#C6A75E', 
   );
 }
 
-/** cardBg / cardAccent pair used by purpose, intention and layer cards on the storefront. */
-export function CardColorFields({ values, set }) {
-  return (
-    <FormGrid>
-      <Field label="Card background" hint="Leave empty to derive it from the name.">
-        {({ id }) => <ColorInput id={id} value={values.cardBg} onChange={(v) => set('cardBg', v)} placeholder="Automatic" />}
-      </Field>
-      <Field label="Card accent" hint="Border and glow colour.">
-        {({ id }) => <ColorInput id={id} value={values.cardAccent} onChange={(v) => set('cardAccent', v)} placeholder="Automatic" />}
-      </Field>
-    </FormGrid>
-  );
-}
-
 /** Round bead swatch: image when present, otherwise its colour. */
 export function BeadThumb({ bead, size = 36 }) {
   if (bead?.image) {

@@ -110,7 +110,7 @@ export function AHero({ hero = {}, products = {}, children }) {
       <div className="hero-bg" aria-hidden="true">
         {slides.map((s, i) => (
           <div key={i} className={`hero-slide-layer ${i === index % count ? 'is-active' : ''}`}>
-            <img src={img(s.image, heroFallback)} alt="" className="hero-bg-img" loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'low'} />
+            <img src={img(s.image, heroFallback)} alt={s.imageAlt || ''} className="hero-bg-img" loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'low'} />
           </div>
         ))}
         <div className="hero-overlay-dark" />

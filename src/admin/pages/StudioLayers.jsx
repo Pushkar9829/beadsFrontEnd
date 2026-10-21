@@ -28,7 +28,7 @@ import {
   useForm,
 } from '../ui';
 import { STUDIO, STUDIO_INVALIDATE, checkDayMonth, dateRange, moveItem, slugify, useStudioBeads } from './studio/api';
-import { BeadNameListField, CardColorFields, DateRangeFields } from './studio/shared';
+import { BeadNameListField, DateRangeFields } from './studio/shared';
 
 const KINDS = [
   { value: 'zodiac', label: 'Zodiac', icon: Star, description: 'Twelve signs, each with a recommended crystal core and a wider pool of suitable beads.' },
@@ -38,6 +38,8 @@ const KINDS = [
 ];
 const KIND_VALUES = KINDS.map((k) => k.value);
 
+// cardBg / cardAccent are no longer edited (the storefront cards are all cream, as in the design);
+// they stay in the form only so saving keeps whatever is stored.
 const BASE = { name: '', slug: '', theme: '', description: '', image: '', icon: '', cardBg: '', cardAccent: '', isActive: true };
 const EMPTY_BY_KIND = {
   zodiac: { ...BASE, hindi: '', dates: '', fromMonth: '', fromDay: '', toMonth: '', toDay: '', suitable: [], recommended: [] },
@@ -110,7 +112,7 @@ export default function StudioLayers() {
           {r.image ? (
             <img src={mediaUrl(r.image)} alt="" className="h-9 w-9 shrink-0 rounded-lg border border-white/10 object-cover" />
           ) : (
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/10 text-base" style={{ background: r.cardBg || undefined, borderColor: r.cardAccent || undefined }}>
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/10 text-base">
               {r.icon || (kind === 'numerology' ? r.number : '')}
             </span>
           )}
@@ -388,7 +390,6 @@ function LayerDrawer({ kind, row, items, beads, onClose, onSwitch }) {
               {({ id }) => <Input id={id} {...form.bind('icon')} placeholder={kind === 'zodiac' ? '♈' : '✨'} className="w-24 text-lg" />}
             </Field>
           </FormGrid>
-          <CardColorFields values={v} set={form.set} />
         </FormSection>
       </form>
     </Drawer>

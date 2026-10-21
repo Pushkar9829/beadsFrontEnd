@@ -29,7 +29,7 @@ export const HOME_SECTIONS = [
       text('title', 'Headline', { hint: 'The last word is shown in gold italics.' }),
       area('subtitle', 'Subtitle'),
       media('image', 'Hero image', { folder: 'banner' }),
-      text('imageAlt', 'Image alt text', { hint: 'Describe the image for screen readers and search engines.' }),
+      text('imageAlt', 'Image alt text', { hint: 'The alt text of the hero image, for screen readers and search engines.' }),
       text('plaque', 'Specimen plaque', { hint: 'Small line in the hero dock. Empty: the hotspot product name, then the alt text.' }),
       cta('primaryCta', 'Primary button'),
       cta('secondaryCta', 'Secondary button'),
@@ -39,7 +39,7 @@ export const HOME_SECTIONS = [
         'Extra slides',
         [
           media('image', 'Image', { folder: 'banner' }),
-          text('imageAlt', 'Image alt text'),
+          text('imageAlt', 'Image alt text', { hint: 'The alt text of this slide image.' }),
           text('plaque', 'Specimen plaque'),
           row([text('eyebrow', 'Eyebrow'), text('title', 'Headline')]),
           area('subtitle', 'Subtitle', { rows: 2 }),
@@ -112,7 +112,6 @@ export const HOME_SECTIONS = [
     fields: [
       eyebrowTitle(),
       area('body', 'Body'),
-      row([text('action', 'Link label', { placeholder: 'Shop everything' }), text('to', 'Link', { placeholder: '/shop' })]),
       text('exploreLabel', 'Plate link label', { placeholder: 'Explore House', hint: 'Followed by the roman numeral, e.g. “Explore House I”.' }),
       list(
         'items',
@@ -131,32 +130,19 @@ export const HOME_SECTIONS = [
     key: 'studio',
     label: 'Studio tile & band',
     group: 'Homepage',
-    hint: 'Customization tile next to the houses, and the studio band on other pages',
+    hint: 'Customization tile next to the houses',
     preview: '/',
     base: '',
-    paths: ['studio', 'ritual'],
+    paths: ['studio'],
     fields: [
       group(
         'Tile',
         [
-          media('bannerImage', 'Image', { folder: 'studio' }),
           row([text('eyebrow', 'Eyebrow'), text('heading', 'Heading')]),
           area('copy', 'Copy'),
           row([text('cta', 'Button label'), text('to', 'Button link', { placeholder: '/customize' })]),
         ],
         'studio'
-      ),
-      group(
-        'Ritual steps',
-        [
-          list('steps', 'Steps', [row([text('n', 'Number'), text('title', 'Title')]), area('body', 'Body', { rows: 2 })], {
-            itemLabel: 'Step',
-            hint: 'Step titles are shown as chips on the tile.',
-            summary: (s) => s.title,
-            newItem: (items) => ({ n: String(items.length + 1).padStart(2, '0'), title: '', body: '' }),
-          }),
-        ],
-        'ritual'
       ),
     ],
   },
@@ -230,12 +216,12 @@ export const HOME_SECTIONS = [
     key: 'purpose',
     label: 'Shop by purpose',
     group: 'Pages',
-    hint: 'Purpose page + About page link',
+    hint: 'Heading of the purpose page',
     preview: '/customize/purpose',
     base: 'purpose',
     fields: [
-      group('Short heading and link (used on About; fallback on the purpose page)', [eyebrowTitle(), area('body', 'Body'), linkPair()]),
-      group('On the purpose page', [row([text('pageEyebrow', 'Eyebrow'), text('pageTitle', 'Title')]), area('pageBody', 'Body')]),
+      group('On the purpose page', [text('pageTitle', 'Title'), area('pageBody', 'Body')]),
+      group('Fallback heading', [note('Used on the purpose page only when the title or body above is empty.'), text('title', 'Title'), area('body', 'Body')]),
     ],
   },
   {
@@ -264,19 +250,21 @@ export const HOME_SECTIONS = [
     key: 'trust',
     label: 'Trust claims',
     group: 'Homepage',
-    hint: 'Craft tiles (first four) + about page',
+    hint: 'Promises strip on the home page (four tiles)',
     preview: '/',
     base: '',
-    paths: ['trust', 'trustClaims'],
+    paths: ['trustClaims'],
     fields: [
-      group('Heading (about page)', [eyebrowTitle(), area('body', 'Body')], 'trust'),
       list('trustClaims', 'Claims', [icon('icon'), text('title', 'Title'), area('body', 'Body', { rows: 2 })], {
         itemLabel: 'Claim',
-        hint: 'The first four appear as tiles in “The craft” on the home page.',
+        max: 4,
+        hint: 'Shown as the Promises strip on the home page, which has exactly four tiles, so at most four claims. Empty: the built-in four.',
         summary: (c) => c.title,
         newItem: { icon: 'sparkles', title: '', body: '' },
       }),
     ],
+    prepare: (values) => ({ ...values, trustClaims: (values.trustClaims || []).slice(0, 4) }),
+    clean: (values) => ({ ...values, trustClaims: (values.trustClaims || []).slice(0, 4) }),
   },
   {
     key: 'reviews',
@@ -303,9 +291,8 @@ export const HOME_SECTIONS = [
         [
           area('quote', 'Quote'),
           row([text('name', 'Name'), text('place', 'City'), text('piece', 'Piece')]),
-          media('media', 'Photo or video', { allowVideo: true, aspect: 'aspect-square' }),
         ],
-        { itemLabel: 'Note', summary: (t) => t.name, newItem: { quote: '', name: '', place: '', piece: '', media: '' } }
+        { itemLabel: 'Note', summary: (t) => t.name, newItem: { quote: '', name: '', place: '', piece: '' } }
       ),
       group(
         'On the FAQ page',
@@ -385,7 +372,7 @@ export const HOME_SECTIONS = [
     key: 'newsletter',
     label: 'Newsletter',
     group: 'Homepage',
-    hint: 'Home block + footer',
+    hint: 'Sign-up block on the home page',
     preview: '/',
     base: 'newsletter',
     fields: [
@@ -404,11 +391,11 @@ export const SITE_SECTIONS = [
     key: 'brand',
     label: 'Header brand',
     group: 'Site-wide',
-    hint: 'Name, tagline and menu labels',
+    hint: 'Name and menu labels',
     preview: '/',
     base: 'brand',
     fields: [
-      row([text('name', 'Header name'), text('tagline', 'Header tagline')]),
+      text('name', 'Header name'),
       note('The logo (crystal emblem and gold wordmark) is part of the site design.'),
       group('Menu labels', [
         row([text('customizeLabel', 'Customization', { placeholder: 'Customization' }), text('collectionsLabel', 'Collections', { placeholder: 'Collections' })]),
@@ -441,7 +428,6 @@ export const SITE_SECTIONS = [
         area('blurb', 'Blurb'),
         text('email', 'Email link', { placeholder: 'mailto:hello@…' }),
         text('payments', 'Payment badges', { placeholder: 'UPI, Cards, Netbanking', hint: 'Comma separated.' }),
-        text('cta', 'Contact button label (policy pages)'),
         text('location', 'Location'),
       ]),
       group('Company & grievance', [
@@ -459,7 +445,7 @@ export const SITE_SECTIONS = [
         newItem: { icon: 'sparkles', title: '', body: '' },
       }),
       group('Link columns', [
-        row([text('shopHeading', 'Shop heading'), text('contactLabel', 'Contact button label')]),
+        text('shopHeading', 'Shop heading'),
         links('shopLinks', 'Shop links'),
         text('careHeading', 'Customer care heading'),
         links('careLinks', 'Customer care links'),
@@ -471,8 +457,8 @@ export const SITE_SECTIONS = [
     key: 'contact',
     label: 'Contact drawer',
     group: 'Site-wide',
-    hint: 'Contact form on every page',
-    preview: '/',
+    hint: 'Write-to-us form on the Contact & grievance page',
+    preview: '/grievance',
     base: 'contact',
     fields: [
       eyebrowTitle(),

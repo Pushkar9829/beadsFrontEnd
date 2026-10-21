@@ -12,15 +12,19 @@ const CONTENT_INVALIDATE = ['/admin/content', '/content'];
 // Site pages section where its copy is edited.
 const SECTION_META = {
   hero: { label: 'Hero', description: 'Headline, buttons, hero image with a product hotspot, optional extra slides.', copy: 'hero' },
-  facts: { label: 'Facts strip', description: 'Short live numbers — stones, purposes, rating — under the hero.', copy: 'facts' },
+  facts: {
+    label: 'Facts strip',
+    description: 'Short live numbers — stones, purposes, rating — at the bottom of the hero. It sits inside the hero, so it follows the hero’s position; its own order only counts while the hero is switched off.',
+    copy: 'facts',
+  },
   houses: { label: 'Houses & studio', description: 'The three house plates plus the studio card.', copy: ['houses', 'studio'] },
-  collection: { label: 'Collection carousel', description: 'Featured products with best seller, new arrival and trending tabs.', copy: 'collection' },
+  collection: { label: 'Collection carousel', description: 'Product carousel with three tabs: Featured, New In (the New arrivals collection) and Under {price}.', copy: 'collection' },
   flash_sale: { label: 'Flash sale', description: 'Countdown and products of the running flash sale. Hidden when none is active.', copy: 'flash' },
   kundali: { label: 'Kundali offer', description: 'Free Kundali offer banner (rosette seal, three steps). Advertises an offer — switch off if it is not running.', copy: 'kundali' },
   finder: { label: 'Stone finder', description: 'Suggests stones from a purpose or a birth date, then links to compose them.', copy: 'finder' },
   craft: { label: 'The craft', description: 'Image plate with four attribute tiles and a button.', copy: 'craft' },
   reviews: { label: 'Reviews', description: 'Average rating and customer notes.', copy: 'reviews' },
-  promises: { label: 'Promises strip', description: 'Four promise tiles from the trust claims (Site pages → Trust).', copy: 'trust' },
+  promises: { label: 'Promises strip', description: 'Four promise tiles from the trust claims (Site pages → Trust claims).', copy: 'trust' },
   newsletter: { label: 'Newsletter', description: 'Email sign-up block.', copy: 'newsletter' },
 };
 

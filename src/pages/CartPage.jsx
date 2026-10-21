@@ -17,6 +17,22 @@ import emblem from '../assets/brand/emblem.png';
 
 const clean = (s) => String(s || '').replace(/\s*→\s*$/, '');
 
+/**
+ * Free-shipping state for the bag bar, by the same rule the server applies in the checkout quote
+ * (backend checkoutService.quote; shown by CheckoutPage's delivery line): an active free-shipping
+ * offer makes delivery free; otherwise it is free once the subtotal after discounts reaches the
+ * store threshold. Null when neither applies (no bar).
+ */
+function shippingProgress(quote, amount) {
+  if (!quote) return null;
+  if (quote.offer?.freeShipping) return { free: true, remaining: 0 };
+  const threshold = Number(quote.settings?.freeThreshold || 0);
+  if (threshold <= 0) return null;
+  const subtotal = Number.isFinite(Number(quote.subtotal)) ? Number(quote.subtotal) : amount;
+  const base = Math.max(0, subtotal - (Number(quote.discount) || 0));
+  return base >= threshold ? { free: true, remaining: 0 } : { free: false, remaining: threshold - base };
+}
+
 export default function CartPage() {
   const page = useSite().pages.cart;
   const items = useCartStore((s) => s.items);
@@ -25,15 +41,18 @@ export default function CartPage() {
   const amount = useCartStore((s) => s.items.reduce((n, i) => n + i.lineTotal, 0));
   const user = useAuthStore((s) => s.user);
   const count = items.reduce((n, i) => n + i.quantity, 0);
-  const [threshold, setThreshold] = useState(0);
+  const [quote, setQuote] = useState(null);
   const empty = page.empty || {};
   const shopTo = page.to || '/shop';
 
-  // The free-shipping threshold comes from the checkout quote (admin → Settings → Shipping).
+  // Free shipping follows the checkout quote, the same source of truth as the checkout delivery line:
+  // free when an active free-shipping offer applies, or when the discounted subtotal reaches the
+  // threshold (admin → Settings → Shipping). See shippingProgress below.
   useEffect(() => {
     if (!user || !items.length) return;
-    api.get('/checkout/quote').then(({ data }) => setThreshold(Number(data.quote?.settings?.freeThreshold || 0))).catch(() => {});
+    api.get('/checkout/quote').then(({ data }) => setQuote(data.quote || null)).catch(() => {});
   }, [user, items.length, amount]);
+  const ship = shippingProgress(quote, amount);
 
   return (
     <div className="bag-page">
@@ -55,14 +74,10 @@ export default function CartPage() {
         </div>
 
         {/* Free shipping progress (source lines 128-145) */}
-        {threshold > 0 && items.length > 0 && (
+        {ship && items.length > 0 && (
           <div className="bag-ship">
             <Sparkles size={14} />
-            <span>
-              {amount >= threshold
-                ? '✨ You have unlocked Free Insured Shipping!'
-                : `Add ${formatInr(threshold - amount)} more for Free Insured Shipping`}
-            </span>
+            <span>{ship.free ? '✨ You have unlocked Free Insured Shipping!' : `Add ${formatInr(ship.remaining)} more for Free Insured Shipping`}</span>
           </div>
         )}
 

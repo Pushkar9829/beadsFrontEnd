@@ -93,7 +93,6 @@ export const HOME_DEFAULTS = {
     body: 'Choose a purpose, then an intention. Every path then runs the same four steps: crystals, fit, finish, review.',
     action: 'Open the studio →',
     to: '/customize',
-    bannerImage: '',
     kicker: 'Begin a strand',
     heading: 'Compose your bracelet',
     copy: 'Purpose, intention, then crystals, fit and finish — the same steps on every customisation path.',
@@ -103,17 +102,6 @@ export const HOME_DEFAULTS = {
     bandBody: 'Choose a purpose and an intention; the crystals are selected for you and strung to your wrist.',
     bandCta: 'Open the studio',
     bandTo: '/customize',
-  },
-  ritual: {
-    eyebrow: 'The ritual',
-    title: 'How a strand is made',
-    body: 'The same sequence on every customisation path — composed in order, then made by hand.',
-    steps: [
-      { n: '01', title: 'Purpose', body: 'Begin with why you wear it — or enter by numerology, zodiac, planet, or profession.' },
-      { n: '02', title: 'Intention', body: 'Choose the feeling. Its crystals are selected for you, not guessed at checkout.' },
-      { n: '03', title: 'Bead size & wrist', body: '6mm, 8mm or 10mm. Wrist size sets how many beads sit on the strand.' },
-      { n: '04', title: 'Design', body: 'Sriyantra or Om, CZ, thread, then an optional name and review.' },
-    ],
   },
   featured: {
     eyebrow: 'Our collection',
@@ -128,8 +116,6 @@ export const HOME_DEFAULTS = {
   },
   brand: {
     name: 'KUBERSTONES',
-    tagline: 'Personalized With Purpose',
-    logo: '',
     customizeLabel: 'Customization',
     collectionsLabel: 'Collections',
     shopAllLabel: 'Shop All',
@@ -148,19 +134,10 @@ export const HOME_DEFAULTS = {
     accountRegisterCta: 'Create an account',
   },
   purpose: {
-    eyebrow: 'Purpose',
     title: 'Shop by purpose',
     body: 'Begin with why you wear it. Each purpose opens the studio with that intention already chosen.',
-    action: 'All purposes →',
-    to: '/customize/purpose',
-    pageEyebrow: 'Studio',
     pageTitle: 'Shop by purpose',
     pageBody: 'Choose the reason first. The studio then places crystals for that intention.',
-  },
-  rails: {
-    bestsellers: { eyebrow: 'Collection', title: 'Best sellers', action: 'See all →', to: '/collection/best-sellers' },
-    newArrivals: { eyebrow: 'Collection', title: 'New arrivals', action: 'See all →', to: '/collection/new-arrivals' },
-    trending: { eyebrow: 'Collection', title: 'Trending bracelets', action: 'See all →', to: '/collection/trending' },
   },
   faq: {
     kicker: 'Common inquiries',
@@ -241,11 +218,6 @@ export const HOME_DEFAULTS = {
     body: 'Quiet notes from custom strands and the three houses — written without medical claims.',
   },
   testimonials: [],
-  trust: {
-    eyebrow: 'The house',
-    title: 'Why Kuberstones',
-    body: 'Crystal associations are traditional and spiritual. They are not medical claims. The making, however, is exact.',
-  },
   trustClaims: [],
   about: {
     eyebrow: ABOUT_BRAND.eyebrow,

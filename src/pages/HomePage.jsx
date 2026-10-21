@@ -36,7 +36,7 @@ export default function HomePage() {
   const home = useSite();
   const brand = useBrand();
   const [featured, setFeatured] = useState([]);
-  const [rails, setRails] = useState({ bestsellers: [], newArrivals: [], trending: [] });
+  const [newIn, setNewIn] = useState([]);
   const [under, setUnder] = useState([]);
   const underPrice = Number(home.featured?.underPrice) > 0 ? Number(home.featured.underPrice) : 1500;
   const [purposes, setPurposes] = useState([]);
@@ -51,7 +51,13 @@ export default function HomePage() {
   const loadCatalog = useCallback(() => {
     return Promise.all([
       api.get('/products?featured=true').then(({ data }) => setFeatured(data.products || [])).catch(() => {}),
-      api.get('/home/collections').then(({ data }) => setRails(data)).catch(() => {}),
+      // New In tab: the "new-arrivals" collection. When that collection is missing or switched off,
+      // /home/collections supplies the same rule-based fallback (its best-seller and trending rails are not shown).
+      api
+        .get('/collections/new-arrivals')
+        .then(({ data }) => setNewIn(data.products || []))
+        .catch(() => api.get('/home/collections').then(({ data }) => setNewIn(data.newArrivals || [])))
+        .catch(() => {}),
       api.get('/products', { params: { maxPrice: underPrice, limit: 12, page: 1 } }).then(({ data }) => setUnder(data.products || [])).catch(() => {}),
       api.get('/customizer/purposes').then(({ data }) => setPurposes(data.purposes || [])).catch(() => {}),
       api.get('/flash-sales/active').then(({ data }) => {
@@ -106,7 +112,7 @@ export default function HomePage() {
   const fc = home.featured || {};
   const tabs = [
     { key: 'featured', label: fc.tabFeatured || 'Featured', products: featured },
-    { key: 'new', label: fc.tabNew || 'New In', products: rails.newArrivals },
+    { key: 'new', label: fc.tabNew || 'New In', products: newIn },
     { key: 'under', label: String(fc.tabUnder || 'Under {price}').replace('{price}', formatInr(underPrice)), products: under },
   ];
 

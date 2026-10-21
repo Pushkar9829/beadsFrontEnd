@@ -193,13 +193,13 @@ export function GridSkeleton({ n = 4, bare = false, tone = 'cream' }) {
   );
 }
 
-/** Source empty state inside the pieces section (lines 261-271): one line and a "View all" pill.
- * block: CMS { title, copy, primaryCta }; `onReset` clears a filter instead of linking. */
+/** Source empty state inside the pieces section (CategoryPage.jsx lines 261-271): one line and a "View all" pill.
+ * block: CMS { title, primaryCta } (the line and the pill); `onReset` clears a filter instead of linking. */
 export function CatEmpty({ block = {}, onReset }) {
   const label = cleanLabel(block.primaryCta?.label);
   return (
     <div className="cat-empty">
-      <p>{block.title || block.copy || 'No pieces found under this selected intention.'}</p>
+      <p>{block.title || 'No pieces found under this selected intention.'}</p>
       {onReset ? (
         <button type="button" className="pill-tab active" onClick={onReset}>
           View All Pieces

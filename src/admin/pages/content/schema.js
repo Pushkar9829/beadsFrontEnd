@@ -41,18 +41,27 @@ export const custom = (k, label, component, opts = {}) => ({ type: 'custom', k, 
 export const linkPair = (labelKey = 'action', toKey = 'to', prefix = '') =>
   row([text(labelKey, `${prefix}Link label`), text(toKey, `${prefix}Link`, { placeholder: '/path' })]);
 
-/** The "empty / missing state" block used on many storefront pages. */
-export const emptyState = (k = 'empty', title = 'Empty state') =>
+/**
+ * The "empty / missing state" block used on many storefront pages. Only the parts the page
+ * actually shows are offered: `kicker` (eyebrow), `copy` (text under the title) and `secondary`
+ * (a second button) can be switched off per page.
+ */
+export const emptyState = (k = 'empty', title = 'Empty state', { kicker = true, copy = true, secondary = true, titleLabel = 'Title', hint } = {}) =>
   group(
     title,
     [
-      row([text('kicker', 'Kicker'), text('title', 'Title')]),
-      area('copy', 'Copy', { rows: 2 }),
-      cta('primaryCta', 'Primary button'),
-      cta('secondaryCta', 'Secondary button'),
+      ...(hint ? [note(hint)] : []),
+      kicker ? row([text('kicker', 'Kicker'), text('title', titleLabel)]) : text('title', titleLabel),
+      ...(copy ? [area('copy', 'Copy', { rows: 2 })] : []),
+      cta('primaryCta', secondary ? 'Primary button' : 'Button'),
+      ...(secondary ? [cta('secondaryCta', 'Secondary button')] : []),
     ],
     k
   );
+
+/** Empty state of a listing (shop, house, category, collections): one line and one pill button, as in the design. */
+export const listingEmpty = (k = 'empty', title = 'Empty state') =>
+  emptyState(k, title, { kicker: false, copy: false, secondary: false, titleLabel: 'Line', hint: 'Shown inside the pieces area: one line and a pill button.' });
 
 export function joinPath(...parts) {
   return parts.filter((p) => p !== '' && p !== undefined && p !== null).join('.');

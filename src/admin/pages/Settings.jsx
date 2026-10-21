@@ -45,6 +45,8 @@ const TABS = [
 const SECRET_PLACEHOLDER = 'Saved — leave blank to keep';
 
 // Defaults mirror the StoreSettings schema; used only to fill gaps in the GET response.
+// `logo` and `payment.gateway` have no field any more (the storefront uses the design's emblem, and
+// the backend always names the gateway Cashfree); they stay here so saving keeps the stored value.
 const DEFAULTS = {
   general: { storeName: 'Kuberstones', logo: '', email: '', phone: '', currency: 'INR' },
   payment: { cod: true, upi: true, gateway: 'Cashfree', gatewayKeyId: '', upiId: '', cashfreeEnabled: true, cashfreeAppId: '', cashfreeSecret: '', cashfreeEnv: 'sandbox' },
@@ -228,11 +230,7 @@ function GeneralSection({ form }) {
           </Field>
           <Field label="Support phone">{({ id }) => <Input id={id} type="tel" {...form.bind('phone')} />}</Field>
         </FormGrid>
-        <Field label="Logo">
-          <div className="max-w-[10rem]">
-            <MediaInput value={form.values.logo} onChange={(v) => form.set('logo', v)} folder="logo" />
-          </div>
-        </Field>
+        <p className="text-xs text-lilac">The logo in the header and footer is part of the site design and is not set here.</p>
       </div>
     </Card>
   );
@@ -271,7 +269,6 @@ function PaymentSection({ form, settings }) {
                 />
               )}
             </Field>
-            <Field label="Checkout label" hint="Shown to customers.">{({ id }) => <Input id={id} {...form.bind('gateway')} />}</Field>
           </FormGrid>
           <Field label="App ID (x-client-id)">{({ id }) => <Input id={id} {...form.bind('cashfreeAppId')} placeholder="From the Cashfree dashboard" autoComplete="off" />}</Field>
           <Field label="Secret key (x-client-secret)" hint="Never shown again after saving. Type a new one to replace it.">

@@ -10,7 +10,12 @@ import {
   qtyOf,
   stepAt,
   stepCountFor,
+  stepHint,
 } from '../lib/studioFlow';
+import { useContentStore } from './contentStore';
+
+/** Admin-edited studio step copy (Site pages → Customization steps), matched by step id. */
+const cmsStudioSteps = () => useContentStore.getState().raw?.pages?.customize?.steps;
 
 export { qtyOf };
 
@@ -190,9 +195,9 @@ export function selectCanAdvance(state) {
   return Boolean(stepAt(state.step, state.path).validate(state));
 }
 
-export function selectStepHint(state) {
+export function selectStepHint(state, cmsSteps = cmsStudioSteps()) {
   const entry = stepAt(state.step, state.path);
-  return entry.validate(state) ? '' : entry.hint(state) || '';
+  return entry.validate(state) ? '' : stepHint(entry, state, cmsSteps);
 }
 
 // Derived objects must not be produced inside a store selector: Zustand caches the
@@ -342,7 +347,7 @@ export const useCustomizerStore = create((set, get) => ({
     if (state.advancing || state.step >= stepCountFor(state.path)) return;
     const entry = stepAt(state.step, state.path);
     if (!entry.validate(state)) {
-      set({ stepError: entry.hint(state) || 'Finish this step to continue.' });
+      set({ stepError: stepHint(entry, state, cmsStudioSteps()) || 'Finish this step to continue.' });
       return;
     }
     // Numerology takes the date on its first step, so its strand is calibrated on leaving the

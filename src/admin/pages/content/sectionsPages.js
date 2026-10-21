@@ -1,6 +1,6 @@
 // Storefront pages, studio copy and legal pages (all live under `about` / `pages.*`).
 import { STUDIO_STEPS } from '../../../lib/studioFlow';
-import { area, cta, emptyState, group, linkPair, list, media, note, row, strings, text } from './schema';
+import { area, cta, emptyState, group, linkPair, list, listingEmpty, media, note, row, strings, text } from './schema';
 import { getPath, setPath } from '../../ui';
 
 const eyebrowTitle = () => row([text('eyebrow', 'Eyebrow'), text('title', 'Title')]);
@@ -19,7 +19,7 @@ const bagFields = [
   area('emptyBody', 'Body when empty'),
   area('filledBody', 'Body with items', { hint: '{count} and {pieces} are filled in automatically.' }),
   text('to', 'Continue shopping link', { placeholder: '/shop' }),
-  emptyState(),
+  emptyState('empty', 'Empty state', { kicker: false, secondary: false }),
 ];
 
 export const PAGE_SECTIONS = [
@@ -60,10 +60,9 @@ export const PAGE_SECTIONS = [
     fields: [
       eyebrowTitle(),
       area('body', 'Body'),
-      text('action', 'Card link label'),
       media('image', 'Banner image', { folder: 'banner', hint: 'Leave empty to use the built-in photo.' }),
       group('On a single collection page', [row([text('inEyebrow', 'Pieces eyebrow', { placeholder: 'In this collection' }), text('moreTitle', 'Other collections heading', { placeholder: 'More collections' })])]),
-      emptyState(),
+      listingEmpty(),
     ],
   },
   {
@@ -80,7 +79,7 @@ export const PAGE_SECTIONS = [
       row([text('heroAction', 'Hero button (all listing pages)', { placeholder: 'Custom Studio' }), text('heroTo', 'Hero button link', { placeholder: '/customize' })]),
       row([text('listEyebrow', 'Pieces eyebrow', { placeholder: 'Every house' }), text('listTitle', 'Pieces title', { placeholder: 'All pieces' })]),
       media('image', 'Banner image', { folder: 'banner', hint: 'Used for "all pieces". A house filter shows the image of that house (set under Homepage → Houses).' }),
-      emptyState(),
+      listingEmpty(),
     ],
   },
   {
@@ -94,7 +93,7 @@ export const PAGE_SECTIONS = [
       row([text('piecesEyebrow', 'Pieces eyebrow'), text('piecesTitle', 'Pieces title')]),
       area('piecesBody', 'Pieces body', { hint: '{count} and {pieces} are filled in automatically.' }),
       text('tilesEyebrow', 'Collections eyebrow', { placeholder: 'Inside the house' }),
-      emptyState(),
+      listingEmpty(),
     ],
   },
   {
@@ -106,8 +105,8 @@ export const PAGE_SECTIONS = [
     base: 'pages.category',
     fields: [
       row([text('listTitle', 'Pieces title', { placeholder: 'The pieces' }), text('moreEyebrow', 'Related collections eyebrow', { placeholder: 'More from this house' })]),
-      emptyState('missing', 'Category not found'),
-      emptyState('empty', 'Category without pieces'),
+      emptyState('missing', 'Category not found', { secondary: false }),
+      listingEmpty('empty', 'Category without pieces'),
     ],
   },
   {
@@ -122,7 +121,7 @@ export const PAGE_SECTIONS = [
         text('shippingTitle', 'Heading', { placeholder: 'Shipping & returns' }),
         area('shippingBody', 'Text', { rows: 3, hint: 'Shown above the links to the shipping, returns and exchanges policies.' }),
       ]),
-      row([text('relatedEyebrow', '"You may also like" eyebrow', { placeholder: 'Worn alongside' }), text('relatedTitle', '"You may also like" title', { placeholder: 'You may also like' })]),
+      text('relatedTitle', '"You may also like" title', { placeholder: 'You may also like' }),
       row([text('addLabel', 'Add-to-bag button', { placeholder: 'Add to bag' }), text('soldOutLabel', 'Sold-out button', { placeholder: 'Sold out' })]),
       text('benefitsLabel', 'Benefits heading', { placeholder: 'Sacred energy & benefits' }),
       emptyState('missing', 'Product not found'),
@@ -181,7 +180,7 @@ export const PAGE_SECTIONS = [
         row([text('tabOrders', 'Orders tab', { placeholder: 'Sacred Orders' }), text('tabProfile', 'Profile tab', { placeholder: 'Personal Dossier' })]),
       ]),
       group('Order placed', [text('placedKicker', 'Kicker'), area('placedBody', 'Body', { hint: '{number} is the order number.' })]),
-      emptyState(),
+      emptyState('empty', 'No orders yet', { kicker: false, secondary: false }),
     ],
   },
   {
@@ -240,7 +239,7 @@ const STUDIO_LABEL_GROUPS = [
 function customizeSteps(stored) {
   return STUDIO_STEPS.map((entry) => {
     const r = (Array.isArray(stored) ? stored : []).find((s) => s?.id === entry.id) || {};
-    return { id: entry.id, eyebrow: r.eyebrow || entry.eyebrow || '', title: r.title || entry.title || '', body: r.body || entry.body || '', hint: r.hint || '' };
+    return { ...r, id: entry.id, title: r.title || entry.title || '', body: r.body || entry.body || '', hint: r.hint || '' };
   });
 }
 
@@ -255,12 +254,12 @@ export const STUDIO_SECTIONS = [
     key: 'pageCustomize',
     label: 'Customization steps',
     group: 'Studio',
-    hint: 'Heading of each studio step',
+    hint: 'Heading and hint of each studio step',
     preview: '/customize',
     base: 'pages.customize.steps',
     prepare: (values) => setPath(values, 'pages.customize.steps', customizeSteps(getPath(values, 'pages.customize.steps'))),
     fields: [
-      list('', 'Steps', [row([text('eyebrow', 'Eyebrow'), text('title', 'Title')]), area('body', 'Body', { rows: 2 }), text('hint', 'Hint')], {
+      list('', 'Steps', [text('title', 'Title'), area('body', 'Body', { rows: 2 }), text('hint', 'Hint', { hint: 'Shown in the bottom bar (and on Next) while the step is not complete. Empty: the built-in hint, which counts beads and names what is missing. Not used on Review, which is always complete.' })], {
         fixed: true,
         reorder: false,
         itemTitle: (s) => STUDIO_STEPS.find((f) => f.id === s.id)?.label || s.id,
@@ -312,7 +311,7 @@ export const LEGAL_SECTIONS = LEGAL.map(([kind, label]) => ({
     ...(kind === 'grievance'
       ? [
           group('Company details box', [
-            row([text('detailsEyebrow', 'Eyebrow', { placeholder: 'How to reach us' }), text('detailsTitle', 'Title', { placeholder: 'Company details' })]),
+            text('detailsTitle', 'Title', { placeholder: 'Company details' }),
             area('detailsNote', 'Note under the details', { rows: 2 }),
             text('writeLabel', 'Button label', { placeholder: 'Write to us' }),
           ]),

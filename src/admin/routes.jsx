@@ -32,7 +32,6 @@ const StudioConfig = page(() => import('./pages/StudioConfig'));
 const Coupons = page(() => import('./pages/Coupons'));
 const Offers = page(() => import('./pages/Offers'));
 const FlashSales = page(() => import('./pages/FlashSales'));
-const Banners = page(() => import('./pages/Banners'));
 const Featured = page(() => import('./pages/Featured'));
 const Newsletter = page(() => import('./pages/Newsletter'));
 const HomeLayout = page(() => import('./pages/HomeLayout'));
@@ -93,7 +92,6 @@ export const adminRoutes = (
     <Route path="coupons" element={<Coupons />} />
     <Route path="offers" element={<Offers />} />
     <Route path="flash-sales" element={<FlashSales />} />
-    <Route path="banners" element={<Banners />} />
     <Route path="featured" element={<Featured />} />
     <Route path="newsletter" element={<Newsletter />} />
 

@@ -53,7 +53,6 @@ export function selectionHint(path, config) {
 const CHOOSE_STEP = {
   id: 'choose',
   label: 'Choose',
-  eyebrow: 'Step 01 · Choose',
   title: 'What is this bracelet for?',
   body: 'Begin with why you wear it. Your choice sets the crystals we suggest next.',
   validate: selectionReady,
@@ -80,7 +79,6 @@ export const PURPOSE_FLOW = [
   {
     id: 'purpose',
     label: 'Purpose',
-    eyebrow: 'Step 01 · Purpose',
     title: 'Choose a purpose',
     body: 'Start with the feeling you want this piece to hold. Intentions appear only after you choose.',
     validate: (state) => Boolean(state.purpose),
@@ -89,7 +87,6 @@ export const PURPOSE_FLOW = [
   {
     id: 'intention',
     label: 'Intention',
-    eyebrow: 'Step 02 · Intention',
     title: 'Choose an intention',
     body: 'One intention sets the crystals. Each mapped stone starts on the strand. Turn any of them off before you continue.',
     validate: intentionBeadsReady,
@@ -98,7 +95,6 @@ export const PURPOSE_FLOW = [
   {
     id: 'birth',
     label: 'Birth',
-    eyebrow: 'Step 03 · Birth',
     title: 'Date of birth',
     body: 'Your date sets Mulank, Bhagyank, and your zodiac sign. Then choose the number beads and the sign’s crystals.',
     validate: (state) => {
@@ -122,7 +118,6 @@ export const PURPOSE_FLOW = [
   {
     id: 'charm',
     label: 'Charm',
-    eyebrow: 'Step 04 · Charm',
     title: 'Charm and thread',
     body: 'Pick the charm at the clasp and the thread. Steel core also needs a wrist size.',
     validate: charmReady,
@@ -135,7 +130,6 @@ export const PURPOSE_FLOW = [
   {
     id: 'review',
     label: 'Review',
-    eyebrow: 'Step 05 · Review',
     title: 'Review & order',
     body: 'Confirm the composition, then place the piece in your bag.',
     validate: () => true,
@@ -179,7 +173,6 @@ const LAYER_FLOW = [
   {
     id: 'crystals',
     label: 'Crystals',
-    eyebrow: 'Step 02 · Crystals',
     title: 'Choose your crystals',
     body: 'Select the stones, then choose a strand of 16, 18, or 22 beads.',
     validate: (state) => selectedCrystals(state).length > 0 && strandTotal(state) === strandTarget(state),
@@ -194,14 +187,13 @@ const LAYER_FLOW = [
   {
     id: 'beads',
     label: 'Beads',
-    eyebrow: 'Step 03 · Beads',
     title: 'Beads on this strand',
     body: 'Adjust each crystal until the total matches the strand.',
     validate: strandMatched,
     hint: strandHint,
   },
-  { ...PURPOSE_CHARM, eyebrow: 'Step 04 · Charm' },
-  { ...PURPOSE_REVIEW, eyebrow: 'Step 05 · Review' },
+  PURPOSE_CHARM,
+  PURPOSE_REVIEW,
 ];
 
 // Every step that appears on any path, once, in first-seen order (the admin edits their copy).
@@ -225,15 +217,25 @@ export function stepIndexOf(id, path) {
   return index < 0 ? 1 : index + 1;
 }
 
-// Copy can be overridden per step from the admin content panel. Entries are matched
-// by id so reordering or renaming steps never shifts the wrong copy into a step.
+// Copy can be overridden per step from the admin content panel (Site pages → Customization steps).
+// Entries are matched by id so reordering or renaming steps never shifts the wrong copy into a step.
+function cmsStep(entry, cmsSteps) {
+  return (Array.isArray(cmsSteps) ? cmsSteps : []).find((row) => row?.id === entry.id) || {};
+}
+
 export function stepCopy(step, cmsSteps, path) {
   const entry = stepAt(step, path);
-  const override = (cmsSteps || []).find((row) => row?.id === entry.id) || {};
+  const override = cmsStep(entry, cmsSteps);
   return {
-    eyebrow: override.eyebrow || entry.eyebrow,
     title: override.title || entry.title,
     body: override.body || entry.body,
     hint: override.hint || '',
   };
+}
+
+// Hint shown in the studio dock (and as the error on Next) while a step is not complete:
+// the admin-edited hint wins; without one, the built-in hint for the current state.
+export function stepHint(entry, state, cmsSteps) {
+  const custom = String(cmsStep(entry, cmsSteps).hint || '').trim();
+  return custom || entry.hint(state) || '';
 }

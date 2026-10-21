@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import api, { mediaUrl } from '../api/client';
-import fallbackLogo from '../assets/brand/logo.jpg';
+import api from '../api/client';
 import { useSite } from './contentStore';
 import { setStoreCurrency } from '../lib/format';
 
@@ -48,13 +47,9 @@ export function useBrand() {
   const settings = useStoreIdentity();
   const name = settings.storeName || site.hero?.brandName || 'Kuberstones';
   const display = site.brand?.name || site.footer?.brandName || name;
-  const tagline = site.brand?.tagline || 'Personalized With Purpose';
-  const logoPath = settings.logo || site.brand?.logo || site.footer?.logo || '';
   return {
     name,
     display,
-    tagline,
-    logo: logoPath ? mediaUrl(logoPath) : fallbackLogo,
     seo: settings.seo,
     nav: {
       customize: site.brand?.customizeLabel || 'Customization',

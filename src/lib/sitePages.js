@@ -1,9 +1,8 @@
+// Listing empty states (shop, houses, category, collections) show one line and one pill button,
+// as in the design (beeds_ecommerce CategoryPage.jsx 261-271).
 const EMPTY_HOUSES = {
-  kicker: 'Empty',
   title: 'Nothing listed yet.',
-  copy: 'Collections expand from the atelier — or begin a strand in the studio.',
   primaryCta: { label: 'Customization', to: '/customize' },
-  secondaryCta: { label: 'Shop All', to: '/shop' },
 };
 
 const PAGES_DEFAULTS = {
@@ -17,11 +16,8 @@ const PAGES_DEFAULTS = {
     action: 'Customization →',
     to: '/customize',
     empty: {
-      kicker: 'Empty',
       title: 'No pieces listed yet.',
-      copy: 'Begin a custom strand, or enter one of the three houses.',
       primaryCta: { label: 'Customization', to: '/customize' },
-      secondaryCta: { label: 'The houses', to: '/crystals' },
     },
   },
   family: {
@@ -42,14 +38,10 @@ const PAGES_DEFAULTS = {
       title: 'Collection not found.',
       copy: 'This category is not published yet.',
       primaryCta: { label: 'Shop All', to: '/shop' },
-      secondaryCta: { label: 'Customization', to: '/customize' },
     },
     empty: {
-      kicker: 'Empty',
       title: 'No pieces here yet.',
-      copy: 'The atelier will add them — or compose a strand in the studio.',
       primaryCta: { label: 'Customization', to: '/customize' },
-      secondaryCta: { label: 'Shop All', to: '/shop' },
     },
   },
   product: {
@@ -71,31 +63,26 @@ const PAGES_DEFAULTS = {
     steps: [
       {
         id: 'choose',
-        eyebrow: 'Step 01 · Choose',
         title: 'What is this bracelet for?',
         body: 'Begin with why you wear it. Your choice sets the crystals we suggest next.',
       },
       {
         id: 'crystals',
-        eyebrow: 'Step 02 · Crystals',
         title: 'Choose your crystals',
         body: 'We have pre-selected the traditional stones. Add or remove any of them.',
       },
       {
         id: 'fit',
-        eyebrow: 'Step 03 · Fit',
         title: 'How it should fit',
         body: 'Bead size and wrist size together set how many beads the strand carries.',
       },
       {
         id: 'finish',
-        eyebrow: 'Step 04 · Finish',
         title: 'Finish the piece',
         body: 'Pick the charm at the clasp, the accent, the thread, and an optional name.',
       },
       {
         id: 'review',
-        eyebrow: 'Step 05 · Review',
         title: 'Review & order',
         body: 'Confirm the composition, then place the piece in your bag.',
       },
@@ -145,13 +132,9 @@ const PAGES_DEFAULTS = {
     eyebrow: 'The rooms',
     title: 'Collections',
     body: 'Rule-based rooms that stay in step with what you sell — best sellers, new arrivals, and the rest.',
-    action: 'Enter →',
     empty: {
-      kicker: 'Empty',
       title: 'No collections published yet.',
-      copy: 'Rooms appear here as you create them in admin.',
       primaryCta: { label: 'Shop All', to: '/shop' },
-      secondaryCta: { label: 'Customization', to: '/customize' },
     },
   },
   cart: {
@@ -162,11 +145,9 @@ const PAGES_DEFAULTS = {
     action: 'Shop all →',
     to: '/shop',
     empty: {
-      kicker: 'Empty',
       title: 'Your bag is empty.',
       copy: 'Begin a custom strand or browse the houses.',
       primaryCta: { label: 'Customization', to: '/customize' },
-      secondaryCta: { label: 'Shop All', to: '/shop' },
     },
   },
   wishlist: {
@@ -234,11 +215,9 @@ const PAGES_DEFAULTS = {
     placedKicker: 'Placed',
     placedBody: 'Order {number} is placed. If you paid online, the payment is being confirmed.',
     empty: {
-      kicker: 'Empty',
       title: 'No orders yet.',
       copy: 'Begin a custom strand, or choose a ready-made piece from the houses.',
       primaryCta: { label: 'Customization', to: '/customize' },
-      secondaryCta: { label: 'Shop All', to: '/shop' },
     },
   },
   notFound: {
@@ -360,11 +339,9 @@ const PAGES_DEFAULTS = {
 
 const FOOTER_DEFAULTS = {
   bannerImage: '',
-  logo: '',
   kicker: 'The atelier',
   title: 'New strands, written quietly.',
   copy: 'Collections, studio notes, and the occasional ritual. No noise.',
-  cta: 'Contact us',
   trust: [
     { icon: 'sparkles', title: 'Certified Authentic', body: '100% genuine lab-verified mineral specimens' },
     { icon: 'hand', title: 'Hand-strung', body: 'Composed and strung by hand in our atelier' },
@@ -387,7 +364,6 @@ const FOOTER_DEFAULTS = {
   shopHeading: 'Shop',
   careHeading: 'Customer Care',
   legalHeading: 'Legal',
-  contactLabel: 'Contact Us',
   shopLinks: [
     { to: '/about', label: 'About Kuberstones' },
     { to: '/crystals', label: 'Crystal Beads' },

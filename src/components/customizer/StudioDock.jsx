@@ -11,6 +11,7 @@ import { flowFor, stepAt, stepCountFor } from '../../lib/studioFlow';
 import Price from '../ui/Price';
 import PlaceOrderButton from './PlaceOrderButton';
 import { studioText, useStudioLabels } from '../../lib/studioTheme';
+import { useSite } from '../../store/contentStore';
 
 const NEXT_LABEL_KEY = {
   choose: 'nextChoose',
@@ -34,7 +35,9 @@ export default function StudioDock() {
   const goNext = useCustomizerStore((s) => s.goNext);
   const stepError = useCustomizerStore((s) => s.stepError);
   const canAdvance = useCustomizerStore(selectCanAdvance);
-  const hint = useCustomizerStore(selectStepHint);
+  // The admin-edited hint for this step (if any) replaces the built-in one.
+  const cmsSteps = useSite().pages.customize?.steps;
+  const hint = useCustomizerStore((s) => selectStepHint(s, cmsSteps));
   const quote = useCustomizerQuote();
   const labels = useStudioLabels();
   const total = stepCountFor(path);
