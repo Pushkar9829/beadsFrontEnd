@@ -1,7 +1,7 @@
 import { Component, Suspense, useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { ArrowLeft, Bell, BookOpen, Check, CheckCheck, ExternalLink, LogOut, Menu as MenuIcon, Monitor, Moon, PanelLeftClose, PanelLeftOpen, Search, Store, Sun, X } from 'lucide-react';
+import { ArrowLeft, Bell, BookOpen, Check, CheckCheck, ChevronDown, ExternalLink, LogOut, Menu as MenuIcon, Monitor, Moon, PanelLeftClose, PanelLeftOpen, Search, Store, Sun, X } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { apiSend, queryClient, useApiMutation, useApiQuery } from '../lib/query';
 import { ROLE_LABELS, usePermissions } from '../lib/permissions';
@@ -46,44 +46,140 @@ class PageErrorBoundary extends Component {
   }
 }
 
+const NAV_GROUPS_KEY = 'ks-admin-nav-closed';
+
+function readClosedGroups() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(NAV_GROUPS_KEY) || '[]'));
+  } catch {
+    return new Set();
+  }
+}
+
 function SidebarNav({ collapsed, onNavigate }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { isAdmin } = usePermissions();
+  const [closed, setClosed] = useState(readClosedGroups);
+  const [query, setQuery] = useState('');
+  const groups = navForRole(isAdmin).map((g) => ({ ...g, items: g.items.filter((i) => !i.hiddenInNav) }));
+  const q = query.trim().toLowerCase();
+  const searching = !collapsed && q.length > 0;
+  const shown = searching
+    ? groups
+        .map((g) => ({ ...g, items: g.label.toLowerCase().includes(q) ? g.items : g.items.filter((i) => i.label.toLowerCase().includes(q)) }))
+        .filter((g) => g.items.length)
+    : groups;
+  const firstMatch = searching ? shown[0]?.items[0] : null;
+
+  // Opening a page always reveals its group, even if it was folded away earlier.
+  const activeGroup = groups.find((g) => g.items.some((i) => isActive(i, location)))?.label;
+  useEffect(() => {
+    if (!activeGroup) return;
+    setClosed((prev) => {
+      if (!prev.has(activeGroup)) return prev;
+      const next = new Set(prev);
+      next.delete(activeGroup);
+      return next;
+    });
+  }, [activeGroup]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(NAV_GROUPS_KEY, JSON.stringify([...closed]));
+    } catch {
+      /* ignore */
+    }
+  }, [closed]);
+
+  const toggle = (label) =>
+    setClosed((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
+
   return (
-    <nav className="min-h-0 flex-1 space-y-5 overflow-y-auto px-3 py-4" aria-label="Admin">
-      {navForRole(isAdmin).map((group) => (
-        <div key={group.label}>
-          {!collapsed && <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-lilac/70">{group.label}</p>}
-          <ul className="space-y-0.5">
-            {group.items
-              .filter((i) => !i.hiddenInNav)
-              .map((item) => {
-                const active = isActive(item, location);
-                return (
-                  <li key={item.to}>
-                    <NavLink
-                      to={item.to}
-                      end={item.end}
-                      onClick={onNavigate}
-                      title={collapsed ? item.label : undefined}
-                      aria-current={active ? 'page' : undefined}
-                      className={cx(
-                        'group relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition-colors',
-                        collapsed && 'justify-center px-0',
-                        active ? 'bg-gold/[0.1] font-medium text-gold' : 'text-lilac hover:bg-white/[0.05] hover:text-ivory'
-                      )}
-                    >
-                      {active && <span className="absolute inset-y-1.5 left-0 w-[3px] rounded-full bg-gold" aria-hidden />}
-                      <item.icon size={16} className="shrink-0" />
-                      {!collapsed && <span className="truncate">{item.label}</span>}
-                    </NavLink>
-                  </li>
-                );
-              })}
-          </ul>
+    <div className="flex min-h-0 flex-1 flex-col">
+      {!collapsed && (
+        <div className="px-3 pt-3">
+          <label className="relative block">
+            <span className="sr-only">Search menu</span>
+            <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lilac/70" aria-hidden />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setQuery('');
+                if (e.key === 'Enter' && firstMatch) {
+                  navigate(firstMatch.to);
+                  setQuery('');
+                  onNavigate?.();
+                }
+              }}
+              placeholder="Search menu…"
+              className="h-9 w-full rounded-lg border border-white/10 bg-white/[0.03] pl-8 pr-3 text-[13px] text-ivory placeholder:text-lilac/60 focus:border-gold/50 focus:outline-none"
+            />
+          </label>
         </div>
-      ))}
-    </nav>
+      )}
+      <nav className={cx('min-h-0 flex-1 overflow-y-auto px-3 py-4', collapsed ? 'space-y-5' : 'space-y-2')} aria-label="Admin">
+        {searching && !shown.length && <p className="px-3 py-2 text-[13px] text-lilac/70">No menu items match “{query.trim()}”.</p>}
+        {shown.map((group) => {
+          const open = collapsed || searching || !closed.has(group.label);
+          const listId = `admin-nav-${group.label.replace(/\W+/g, '-').toLowerCase()}`;
+          return (
+            <div key={group.label}>
+              {!collapsed && (
+                <button
+                  type="button"
+                  onClick={() => toggle(group.label)}
+                  disabled={searching}
+                  aria-expanded={open}
+                  aria-controls={listId}
+                  className="mb-0.5 flex w-full items-center justify-between rounded-md px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-lilac/70 hover:text-ivory disabled:cursor-default disabled:hover:text-lilac/70"
+                >
+                  <span>{group.label}</span>
+                  <ChevronDown size={13} className={cx('transition-transform duration-150', !open && '-rotate-90')} aria-hidden />
+                </button>
+              )}
+              {open && (
+                <ul id={listId} className="space-y-0.5 pb-2">
+                  {group.items.map((item) => {
+                    const active = isActive(item, location);
+                    return (
+                      <li key={item.to}>
+                        <NavLink
+                          to={item.to}
+                          end={item.end}
+                          onClick={() => {
+                            setQuery('');
+                            onNavigate?.();
+                          }}
+                          title={collapsed ? item.label : undefined}
+                          aria-current={active ? 'page' : undefined}
+                          className={cx(
+                            'group relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition-colors',
+                            collapsed && 'justify-center px-0',
+                            active ? 'bg-gold/[0.1] font-medium text-gold' : 'text-lilac hover:bg-white/[0.05] hover:text-ivory'
+                          )}
+                        >
+                          {active && <span className="absolute inset-y-1.5 left-0 w-[3px] rounded-full bg-gold" aria-hidden />}
+                          <item.icon size={16} className="shrink-0" />
+                          {!collapsed && <span className="truncate">{item.label}</span>}
+                        </NavLink>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </nav>
+    </div>
   );
 }
 
