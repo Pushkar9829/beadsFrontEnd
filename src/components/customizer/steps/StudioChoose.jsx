@@ -2,12 +2,15 @@
 // starts with PurposePick).
 //  - zodiac: "ZODIAC GRID PATH" cards (beeds_ecommerce StudioBuilderPage.jsx L531-633)
 //  - planetary, profession: the source shows its purpose cards for these, so the same card is used
-//  - numerology: frontend-only flow (date of birth, then Mulank/Bhagyank), in the step 3 cream look
+//  - numerology: frontend-only flow (date of birth, then Mulank/Bhagyank with each number's crystals),
+//    in the step 3 cream look
 import { Check } from 'lucide-react';
 import { useCustomizerStore } from '../../../store/customizerStore';
 import { useStudioLabels } from '../../../lib/studioTheme';
 import { mediaUrl } from '../../../api/client';
 import DateFields from '../DateFields';
+import GemVisual from '../../ui/GemVisual';
+import { formatInr } from '../../../lib/format';
 import { PurposeCard } from './PurposePick';
 
 function SignCard({ item, index, on, onClick }) {
@@ -77,8 +80,12 @@ function LayerPick() {
   );
 }
 
-function NumberCard({ label, sub, value, items }) {
-  const theme = items.find((it) => Number(it.number) === Number(value))?.name || '';
+// One number's card: the number, its theme, and the crystals that number puts on the strand
+// (the numerology catalog's Mulank or Bhagyank slots for that number).
+function NumberCard({ label, sub, value, items, slotKey }) {
+  const item = items.find((it) => Number(it.number) === Number(value));
+  const theme = item?.name || '';
+  const beads = (item?.[slotKey] || []).filter((slot) => slot.available !== false && slot.bead);
   return (
     <article className="pbx">
       <div className="pbx-k">{label}</div>
@@ -87,6 +94,19 @@ function NumberCard({ label, sub, value, items }) {
       </div>
       <div className="pbx-sub">{sub}</div>
       {theme && <div className="pbx-why">{theme}</div>}
+      {beads.length > 0 && (
+        <ul className="pbx-beads" aria-label={`${label} crystals`}>
+          {beads.map((slot) => (
+            <li key={slot.bead._id || slot.name} className="pbx-bead">
+              <GemVisual color={slot.bead.colorHex || '#C6A75E'} image={slot.bead.image} name="" className="pbx-gem" />
+              <div className="pbx-bead-t">
+                <div className="pbx-name">{slot.bead.name || slot.name}</div>
+                {slot.bead.pricePerBead != null && <div className="pbx-price">{formatInr(slot.bead.pricePerBead)}/ bead</div>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </article>
   );
 }
@@ -111,8 +131,8 @@ function NumerologyPick() {
         <section className="sb-pb">
           <div className="sb-k">Your numbers</div>
           <div className="sb-nums">
-            {mulankNumber ? <NumberCard label={labels.mulankLabel || 'Mulank'} sub="Your birth-day number" value={mulankNumber} items={items} /> : null}
-            {bhagyankNumber ? <NumberCard label={labels.bhagyankLabel || 'Bhagyank'} sub="Your full-date number" value={bhagyankNumber} items={items} /> : null}
+            {mulankNumber ? <NumberCard label={labels.mulankLabel || 'Mulank'} sub="Your birth-day number" value={mulankNumber} items={items} slotKey="mulank" /> : null}
+            {bhagyankNumber ? <NumberCard label={labels.bhagyankLabel || 'Bhagyank'} sub="Your full-date number" value={bhagyankNumber} items={items} slotKey="bhagyank" /> : null}
           </div>
         </section>
       ) : null}

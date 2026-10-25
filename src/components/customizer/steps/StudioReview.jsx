@@ -1,5 +1,6 @@
 // Review step for every studio path, beeds_ecommerce StudioBuilderPage.jsx "STEP 5: REVIEW & ORDER"
-// (L1682-1969): composition banner, three summary boxes, crystals list and the price breakdown.
+// (L1682-1969): composition banner, three summary boxes and the crystals list. The source's price
+// breakdown box is left out on request; the total shows in the review side panel.
 import { useCustomizerStore, useCustomizerQuote } from '../../../store/customizerStore';
 import { stepIndexOf } from '../../../lib/studioFlow';
 import { bhagyankFromDate, dateRangeLabel, mulankFromDate, zodiacFromDate, MULANK_TABLE } from '../../../lib/calibration';
@@ -57,8 +58,6 @@ export default function StudioReview() {
   const go = (id) => () => setStep(stepIndexOf(id, path));
   const isPurpose = path === 'purpose';
   const lines = quote.lines || [];
-  const pack = quote.packaging?.lines || [];
-  const beadsTotal = lines.reduce((sum, l) => sum + (Number(l.subtotal) || 0), 0);
 
   let reading = null;
   try {
@@ -150,26 +149,6 @@ export default function StudioReview() {
           })}
         </ul>
       </Block>
-
-      <section className="sb-box sb-rv-bill">
-        <div className="sb-rv-bill-rows">
-          <div>
-            <span>Crystals</span>
-            <span>{formatInr(beadsTotal)}</span>
-          </div>
-          {pack.map((row) => (
-            <div key={row.key}>
-              <span>{row.label}</span>
-              <span>{formatInr(row.amount)}</span>
-            </div>
-          ))}
-        </div>
-        <div className="sb-rv-total">
-          <span>{labels.totalLabel || 'Total'}</span>
-          <b>{formatInr(quote.total)}</b>
-        </div>
-        <div className="sb-rv-note">Delivery and taxes are worked out at checkout.</div>
-      </section>
     </div>
   );
 }

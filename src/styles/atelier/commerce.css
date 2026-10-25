@@ -1691,3 +1691,98 @@
 :where(.co-page, .bag-page, .acct-page, .wl-page) p {
   line-height: 1.75;
 }
+
+/* ------------------------------------------------------------------------------------------
+   Checkout side panel in the studio's cream look (requested change: the source panel is dark
+   #120B1A). Same tokens as the cream studio boxes: surface #FAF5EB, ink #1A160F, gold text
+   #8C6F3D, muted #695B44, hairline rgba(197,165,114,.35).
+   ------------------------------------------------------------------------------------------ */
+.co-panel {
+  background: #FAF5EB;
+  border-color: rgba(197, 165, 114, 0.45);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  color: #1A160F;
+}
+
+.co-panel .co-label,
+.co-panel .co-coupon-count,
+.co-page .co-panel .co-see-all,
+.co-page .co-panel a.co-link {
+  color: #8C6F3D;
+}
+
+.co-page .co-panel a.co-link:hover {
+  color: #1A160F;
+}
+
+.co-panel .co-addr-label,
+.co-panel .co-row .is-v,
+.co-panel .co-row.is-offer,
+.co-panel .co-total-k,
+.co-panel .co-total-v,
+.co-panel .co-pay {
+  color: #1A160F;
+}
+
+.co-panel .co-rows,
+.co-panel .co-row .is-ship,
+.co-panel .co-addr-line,
+.co-panel .co-addr-phone,
+.co-panel .co-applied-label,
+.co-page .co-panel .co-applied-x,
+.co-panel .co-note {
+  color: #695B44;
+}
+
+.co-panel .co-addr-box,
+.co-page .co-panel .co-coupon-input,
+.co-page .co-panel .co-input {
+  background: #FFFFFF;
+  border-color: rgba(197, 165, 114, 0.45);
+  /* the global input rule in index.css (high specificity via :not()) forces light text, as the
+     studio's cream inputs also override with !important */
+  color: #1A160F !important;
+  -webkit-text-fill-color: #1A160F !important;
+  caret-color: #1A160F !important;
+}
+
+.co-panel .co-addr-box option {
+  background: #FFFFFF;
+  color: #1A160F;
+}
+
+.co-page .co-panel .co-coupon-input::placeholder,
+.co-page .co-panel .co-input::placeholder {
+  color: #A8977A !important;
+  -webkit-text-fill-color: #A8977A !important;
+}
+
+.co-page .co-panel .co-btn-line,
+.co-page .co-panel .co-coupon-btn {
+  color: #1A160F;
+  border-color: rgba(197, 165, 114, 0.55);
+}
+
+.co-page .co-panel .co-btn-line:hover,
+.co-page .co-panel .co-coupon-btn:hover {
+  border-color: #8C6F3D;
+  background: rgba(197, 165, 114, 0.12);
+}
+
+.co-panel .co-total {
+  border-top-color: rgba(197, 165, 114, 0.35);
+}
+
+.co-panel .co-pay {
+  background: #FFFFFF;
+  border-color: rgba(197, 165, 114, 0.35);
+}
+
+.co-panel .co-pay.is-on {
+  border-color: #D9AE4F;
+  background: rgba(217, 174, 79, 0.1);
+}
+
+.co-panel .co-applied-code {
+  color: #1F8A5B;
+}

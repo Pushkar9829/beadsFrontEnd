@@ -189,3 +189,19 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Numerology number cards: the crystals each number puts on the strand (frontend-only list,
+   built from the pbx bead row above). */
+.pbx-beads {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px solid rgba(197, 165, 114, 0.3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+}
+
+.pbx-beads .pbx-bead-t {
+  text-align: left;
+}

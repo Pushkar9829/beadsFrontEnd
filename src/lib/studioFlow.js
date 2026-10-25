@@ -146,16 +146,10 @@ function strandTotal(state) {
 }
 
 function strandMatched(state) {
-  const matched = strandTotal(state) === strandTarget(state);
-  if (state.path === 'numerology' || state.path === 'zodiac') return matched;
-  return Boolean(state.zodiacAdded) && matched;
+  return strandTotal(state) === strandTarget(state);
 }
 
 function strandHint(state) {
-  // Planetary and profession strands carry the zodiac crystal from the date of birth.
-  if (state.path !== 'zodiac' && state.path !== 'numerology' && !state.zodiacAdded) {
-    return state.dateOfBirth ? 'Placing your zodiac crystal…' : 'Enter your date of birth to add your zodiac crystal.';
-  }
   if (!state.calibration && state.path === 'numerology') return 'Placing the beads…';
   const target = strandTarget(state);
   const total = strandTotal(state);
@@ -166,8 +160,8 @@ function strandHint(state) {
 const PURPOSE_CHARM = PURPOSE_FLOW.find((entry) => entry.id === 'charm');
 const PURPOSE_REVIEW = PURPOSE_FLOW.find((entry) => entry.id === 'review');
 
-// Every non-purpose path takes the date of birth elsewhere (numerology on its first step,
-// planetary and profession on the beads step; zodiac needs none), so none has a birth step.
+// No non-purpose path has a birth step: numerology takes the date of birth on its first step,
+// and zodiac, planetary and profession strands need none.
 const LAYER_FLOW = [
   CHOOSE_STEP,
   {
