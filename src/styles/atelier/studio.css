@@ -20,7 +20,10 @@
     radial-gradient(ellipse 90% 55% at 50% -10%, rgba(191, 0, 255, 0.35), transparent 75%),
     radial-gradient(circle 600px at 85% 30%, rgba(160, 0, 255, 0.22), transparent),
     radial-gradient(circle 500px at 10% 65%, rgba(191, 0, 255, 0.16), transparent),
-    linear-gradient(180deg, #320054 0%, #200038 35%, #130022 75%, #0B0014 100%);
+    linear-gradient(180deg, #3A0062 0%, #2E0052 45%, #250045 100%);
+  /* Requested: keep the electric purple of the first screen all the way down. The glow is
+     pinned to the viewport instead of fading out over the page height. */
+  background-attachment: fixed;
   color: #EDE8E1;
   font-family: var(--font-sans, system-ui, sans-serif);
   font-size: 15px;

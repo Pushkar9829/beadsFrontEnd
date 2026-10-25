@@ -14,7 +14,10 @@
     radial-gradient(ellipse 90% 55% at 50% -10%, rgba(191, 0, 255, 0.35), transparent 75%),
     radial-gradient(circle 600px at 85% 30%, rgba(160, 0, 255, 0.22), transparent),
     radial-gradient(circle 500px at 10% 65%, rgba(191, 0, 255, 0.16), transparent),
-    linear-gradient(180deg, #320054 0%, #200038 35%, #130022 75%, #0B0014 100%);
+    linear-gradient(180deg, #3A0062 0%, #2E0052 45%, #250045 100%);
+  /* Requested: keep the electric purple of the first screen all the way down. The glow is
+     pinned to the viewport instead of fading out over the page height. */
+  background-attachment: fixed;
   color: #EDE8E1;
   padding-top: 36px;
   padding-bottom: 96px;
@@ -774,7 +777,10 @@
     radial-gradient(ellipse 90% 55% at 50% -10%, rgba(191, 0, 255, 0.35), transparent 75%),
     radial-gradient(circle 600px at 85% 30%, rgba(160, 0, 255, 0.22), transparent),
     radial-gradient(circle 500px at 10% 65%, rgba(191, 0, 255, 0.16), transparent),
-    linear-gradient(180deg, #320054 0%, #200038 35%, #130022 75%, #0B0014 100%);
+    linear-gradient(180deg, #3A0062 0%, #2E0052 45%, #250045 100%);
+  /* Requested: keep the electric purple of the first screen all the way down. The glow is
+     pinned to the viewport instead of fading out over the page height. */
+  background-attachment: fixed;
   color: #F4F1EC;
   padding: 36px 24px 96px;
   font-family: var(--font-sans);
@@ -1785,4 +1791,56 @@
 
 .co-panel .co-applied-code {
   color: #1F8A5B;
+}
+
+/* ------------------------------------------------------------------------------------------
+   Delivery address popup in electric purple (requested look; the shared ui/Popup frame stays
+   dark elsewhere, so this is scoped to the popup that holds the address form).
+   ------------------------------------------------------------------------------------------ */
+.nx-modal:has(.co-mform) {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% -10%, rgba(191, 0, 255, 0.38), transparent 75%),
+    radial-gradient(circle 420px at 90% 90%, rgba(160, 0, 255, 0.22), transparent),
+    linear-gradient(180deg, #3A0062 0%, #2E0052 50%, #250045 100%);
+  border: 1px solid rgba(191, 0, 255, 0.45);
+  box-shadow: 0 24px 70px rgba(20, 0, 40, 0.65), 0 0 40px rgba(191, 0, 255, 0.18);
+}
+
+.nx-modal:has(.co-mform) .nx-pop-head {
+  border-bottom-color: rgba(191, 0, 255, 0.3);
+}
+
+.nx-modal:has(.co-mform) .nx-x {
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #F4F1EC;
+}
+
+.co-mform .co-mlabel,
+.co-mform .co-check {
+  color: #D9C7EE;
+}
+
+.co-mform .co-minput {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(191, 0, 255, 0.4);
+}
+
+.co-mform .co-minput:focus {
+  border-color: #D9AE4F;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.co-mform .co-minput::placeholder {
+  color: #B89AD6 !important;
+  -webkit-text-fill-color: #B89AD6 !important;
+}
+
+.co-mform .co-btn-line {
+  border-color: rgba(191, 0, 255, 0.5);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.co-mform .co-btn-line:hover {
+  border-color: #D9AE4F;
+  background: rgba(217, 174, 79, 0.1);
 }
