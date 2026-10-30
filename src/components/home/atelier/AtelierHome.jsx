@@ -29,6 +29,8 @@ import { useAuthStore } from '../../../store/authStore';
 import { claimIcon } from '../../../lib/claimIcons';
 import { resolveProductRating, formatReviewCount } from '../../../lib/productRating';
 import { formatInr } from '../../../lib/format';
+import { EMPTY_BIRTH, birthFormError, birthPayload } from '../../../lib/kundli';
+import PlaceAutocomplete from '../../kundli/PlaceAutocomplete';
 import { NCard, HOUSE_IMAGES, fillFacts, useCountdown } from '../nocturne/Nocturne';
 import emblem from '../../../assets/brand/emblem.png';
 import heroFallback from '../../../assets/home/hero-bracelet.jpg';
@@ -641,12 +643,13 @@ function GoldTail({ lead, tail }) {
   );
 }
 
-// "Avail the offer" popup (source: HomePage.jsx, KUNDALI OFFER POPUP MODAL). The source only shows a success
-// state; here the birth details are sent to the Contact inbox so the team can prepare the Kundali.
+// "Avail the offer" popup (source: HomePage.jsx, KUNDALI OFFER POPUP MODAL). The birth details feed the free
+// Kundli (/api/kundli/details): signed in -> the customer's record (Account -> My Kundli); signed out -> stored by
+// email and linked to the account on its first qualifying order. Place of birth must be picked from the suggestions.
 function KundaliModal({ copy, threshold, onClose }) {
   const navigate = useNavigate();
   const user = useAuthStore((st) => st.user);
-  const [form, setForm] = useState({ name: user?.name || '', email: user?.email || '', placeOfBirth: '', dob: '', tob: '' });
+  const [form, setForm] = useState(() => ({ ...EMPTY_BIRTH, name: user?.name || '', email: user?.email || '' }));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
@@ -660,7 +663,8 @@ function KundaliModal({ copy, threshold, onClose }) {
         if (!(part.startsWith('{') && key in values)) return part;
         return key === 'place' ? values.place : <strong key={i} className="modal-strong">{values[key]}</strong>;
       });
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
+  const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
@@ -675,24 +679,16 @@ function KundaliModal({ copy, threshold, onClose }) {
 
   async function submit(e) {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim() || !form.placeOfBirth.trim() || !form.dob) {
-      setError('Please provide your name, email, place of birth and date of birth.');
+    const invalid = (!user && !form.email.trim() && 'Please enter your email.') || birthFormError(form);
+    if (invalid) {
+      setError(invalid);
       return;
     }
     setBusy(true);
     setError('');
     try {
-      await api.post('/contact', {
-        name: form.name.trim(),
-        email: form.email.trim(),
-        message: [
-          `Kundali offer request (orders above ${threshold})`,
-          `Name: ${form.name.trim()}`,
-          `Place of birth: ${form.placeOfBirth.trim()}`,
-          `Date of birth: ${form.dob}`,
-          `Time of birth: ${form.tob || 'not given'}`,
-        ].join('\n'),
-      });
+      if (user) await api.put('/kundli/details', birthPayload(form));
+      else await api.post('/kundli/details', birthPayload(form, { email: form.email.trim() }));
       setSent(true);
     } catch (err) {
       setError(err?.response?.data?.message || err.message || 'Could not send. Please try again.');
@@ -745,12 +741,25 @@ function KundaliModal({ copy, threshold, onClose }) {
                 </div>
               )}
               <div className="form-group">
+                <label className="form-label" htmlFor="kundali-gender">
+                  <User size={13} className="label-icon" />
+                  <span>Gender</span>
+                </label>
+                <div className="input-wrap">
+                  <select id="kundali-gender" required value={form.gender} onChange={set('gender')} className="modal-input kd-select">
+                    <option value="">Select</option>
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-group">
                 <label className="form-label" htmlFor="kundali-place">
                   <MapPin size={13} className="label-icon" />
                   <span>Place of Birth (City / State / Country)</span>
                 </label>
                 <div className="input-wrap">
-                  <input id="kundali-place" type="text" required placeholder="e.g. Varanasi, Uttar Pradesh" value={form.placeOfBirth} onChange={set('placeOfBirth')} className="modal-input" />
+                  <PlaceAutocomplete id="kundali-place" value={form.place} onChange={(place) => setForm((f) => ({ ...f, place }))} inputClassName="modal-input" placeholder="e.g. Varanasi" />
                 </div>
               </div>
               <div className="form-row-duo">
@@ -760,7 +769,7 @@ function KundaliModal({ copy, threshold, onClose }) {
                     <span>Date of Birth</span>
                   </label>
                   <div className="input-wrap">
-                    <input id="kundali-dob" type="date" required value={form.dob} onChange={set('dob')} className="modal-input date-input" />
+                    <input id="kundali-dob" type="date" required max={today} value={form.dob} onChange={set('dob')} className="modal-input date-input" />
                   </div>
                 </div>
                 <div className="form-group">
@@ -769,10 +778,14 @@ function KundaliModal({ copy, threshold, onClose }) {
                     <span>Time of Birth</span>
                   </label>
                   <div className="input-wrap">
-                    <input id="kundali-tob" type="time" value={form.tob} onChange={set('tob')} className="modal-input time-input" />
+                    <input id="kundali-tob" type="time" value={form.tob} onChange={set('tob')} disabled={form.tobUnknown} className="modal-input time-input" />
                   </div>
                 </div>
               </div>
+              <label className="kd-check kd-check-modal">
+                <input type="checkbox" checked={form.tobUnknown} onChange={set('tobUnknown')} />
+                <span>I don&apos;t know my birth time</span>
+              </label>
               {copy.modalHint && <div className="form-hint">{copy.modalHint}</div>}
               {error && (
                 <p className="form-hint kundali-modal-error" role="alert">
@@ -803,8 +816,17 @@ function KundaliModal({ copy, threshold, onClose }) {
               <GoldTail lead={copy.successTitleLead || 'Your Kundali Is'} tail={copy.successTitleTail ?? 'Reserved'} />
             </h3>
             <p className="modal-subtext modal-subtext-success">
-              {rich(copy.successBody, { threshold, name: form.name.trim(), place: form.placeOfBirth.trim() })}
+              {rich(copy.successBody, { threshold, name: form.name.trim(), place: form.place?.label || '' })}
             </p>
+            {user && (
+              <p className="modal-subtext modal-subtext-success kd-modal-next">
+                Follow your Kundli in{' '}
+                <Link to="/account?tab=kundli" onClick={onClose} className="modal-strong">
+                  Account → My Kundli
+                </Link>
+                .
+              </p>
+            )}
             <div className="success-summary-card">
               <div className="summary-row">
                 <span className="summary-label">Native:</span>
@@ -812,12 +834,12 @@ function KundaliModal({ copy, threshold, onClose }) {
               </div>
               <div className="summary-row">
                 <span className="summary-label">Birth Coordinates:</span>
-                <span className="summary-val">{form.placeOfBirth}</span>
+                <span className="summary-val">{form.place?.label}</span>
               </div>
               <div className="summary-row">
                 <span className="summary-label">Date & Time:</span>
                 <span className="summary-val">
-                  {form.dob} {form.tob ? `· ${form.tob}` : ''}
+                  {form.dob} {form.tobUnknown ? '· time unknown' : form.tob ? `· ${form.tob}` : ''}
                 </span>
               </div>
               <div className="summary-row summary-row-status">

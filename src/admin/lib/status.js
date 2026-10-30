@@ -52,3 +52,13 @@ export const RETURN_STATUS_META = {
   restocked: { label: 'Restocked', tone: 'accent' },
   rejected: { label: 'Rejected', tone: 'danger' },
 };
+
+// Mirrors backend/src/models/Kundli.js KUNDLI_STATUSES.
+export const KUNDLI_STATUS_META = {
+  awaiting_order: { label: 'Awaiting order', tone: 'neutral' },
+  details_needed: { label: 'Details needed', tone: 'warning' },
+  queued: { label: 'Queued', tone: 'info' },
+  generating: { label: 'Generating', tone: 'accent' },
+  ready: { label: 'Ready', tone: 'success' },
+  failed: { label: 'Failed', tone: 'danger' },
+};

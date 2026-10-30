@@ -325,11 +325,11 @@ export const HOME_SECTIONS = [
     key: 'kundali',
     label: 'Kundali offer',
     group: 'Homepage',
-    hint: 'Offer banner with the rosette seal and three steps',
+    hint: 'Offer banner and birth-details popup for the free Kundli',
     preview: '/',
     base: 'kundali',
     fields: [
-      note('This banner advertises an offer. Switch it off under Homepage layout when the offer is not running.'),
+      note('This banner advertises the free Kundli. Switch it off under Homepage layout when the offer is not running. The order amount below is also the threshold the store uses to grant the Kundli (digits only are read, e.g. ₹2,000 = 2000; compared with the order value after discounts, before shipping and GST).'),
       media('image', 'Banner image', { folder: 'banner', hint: 'Leave empty to use the built-in gift-box artwork.' }),
       text('eyebrow', 'Eyebrow'),
       row([text('titleLead', 'Title, first line'), text('titleTail', 'Title, gold italic line')]),
@@ -359,7 +359,7 @@ export const HOME_SECTIONS = [
         text('modalAction', 'Submit button'),
       ]),
       group('After sending', [
-        note('Requests arrive in Content → Contact inbox with the customer’s birth details.'),
+        note('The popup saves the birth details to Sales → Kundli. Signed-in customers follow their Kundli in Account → My Kundli; it is generated automatically once a qualifying order is confirmed.'),
         text('successEyebrow', 'Eyebrow'),
         row([text('successTitleLead', 'Title'), text('successTitleTail', 'Title, gold italic part')]),
         area('successBody', 'Text', { rows: 3, hint: '{name}, {place} and {threshold} are filled in.' }),

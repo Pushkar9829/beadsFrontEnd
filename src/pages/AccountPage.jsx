@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { LogOut, MapPin, Package, Sparkles, User } from 'lucide-react';
+import { Compass, LogOut, MapPin, Package, Sparkles, User } from 'lucide-react';
 import api from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
@@ -15,6 +15,7 @@ import { isStaff } from '../lib/staff';
 import { startCashfreeCheckout } from '../lib/cashfree';
 import { RETURN_REASONS } from '../lib/returnReasons';
 import AddressBook from '../components/account/AddressBook';
+import MyKundli from '../components/account/MyKundli';
 import { showToast } from '../components/layout/QuickToast';
 
 const STATUS_LABEL = {
@@ -29,11 +30,14 @@ const STATUS_LABEL = {
 };
 const TABS = [
   { id: 'orders', label: 'Sacred Orders', key: 'tabOrders', Icon: Package },
+  // Source tab "Vedic Guidance" (AuthPage.jsx 350), now backed by the free Kundli.
+  { id: 'kundli', label: 'My Kundli', key: 'tabKundli', Icon: Compass },
   { id: 'profile', label: 'Personal Dossier', key: 'tabProfile', Icon: User },
 ];
 
 export default function AccountPage() {
-  const page = useSite().pages.account;
+  const site = useSite();
+  const page = site.pages.account;
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const onLogout = useCartStore((s) => s.onLogout);
@@ -49,7 +53,10 @@ export default function AccountPage() {
   const [returnNote, setReturnNote] = useState({ id: '', text: '' });
   const [trackNote, setTrackNote] = useState({ id: '', text: '' });
   const wishCount = useWishlistStore((s) => s.items.length);
-  const [tab, setTab] = useState(() => (typeof window !== 'undefined' && window.location.hash === '#addresses' ? 'profile' : 'orders'));
+  const [tab, setTab] = useState(() => {
+    if (typeof window !== 'undefined' && window.location.hash === '#addresses') return 'profile';
+    return TABS.some((t) => t.id === params.get('tab')) ? params.get('tab') : 'orders';
+  });
 
   useEffect(() => {
     if (!user) {
@@ -170,6 +177,8 @@ export default function AccountPage() {
             <p className="acct-muted">{fillCopy(page.placedBody, { number: placed })}</p>
           </div>
         )}
+
+        {tab === 'kundli' && <MyKundli shopTo={site.kundali?.to || '/shop'} />}
 
         {tab === 'profile' && (
           <div className="acct-profile">

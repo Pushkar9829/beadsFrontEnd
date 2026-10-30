@@ -19,6 +19,7 @@ const Customers = page(() => import('./pages/Customers'));
 const CustomerDetail = page(() => import('./pages/CustomerDetail'));
 const Groups = page(() => import('./pages/Groups'));
 const AbandonedCarts = page(() => import('./pages/AbandonedCarts'));
+const Kundli = page(() => import('./pages/Kundli'));
 const Products = page(() => import('./pages/Products'));
 const ProductEditor = page(() => import('./pages/ProductEditor'));
 const Categories = page(() => import('./pages/Categories'));
@@ -73,6 +74,7 @@ export const adminRoutes = (
     <Route path="customers/:id" element={<CustomerDetail />} />
     <Route path="groups" element={<Groups />} />
     <Route path="abandoned-carts" element={<AbandonedCarts />} />
+    <Route path="kundli" element={<Kundli />} />
 
     <Route path="products" element={<Products />} />
     <Route path="products/new" element={<ProductEditor />} />

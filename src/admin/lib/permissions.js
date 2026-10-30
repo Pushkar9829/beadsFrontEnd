@@ -6,7 +6,7 @@ export const ROLE_LABELS = { admin: 'Admin', manager: 'Manager', staff: 'Staff',
 /**
  * Mirrors backend authorisation so the UI never offers an action the API will refuse.
  * Backend: every /api/admin route needs a staff role; store settings (payment/shipping keys)
- * and role/permission changes are admin-only.
+ * and role/permission changes are admin-only, as are Kundli regenerate/delete (they spend AstrologyAPI credits).
  */
 export function usePermissions() {
   const user = useAuthStore((s) => s.user);
@@ -19,5 +19,6 @@ export function usePermissions() {
     isStaff: STAFF_ROLES.includes(role),
     canManageSettings: isAdmin,
     canManageRoles: isAdmin,
+    canManageKundli: isAdmin,
   };
 }

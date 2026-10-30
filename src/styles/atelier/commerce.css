@@ -1683,6 +1683,409 @@
   }
 }
 
+/* ------------------------------------------------------------------------------------------
+   Kundli: Account → My Kundli (components/account/MyKundli.jsx) and the place autocomplete shared
+   with the home Kundali modal (components/kundli/PlaceAutocomplete.jsx). Panels follow the source
+   "Vedic Guidance" tab (AuthPage.jsx 612-650): #0D0A14 surface, gold #D9AE4F, muted #AAA3AF.
+   ------------------------------------------------------------------------------------------ */
+.kd-ready {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.kd-eyebrow {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #D9AE4F;
+  font-weight: 600;
+}
+.acct-page .kd-title {
+  font-size: 24px;
+  margin: 8px 0 12px;
+}
+.acct-page .kd-lead {
+  max-width: 780px;
+  margin: 0 0 24px;
+  font-size: 14px;
+}
+.kd-gold {
+  color: #D9AE4F;
+}
+.kd-acts {
+  margin-top: 8px;
+}
+.kd-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+.acct-page .kd-head .kd-title {
+  margin-bottom: 4px;
+}
+.acct-page .kd-born {
+  margin: 0;
+}
+.kd-head-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.acct-page .kd-head-acts button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.kd-chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+}
+.kd-chip {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(217, 174, 79, 0.2);
+  border-radius: 6px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.kd-chip-k {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #D9AE4F;
+}
+.kd-chip-v {
+  font-family: var(--font-brand);
+  font-size: 16px;
+  font-weight: 700;
+  color: #EDE8E1;
+}
+.kd-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 24px;
+}
+.kd-grid > :only-child {
+  grid-column: 1 / -1;
+}
+.acct-page .kd-panel {
+  padding: 28px;
+}
+.acct-page .kd-h {
+  font-family: var(--font-brand);
+  font-size: 17px;
+  font-weight: 700;
+  color: #EDE8E1;
+  margin: 0 0 16px;
+  line-height: 1.5;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.kd-chart-card {
+  display: flex;
+  flex-direction: column;
+}
+.kd-chart {
+  display: block;
+  width: 100%;
+  max-width: 380px;
+  aspect-ratio: 1;
+  margin: auto;
+  border-radius: 4px;
+  border: 1px solid rgba(217, 174, 79, 0.25);
+  background: #FFF8E7;
+}
+.kd-table-wrap {
+  overflow-x: auto;
+}
+.kd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.kd-table th {
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #D9AE4F;
+  padding: 0 10px 10px;
+  border-bottom: 1px solid rgba(217, 174, 79, 0.2);
+  white-space: nowrap;
+}
+.kd-table td {
+  padding: 9px 10px;
+  color: #EDE8E1;
+  border-bottom: 1px solid rgba(217, 174, 79, 0.08);
+  white-space: nowrap;
+}
+.kd-table td:first-child,
+.kd-table th:first-child {
+  padding-left: 0;
+}
+.kd-dasha {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.kd-dasha-row {
+  display: grid;
+  grid-template-columns: 110px 90px 1fr;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 13px;
+}
+.kd-dasha-p {
+  font-family: var(--font-brand);
+  color: #EDE8E1;
+}
+.acct-page .kd-manglik {
+  font-family: var(--font-brand);
+  font-size: 20px;
+  font-weight: 700;
+  color: #88C999;
+  margin: 0;
+  text-transform: capitalize;
+}
+.acct-page .kd-manglik.is-on {
+  color: #E9A15B;
+}
+.acct-page .kd-report {
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.kd-gems {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+.kd-gem {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(217, 174, 79, 0.2);
+  border-radius: 6px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+.acct-page .kd-gem-n {
+  font-family: var(--font-brand);
+  font-size: 17px;
+  font-weight: 700;
+  color: #EDE8E1;
+  margin: 6px 0 4px;
+  line-height: 1.4;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.acct-page .kd-gem-sub {
+  font-size: 12px;
+  color: #AAA3AF;
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+.kd-gem-dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 0 0 4px;
+  font-size: 12px;
+}
+.kd-gem-dl dt {
+  color: #8E8896;
+}
+.kd-gem-dl dd {
+  margin: 0;
+  color: #EDE8E1;
+}
+.kd-products {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 14px;
+}
+.acct-page .kd-product {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px;
+  border: 1px solid rgba(217, 174, 79, 0.15);
+  border-radius: 4px;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.acct-page .kd-product:hover {
+  border-color: #D9AE4F;
+  background: rgba(217, 174, 79, 0.06);
+}
+.kd-product img,
+.kd-product-ph {
+  width: 40px;
+  height: 40px;
+  border-radius: 3px;
+  object-fit: cover;
+  background: rgba(217, 174, 79, 0.12);
+}
+.kd-product-n {
+  font-size: 12.5px;
+  color: #EDE8E1;
+  line-height: 1.35;
+}
+.kd-product-p {
+  font-size: 12px;
+  color: #D9AE4F;
+  white-space: nowrap;
+}
+.kd-working {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.acct-page .kd-working .acct-muted {
+  margin: 0;
+}
+.kd-orb {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(217, 174, 79, 0.2);
+  border-top-color: #D9AE4F;
+  animation: kdSpin 1s linear infinite;
+}
+@keyframes kdSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.kd-form .acct-fields {
+  max-width: 760px;
+}
+.acct-page .kd-date {
+  color-scheme: dark;
+}
+.acct-page .acct-input:disabled {
+  opacity: 0.45;
+}
+.kd-check {
+  margin-top: 10px;
+}
+
+/* Place autocomplete (account + home modal) */
+.kd-place {
+  position: relative;
+}
+.kd-place-list {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: #140C1F;
+  border: 1px solid rgba(217, 174, 79, 0.35);
+  border-radius: 4px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+.kd-place-opt {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: 3px;
+  font-size: 13px;
+  color: #EDE8E1;
+  cursor: pointer;
+}
+.kd-place-opt small {
+  font-size: 11px;
+  color: #8E8896;
+  white-space: nowrap;
+}
+.kd-place-opt:hover,
+.kd-place-opt.is-on {
+  background: rgba(217, 174, 79, 0.14);
+}
+.kd-place-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #8E8896;
+}
+.kd-place-note.is-bad {
+  color: #F0A0A0;
+}
+
+/* Home Kundali modal additions (styles/atelier/home.css "KUNDALI OFFER POPUP MODAL") */
+.kundali-modal-backdrop {
+  overflow-y: auto;
+}
+.kundali-modal-card {
+  margin: auto;
+}
+.kundali-modal-card .kd-select {
+  appearance: none;
+  cursor: pointer;
+}
+.kundali-modal-card .kd-select option {
+  background: #12091E;
+}
+.kd-check-modal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: -6px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: #A8A39D;
+  cursor: pointer;
+}
+.kd-check-modal input {
+  accent-color: #C5A572;
+}
+.kundali-modal-card .time-input:disabled {
+  opacity: 0.4;
+}
+.kd-modal-next a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+  .kd-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 640px) {
+  .acct-page .kd-panel {
+    padding: 22px 18px;
+  }
+  .kd-head-acts,
+  .kd-head-acts > * {
+    width: 100%;
+    justify-content: center;
+  }
+  .kd-dasha-row {
+    grid-template-columns: 1fr auto;
+  }
+  .kd-dasha-row .acct-muted-i {
+    grid-column: 1 / -1;
+    font-size: 12px;
+  }
+}
+
 /* Source inputs show the browser-default placeholder colour */
 .co-page .co-coupon-input::placeholder,
 .co-page .co-input::placeholder,

@@ -14,6 +14,7 @@ import {
   Layers,
   LayoutDashboard,
   Mail,
+  Moon,
   Package,
   Percent,
   RotateCcw,
@@ -54,6 +55,7 @@ export const NAV = [
       { to: '/admin/customers', label: 'Customers', icon: Users },
       { to: '/admin/groups', label: 'Customer groups', icon: UsersRound },
       { to: '/admin/abandoned-carts', label: 'Abandoned carts', icon: ShoppingCart },
+      { to: '/admin/kundli', label: 'Kundli', icon: Moon },
     ],
   },
   {
