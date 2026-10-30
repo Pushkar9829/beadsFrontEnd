@@ -15,7 +15,10 @@ export default function LoginPage() {
   const onLogin = useCartStore((s) => s.onLogin);
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/account';
+  // Return path (pathname + query, e.g. "/?kundli=1" from the home Kundli modal); only in-app paths.
+  const fromLoc = location.state?.from;
+  const fromPath = fromLoc?.pathname && fromLoc.pathname.startsWith('/') && !fromLoc.pathname.startsWith('//') ? `${fromLoc.pathname}${fromLoc.search || ''}` : '';
+  const from = fromPath || '/account';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

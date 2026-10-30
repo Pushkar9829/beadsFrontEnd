@@ -6,7 +6,7 @@ import { useUrlState } from '../lib/urlState';
 import { usePermissions } from '../lib/permissions';
 import { KUNDLI_STATUS_META } from '../lib/status';
 import { date, dateTime, number, relative } from '../lib/format';
-import { KUNDLI_SECTION_LABELS, birthFormError, birthPayload, birthToForm, svgDataUrl } from '../../lib/kundli';
+import { KUNDLI_SECTION_LABELS, birthFormError, birthPayload, birthToForm, safePdfUrl, svgDataUrl } from '../../lib/kundli';
 import PlaceAutocomplete from '../../components/kundli/PlaceAutocomplete';
 import {
   Badge,
@@ -59,6 +59,7 @@ export default function Kundli() {
   const list = useApiList(BASE, { q: state.q.trim(), status: state.status, page: state.page, limit: 25 }, { key: 'kundlis' });
   const counts = list.raw?.counts || {};
   const api = list.raw?.api;
+  const rules = list.raw?.rules;
   const total = Object.values(counts).reduce((n, c) => n + c, 0);
 
   const columns = [
@@ -97,9 +98,18 @@ export default function Kundli() {
     <>
       <PageHeader
         title="Kundli"
-        description="Free Vedic Kundlis (AstrologyAPI) for customers whose order reaches the Kundali offer amount. Generated automatically when the order is confirmed."
+        description="Free Vedic Kundlis (AstrologyAPI) for signed-in customers whose order reaches the Kundali offer amount. Generated automatically once the order is paid (Cashfree, or UPI marked paid by an admin) or, for cash on delivery, delivered."
         meta={api ? api.mock ? <Badge tone="warning">Mock mode</Badge> : api.configured ? <Badge tone="success">AstrologyAPI connected</Badge> : <Badge tone="danger">Not configured</Badge> : null}
       />
+      {rules && (
+        <p className="mb-4 text-xs leading-relaxed text-lilac">
+          Qualifies: goods value after discounts of {rules.thresholdLabel} or more (Homepage → Kundali offer amount), confirmed on or after{' '}
+          <span className="text-ivory">{dateTime(rules.eligibleFrom)}</span>
+          {rules.eligibleFromEnv ? ' (KUNDLI_ELIGIBLE_FROM)' : ' (launch date)'}. Cancelled, returned and refunded orders never count. Customers may change
+          the details of a generated Kundli once a day, {rules.customerRegenCap} times in total, and retry a failed one {rules.customerRetryCap} times; admin
+          Regenerate is not limited. Place searches today: {number(rules.places.today)} of {number(rules.places.cap)} new lookups (cached places are free).
+        </p>
+      )}
       <Segmented className="mb-3" items={filters} value={state.status} onChange={(status) => set({ status })} />
       <Toolbar>
         <SearchInput value={state.q} onChange={(q) => set({ q })} placeholder="Name, email or order no.…" />
@@ -119,7 +129,7 @@ export default function Kundli() {
             description={
               filtered
                 ? undefined
-                : 'Kundlis appear when customers enter birth details in the home Kundali popup or Account → My Kundli, or place a qualifying order. The server needs ASTROLOGY_API_USER_ID and ASTROLOGY_API_KEY in its environment (Render → Environment); without them, non-production servers use mock data and production cannot generate.'
+                : 'Kundlis appear when signed-in customers enter birth details in the home Kundali popup or Account → My Kundli, or when a qualifying order is paid or delivered. The server needs ASTROLOGY_API_USER_ID and ASTROLOGY_API_KEY in its environment (Render → Environment); without both, generation fails with "not configured" (ASTROLOGY_API_MOCK=1 gives canned data for local tests only).'
             }
             action={filtered && <Button size="sm" onClick={() => set({ status: 'all', q: '' })}>Clear filters</Button>}
           />
@@ -136,7 +146,8 @@ function KundliDrawer({ id, onClose }) {
   const confirm = useConfirm();
   const query = useApiQuery(`${BASE}/${id}`, undefined, {
     keepPrevious: false,
-    refetchInterval: (q) => (WORKING.includes(q.state.data?.kundli?.status) ? 3000 : false),
+    // Polls only while a run is really in progress (a stale run is not polled; it can be regenerated).
+    refetchInterval: (q) => (q.state.data?.kundli?.running ? 3000 : false),
   });
   const k = query.data?.kundli;
 
@@ -153,7 +164,9 @@ function KundliDrawer({ id, onClose }) {
   const askRegenerate = async () => {
     const ok = await confirm({
       title: k.generatedAt ? 'Regenerate this Kundli?' : 'Generate this Kundli?',
-      message: 'This makes 8 AstrologyAPI calls and spends credits. The current result is replaced.',
+      message: k.generatedAt
+        ? 'This makes 8 AstrologyAPI calls and spends credits. The current result is replaced; if the run fails, the current Kundli is kept.'
+        : 'This makes 8 AstrologyAPI calls and spends credits.',
       confirmLabel: k.generatedAt ? 'Regenerate' : 'Generate',
     });
     if (ok) regenerate.mutate();
@@ -169,7 +182,9 @@ function KundliDrawer({ id, onClose }) {
   };
 
   const c = k ? customerOf(k) : null;
-  const working = WORKING.includes(k?.status);
+  const working = Boolean(k?.running);
+  const stale = WORKING.includes(k?.status) && !working;
+  const pdfUrl = safePdfUrl(k?.pdfUrl);
 
   return (
     <Drawer
@@ -210,7 +225,7 @@ function KundliDrawer({ id, onClose }) {
                     {k.userId.name || k.userId.email}
                   </Link>
                 ) : (
-                  `${k.email || '—'} (not signed up yet)`
+                  k.email || '—'
                 ),
               },
               {
@@ -226,20 +241,36 @@ function KundliDrawer({ id, onClose }) {
               { label: 'Eligible', value: k.eligibleAt ? dateTime(k.eligibleAt) : '—' },
               { label: 'Generated', value: k.generatedAt ? dateTime(k.generatedAt) : '—' },
               { label: 'Runs / API calls', value: `${number(k.attempts)} / ${number(k.apiCalls)}` },
-              k.pdfUrl && {
+              pdfUrl && {
                 label: 'PDF',
                 full: true,
                 value: (
-                  <a className="inline-flex items-center gap-1 text-gold hover:text-gold-light" href={k.pdfUrl} target="_blank" rel="noopener noreferrer">
+                  <a className="inline-flex items-center gap-1 text-gold hover:text-gold-light" href={pdfUrl} target="_blank" rel="noopener noreferrer">
                     Open Kundli PDF <ExternalLink size={12} />
                   </a>
                 ),
               },
               k.lastError && { label: 'Last error', full: true, value: <span className="text-rose-200">{k.lastError}</span> },
+              k.updateFailedAt && k.status === 'ready' && {
+                label: 'Regeneration',
+                full: true,
+                value: <span className="text-amber-200">The last regeneration failed ({dateTime(k.updateFailedAt)}); the previous Kundli and its birth details were kept.</span>,
+              },
+              stale && {
+                label: 'Run',
+                full: true,
+                value: <span className="text-amber-200">This run stopped (server restart?). It is picked up again automatically within a few minutes, or press Regenerate.</span>,
+              },
+              k.detailsChanged && {
+                label: 'Details',
+                full: true,
+                value: <span className="text-amber-200">The birth details were changed after the Kundli was generated. Press Regenerate to apply them.</span>,
+              },
             ]}
           />
 
-          <BirthForm key={`${k._id}-${k.updatedAt}`} kundli={k} />
+          {/* Keyed on the record (and a new result), not updatedAt: polling while a run is in progress must not reset unsaved edits. */}
+          <BirthForm key={`${k._id}-${k.generatedAt || ''}`} kundli={k} working={working} canGenerate={canManageKundli} />
 
           <Sections kundli={k} />
         </div>
@@ -248,7 +279,7 @@ function KundliDrawer({ id, onClose }) {
   );
 }
 
-function BirthForm({ kundli }) {
+function BirthForm({ kundli, working, canGenerate }) {
   const [form, setForm] = useState(() => birthToForm(kundli.birth));
   const [error, setError] = useState('');
   const save = useApiMutation((body) => apiSend('patch', `${BASE}/${kundli._id}/details`, body), {
@@ -270,9 +301,11 @@ function BirthForm({ kundli }) {
       <FormSection
         title="Birth details"
         description={
-          kundli.status === 'ready'
+          kundli.generatedAt
             ? 'Saving keeps the current Kundli. Press Regenerate to rebuild it from the new details.'
-            : 'Fix typos or the place here. A Kundli waiting for details starts generating once saved.'
+            : canGenerate
+              ? 'Fix typos or the place here. A Kundli waiting for details (with a qualifying order) starts generating once you save.'
+              : 'Fix typos or the place here. Saving stores the details only; an admin starts generation.'
         }
       >
         <FormGrid>
@@ -307,7 +340,7 @@ function BirthForm({ kundli }) {
         </FormGrid>
         {error && <p className="mt-3 text-xs text-rose-300">{error}</p>}
         <div className="mt-4 flex justify-end">
-          <Button type="submit" icon={Save} loading={save.isPending} disabled={kundli.status === 'generating'}>
+          <Button type="submit" icon={Save} loading={save.isPending} disabled={working}>
             Save details
           </Button>
         </div>

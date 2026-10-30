@@ -2063,9 +2063,73 @@
   text-underline-offset: 3px;
 }
 
+/* Gender select: placeholder grey until a value is chosen, like the other inputs' placeholders. */
+.kd-select:invalid {
+  color: #6C665F;
+}
+.acct-page .kd-select:invalid {
+  color: #6F6878;
+}
+.kd-select option {
+  color: #F8F6F0;
+}
+/* Sign-in prompt / "you already have a Kundli" states of the home popup. */
+.kd-modal-acts {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+}
+.kd-modal-alt {
+  align-self: center;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  color: #A8A39D;
+}
+.kd-modal-alt span {
+  color: #DFCA9E;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.kd-modal-alt:hover span {
+  color: #F8F6F0;
+}
+.kd-modal-wait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  min-height: 180px;
+  justify-content: center;
+}
+.acct-page .kd-warn {
+  color: #E8C77A;
+}
+
 @media (max-width: 900px) {
+  /* minmax(0, 1fr): the planets table's min-content width must not widen the single column on phones. */
   .kd-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  /* Three account tabs fit at phone width (wrap instead of a hidden horizontal scroll). */
+  .acct-tabs {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .acct-page .acct-tab {
+    padding: 9px 12px;
+    font-size: 12.5px;
+  }
+}
+@media (max-width: 540px) {
+  .kundali-modal-card .kd-select {
+    font-size: 16px;
   }
 }
 @media (max-width: 640px) {

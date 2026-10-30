@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Download, Pencil, Sparkles } from 'lucide-react';
+import { Download, Pencil, RotateCw, Sparkles } from 'lucide-react';
 import api, { mediaUrl } from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
 import { formatInr } from '../../lib/format';
@@ -13,6 +13,7 @@ import {
   dashaDate,
   formatDegree,
   planetRows,
+  safePdfUrl,
   svgDataUrl,
 } from '../../lib/kundli';
 import Spinner from '../ui/Spinner';
@@ -28,11 +29,15 @@ const WORKING = ['queued', 'generating'];
 export default function MyKundli({ shopTo = '/shop' }) {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const pollStart = useRef(0);
   const [pollExpired, setPollExpired] = useState(false);
+  // Bumped by "Check again" so polling restarts even when the status did not change.
+  const [pollRound, setPollRound] = useState(0);
 
   const load = useCallback(async () => {
+    setLoading(true);
     try {
       const { data: next } = await api.get('/kundli/mine');
       setData(next);
@@ -41,6 +46,8 @@ export default function MyKundli({ shopTo = '/shop' }) {
     } catch (err) {
       setError(err.message || 'Could not load your Kundli.');
       return null;
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -65,40 +72,60 @@ export default function MyKundli({ shopTo = '/shop' }) {
       load();
     }, POLL_MS);
     return () => clearInterval(timer);
-  }, [status, load]);
+  }, [status, load, pollRound]);
+
+  const checkAgain = () => {
+    pollStart.current = Date.now();
+    setPollExpired(false);
+    setPollRound((n) => n + 1);
+    load();
+  };
 
   if (!data && !error) return <Spinner label="Loading your Kundli" />;
   if (!data) {
     return (
-      <div className="acct-panel">
-        <p className="acct-muted">{error}</p>
+      <div className="acct-panel kd-panel">
+        <p className="acct-muted" role="alert">
+          {error}
+        </p>
+        <div className="acct-form-acts kd-acts">
+          <button type="button" className="btn-outline acct-btn-o" onClick={load} disabled={loading}>
+            <RotateCw size={13} /> {loading ? 'Trying…' : 'Try again'}
+          </button>
+        </div>
       </div>
     );
   }
 
   const { kundli, eligible, thresholdLabel } = data;
+  const orderNumber = kundli?.eligibleOrderNumber || data.eligibleOrderNumber || '';
   const saved = (next) => {
     setEditing(false);
     setData(next);
   };
 
   if (editing || (eligible && (!kundli || kundli.status === 'details_needed'))) {
+    const failedEdit = kundli?.status === 'failed';
     return (
       <div className="acct-panel kd-panel">
         <span className="kd-eyebrow">Free Vedic Kundli</span>
         <h3 className="acct-panel-t kd-title">{editing ? 'Edit birth details' : 'Add your birth details'}</h3>
         <p className="acct-muted kd-lead">
           {!eligible
-            ? `Save your birth details now. Your Kundli is prepared as soon as an order of ${thresholdLabel} or more is confirmed.`
-            : editing
-              ? 'Saving new details prepares your Kundli again. Details can be changed once a day.'
-              : `Your order ${kundli?.eligibleOrderNumber || ''} qualifies for a complimentary Kundli. Enter the birth details and we will prepare it right away.`}
+            ? `Save your birth details now. Your Kundli is prepared automatically once an order of ${thresholdLabel} or more is paid online, or delivered if you pay on delivery.`
+            : failedEdit
+              ? 'Correct the details if needed and we will try again.'
+              : editing
+                ? `Saving new details prepares your Kundli again. Details can be changed once a day${
+                    kundli?.regensLeft != null ? `, ${kundli.regensLeft} more time${kundli.regensLeft === 1 ? '' : 's'}` : ''
+                  }.`
+                : `Your order ${orderNumber} qualifies for a complimentary Kundli. Enter the birth details and we will prepare it right away.`}
         </p>
         <KundliForm
           birth={kundli?.birth}
           onSaved={saved}
           onCancel={editing ? () => setEditing(false) : null}
-          submitLabel={eligible ? 'Save & prepare my Kundli' : 'Save birth details'}
+          submitLabel={failedEdit ? 'Save & try again' : eligible ? 'Save & prepare my Kundli' : 'Save birth details'}
         />
       </div>
     );
@@ -111,7 +138,8 @@ export default function MyKundli({ shopTo = '/shop' }) {
         <h3 className="acct-panel-t kd-title">Your Kundli, on us</h3>
         <p className="acct-muted kd-lead">
           Place an order of <strong className="kd-gold">{thresholdLabel}</strong> or more and your personalised Vedic Kundli (birth chart, planets,
-          dasha, manglik check, gemstone and rudraksha guidance, and a PDF) appears here.
+          dasha, manglik check, gemstone and rudraksha guidance, and a PDF) appears here automatically, once the order is paid online or, for cash
+          on delivery, delivered.
         </p>
         {kundli?.birth ? (
           <p className="acct-muted">
@@ -144,8 +172,8 @@ export default function MyKundli({ shopTo = '/shop' }) {
           </p>
         </div>
         {pollExpired && (
-          <button type="button" className="btn-outline acct-btn-o" onClick={load}>
-            Check again
+          <button type="button" className="btn-outline acct-btn-o" onClick={checkAgain} disabled={loading}>
+            <RotateCw size={13} /> Check again
           </button>
         )}
       </div>
@@ -153,18 +181,70 @@ export default function MyKundli({ shopTo = '/shop' }) {
   }
 
   if (kundli.status === 'failed') {
-    return (
-      <div className="acct-panel kd-panel">
-        <span className="kd-eyebrow">Free Vedic Kundli</span>
-        <h3 className="acct-panel-t kd-title">Your Kundli needs a moment</h3>
-        <p className="acct-muted kd-lead">
-          We could not prepare your Kundli just now. Our team has been notified and will have it ready for you shortly. There is nothing you need to do.
-        </p>
-      </div>
-    );
+    return <KundliFailed kundli={kundli} onEdit={() => setEditing(true)} onRetried={setData} />;
   }
 
   return <KundliReady data={data} onEdit={() => setEditing(true)} />;
+}
+
+function whenLabel(d) {
+  return new Date(d).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+// Failed first generation: the customer can retry (limited, a few minutes apart) or correct the details.
+function KundliFailed({ kundli, onEdit, onRetried }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const retry = kundli.retry || { left: 0, after: null };
+  const after = retry.after ? new Date(retry.after) : null;
+  const canRetry = retry.left > 0;
+
+  async function runRetry() {
+    setBusy(true);
+    setError('');
+    try {
+      const { data } = await api.post('/kundli/retry');
+      onRetried(data);
+    } catch (err) {
+      setError(err.message || 'Could not try again. Please try later.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="acct-panel kd-panel">
+      <span className="kd-eyebrow">Free Vedic Kundli</span>
+      <h3 className="acct-panel-t kd-title">Your Kundli needs a moment</h3>
+      <p className="acct-muted kd-lead">
+        {canRetry
+          ? 'We could not prepare your Kundli just now. Our team has been notified. You can try again, or check your birth details first.'
+          : 'We could not prepare your Kundli after several tries. Our team has been notified and will have it ready for you shortly.'}
+      </p>
+      {kundli.birth && (
+        <p className="acct-muted">
+          Birth details: <strong className="kd-gold">{kundli.birth.name}</strong> · {kundli.birth.dob} · {kundli.birth.tobUnknown ? 'time unknown' : kundli.birth.tob} ·{' '}
+          {kundli.birth.place}
+        </p>
+      )}
+      {canRetry && after && <p className="acct-hint">You can try again after {whenLabel(after)}.</p>}
+      {error && (
+        <p className="acct-bad" role="alert">
+          {error}
+        </p>
+      )}
+      {canRetry && (
+        <div className="acct-form-acts kd-acts">
+          <button type="button" className="btn-gold acct-btn" onClick={runRetry} disabled={busy || Boolean(after)}>
+            <RotateCw size={13} /> {busy ? 'Trying…' : 'Try again'}
+          </button>
+          <button type="button" className="btn-outline acct-btn-o" onClick={onEdit} disabled={Boolean(after)}>
+            <Pencil size={13} /> Edit birth details
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function KundliReady({ data, onEdit }) {
@@ -179,6 +259,8 @@ function KundliReady({ data, onEdit }) {
   const gems = s.gems && typeof s.gems === 'object' ? s.gems : {};
   const rud = s.rudraksha && typeof s.rudraksha === 'object' ? s.rudraksha : null;
   const editableAfter = kundli.editableAfter ? new Date(kundli.editableAfter) : null;
+  const pdfUrl = safePdfUrl(kundli.pdfUrl);
+  const locked = Boolean(kundli.editLocked);
 
   return (
     <div className="kd-ready">
@@ -192,25 +274,31 @@ function KundliReady({ data, onEdit }) {
             </p>
           </div>
           <div className="kd-head-acts">
-            {kundli.pdfUrl && (
-              <a href={kundli.pdfUrl} target="_blank" rel="noopener noreferrer" className="btn-gold acct-btn">
+            {pdfUrl && (
+              <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="btn-gold acct-btn">
                 <Download size={14} /> Download Kundli PDF
               </a>
             )}
-            <button
-              type="button"
-              className="btn-outline acct-btn-o"
-              onClick={onEdit}
-              disabled={Boolean(editableAfter)}
-              title={editableAfter ? `You can edit again after ${editableAfter.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}` : undefined}
-            >
-              <Pencil size={13} /> Edit birth details
-            </button>
+            {!locked && (
+              <button
+                type="button"
+                className="btn-outline acct-btn-o"
+                onClick={onEdit}
+                disabled={Boolean(editableAfter)}
+                title={editableAfter ? `You can edit again after ${whenLabel(editableAfter)}` : undefined}
+              >
+                <Pencil size={13} /> Edit birth details
+              </button>
+            )}
           </div>
         </div>
-        {editableAfter && (
-          <p className="acct-hint">Birth details can be changed once a day: next after {editableAfter.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}.</p>
+        {kundli.updateFailed && (
+          <p className="acct-hint kd-warn" role="status">
+            We could not update your Kundli with the new birth details, so your previous Kundli is shown. Please try again later.
+          </p>
         )}
+        {editableAfter && <p className="acct-hint">Birth details can be changed once a day: next after {whenLabel(editableAfter)}.</p>}
+        {locked && <p className="acct-hint">Your Kundli has been updated the maximum number of times. Contact us if the birth details need another change.</p>}
         {chips.length > 0 && (
           <div className="kd-chips">
             {chips.map(([k, v]) => (
@@ -413,7 +501,7 @@ function KundliForm({ birth, onSaved, onCancel, submitLabel }) {
         </div>
         <div>
           <label className="acct-label" htmlFor="kd-gender">Gender</label>
-          <select id="kd-gender" className="acct-input" value={form.gender} onChange={set('gender')}>
+          <select id="kd-gender" required className="acct-input kd-select" value={form.gender} onChange={set('gender')}>
             <option value="">Select</option>
             <option value="female">Female</option>
             <option value="male">Male</option>

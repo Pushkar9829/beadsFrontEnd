@@ -40,6 +40,19 @@ export function birthPayload(form, extra = {}) {
   };
 }
 
+/** Kundli PDF links are only rendered when they are https (defence in depth; the API checks too). */
+export function safePdfUrl(url) {
+  if (typeof url !== 'string' || !/^https:\/\//i.test(url)) return '';
+  try {
+    return new URL(url).protocol === 'https:' ? url : '';
+  } catch {
+    return '';
+  }
+}
+
+/** Statuses after which the customer has a Kundli in progress or done (not "waiting to start"). */
+export const KUNDLI_STARTED = ['queued', 'generating', 'ready', 'failed'];
+
 /** Third-party SVG -> data URL for an <img> (never injected into the DOM). */
 export function svgDataUrl(svg) {
   if (!svg || typeof svg !== 'string') return '';

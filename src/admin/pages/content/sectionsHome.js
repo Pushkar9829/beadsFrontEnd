@@ -329,7 +329,7 @@ export const HOME_SECTIONS = [
     preview: '/',
     base: 'kundali',
     fields: [
-      note('This banner advertises the free Kundli. Switch it off under Homepage layout when the offer is not running. The order amount below is also the threshold the store uses to grant the Kundli (digits only are read, e.g. ₹2,000 = 2000; compared with the order value after discounts, before shipping and GST).'),
+      note('This banner advertises the free Kundli. Switch it off under Homepage layout when the offer is not running. The order amount below is also the threshold the store uses to grant the Kundli: the first number is read (₹2,000, Rs. 2,000 and 2k all mean 2000; anything below ₹500 or unreadable falls back to ₹2,000) and compared with the order value after discounts, before shipping and GST. An order unlocks the Kundli once it is paid online, once an admin marks a UPI order paid, or once a cash-on-delivery order is delivered; cancelled, returned and refunded orders never count. The Kundli is generated automatically (Sales → Kundli).'),
       media('image', 'Banner image', { folder: 'banner', hint: 'Leave empty to use the built-in gift-box artwork.' }),
       text('eyebrow', 'Eyebrow'),
       row([text('titleLead', 'Title, first line'), text('titleTail', 'Title, gold italic line')]),
@@ -350,7 +350,7 @@ export const HOME_SECTIONS = [
         ],
         { itemLabel: 'Step', max: 3, summary: (s) => `${s.titleLead || ''} ${s.titleTail || ''}`.trim(), newItem: { icon: 'bag', titleLead: '', titleTail: '', body: '' } }
       ),
-      text('action', 'Button label', { placeholder: 'Avail the offer', hint: 'Opens the birth-details popup.' }),
+      text('action', 'Button label', { placeholder: 'Avail the offer', hint: 'Opens the birth-details popup (a sign-in prompt for visitors who are signed out).' }),
       group('Birth-details popup', [
         text('modalEyebrow', 'Eyebrow'),
         row([text('modalTitleLead', 'Title'), text('modalTitleTail', 'Title, gold italic part')]),
@@ -359,7 +359,7 @@ export const HOME_SECTIONS = [
         text('modalAction', 'Submit button'),
       ]),
       group('After sending', [
-        note('The popup saves the birth details to Sales → Kundli. Signed-in customers follow their Kundli in Account → My Kundli; it is generated automatically once a qualifying order is confirmed.'),
+        note('The popup is for signed-in customers: visitors are asked to sign in or register first and come back to it. It saves the birth details to Sales → Kundli; customers follow their Kundli in Account → My Kundli, where it is generated automatically once a qualifying order is paid or delivered. A customer who already has a Kundli is sent to My Kundli instead of the form. Describe a digital Kundli here (no physical box or astrologer visit).'),
         text('successEyebrow', 'Eyebrow'),
         row([text('successTitleLead', 'Title'), text('successTitleTail', 'Title, gold italic part')]),
         area('successBody', 'Text', { rows: 3, hint: '{name}, {place} and {threshold} are filled in.' }),

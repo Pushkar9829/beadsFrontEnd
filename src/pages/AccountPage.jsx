@@ -43,7 +43,7 @@ export default function AccountPage() {
   const onLogout = useCartStore((s) => s.onLogout);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const placed = params.get('placed');
   const fromCashfree = params.get('cf') === '1';
   const [returnFor, setReturnFor] = useState(null);
@@ -57,6 +57,19 @@ export default function AccountPage() {
     if (typeof window !== 'undefined' && window.location.hash === '#addresses') return 'profile';
     return TABS.some((t) => t.id === params.get('tab')) ? params.get('tab') : 'orders';
   });
+  // ?tab= is followed on every navigation (e.g. the home Kundli modal linking to /account?tab=kundli while
+  // the account page is already open), and a tab click writes it back so the two stay in step.
+  const tabParam = params.get('tab');
+  useEffect(() => {
+    if (TABS.some((t) => t.id === tabParam)) setTab(tabParam);
+  }, [tabParam]);
+  const selectTab = (id) => {
+    setTab(id);
+    if (tabParam === id) return;
+    const next = new URLSearchParams(params);
+    next.set('tab', id);
+    setParams(next, { replace: true });
+  };
 
   useEffect(() => {
     if (!user) {
@@ -164,7 +177,7 @@ export default function AccountPage() {
 
         <div className="acct-tabs" role="tablist">
           {TABS.map(({ id, label, key, Icon }) => (
-            <button key={id} type="button" role="tab" aria-selected={tab === id} className={`acct-tab${tab === id ? ' is-on' : ''}`} onClick={() => setTab(id)}>
+            <button key={id} type="button" role="tab" aria-selected={tab === id} className={`acct-tab${tab === id ? ' is-on' : ''}`} onClick={() => selectTab(id)}>
               <Icon size={15} />
               {page[key] || label}
             </button>

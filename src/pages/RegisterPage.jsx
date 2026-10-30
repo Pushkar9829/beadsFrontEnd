@@ -1,7 +1,7 @@
 // Create account. Source: beeds_ecommerce/src/pages/AuthPage.jsx sign-up form (lines 1305-1535). Styles: styles/atelier/auth.css.
 // Not ported: the date-of-birth field (the account API stores no birth date).
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import { useSite } from '../store/contentStore';
@@ -38,6 +38,10 @@ export default function RegisterPage() {
   const register = useAuthStore((s) => s.register);
   const onLogin = useCartStore((s) => s.onLogin);
   const navigate = useNavigate();
+  const location = useLocation();
+  // Same return path as sign-in (e.g. back to the home Kundli modal); only in-app paths.
+  const fromLoc = location.state?.from;
+  const from = fromLoc?.pathname && fromLoc.pathname.startsWith('/') && !fromLoc.pathname.startsWith('//') ? `${fromLoc.pathname}${fromLoc.search || ''}` : '/account';
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', phone: '' });
   const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState('');
@@ -62,7 +66,7 @@ export default function RegisterPage() {
       await register(payload);
       await onLogin();
       showToast(`Sacred initiation complete. Welcome to Kuberstones, ${payload.name}!`, 'gold');
-      navigate('/account');
+      navigate(from);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -117,7 +121,7 @@ export default function RegisterPage() {
         </button>
 
         <div className="auth-foot is-signup">
-          {page.footer} <Link to="/login">{page.footerLink}</Link>
+          {page.footer} <Link to="/login" state={location.state}>{page.footerLink}</Link>
         </div>
       </form>
     </AuthShell>

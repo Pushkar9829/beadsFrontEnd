@@ -3,7 +3,7 @@
 // visibility from the admin Homepage layout. Styles: styles/atelier/home.css, finder.css, home-port.css.
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Award,
   ArrowRight,
@@ -13,7 +13,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  Mail,
   MapPin,
   ShieldCheck,
   ShoppingBag,
@@ -29,7 +28,7 @@ import { useAuthStore } from '../../../store/authStore';
 import { claimIcon } from '../../../lib/claimIcons';
 import { resolveProductRating, formatReviewCount } from '../../../lib/productRating';
 import { formatInr } from '../../../lib/format';
-import { EMPTY_BIRTH, birthFormError, birthPayload } from '../../../lib/kundli';
+import { EMPTY_BIRTH, KUNDLI_STARTED, birthFormError, birthPayload, birthToForm } from '../../../lib/kundli';
 import PlaceAutocomplete from '../../kundli/PlaceAutocomplete';
 import { NCard, HOUSE_IMAGES, fillFacts, useCountdown } from '../nocturne/Nocturne';
 import emblem from '../../../assets/brand/emblem.png';
@@ -508,6 +507,17 @@ const KUNDALI_ICONS = {
 
 export function AKundali({ copy = {} }) {
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  // "/?kundli=1" (the return path after signing in from the popup) reopens the popup once.
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('kundli') !== '1') return;
+    setOpen(true);
+    params.delete('kundli');
+    const search = params.toString();
+    navigate({ pathname: location.pathname, search: search ? `?${search}` : '', hash: location.hash }, { replace: true });
+  }, [location.search, location.pathname, location.hash, navigate]);
   const threshold = copy.threshold || '₹2,000';
   const fill = (v) => String(v || '').replace(/\{threshold\}/g, threshold);
   const steps = (copy.steps || []).slice(0, 3).map((st) => ({
@@ -643,16 +653,55 @@ function GoldTail({ lead, tail }) {
   );
 }
 
-// "Avail the offer" popup (source: HomePage.jsx, KUNDALI OFFER POPUP MODAL). The birth details feed the free
-// Kundli (/api/kundli/details): signed in -> the customer's record (Account -> My Kundli); signed out -> stored by
-// email and linked to the account on its first qualifying order. Place of birth must be picked from the suggestions.
+// Where the sign-in prompt sends visitors back to: the home page with this popup open again.
+const KUNDALI_RETURN = { pathname: '/', search: '?kundli=1' };
+
+// "Avail the offer" popup (source: HomePage.jsx, KUNDALI OFFER POPUP MODAL). The free Kundli is for signed-in
+// customers only (PUT /api/kundli/details -> Account -> My Kundli):
+// - signed out: a sign-in / register prompt that returns here (/?kundli=1);
+// - signed in with a Kundli already started (queued, generating, ready or failed): a pointer to My Kundli
+//   instead of the form, so the popup never silently regenerates it;
+// - otherwise the form, prefilled from /kundli/mine. Place of birth must be picked from the suggestions.
 function KundaliModal({ copy, threshold, onClose }) {
   const navigate = useNavigate();
   const user = useAuthStore((st) => st.user);
-  const [form, setForm] = useState(() => ({ ...EMPTY_BIRTH, name: user?.name || '', email: user?.email || '' }));
+  const authLoading = useAuthStore((st) => st.loading);
+  const [form, setForm] = useState(() => ({ ...EMPTY_BIRTH, name: user?.name || '' }));
+  const [mine, setMine] = useState({ loading: Boolean(user), existing: null, error: '' });
+  const [mineRound, setMineRound] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
+  const userId = user?.id || user?._id; // /auth/me returns `id`
+  const userName = user?.name || '';
+
+  useEffect(() => {
+    if (!userId) return undefined;
+    let alive = true;
+    setMine({ loading: true, existing: null, error: '' });
+    api
+      .get('/kundli/mine')
+      .then(({ data }) => {
+        if (!alive) return;
+        const k = data?.kundli;
+        if (k && KUNDLI_STARTED.includes(k.status)) {
+          setMine({ loading: false, existing: k, error: '' });
+          return;
+        }
+        if (k?.birth) setForm(birthToForm(k.birth, userName));
+        setMine({ loading: false, existing: null, error: '' });
+      })
+      // Without knowing whether a Kundli exists, the form is not shown (it could replace a ready Kundli).
+      .catch((err) => alive && setMine({ loading: false, existing: null, error: err.message || 'Could not load your Kundli.' }));
+    return () => {
+      alive = false;
+    };
+  }, [userId, userName, mineRound]);
+
+  const openMyKundli = () => {
+    onClose();
+    navigate('/account?tab=kundli');
+  };
   const fill = (v) => String(v || '').replace(/\{threshold\}/g, threshold);
   // Body text with tokens; {threshold} and {name} render bold, as in the source.
   const rich = (v, values) =>
@@ -679,7 +728,7 @@ function KundaliModal({ copy, threshold, onClose }) {
 
   async function submit(e) {
     e.preventDefault();
-    const invalid = (!user && !form.email.trim() && 'Please enter your email.') || birthFormError(form);
+    const invalid = birthFormError(form);
     if (invalid) {
       setError(invalid);
       return;
@@ -687,14 +736,121 @@ function KundaliModal({ copy, threshold, onClose }) {
     setBusy(true);
     setError('');
     try {
-      if (user) await api.put('/kundli/details', birthPayload(form));
-      else await api.post('/kundli/details', birthPayload(form, { email: form.email.trim() }));
+      await api.put('/kundli/details', birthPayload(form));
       setSent(true);
     } catch (err) {
-      setError(err?.response?.data?.message || err.message || 'Could not send. Please try again.');
+      setError(err.message || 'Could not send. Please try again.');
     } finally {
       setBusy(false);
     }
+  }
+
+  const eyebrow = (
+    <div className="modal-eyebrow">
+      <span className="eyebrow-rule" />
+      <span className="eyebrow-lotus">{LOTUS}</span>
+      <span className="eyebrow-text">{String(copy.modalEyebrow || 'Free Vedic Kundali offer').toUpperCase()}</span>
+      <span className="eyebrow-rule" />
+    </div>
+  );
+
+  let body;
+  if (!user) {
+    body = authLoading ? (
+      <div className="modal-inner-content kd-modal-wait">
+        <span className="kd-orb" aria-hidden />
+      </div>
+    ) : (
+      <div className="modal-inner-content kd-modal-signin">
+        {eyebrow}
+        <h3 className="modal-title" id="kundali-modal-title">
+          <GoldTail lead="Sign In To" tail="Claim Your Kundali" />
+        </h3>
+        <p className="modal-subtext">
+          Your free Vedic Kundli lives in your account. Sign in or create an account to add your birth details; it is prepared automatically in{' '}
+          <strong className="modal-strong">Account → My Kundli</strong> once an order of <strong className="modal-strong">{threshold}</strong> or more is
+          paid, or delivered for cash on delivery.
+        </p>
+        <div className="modal-actions kd-modal-acts">
+          <Link to="/login" state={{ from: KUNDALI_RETURN }} onClick={onClose} className="btn-kundali-action btn-kundali-wide">
+            <span>SIGN IN TO CONTINUE</span>
+            <span className="btn-circle-arrow">
+              <ArrowRight size={13} strokeWidth={2} />
+            </span>
+          </Link>
+          <Link to="/register" state={{ from: KUNDALI_RETURN }} onClick={onClose} className="kd-modal-alt">
+            New here? <span>Create an account</span>
+          </Link>
+        </div>
+      </div>
+    );
+  } else if (mine.loading) {
+    body = (
+      <div className="modal-inner-content kd-modal-wait" aria-busy="true">
+        <span className="kd-orb" aria-hidden />
+        <p className="modal-subtext">Opening your Kundli…</p>
+      </div>
+    );
+  } else if (mine.error) {
+    body = (
+      <div className="modal-inner-content kd-modal-signin">
+        {eyebrow}
+        <h3 className="modal-title" id="kundali-modal-title">
+          <GoldTail lead="Your Kundali," tail="One Moment" />
+        </h3>
+        <p className="modal-subtext kundali-modal-error" role="alert">
+          {mine.error}
+        </p>
+        <div className="modal-actions kd-modal-acts">
+          <button type="button" onClick={() => setMineRound((n) => n + 1)} className="btn-kundali-action btn-kundali-wide">
+            <span>TRY AGAIN</span>
+            <span className="btn-circle-arrow">
+              <ArrowRight size={13} strokeWidth={2} />
+            </span>
+          </button>
+          <button type="button" onClick={openMyKundli} className="kd-modal-alt">
+            Or open <span>Account → My Kundli</span>
+          </button>
+        </div>
+      </div>
+    );
+  } else if (mine.existing) {
+    const k = mine.existing;
+    const lines = {
+      ready: 'Your Kundli is ready. View your chart, planets, dasha, gemstone guidance and the PDF in your account.',
+      queued: 'Your Kundli is being prepared. It usually takes under a minute; follow it in your account.',
+      generating: 'Your Kundli is being prepared. It usually takes under a minute; follow it in your account.',
+      failed: 'We could not prepare your Kundli yet. You can check your birth details and try again from your account.',
+    };
+    body = (
+      <div className="modal-inner-content kd-modal-signin">
+        {eyebrow}
+        <h3 className="modal-title" id="kundali-modal-title">
+          <GoldTail lead="You Already Have" tail="Your Kundali" />
+        </h3>
+        <p className="modal-subtext">{lines[k.status] || lines.ready}</p>
+        {k.birth && (
+          <div className="success-summary-card">
+            <div className="summary-row">
+              <span className="summary-label">Native:</span>
+              <span className="summary-val">{k.birth.name}</span>
+            </div>
+            <div className="summary-row">
+              <span className="summary-label">Birth Coordinates:</span>
+              <span className="summary-val">{k.birth.place}</span>
+            </div>
+          </div>
+        )}
+        <div className="modal-actions kd-modal-acts">
+          <button type="button" onClick={openMyKundli} className="btn-kundali-action btn-kundali-wide">
+            <span>VIEW IN MY KUNDLI</span>
+            <span className="btn-circle-arrow">
+              <ArrowRight size={13} strokeWidth={2} />
+            </span>
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return createPortal(
@@ -706,14 +862,11 @@ function KundaliModal({ copy, threshold, onClose }) {
           <X size={17} strokeWidth={2} />
         </button>
 
-        {!sent ? (
+        {body ? (
+          body
+        ) : !sent ? (
           <div className="modal-inner-content">
-            <div className="modal-eyebrow">
-              <span className="eyebrow-rule" />
-              <span className="eyebrow-lotus">{LOTUS}</span>
-              <span className="eyebrow-text">{String(copy.modalEyebrow || 'Free Vedic Kundali offer').toUpperCase()}</span>
-              <span className="eyebrow-rule" />
-            </div>
+            {eyebrow}
             <h3 className="modal-title" id="kundali-modal-title">
               <GoldTail lead={copy.modalTitleLead || 'Inscribe Your'} tail={copy.modalTitleTail ?? 'Birth Details'} />
             </h3>
@@ -729,17 +882,6 @@ function KundaliModal({ copy, threshold, onClose }) {
                   <input id="kundali-name" type="text" required placeholder="e.g. Arjun Sharma" value={form.name} onChange={set('name')} className="modal-input" autoComplete="name" />
                 </div>
               </div>
-              {!user?.email && (
-                <div className="form-group">
-                  <label className="form-label" htmlFor="kundali-email">
-                    <Mail size={13} className="label-icon" />
-                    <span>Email</span>
-                  </label>
-                  <div className="input-wrap">
-                    <input id="kundali-email" type="email" required placeholder="you@example.com" value={form.email} onChange={set('email')} className="modal-input" autoComplete="email" />
-                  </div>
-                </div>
-              )}
               <div className="form-group">
                 <label className="form-label" htmlFor="kundali-gender">
                   <User size={13} className="label-icon" />
@@ -818,15 +960,13 @@ function KundaliModal({ copy, threshold, onClose }) {
             <p className="modal-subtext modal-subtext-success">
               {rich(copy.successBody, { threshold, name: form.name.trim(), place: form.place?.label || '' })}
             </p>
-            {user && (
-              <p className="modal-subtext modal-subtext-success kd-modal-next">
-                Follow your Kundli in{' '}
-                <Link to="/account?tab=kundli" onClick={onClose} className="modal-strong">
-                  Account → My Kundli
-                </Link>
-                .
-              </p>
-            )}
+            <p className="modal-subtext modal-subtext-success kd-modal-next">
+              Follow your Kundli in{' '}
+              <Link to="/account?tab=kundli" onClick={onClose} className="modal-strong">
+                Account → My Kundli
+              </Link>
+              .
+            </p>
             <div className="success-summary-card">
               <div className="summary-row">
                 <span className="summary-label">Native:</span>
