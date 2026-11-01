@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AlertCircle, CheckCircle2, Film, Image as ImageIcon, Loader2, Upload, X } from 'lucide-react';
 import { mediaUrl } from '../../api/client';
 import { toast } from '../../lib/adminToast';
@@ -16,6 +16,10 @@ export default function Media() {
   const [state, set] = useUrlState({ q: '', folder: 'all', page: 1 });
   const [selectedId, setSelectedId] = useState(null);
   const [uploadFolder, setUploadFolder] = useState(state.folder !== 'all' ? state.folder : 'other');
+  // Uploads go to the folder being viewed: picking a folder in the filter also sets "Upload to".
+  useEffect(() => {
+    if (state.folder !== 'all') setUploadFolder(state.folder);
+  }, [state.folder]);
   const [queue, setQueue] = useState([]); // [{ id, name, size, status: queued|uploading|done|error, progress, error }]
   const [dragging, setDragging] = useState(false);
   const fileRef = useRef(null);
@@ -188,7 +192,7 @@ function MediaTile({ item, onOpen }) {
         {video ? (
           <video src={src} muted playsInline preload="metadata" className="h-full w-full object-cover" />
         ) : (
-          <img src={src} alt={item.originalName || ''} loading="lazy" className="h-full w-full object-cover" />
+          <img src={src} alt={item.alt || item.originalName || ''} loading="lazy" className="h-full w-full object-cover" />
         )}
         {video && (
           <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-md bg-black/70 px-1.5 py-0.5 text-[10px] text-ivory">

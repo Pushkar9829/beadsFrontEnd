@@ -65,7 +65,7 @@ export function BeadPickerModal({ open, onClose, beads = [], onPick, multiple = 
       footer={
         multiple && (
           <>
-            <Button variant="ghost" onClick={close}>
+            <Button variant="ghost" data-dismiss onClick={close}>
               Cancel
             </Button>
             <Button

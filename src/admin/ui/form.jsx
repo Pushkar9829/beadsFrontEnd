@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { Fragment, cloneElement, forwardRef, isValidElement, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { cx } from './primitives';
 
@@ -9,7 +9,14 @@ export const inputBase =
 export function Field({ label, hint, error, required, className, children, htmlFor, inline = false }) {
   const autoId = useId();
   const id = htmlFor || autoId;
-  const control = typeof children === 'function' ? children({ id, invalid: Boolean(error) }) : children;
+  // A plain child control gets the id too, so the label is linked to it (clicking the label focuses it and
+  // screen readers announce it), unless it already has one.
+  const control =
+    typeof children === 'function'
+      ? children({ id, invalid: Boolean(error) })
+      : isValidElement(children) && children.type !== Fragment && typeof children.type !== 'symbol' && children.props.id === undefined
+        ? cloneElement(children, { id })
+        : children;
   return (
     <div className={cx(inline ? 'flex items-center justify-between gap-4' : 'space-y-1.5', className)}>
       {label && (
@@ -46,10 +53,11 @@ export const Select = forwardRef(function Select({ className, options = [], plac
   return (
     <select ref={ref} aria-invalid={invalid || undefined} className={cx(inputBase, 'h-9 pr-8', className)} {...rest}>
       {placeholder !== undefined && <option value="">{placeholder}</option>}
-      {options.map((o) => {
+      {options.map((o, i) => {
         const opt = typeof o === 'object' ? o : { value: o, label: o };
+        // Index in the key: options being edited (e.g. two thread types briefly sharing a key) can repeat a value.
         return (
-          <option key={String(opt.value)} value={opt.value} disabled={opt.disabled}>
+          <option key={`${String(opt.value)}-${i}`} value={opt.value} disabled={opt.disabled}>
             {opt.label}
           </option>
         );
@@ -225,7 +233,9 @@ export function useForm(initial) {
       if (typeof key === 'object') return { ...prev, ...key };
       return setPath(prev, key, value);
     });
-    setErrors((prev) => (prev[key] ? { ...prev, [key]: undefined } : prev));
+    // Clear the error of every field that changed (an object update, e.g. name + slug, sets several).
+    const keys = typeof key === 'object' ? Object.keys(key) : [key];
+    setErrors((prev) => (keys.some((k) => prev[k]) ? { ...prev, ...Object.fromEntries(keys.map((k) => [k, undefined])) } : prev));
   }, []);
 
   const bind = useCallback(
@@ -282,15 +292,48 @@ export function setPath(obj, path, value) {
   return root;
 }
 
-/** Warn before closing the tab while a form has unsaved changes. */
+// Pages with unsaved changes (see useUnsavedWarning). In-app navigation that is not a link (sidebar search,
+// Ctrl+K, the notification bell, sign out) asks confirmLeave() first.
+const leaveGuards = new Set();
+const LEAVE_MESSAGE = 'You have unsaved changes. Leave this page and discard them?';
+
+/** True when nothing is unsaved, or the user agrees to discard the changes. */
+export function confirmLeave() {
+  return leaveGuards.size === 0 || window.confirm(LEAVE_MESSAGE);
+}
+
+/**
+ * Warn before leaving a form with unsaved changes: closing the tab or reloading (beforeunload), clicking an
+ * in-app link (sidebar, breadcrumbs, header links; BrowserRouter has no navigation blocker) and the shell's
+ * own navigation via confirmLeave().
+ */
 export function useUnsavedWarning(dirty) {
   useEffect(() => {
     if (!dirty) return undefined;
-    const handler = (e) => {
+    const token = {};
+    leaveGuards.add(token);
+    const beforeUnload = (e) => {
       e.preventDefault();
       e.returnValue = '';
     };
-    window.addEventListener('beforeunload', handler);
-    return () => window.removeEventListener('beforeunload', handler);
+    // Capture phase on document runs before React Router's link handler; stopping it there keeps the page.
+    const onLinkClick = (e) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = e.target.closest?.('a[href]');
+      if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+      const url = new URL(a.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+      if (url.pathname === window.location.pathname && url.search === window.location.search) return;
+      if (window.confirm(LEAVE_MESSAGE)) return;
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    window.addEventListener('beforeunload', beforeUnload);
+    document.addEventListener('click', onLinkClick, true);
+    return () => {
+      leaveGuards.delete(token);
+      window.removeEventListener('beforeunload', beforeUnload);
+      document.removeEventListener('click', onLinkClick, true);
+    };
   }, [dirty]);
 }

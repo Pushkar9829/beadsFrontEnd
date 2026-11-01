@@ -7,6 +7,7 @@ import { QUICK_ACTIONS, flatNav } from './nav';
 import { useAdminTheme } from '../lib/theme';
 import { usePermissions } from '../lib/permissions';
 import { Kbd, cx } from '../ui/primitives';
+import { confirmLeave } from '../ui/form';
 
 function score(text, q) {
   const t = text.toLowerCase();
@@ -57,7 +58,7 @@ export default function CommandPalette({ open, onClose }) {
   const go = (item) => {
     onClose();
     if (item.run) item.run();
-    else navigate(item.to);
+    else if (confirmLeave()) navigate(item.to);
   };
   const onKey = (e) => {
     if (e.key === 'ArrowDown') {

@@ -74,7 +74,7 @@ export default function Dashboard() {
             tone="green"
           />
           <Stat label="Sales today" value={money(k.salesToday)} hint={`${plural(k.paidToday || 0, 'paid order')} · ${plural(k.ordersToday || 0, 'order')} placed`} icon={BadgeIndianRupee} loading={loading} />
-          <Stat label="To fulfil" value={number(k.processing)} hint="Paid, processing or packed" icon={PackageCheck} loading={loading} to="/admin/orders?status=paid" tone="violet" />
+          <Stat label="To fulfil" value={number(k.processing)} hint="Paid, processing or packed" icon={PackageCheck} loading={loading} to="/admin/orders?status=to_fulfil" tone="violet" />
           <Stat label="Awaiting payment" value={number(k.pending)} hint="Unpaid orders" icon={CreditCard} loading={loading} to="/admin/orders?status=pending_payment" tone="sky" />
           <Stat
             label="Stock alerts"

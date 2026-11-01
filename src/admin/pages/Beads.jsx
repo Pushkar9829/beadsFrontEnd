@@ -303,6 +303,9 @@ function BeadDrawer({ bead, onClose }) {
   const isNew = bead === 'new';
   const form = useForm(isNew || !bead ? BEAD_EMPTY : beadToForm(bead));
   const [adjusting, setAdjusting] = useState(false);
+  // Stock from the live list (refetched after "Adjust stock"), not the snapshot the drawer opened with.
+  const { beads: liveBeads } = useStudioBeads();
+  const live = (bead?._id && liveBeads.find((b) => b._id === bead._id)) || bead;
   const v = form.values;
   const renamed = !isNew && bead && v.name.trim() !== bead.name;
 
@@ -354,7 +357,7 @@ function BeadDrawer({ bead, onClose }) {
       description={!isNew && bead ? `Slug: ${bead.slug}` : 'The slug is created from the name.'}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="bead-form" loading={save.isPending} disabled={!form.dirty && !isNew}>
@@ -363,7 +366,7 @@ function BeadDrawer({ bead, onClose }) {
         </>
       }
     >
-      <form id="bead-form" onSubmit={submit} className="space-y-8">
+      <form id="bead-form" onSubmit={submit} className="space-y-8" noValidate>
         <FormSection title="Basics">
           <Field
             label="Name"
@@ -391,7 +394,7 @@ function BeadDrawer({ bead, onClose }) {
             ) : (
               <Field label="Stock" hint="Changes are logged in stock history.">
                 <div className="flex h-9 items-center justify-between gap-2 rounded-lg border border-white/10 bg-raised pl-3 pr-1">
-                  <span className="tabular-nums text-sm text-ivory">{number(bead?.stock)}</span>
+                  <span className="tabular-nums text-sm text-ivory">{number(live?.stock)}</span>
                   <Button size="sm" variant="ghost" icon={PackagePlus} onClick={() => setAdjusting(true)}>
                     Adjust
                   </Button>
@@ -446,7 +449,7 @@ function BeadDrawer({ bead, onClose }) {
           </Field>
         </FormSection>
       </form>
-      {!isNew && bead && <AdjustStockModal open={adjusting} bead={bead} onClose={() => setAdjusting(false)} />}
+      {!isNew && live && <AdjustStockModal open={adjusting} bead={live} onClose={() => setAdjusting(false)} />}
     </Drawer>
   );
 }
@@ -487,7 +490,7 @@ function AdjustStockModal({ open, bead, onClose }) {
       title={`Adjust stock · ${bead.name}`}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="adjust-bead-stock" loading={adjust.isPending}>
@@ -691,7 +694,7 @@ function CharmDrawer({ charm, charms, onClose }) {
       title={isNew ? 'New charm' : `Edit ${charm?.name || 'charm'}`}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="charm-form" loading={save.isPending} disabled={!form.dirty && !isNew}>
@@ -700,7 +703,7 @@ function CharmDrawer({ charm, charms, onClose }) {
         </>
       }
     >
-      <form id="charm-form" onSubmit={submit} className="space-y-8">
+      <form id="charm-form" onSubmit={submit} className="space-y-8" noValidate>
         <FormSection>
           <Field label="Name" required error={form.errors.name}>
             {({ id }) => <Input id={id} {...form.bind('name')} placeholder="e.g. Lotus" autoFocus={isNew} />}

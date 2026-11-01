@@ -8,6 +8,7 @@ import { KUNDLI_STATUS_META } from '../lib/status';
 import { date, dateTime, number, relative } from '../lib/format';
 import { KUNDLI_SECTION_LABELS, birthFormError, birthPayload, birthToForm, safePdfUrl, svgDataUrl } from '../../lib/kundli';
 import PlaceAutocomplete from '../../components/kundli/PlaceAutocomplete';
+import KundliSettings from './KundliSettings';
 import {
   Badge,
   Button,
@@ -35,6 +36,12 @@ import {
 const BASE = '/admin/kundli';
 const INVALIDATE = [BASE, '/admin/notifications'];
 const WORKING = ['queued', 'generating'];
+const HOLD_REASON = {
+  paused: 'Free Kundli generation is switched off in the settings.',
+  day: "Today's run limit is full.",
+  week: "This week's run limit is full.",
+  month: "This month's run limit is full.",
+};
 
 // Tailwind look for the shared place autocomplete (the storefront .kd-* CSS is not loaded in the admin).
 const PLACE_CLASSES = {
@@ -54,6 +61,7 @@ function customerOf(k) {
 }
 
 export default function Kundli() {
+  const { canManageKundli } = usePermissions();
   const [state, set] = useUrlState({ q: '', status: 'all', page: 1 });
   const [openId, setOpenId] = useState(null);
   const list = useApiList(BASE, { q: state.q.trim(), status: state.status, page: state.page, limit: 25 }, { key: 'kundlis' });
@@ -107,9 +115,11 @@ export default function Kundli() {
           <span className="text-ivory">{dateTime(rules.eligibleFrom)}</span>
           {rules.eligibleFromEnv ? ' (KUNDLI_ELIGIBLE_FROM)' : ' (launch date)'}. Cancelled, returned and refunded orders never count. Customers may change
           the details of a generated Kundli once a day, {rules.customerRegenCap} times in total, and retry a failed one {rules.customerRetryCap} times; admin
-          Regenerate is not limited. Place searches today: {number(rules.places.today)} of {number(rules.places.cap)} new lookups (cached places are free).
+          Regenerate is not limited.
         </p>
       )}
+      {/* Re-keyed after a save so the form shows the stored values. */}
+      {rules?.settings && <KundliSettings key={rules.settings.updatedAt || 'new'} rules={rules} canEdit={canManageKundli} />}
       <Segmented className="mb-3" items={filters} value={state.status} onChange={(status) => set({ status })} />
       <Toolbar>
         <SearchInput value={state.q} onChange={(q) => set({ q })} placeholder="Name, email or order no.…" />
@@ -136,12 +146,12 @@ export default function Kundli() {
         }
         footer={<Pagination pagination={list.pagination} onPage={(page) => set({ page })} />}
       />
-      {openId && <KundliDrawer id={openId} onClose={() => setOpenId(null)} />}
+      {openId && <KundliDrawer id={openId} calls={rules?.settings?.callsPerKundli ?? 8} onClose={() => setOpenId(null)} />}
     </>
   );
 }
 
-function KundliDrawer({ id, onClose }) {
+function KundliDrawer({ id, calls, onClose }) {
   const { canManageKundli } = usePermissions();
   const confirm = useConfirm();
   const query = useApiQuery(`${BASE}/${id}`, undefined, {
@@ -164,9 +174,9 @@ function KundliDrawer({ id, onClose }) {
   const askRegenerate = async () => {
     const ok = await confirm({
       title: k.generatedAt ? 'Regenerate this Kundli?' : 'Generate this Kundli?',
-      message: k.generatedAt
-        ? 'This makes 8 AstrologyAPI calls and spends credits. The current result is replaced; if the run fails, the current Kundli is kept.'
-        : 'This makes 8 AstrologyAPI calls and spends credits.',
+      message: `This makes ${calls} AstrologyAPI call${calls === 1 ? '' : 's'} and spends credits, even when generation is paused or a run limit is full.${
+        k.generatedAt ? ' The current result is replaced; if the run fails, the current Kundli is kept.' : ''
+      }`,
       confirmLabel: k.generatedAt ? 'Regenerate' : 'Generate',
     });
     if (ok) regenerate.mutate();
@@ -255,6 +265,16 @@ function KundliDrawer({ id, onClose }) {
                 label: 'Regeneration',
                 full: true,
                 value: <span className="text-amber-200">The last regeneration failed ({dateTime(k.updateFailedAt)}); the previous Kundli and its birth details were kept.</span>,
+              },
+              k.status === 'on_hold' && {
+                label: 'On hold',
+                full: true,
+                value: (
+                  <span className="text-amber-200">
+                    {HOLD_REASON[k.holdReason] || 'Waiting for the run limits.'}{' '}
+                    {`It starts automatically when there is room${k.heldAt ? ` (waiting since ${dateTime(k.heldAt)})` : ''}, or press ${k.generatedAt ? 'Regenerate' : 'Generate'} to run it now.`}
+                  </span>
+                ),
               },
               stale && {
                 label: 'Run',
@@ -387,7 +407,13 @@ function Sections({ kundli }) {
             <details key={key} className="rounded-lg border border-white/[0.08] bg-raised/50 px-3 py-2">
               <summary className="cursor-pointer text-sm text-ivory">
                 <span className="font-medium">{KUNDLI_SECTION_LABELS[key]}</span>{' '}
-                {value === undefined ? <Badge tone="danger">missing</Badge> : <span className="text-xs text-lilac">{summarize(key, value)}</span>}
+                {value !== undefined ? (
+                  <span className="text-xs text-lilac">{summarize(key, value)}</span>
+                ) : errors[key] ? (
+                  <Badge tone="danger">missing</Badge>
+                ) : (
+                  <Badge>not included</Badge>
+                )}
               </summary>
               {value !== undefined && <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-words text-[11px] leading-relaxed text-lilac">{JSON.stringify(value, null, 2)}</pre>}
             </details>

@@ -244,7 +244,7 @@ function PincodeDrawer({ pin, onClose }) {
       title={isNew ? 'Add pincode override' : `Edit ${pin?.pincode}`}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="pincode-form" loading={save.isPending} disabled={!form.dirty && !isNew}>

@@ -38,6 +38,13 @@ export default function Products() {
   const [progress, setProgress] = useState(null); // { done, total }
   const confirm = useConfirm();
 
+  // A selection only applies to the rows on screen: changing page, filter, search or sort clears it, so a
+  // bulk action never touches products that are no longer visible.
+  const viewKey = JSON.stringify({ ...state, new: undefined });
+  useEffect(() => {
+    setSelected((prev) => (prev.size ? new Set() : prev));
+  }, [viewKey]);
+
   // Legacy entry point: /admin/products?new=1 opens the editor.
   useEffect(() => {
     if (state.new) navigate('/admin/products/new', { replace: true });

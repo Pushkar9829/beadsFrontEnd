@@ -57,6 +57,7 @@ export const RETURN_STATUS_META = {
 export const KUNDLI_STATUS_META = {
   awaiting_order: { label: 'Awaiting order', tone: 'neutral' },
   details_needed: { label: 'Details needed', tone: 'warning' },
+  on_hold: { label: 'On hold', tone: 'warning' },
   queued: { label: 'Queued', tone: 'info' },
   generating: { label: 'Generating', tone: 'accent' },
   ready: { label: 'Ready', tone: 'success' },

@@ -153,7 +153,11 @@ export default function OrderDetail() {
       confirmLabel: 'Mark payment received',
       message: (
         <div className="space-y-2">
-          <p>Stock for this order is deducted now and any coupon use is recorded.</p>
+          <p>
+            {order.inventory?.deducted
+              ? 'Stock was already deducted when the order was placed; any coupon use is recorded.'
+              : 'Stock for this order is deducted now and any coupon use is recorded.'}
+          </p>
           {order.status === 'pending_payment' && <p>The order moves to Paid.</p>}
           {isCashfree && <p className="text-amber-200">This is a Cashfree order — only do this after confirming the payment in your Cashfree dashboard.</p>}
         </div>
@@ -566,7 +570,7 @@ function AddressDrawer({ open, order, onClose, base, onConflict }) {
       description="The change is noted on the order timeline."
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="order-address-form" loading={save.isPending} disabled={!form.dirty}>
@@ -646,7 +650,7 @@ function RefundModal({ open, onClose, order, refundable, isCashfree, base, onFai
       description={isCashfree ? 'Paid through Cashfree — the refund is sent automatically.' : 'Paid by COD or UPI — you send the money yourself.'}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="danger" type="submit" form="order-refund-form" loading={refund.isPending} disabled={Boolean(invalid)}>

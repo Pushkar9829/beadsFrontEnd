@@ -318,7 +318,7 @@ function CollectionDrawer({ collection, onClose }) {
               Updating products {progress.done}/{progress.total}…
             </span>
           )}
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="collection-form" loading={save.isPending} disabled={(!dirty && !isNew) || (manual && picked !== null && products.isLoading)}>

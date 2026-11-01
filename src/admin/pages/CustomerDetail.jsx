@@ -125,9 +125,10 @@ export default function CustomerDetail() {
       />
 
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Orders" value={number(customer.orders)} icon={ShoppingBag} />
+        {/* Paid (or COD delivered) orders, the same count as the customers list; all placed orders as the hint. */}
+        <Stat label="Orders" value={number(customer.countedOrders ?? customer.orders)} hint={`${number(customer.orders)} placed`} icon={ShoppingBag} />
         <Stat label="Total spent" value={money(customer.spent)} icon={Wallet} tone="green" />
-        <Stat label="Average order" value={customer.orders ? money(customer.aov) : '—'} icon={Package} tone="violet" />
+        <Stat label="Average order" value={customer.countedOrders ? money(customer.aov) : '—'} icon={Package} tone="violet" />
         <Stat label="Last order" value={customer.lastOrder ? relative(customer.lastOrder) : 'Never'} hint={customer.lastOrder ? date(customer.lastOrder) : undefined} tone="sky" />
       </div>
 
@@ -380,7 +381,7 @@ function EditCustomerDrawer({ open, customer, onClose }) {
       description={customer.email}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="customer-form" loading={save.isPending} disabled={!form.dirty}>

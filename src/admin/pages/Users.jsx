@@ -191,7 +191,7 @@ function CreateDrawer({ open, onClose }) {
       description="They sign in at the normal login page with this email and password."
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="create-user-form" loading={create.isPending}>
@@ -275,7 +275,7 @@ function EditDrawer({ target, me, isAdmin, onClose }) {
       description={target?.email}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="edit-user-form" loading={save.isPending} disabled={!form.dirty || !canEditBasics}>

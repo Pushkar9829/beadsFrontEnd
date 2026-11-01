@@ -209,7 +209,7 @@ function AdjustModal({ item, kind, rows, onClose }) {
       title={`Adjust stock — ${item?.name || ''}`}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose} disabled={adjust.isPending}>
+          <Button variant="ghost" data-dismiss onClick={onClose} disabled={adjust.isPending}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="adjust-form" loading={adjust.isPending} disabled={adjust.isPending || !delta}>

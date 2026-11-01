@@ -55,8 +55,12 @@ export default function Returns() {
   const [selected, setSelected] = useState(null);
   const list = useApiList(BASE, { status: state.status, type: state.type, q: state.q.trim(), page: state.page, limit: 25 }, { key: 'returns' });
 
-  // Keep the drawer on the freshest copy after a write (falls back to the snapshot if it left this page/filter).
+  // Keep the drawer on the freshest copy after a write: the list row, or (when the write moved it out of the
+  // current filter, e.g. Requested -> Rejected) the copy the server returned, never the stale click snapshot.
   const current = selected ? list.rows.find((r) => r._id === selected._id) || selected : null;
+  const onUpdated = (fresh) =>
+    // The response's orderId / userId are not populated; keep the populated copies the drawer shows.
+    setSelected((prev) => (prev && fresh?._id === prev._id ? { ...prev, ...fresh, orderId: prev.orderId, userId: prev.userId } : prev));
 
   const columns = [
     {
@@ -126,12 +130,12 @@ export default function Returns() {
         }
         footer={<Pagination pagination={list.pagination} onPage={(page) => set({ page })} />}
       />
-      <ReturnDrawer key={current?._id || 'none'} ret={current} onClose={() => setSelected(null)} onFailure={list.refetch} />
+      <ReturnDrawer key={current?._id || 'none'} ret={current} onClose={() => setSelected(null)} onFailure={list.refetch} onUpdated={onUpdated} />
     </>
   );
 }
 
-function ReturnDrawer({ ret, onClose, onFailure }) {
+function ReturnDrawer({ ret, onClose, onFailure, onUpdated }) {
   const confirm = useConfirm();
   const order = ret?.orderId && typeof ret.orderId === 'object' ? ret.orderId : null;
   const refunded = wasRefunded(ret);
@@ -144,9 +148,15 @@ function ReturnDrawer({ ret, onClose, onFailure }) {
 
   const update = useApiMutation((body) => apiSend('put', `${BASE}/${ret._id}`, body), {
     invalidate: RETURN_INVALIDATE,
-    success: (_d, body) => (body.status ? `Return ${RETURN_STATUS_META[body.status]?.label.toLowerCase() || 'updated'}.` : 'Return saved.'),
+    success: (d, body) =>
+      d?.pickupError
+        ? `Return approved, but the courier pickup could not be booked (${d.pickupError}). Use Book pickup to try again.`
+        : body.status
+          ? `Return ${RETURN_STATUS_META[body.status]?.label.toLowerCase() || 'updated'}.`
+          : 'Return saved.',
     onSuccess: (data) => {
       const r = data?.return || {};
+      if (data?.return) onUpdated?.(data.return);
       form.reset({ refundAmount: r.refundAmount ?? form.values.refundAmount, adminNote: r.adminNote ?? form.values.adminNote });
     },
     // 409 refreshes automatically; 502 (Cashfree failed, return rolled back to approved) and 400 need it too.
@@ -259,7 +269,7 @@ function ReturnDrawer({ ret, onClose, onFailure }) {
       description={`Requested ${dateTime(ret.createdAt)}`}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Close
           </Button>
           {form.dirty && (

@@ -11,6 +11,8 @@ import { AdminThemeContext, THEME_OPTIONS, useAdminTheme, useAdminThemeState } f
 import CommandPalette from './CommandPalette';
 import Toaster from '../ui/Toaster';
 import { ConfirmProvider } from '../ui/overlay';
+import { confirmLeave } from '../ui/form';
+import { notificationTarget } from '../pages/sales/helpers';
 import { Avatar, Badge, Button, ErrorState, IconButton, Kbd, Spinner, cx } from '../ui/primitives';
 import '../admin.css';
 import '../theme.css';
@@ -114,6 +116,7 @@ function SidebarNav({ collapsed, onNavigate }) {
               onKeyDown={(e) => {
                 if (e.key === 'Escape') setQuery('');
                 if (e.key === 'Enter' && firstMatch) {
+                  if (!confirmLeave()) return;
                   navigate(firstMatch.to);
                   setQuery('');
                   onNavigate?.();
@@ -232,7 +235,9 @@ function NotificationsButton() {
                     onClick={() => {
                       if (!n.read) markOne.mutate(n._id);
                       setOpen(false);
-                      if (n.link) navigate(n.link);
+                      // Same target as the Notifications page: a new-order alert opens that order.
+                      const to = notificationTarget(n);
+                      if (to && confirmLeave()) navigate(to);
                     }}
                     className="flex w-full gap-3 border-b border-white/[0.05] px-4 py-3 text-left hover:bg-white/[0.04]"
                   >
@@ -298,6 +303,7 @@ function UserMenu() {
               type="button"
               className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-rose-300 hover:bg-rose-500/10"
               onClick={async () => {
+                if (!confirmLeave()) return;
                 setOpen(false);
                 await logout();
                 queryClient.clear();

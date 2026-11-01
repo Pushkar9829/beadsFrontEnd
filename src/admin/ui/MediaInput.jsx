@@ -20,7 +20,7 @@ export function isVideoUrl(url = '') {
  * Single image/video picker: upload, choose from the media library, paste a URL, or clear.
  * value: url string. Uses the server's type whitelist (no SVG).
  */
-export function MediaInput({ value = '', onChange, folder = 'other', allowVideo = false, aspect = 'aspect-square', className }) {
+export function MediaInput({ id, value = '', onChange, folder = 'other', allowVideo = false, aspect = 'aspect-square', className }) {
   const [busy, setBusy] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const fileRef = useRef(null);
@@ -76,7 +76,8 @@ export function MediaInput({ value = '', onChange, folder = 'other', allowVideo 
         </Button>
       </div>
       <Input value={value} onChange={(e) => onChange(e.target.value.trim())} placeholder="…or paste an image URL" className="h-8 text-xs" />
-      <input ref={fileRef} type="file" hidden accept={allowVideo ? `${IMAGE_TYPES},${VIDEO_TYPES}` : IMAGE_TYPES} onChange={onPick} />
+      {/* id: the Field label points here, so clicking the label opens the file picker. */}
+      <input id={id} ref={fileRef} type="file" hidden accept={allowVideo ? `${IMAGE_TYPES},${VIDEO_TYPES}` : IMAGE_TYPES} onChange={onPick} />
       <MediaLibraryModal
         open={libraryOpen}
         onClose={() => setLibraryOpen(false)}
@@ -90,7 +91,7 @@ export function MediaInput({ value = '', onChange, folder = 'other', allowVideo 
 }
 
 /** Ordered gallery of images (e.g. product images). value: string[] */
-export function GalleryInput({ value = [], onChange, folder = 'products', max = 12 }) {
+export function GalleryInput({ id, value = [], onChange, folder = 'products', max = 12 }) {
   const [adding, setAdding] = useState(false);
   const move = (from, to) => {
     if (to < 0 || to >= value.length) return;
@@ -121,6 +122,7 @@ export function GalleryInput({ value = [], onChange, folder = 'products', max = 
         ))}
         {value.length < max && (
           <button
+            id={id}
             type="button"
             onClick={() => setAdding(true)}
             className="grid aspect-square place-items-center rounded-xl border border-dashed border-white/15 text-xs text-lilac hover:border-gold/40 hover:text-gold"

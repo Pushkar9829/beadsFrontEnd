@@ -300,7 +300,7 @@ function LayerDrawer({ kind, row, items, beads, onClose, onSwitch }) {
       title={isNew ? `New ${kindLabel.toLowerCase()} row` : `Edit ${rowTitle(row || {})}`}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="layer-form" loading={save.isPending} disabled={(!form.dirty && !isNew) || Boolean(duplicate)}>

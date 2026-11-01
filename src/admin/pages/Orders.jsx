@@ -17,7 +17,7 @@ export default function Orders() {
   const [state, set] = useUrlState(DEFAULTS);
   const { download, busy } = useCsvDownload();
 
-  const status = state.status === 'all' || ORDER_STATUSES.includes(state.status) ? state.status : 'all';
+  const status = state.status === 'all' || state.status === 'to_fulfil' || ORDER_STATUSES.includes(state.status) ? state.status : 'all';
   const rangeError = state.from && state.to && state.from > state.to ? 'The start date must be on or before the end date.' : null;
   const filters = {
     status,
@@ -115,6 +115,8 @@ export default function Orders() {
         onChange={(v) => set({ status: v })}
         items={[
           { value: 'all', label: 'All', count: counts.all },
+          // Paid, processing or packed (the dashboard "To fulfil" card).
+          { value: 'to_fulfil', label: 'To fulfil', count: counts.to_fulfil ?? (counts.all != null ? 0 : undefined) },
           ...ORDER_STATUSES.map((s) => ({ value: s, label: ORDER_STATUS_META[s].label, count: counts[s] ?? (counts.all != null ? 0 : undefined) })),
         ]}
       />

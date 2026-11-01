@@ -265,7 +265,7 @@ export function HotspotEditor({ image, points = [], onChange, single = false, ma
                     className="w-[4.5rem]"
                     min={0}
                     max={100}
-                    step={0.5}
+                    step="any"
                     value={p.x}
                     aria-label={`Point ${i + 1} across (%)`}
                     onChange={(v) => update(i, { x: v === '' ? '' : round1(clamp(v)) })}
@@ -277,7 +277,7 @@ export function HotspotEditor({ image, points = [], onChange, single = false, ma
                     className="w-[4.5rem]"
                     min={0}
                     max={100}
-                    step={0.5}
+                    step="any"
                     value={p.y}
                     aria-label={`Point ${i + 1} down (%)`}
                     onChange={(v) => update(i, { y: v === '' ? '' : round1(clamp(v)) })}

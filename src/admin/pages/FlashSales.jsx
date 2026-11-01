@@ -337,7 +337,7 @@ function SaleDrawer({ open, sale, initial, others, onClose }) {
       title={isNew ? 'New flash sale' : `Edit ${sale.name}`}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="flash-form" loading={save.isPending} disabled={!form.dirty && !isNew}>

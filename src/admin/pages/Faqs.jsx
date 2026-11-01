@@ -217,7 +217,7 @@ function FaqDrawer({ faq, nextSort, onClose, onDelete }) {
               Delete
             </Button>
           )}
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="faq-form" loading={save.isPending} disabled={!form.dirty && !isNew}>

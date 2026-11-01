@@ -5,7 +5,7 @@ import { Copy, Dices, History, IndianRupee, Pencil, Plus, Power, Ticket, Trash2,
 import { apiSend, toPayload, useApiList, useApiMutation, useApiQuery } from '../lib/query';
 import { useUrlState } from '../lib/urlState';
 import { dateTime, fromLocalInput, money, number, plural, toLocalInput } from '../lib/format';
-import { toast } from '../../lib/adminToast';
+import { copyText } from '../lib/clipboard';
 import {
   Badge,
   Button,
@@ -234,7 +234,7 @@ export default function Coupons() {
               {
                 label: 'Copy code',
                 icon: Ticket,
-                onClick: () => navigator.clipboard?.writeText(c.code).then(() => toast('Code copied.')),
+                onClick: () => copyText(c.code, 'Code copied.'),
               },
               { label: c.isActive === false ? 'Activate' : 'Deactivate', icon: Power, onClick: () => toggle.mutate(c), disabled: toggle.isPending },
               'divider',
@@ -423,7 +423,7 @@ function CouponDrawer({ open, coupon, initial, existingCodes, onClose }) {
       description={!isNew && used ? `Used ${plural(used, 'time')} · ${money(coupon.revenueGenerated)} revenue` : undefined}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="coupon-form" loading={save.isPending} disabled={!form.dirty && !isNew}>

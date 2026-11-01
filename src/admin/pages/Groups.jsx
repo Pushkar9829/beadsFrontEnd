@@ -164,7 +164,7 @@ function GroupDrawer({ group, onClose }) {
       title={isNew ? 'New customer group' : `Edit ${group?.name || 'group'}`}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="group-form" loading={save.isPending} disabled={!form.dirty && !isNew}>

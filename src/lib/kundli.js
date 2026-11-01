@@ -51,7 +51,7 @@ export function safePdfUrl(url) {
 }
 
 /** Statuses after which the customer has a Kundli in progress or done (not "waiting to start"). */
-export const KUNDLI_STARTED = ['queued', 'generating', 'ready', 'failed'];
+export const KUNDLI_STARTED = ['on_hold', 'queued', 'generating', 'ready', 'failed'];
 
 /** Third-party SVG -> data URL for an <img> (never injected into the DOM). */
 export function svgDataUrl(svg) {

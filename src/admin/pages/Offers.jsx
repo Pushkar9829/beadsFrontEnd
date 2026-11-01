@@ -354,7 +354,7 @@ function OfferDrawer({ open, offer, initial, onClose }) {
       title={isNew ? 'New offer' : `Edit ${offer.name}`}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="offer-form" loading={save.isPending} disabled={!form.dirty && !isNew}>

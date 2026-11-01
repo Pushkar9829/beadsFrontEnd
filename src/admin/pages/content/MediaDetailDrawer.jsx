@@ -9,19 +9,10 @@ import { ACCEPT, FOLDERS, folderLabel, formatBytes, mediaKind, normalizeFolder, 
 
 const BASE = '/admin/media';
 
-export async function copyText(value) {
-  try {
-    await navigator.clipboard.writeText(value);
-  } catch {
-    const ta = document.createElement('textarea');
-    ta.value = value;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    ta.remove();
-  }
-  toast('Copied to clipboard.');
-}
+// Shared helper (Clipboard API with a fallback); re-exported for the existing imports.
+import { copyText } from '../../lib/clipboard';
+
+export { copyText };
 
 /** Detail / edit drawer for one media item: preview, URL, metadata, folder + tags, replace, delete. */
 export function MediaDetailDrawer({ item, onClose, folders = FOLDERS }) {
@@ -29,12 +20,16 @@ export function MediaDetailDrawer({ item, onClose, folders = FOLDERS }) {
   const fileRef = useRef(null);
   const [dims, setDims] = useState(null);
   const [progress, setProgress] = useState(null);
-  const form = useForm({ folder: item?.folder || 'other', tags: item?.tags || [] });
+  const form = useForm({ folder: item?.folder || 'other', tags: item?.tags || [], alt: item?.alt || '' });
 
   const save = useApiMutation(
     // Tags are always sent: the API overwrites them on every update.
-    (values) => apiSend('put', `${BASE}/${item._id}`, { folder: normalizeFolder(values.folder), tags: values.tags || [] }),
-    { invalidate: [BASE], success: 'Details saved.', onSuccess: (data) => form.reset({ folder: data?.media?.folder || 'other', tags: data?.media?.tags || [] }) }
+    (values) => apiSend('put', `${BASE}/${item._id}`, { folder: normalizeFolder(values.folder), tags: values.tags || [], alt: values.alt || '' }),
+    {
+      invalidate: [BASE],
+      success: 'Details saved.',
+      onSuccess: (data) => form.reset({ folder: data?.media?.folder || 'other', tags: data?.media?.tags || [], alt: data?.media?.alt || '' }),
+    }
   );
   const replace = useApiMutation(
     (file) => {
@@ -138,7 +133,7 @@ export function MediaDetailDrawer({ item, onClose, folders = FOLDERS }) {
             <img
               key={src}
               src={src}
-              alt={item.originalName || ''}
+              alt={item.alt || item.originalName || ''}
               className="max-h-[50vh] w-auto max-w-full object-contain"
               onLoad={(e) => setDims({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
             />
@@ -194,6 +189,11 @@ export function MediaDetailDrawer({ item, onClose, folders = FOLDERS }) {
               )}
             </Field>
           </FormGrid>
+          {mediaKind(item) === 'image' && (
+            <Field label="Alt text" hint="A short description of the image, read out by screen readers.">
+              {({ id }) => <Input id={id} maxLength={300} value={form.values.alt} onChange={(e) => form.set('alt', e.target.value)} placeholder="e.g. Rose quartz bracelet on a linen cloth" />}
+            </Field>
+          )}
           <Field label="Tags" hint="Used by search. Press Enter after each tag.">
             <TagInput value={form.values.tags || []} onChange={(tags) => form.set('tags', tags)} />
           </Field>

@@ -27,6 +27,19 @@ function useFocusOnOpen(open) {
 }
 
 /**
+ * Footer buttons marked `data-dismiss` (Cancel / Close) go through the same unsaved-changes check as the X
+ * button, Esc and the backdrop, instead of closing straight away and losing the edits.
+ */
+function guardDismiss(dirty, requestClose) {
+  return (e) => {
+    if (!dirty || !e.target.closest?.('[data-dismiss]')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    requestClose();
+  };
+}
+
+/**
  * Centered dialog. `dirty` makes closing ask for confirmation so edits aren't lost.
  */
 export function Modal({ open, onClose, title, description, children, footer, size = 'md', dirty = false }) {
@@ -58,7 +71,11 @@ export function Modal({ open, onClose, title, description, children, footer, siz
           <IconButton icon={X} label="Close" data-close onClick={requestClose} />
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">{children}</div>
-        {footer && <div className="flex flex-wrap items-center justify-end gap-2 border-t border-white/[0.08] px-5 py-3">{footer}</div>}
+        {footer && (
+          <div className="flex flex-wrap items-center justify-end gap-2 border-t border-white/[0.08] px-5 py-3" onClickCapture={guardDismiss(dirty, requestClose)}>
+            {footer}
+          </div>
+        )}
       </div>
     </div>,
     document.body
@@ -95,7 +112,11 @@ export function Drawer({ open, onClose, title, description, children, footer, wi
           <IconButton icon={X} label="Close" data-close onClick={requestClose} />
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">{children}</div>
-        {footer && <div className="flex flex-wrap items-center justify-end gap-2 border-t border-white/[0.08] bg-surface px-5 py-3">{footer}</div>}
+        {footer && (
+          <div className="flex flex-wrap items-center justify-end gap-2 border-t border-white/[0.08] bg-surface px-5 py-3" onClickCapture={guardDismiss(dirty, requestClose)}>
+            {footer}
+          </div>
+        )}
       </aside>
     </div>,
     document.body

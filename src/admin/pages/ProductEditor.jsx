@@ -25,6 +25,7 @@ import {
   Textarea,
   useConfirm,
   useForm,
+  confirmLeave,
   useUnsavedWarning,
 } from '../ui';
 import { CategorySelect } from '../ui/pickers';
@@ -279,7 +280,7 @@ function EditorForm({ isNew, product }) {
                 />
               )}
             </Field>
-            <Field label="Short description" hint="One or two lines shown near the price.">
+            <Field label="Short description" hint="One or two lines for product cards and search results; also shown on the product page when there is no full description.">
               {({ id }) => <Textarea id={id} rows={2} maxLength={300} {...form.bind('shortDescription')} />}
             </Field>
             <Field label="Description">{({ id }) => <Textarea id={id} rows={8} {...form.bind('description')} />}</Field>
@@ -417,7 +418,7 @@ function EditorForm({ isNew, product }) {
               </Button>
             )}
             {isNew && (
-              <Button variant="ghost" onClick={() => navigate('/admin/products')} disabled={busy}>
+              <Button variant="ghost" onClick={() => confirmLeave() && navigate('/admin/products')} disabled={busy}>
                 Cancel
               </Button>
             )}

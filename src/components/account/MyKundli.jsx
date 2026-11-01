@@ -115,6 +115,8 @@ export default function MyKundli({ shopTo = '/shop' }) {
             ? `Save your birth details now. Your Kundli is prepared automatically once an order of ${thresholdLabel} or more is paid online, or delivered if you pay on delivery.`
             : failedEdit
               ? 'Correct the details if needed and we will try again.'
+              : kundli?.status === 'on_hold'
+                ? 'Correct the details if needed. Your place in the queue is kept.'
               : editing
                 ? `Saving new details prepares your Kundli again. Details can be changed once a day${
                     kundli?.regensLeft != null ? `, ${kundli.regensLeft} more time${kundli.regensLeft === 1 ? '' : 's'}` : ''
@@ -152,6 +154,31 @@ export default function MyKundli({ shopTo = '/shop' }) {
           </Link>
           <button type="button" className="btn-outline acct-btn-o" onClick={() => setEditing(true)}>
             <Pencil size={13} /> {kundli?.birth ? 'Edit birth details' : 'Add birth details now'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Waiting for the store's daily/weekly/monthly limits (or a pause): no polling, it can take a while.
+  if (kundli.status === 'on_hold') {
+    return (
+      <div className="acct-panel kd-panel">
+        <span className="kd-eyebrow">Free Vedic Kundli</span>
+        <h3 className="acct-panel-t kd-title">Your Kundli is in the queue</h3>
+        <div className="kd-working">
+          <span className="kd-orb" aria-hidden />
+          <p className="acct-muted">
+            We have your details for {kundli.birth?.name || 'you'} and your Kundli will be prepared shortly, usually within a day. It appears here
+            automatically once it is ready.
+          </p>
+        </div>
+        <div className="acct-form-acts kd-acts">
+          <button type="button" className="btn-outline acct-btn-o" onClick={load} disabled={loading}>
+            <RotateCw size={13} /> {loading ? 'Checking…' : 'Check again'}
+          </button>
+          <button type="button" className="btn-outline acct-btn-o" onClick={() => setEditing(true)}>
+            <Pencil size={13} /> Correct birth details
           </button>
         </div>
       </div>
@@ -261,6 +288,7 @@ function KundliReady({ data, onEdit }) {
   const editableAfter = kundli.editableAfter ? new Date(kundli.editableAfter) : null;
   const pdfUrl = safePdfUrl(kundli.pdfUrl);
   const locked = Boolean(kundli.editLocked);
+  const pending = Boolean(kundli.updatePending);
 
   return (
     <div className="kd-ready">
@@ -279,7 +307,7 @@ function KundliReady({ data, onEdit }) {
                 <Download size={14} /> Download Kundli PDF
               </a>
             )}
-            {!locked && (
+            {!locked && !pending && (
               <button
                 type="button"
                 className="btn-outline acct-btn-o"
@@ -297,7 +325,12 @@ function KundliReady({ data, onEdit }) {
             We could not update your Kundli with the new birth details, so your previous Kundli is shown. Please try again later.
           </p>
         )}
-        {editableAfter && <p className="acct-hint">Birth details can be changed once a day: next after {whenLabel(editableAfter)}.</p>}
+        {pending && (
+          <p className="acct-hint" role="status">
+            Your new birth details are in the queue. The updated Kundli replaces this one shortly, usually within a day.
+          </p>
+        )}
+        {editableAfter && !pending && <p className="acct-hint">Birth details can be changed once a day: next after {whenLabel(editableAfter)}.</p>}
         {locked && <p className="acct-hint">Your Kundli has been updated the maximum number of times. Contact us if the birth details need another change.</p>}
         {chips.length > 0 && (
           <div className="kd-chips">

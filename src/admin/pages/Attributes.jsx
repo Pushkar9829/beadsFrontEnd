@@ -152,7 +152,7 @@ function AttributeDrawer({ attribute, onClose }) {
       title={isNew ? 'New attribute' : `Edit ${attribute?.name || 'attribute'}`}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="attribute-form" loading={save.isPending} disabled={!form.dirty && !isNew}>

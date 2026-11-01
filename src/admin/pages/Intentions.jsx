@@ -79,6 +79,9 @@ function PurposesTab({ selectedId, onSelect }) {
   const [editPurpose, setEditPurpose] = useState(null);
   const [editIntention, setEditIntention] = useState(null);
   const [beadsFor, setBeadsFor] = useState(null);
+  // A purpose just created: until the refetched list contains it, the pane waits instead of falling back to
+  // the first purpose (where Edit / New intention would act on the wrong purpose).
+  const [createdId, setCreatedId] = useState(null);
 
   const purposes = useMemo(() => [...(purposesQ.data?.purposes || [])].sort(bySort), [purposesQ.data]);
   const intentions = useMemo(() => intentionsQ.data?.intentions || [], [intentionsQ.data]);
@@ -95,7 +98,12 @@ function PurposesTab({ selectedId, onSelect }) {
     return map;
   }, [mappingsQ.data]);
 
-  const selected = selectedId === 'unassigned' && orphans.length ? 'unassigned' : purposes.find((p) => p._id === selectedId)?._id || purposes[0]?._id || (orphans.length ? 'unassigned' : '');
+  const known = purposes.find((p) => p._id === selectedId);
+  const waitingForCreated = Boolean(createdId) && selectedId === createdId && !known;
+  const selected =
+    selectedId === 'unassigned' && orphans.length
+      ? 'unassigned'
+      : known?._id || (waitingForCreated ? createdId : purposes[0]?._id || (orphans.length ? 'unassigned' : ''));
   const selectedPurpose = purposes.find((p) => p._id === selected);
   const visibleIntentions = selected === 'unassigned' ? orphans : intentions.filter((i) => idOf(i.purposeId) === selected).sort(bySort);
   const countFor = (purposeId) => intentions.filter((i) => idOf(i.purposeId) === purposeId).length;
@@ -110,7 +118,9 @@ function PurposesTab({ selectedId, onSelect }) {
     const ok = await confirm({
       title: `Delete “${p.name}”?`,
       message: n
-        ? `Its ${plural(n, 'intention')} are not deleted. They become unassigned and disappear from the studio until you move them to another purpose.`
+        ? n === 1
+          ? 'Its 1 intention is not deleted. It becomes unassigned and disappears from the studio until you move it to another purpose.'
+          : `Its ${plural(n, 'intention')} are not deleted. They become unassigned and disappear from the studio until you move them to another purpose.`
         : 'This purpose has no intentions.',
       confirmLabel: 'Delete purpose',
       tone: 'danger',
@@ -297,7 +307,12 @@ function PurposesTab({ selectedId, onSelect }) {
         />
       </Card>
 
-      <PurposeDrawer key={`p-${editPurpose?._id || editPurpose || 'none'}`} purpose={editPurpose} purposes={purposes} onClose={() => setEditPurpose(null)} onCreated={(p) => p?._id && onSelect(p._id)} />
+      <PurposeDrawer key={`p-${editPurpose?._id || editPurpose || 'none'}`} purpose={editPurpose} purposes={purposes} onClose={() => setEditPurpose(null)} onCreated={(p) => {
+          if (!p?._id) return;
+          setCreatedId(p._id);
+          onSelect(p._id);
+          purposesQ.refetch();
+        }} />
       <IntentionDrawer key={`i-${editIntention?._id || (editIntention ? 'new' : 'none')}`} intention={editIntention} purposes={purposes} intentions={intentions} onClose={() => setEditIntention(null)} />
       <MappingsDrawer key={`m-${beadsFor?._id || 'none'}`} intention={beadsFor} beads={beads} onClose={() => setBeadsFor(null)} />
     </div>
@@ -386,7 +401,7 @@ function PurposeDrawer({ purpose, purposes, onClose, onCreated }) {
       description={!isNew && purpose?.slug ? `Slug: ${purpose.slug} (renaming changes it)` : undefined}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="purpose-form" loading={save.isPending} disabled={!form.dirty && !isNew}>
@@ -450,7 +465,7 @@ function IntentionDrawer({ intention, purposes, intentions, onClose }) {
       title={isNew ? 'New intention' : `Edit ${intention?.name || 'intention'}`}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="intention-form" loading={save.isPending} disabled={!form.dirty && !isNew}>
@@ -540,7 +555,7 @@ function MappingsDrawer({ intention, beads, onClose }) {
       description="Recommended crystals, in order."
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="mappings-form" loading={save.isPending} disabled={!form.dirty || query.isLoading}>
@@ -740,7 +755,7 @@ function MulankDrawer({ entry, beads, onClose }) {
       title={entry ? `Mulank ${entry.number} crystal` : 'Mulank crystal'}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="mulank-form" loading={save.isPending} disabled={!form.dirty}>
@@ -998,7 +1013,7 @@ function ZodiacDrawer({ entry, mappings, beads, onClose, onSwitch }) {
       title={isNew ? 'New zodiac mapping' : `Edit ${entry?.sign || 'zodiac mapping'}`}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="zodiac-form" loading={save.isPending} disabled={!form.dirty && !isNew}>

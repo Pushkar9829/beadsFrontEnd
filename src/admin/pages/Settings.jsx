@@ -482,6 +482,12 @@ function WebhooksTab() {
 
   return (
     <div className="space-y-5">
+      {urls.data?.localServer && (
+        <p className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+          You are on a local server. These are the live server&apos;s URLs: payment and courier providers cannot call localhost, so set
+          them on the live site only.
+        </p>
+      )}
       <Card>
         <CardHeader title="Cashfree payments" description="Cashfree dashboard → Payment Gateway → Developers → Webhooks. Version 2025-01-01." />
         {urls.isLoading ? <Skeleton className="h-10" /> : <CopyField value={hooks.cashfree} label="Copy Cashfree URL" />}

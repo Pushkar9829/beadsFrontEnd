@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Check, Copy, Dices, Eye, EyeOff } from 'lucide-react';
 import { apiSend, useApiMutation } from '../../lib/query';
 import { downloadFile } from '../../lib/format';
-import { toast } from '../../../lib/adminToast';
 import { Badge, IconButton, Input, cx } from '../../ui';
 
 /** Today's date for export file names: customers-2026-10-07.csv */
@@ -35,14 +34,10 @@ export function generatePassword(length = 16) {
   return Array.from(bytes, (b) => chars[b % chars.length]).join('');
 }
 
-export async function copyText(text, label = 'Copied to clipboard.') {
-  try {
-    await navigator.clipboard.writeText(text);
-    toast(label);
-  } catch {
-    toast('Could not copy. Select the text and copy it manually.', 'error');
-  }
-}
+// Shared helper (Clipboard API with a fallback); re-exported for the existing imports.
+import { copyText } from '../../lib/clipboard';
+
+export { copyText };
 
 /** Password input with show/hide, generate and copy buttons. */
 export function PasswordInput({ id, value, onChange, invalid, placeholder = 'At least 12 characters' }) {

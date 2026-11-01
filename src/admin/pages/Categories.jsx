@@ -108,10 +108,13 @@ export default function Categories() {
     } catch {
       products = null;
     }
+    // The server moves products and subcategories up to this category's parent (or clears them at the top level).
+    const parent = categories.find((x) => String(x._id) === refId(c.parentId));
+    const moveTo = parent ? `move to “${parent.name}”` : null;
     const warnings = [];
-    if (children) warnings.push(`${plural(children, 'subcategory', 'subcategories')} will be left without a parent (they show at the top level here).`);
-    if (products) warnings.push(`${plural(products, 'product')} will be left without a category.`);
-    if (products === null) warnings.push('Products in this category will be left without a category.');
+    if (children) warnings.push(`${plural(children, 'subcategory', 'subcategories')} will ${moveTo || 'move to the top level'}.`);
+    if (products) warnings.push(`${plural(products, 'product')} will ${moveTo || 'be left without a category'}.`);
+    if (products === null) warnings.push(`Products in this category will ${moveTo || 'be left without a category'}.`);
     const ok = await confirm({
       title: `Delete “${c.name}”?`,
       message: (
@@ -293,7 +296,7 @@ function CategoryDrawer({ category, categories, onClose }) {
       title={isNew ? 'New category' : `Edit ${category?.name || 'category'}`}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="category-form" loading={save.isPending} disabled={!form.dirty && !isNew}>

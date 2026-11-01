@@ -258,7 +258,7 @@ function PostDrawer({ post, onClose, onDelete }) {
               <ExternalLink size={14} /> View
             </a>
           )}
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" data-dismiss onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="post-form" loading={save.isPending} disabled={!form.dirty && !isNew}>

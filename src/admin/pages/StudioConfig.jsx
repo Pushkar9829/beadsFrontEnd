@@ -212,7 +212,7 @@ function ConfigForm({ config, charms }) {
   );
 
   return (
-    <form onSubmit={submit} className="pb-4">
+    <form onSubmit={submit} className="pb-4" noValidate>
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="min-w-0 space-y-4">
           <Card>
