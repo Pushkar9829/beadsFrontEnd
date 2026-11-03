@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Bell, CreditCard, Globe, Lock, Percent, RefreshCw, Save, Search, Store, Truck, Webhook, Warehouse } from 'lucide-react';
+import { Bell, CreditCard, Globe, Lock, MessageCircle, Percent, RefreshCw, Save, Search, Store, Truck, Webhook, Warehouse } from 'lucide-react';
 import { apiSend, useApiMutation, useApiQuery } from '../lib/query';
 import { useUrlState } from '../lib/urlState';
 import { dateTime, relative } from '../lib/format';
@@ -31,6 +31,7 @@ import {
   useUnsavedWarning,
 } from '../ui';
 import { CopyField } from './people/shared';
+import WhatsAppLoginTab from './WhatsAppLoginTab';
 
 const TABS = [
   { value: 'general', label: 'General', icon: Store },
@@ -40,6 +41,7 @@ const TABS = [
   { value: 'notifications', label: 'Notifications', icon: Bell },
   { value: 'seo', label: 'SEO', icon: Search },
   { value: 'webhooks', label: 'Webhooks', icon: Webhook },
+  { value: 'whatsapp', label: 'WhatsApp login', icon: MessageCircle },
 ];
 
 const SECRET_PLACEHOLDER = 'Saved — leave blank to keep';
@@ -140,6 +142,7 @@ function SettingsAdmin() {
 
   let body;
   if (tab === 'webhooks') body = <WebhooksTab />;
+  else if (tab === 'whatsapp') body = <WhatsAppLoginTab />;
   else if (query.isLoading) body = <FormSkeleton />;
   else if (query.error) body = <Card padded={false}><ErrorState error={query.error} onRetry={query.refetch} /></Card>;
   else if (settings) body = <SectionForm key={tab} section={tab} settings={settings} onDirty={setDirty} />;

@@ -423,3 +423,125 @@ a.auth-switch {
   -webkit-text-fill-color: #757575;
   opacity: 1;
 }
+
+/* WhatsApp sign-in (components/auth/WhatsAppAuth.jsx): sits under the email form, same widths and tones. */
+.nx.auth-split-layout .auth-wa {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.nx.auth-split-layout .auth-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #8A8394;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.nx.auth-split-layout .auth-or::before,
+.nx.auth-split-layout .auth-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(217, 174, 79, 0.18);
+}
+.nx.auth-split-layout .auth-wa-btn,
+.nx.auth-split-layout .auth-wa-send {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 14px;
+  border-radius: 2px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+}
+.nx.auth-split-layout .auth-wa-btn {
+  background: transparent;
+  border: 1px solid rgba(37, 211, 102, 0.45);
+  color: #7CE2A2;
+  -webkit-text-fill-color: #7CE2A2;
+}
+.nx.auth-split-layout .auth-wa-btn:hover {
+  background: rgba(37, 211, 102, 0.08);
+  border-color: rgba(37, 211, 102, 0.7);
+}
+.nx.auth-split-layout .auth-wa-send {
+  background: #1FA855;
+  border: 1px solid #1FA855;
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+}
+.nx.auth-split-layout .auth-wa-send:disabled,
+.nx.auth-split-layout .auth-wa-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.nx.auth-split-layout .auth-wa-panel {
+  border: 1px solid rgba(37, 211, 102, 0.28);
+  background: rgba(13, 10, 20, 0.6);
+  border-radius: 4px;
+  padding: 16px;
+}
+.nx.auth-split-layout .auth-wa-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #7CE2A2;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.nx.auth-split-layout .auth-wa-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #8A8394;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.nx.auth-split-layout .auth-wa-step {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.nx.auth-split-layout .auth-wa-hint {
+  margin: 0;
+  color: #A39DAD;
+  font-family: Arial, sans-serif;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.nx.auth-split-layout .auth-wa-hint strong {
+  color: #EDE8E1;
+}
+.nx.auth-split-layout .auth-wa-code {
+  letter-spacing: 0.5em;
+  font-size: 18px;
+  text-align: center;
+}
+.nx.auth-split-layout .auth-wa-link {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  color: #D9AE4F;
+  -webkit-text-fill-color: #D9AE4F;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}

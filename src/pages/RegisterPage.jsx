@@ -6,6 +6,7 @@ import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import { useSite } from '../store/contentStore';
 import AuthShell from '../components/home/nocturne/AuthShell';
+import WhatsAppAuth from '../components/auth/WhatsAppAuth';
 import { showToast } from '../components/layout/QuickToast';
 
 // Source strength meter (AuthPage.jsx lines 61-76).
@@ -124,6 +125,14 @@ export default function RegisterPage() {
           {page.footer} <Link to="/login" state={location.state}>{page.footerLink}</Link>
         </div>
       </form>
+      <WhatsAppAuth
+        loginState={location.state}
+        onDone={async (user) => {
+          await onLogin();
+          showToast(`Welcome to Kuberstones, ${user.name || ''}`.trim(), 'gold');
+          navigate(from);
+        }}
+      />
     </AuthShell>
   );
 }

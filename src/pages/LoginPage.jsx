@@ -7,6 +7,7 @@ import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import { useSite } from '../store/contentStore';
 import AuthShell from '../components/home/nocturne/AuthShell';
+import WhatsAppAuth from '../components/auth/WhatsAppAuth';
 import { showToast } from '../components/layout/QuickToast';
 
 export default function LoginPage() {
@@ -25,15 +26,20 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
+  // After any sign-in (email or WhatsApp): merge the guest bag, greet, go back where the shopper came from.
+  async function finish(user) {
+    await onLogin();
+    showToast(`Welcome back to the Sanctuary, ${user.name || ''}`.trim(), 'gold');
+    navigate(user.role === 'admin' && from === '/account' ? '/admin' : from, { replace: true });
+  }
+
   async function submit(e) {
     e.preventDefault();
     setBusy(true);
     setError('');
     try {
       const user = await login(email.trim(), password);
-      await onLogin();
-      showToast(`Welcome back to the Sanctuary, ${user.name || ''}`.trim(), 'gold');
-      navigate(user.role === 'admin' && from === '/account' ? '/admin' : from, { replace: true });
+      await finish(user);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -105,6 +111,7 @@ export default function LoginPage() {
           </button>
         )}
       </form>
+      <WhatsAppAuth onDone={finish} loginState={location.state} />
     </AuthShell>
   );
 }

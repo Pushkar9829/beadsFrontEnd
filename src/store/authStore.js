@@ -34,6 +34,12 @@ export const useAuthStore = create((set, get) => ({
     return data.user;
   },
 
+  /** Session from another sign-in flow (WhatsApp code): store the token and the user. */
+  setSession(token, user) {
+    setToken(token);
+    set({ user, error: null });
+  },
+
   async logout() {
     try {
       await api.post('/auth/logout');
