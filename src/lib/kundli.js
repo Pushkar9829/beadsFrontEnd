@@ -124,3 +124,26 @@ export const KUNDLI_SECTION_LABELS = {
   rudraksha: 'Rudraksha',
   pdf: 'PDF',
 };
+
+/** "14:30" -> "2:30 PM" (birth times are stored as 24-hour HH:mm; shown on a 12-hour clock). */
+export function formatTime12(hhmm) {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(String(hhmm || ''));
+  if (!m) return hhmm || '';
+  const h = Number(m[1]);
+  return `${h % 12 || 12}:${m[2]} ${h < 12 ? 'AM' : 'PM'}`;
+}
+
+/** "14:30" -> { hour: '2', minute: '30', ampm: 'PM' }; '' -> empty parts. */
+export function splitTime12(hhmm) {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(String(hhmm || ''));
+  if (!m) return { hour: '', minute: '', ampm: '' };
+  const h = Number(m[1]);
+  return { hour: String(h % 12 || 12), minute: m[2], ampm: h < 12 ? 'AM' : 'PM' };
+}
+
+/** 12-hour parts -> "HH:mm" (24-hour), or '' until hour, minute and AM/PM are all chosen. */
+export function joinTime12({ hour, minute, ampm }) {
+  if (!hour || minute === '' || minute == null || !ampm) return '';
+  const h12 = Number(hour) % 12;
+  return `${String(ampm === 'PM' ? h12 + 12 : h12).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}

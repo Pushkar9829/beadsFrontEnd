@@ -601,3 +601,27 @@ body {
   line-height: normal;
   letter-spacing: normal;
 }
+
+/* Time of birth on a 12-hour clock (components/kundli/TimeOfBirth12.jsx): Hour : Min  AM/PM in one row. */
+.tob12 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+.tob12 > select {
+  flex: 1 1 0;
+  min-width: 0;
+  cursor: pointer;
+}
+.tob12 > select:last-child {
+  flex: 1.1 1 0;
+}
+.tob12 > select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.tob12-sep {
+  opacity: 0.6;
+  font-weight: 600;
+}

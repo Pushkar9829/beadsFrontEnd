@@ -28,7 +28,8 @@ import { useAuthStore } from '../../../store/authStore';
 import { claimIcon } from '../../../lib/claimIcons';
 import { resolveProductRating, formatReviewCount } from '../../../lib/productRating';
 import { formatInr } from '../../../lib/format';
-import { EMPTY_BIRTH, KUNDLI_STARTED, birthFormError, birthPayload, birthToForm } from '../../../lib/kundli';
+import { EMPTY_BIRTH, KUNDLI_STARTED, birthFormError, birthPayload, birthToForm, formatTime12 } from '../../../lib/kundli';
+import TimeOfBirth12 from '../../kundli/TimeOfBirth12';
 import PlaceAutocomplete from '../../kundli/PlaceAutocomplete';
 import { NCard, HOUSE_IMAGES, fillFacts, useCountdown } from '../nocturne/Nocturne';
 import emblem from '../../../assets/brand/emblem.png';
@@ -920,7 +921,7 @@ function KundaliModal({ copy, threshold, onClose }) {
                     <span>Time of Birth</span>
                   </label>
                   <div className="input-wrap">
-                    <input id="kundali-tob" type="time" value={form.tob} onChange={set('tob')} disabled={form.tobUnknown} className="modal-input time-input" />
+                    <TimeOfBirth12 id="kundali-tob" value={form.tob} onChange={(tob) => setForm((f) => ({ ...f, tob }))} disabled={form.tobUnknown} className="tob12-modal" selectClassName="modal-input time-input" />
                   </div>
                 </div>
               </div>
@@ -979,7 +980,7 @@ function KundaliModal({ copy, threshold, onClose }) {
               <div className="summary-row">
                 <span className="summary-label">Date & Time:</span>
                 <span className="summary-val">
-                  {form.dob} {form.tobUnknown ? '· time unknown' : form.tob ? `· ${form.tob}` : ''}
+                  {form.dob} {form.tobUnknown ? '· time unknown' : form.tob ? `· ${formatTime12(form.tob)}` : ''}
                 </span>
               </div>
               <div className="summary-row summary-row-status">

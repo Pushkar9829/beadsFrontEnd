@@ -112,6 +112,11 @@ export default function CustomerDetail() {
         description={`Customer since ${date(customer.createdAt)}`}
         actions={
           <>
+            {customer.phone && (
+              <Button icon={Mail} onClick={() => window.open(`https://wa.me/${String(customer.phone).replace(/\D/g, '')}`, '_blank', 'noopener')}>
+                WhatsApp
+              </Button>
+            )}
             {customer.email && (
               <Button icon={Mail} onClick={() => (window.location.href = `mailto:${customer.email}`)}>
                 Email
@@ -378,7 +383,7 @@ function EditCustomerDrawer({ open, customer, onClose }) {
       dirty={form.dirty}
       width="sm"
       title="Edit customer"
-      description={customer.email}
+      description={customer.phone || customer.email}
       footer={
         <>
           <Button variant="ghost" data-dismiss onClick={onClose}>

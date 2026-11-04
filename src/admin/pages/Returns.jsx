@@ -81,7 +81,7 @@ export default function Returns() {
       render: (r) => (
         <div className="min-w-0 max-w-[13rem]">
           <p className="truncate">{r.userId?.name || r.orderId?.contactName || '—'}</p>
-          <p className="truncate text-xs text-lilac">{r.userId?.email || r.orderId?.email || ''}</p>
+          <p className="truncate text-xs text-lilac">{r.userId?.phone || r.orderId?.phone || r.userId?.email || r.orderId?.email || ''}</p>
         </div>
       ),
     },

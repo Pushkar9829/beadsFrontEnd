@@ -130,7 +130,7 @@ export default function AccountPage() {
                   {page.greeting || 'Namaste,'} {user.name}
                 </h1>
                 <p className="acct-contact">
-                  {user.email} {user.phone && `· ${user.phone}`}
+                  {user.phone}{user.whatsappVerified && ' · WhatsApp verified'}
                 </p>
               </div>
             </div>
@@ -203,8 +203,8 @@ export default function AccountPage() {
                   <input id="acct-name" type="text" className="acct-input" value={user.name || ''} readOnly />
                 </div>
                 <div>
-                  <label className="acct-label" htmlFor="acct-email">Email</label>
-                  <input id="acct-email" type="text" className="acct-input" value={user.email || ''} readOnly />
+                  <label className="acct-label" htmlFor="acct-phone">WhatsApp number (sign-in)</label>
+                  <input id="acct-phone" type="text" className="acct-input" value={user.phone || ''} readOnly />
                 </div>
               </div>
             </div>

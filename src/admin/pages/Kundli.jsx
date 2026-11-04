@@ -6,7 +6,8 @@ import { useUrlState } from '../lib/urlState';
 import { usePermissions } from '../lib/permissions';
 import { KUNDLI_STATUS_META } from '../lib/status';
 import { date, dateTime, number, relative } from '../lib/format';
-import { KUNDLI_SECTION_LABELS, birthFormError, birthPayload, birthToForm, safePdfUrl, svgDataUrl } from '../../lib/kundli';
+import { KUNDLI_SECTION_LABELS, birthFormError, birthPayload, birthToForm, formatTime12, safePdfUrl, svgDataUrl } from '../../lib/kundli';
+import TimeOfBirth12 from '../../components/kundli/TimeOfBirth12';
 import PlaceAutocomplete from '../../components/kundli/PlaceAutocomplete';
 import KundliSettings from './KundliSettings';
 import {
@@ -56,7 +57,7 @@ const PLACE_CLASSES = {
 function customerOf(k) {
   return {
     name: k.birth?.name || k.userId?.name || '—',
-    email: k.userId?.email || k.email || '',
+    email: k.userId?.phone || k.userId?.email || k.email || '',
   };
 }
 
@@ -338,9 +339,9 @@ function BirthForm({ kundli, working, canGenerate }) {
           <Field label="Date of birth" required>
             <Input type="date" value={form.dob} onChange={setField('dob')} />
           </Field>
-          <Field label="Time of birth" hint={form.tobUnknown ? '12:00 noon is used.' : undefined}>
+          <Field label="Time of birth" hint={form.tobUnknown ? '12:00 PM (noon) is used.' : form.tob ? formatTime12(form.tob) : undefined}>
             <div className="space-y-2">
-              <Input type="time" value={form.tob} onChange={setField('tob')} disabled={form.tobUnknown} />
+              <TimeOfBirth12 value={form.tob} onChange={(tob) => setForm((f) => ({ ...f, tob }))} disabled={form.tobUnknown} className="flex items-center gap-2" selectClassName={`${inputBase} h-9`} />
               <Checkbox checked={form.tobUnknown} onChange={(v) => setForm((f) => ({ ...f, tobUnknown: v }))} label="Birth time unknown" />
             </div>
           </Field>

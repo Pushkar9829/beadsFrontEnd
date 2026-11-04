@@ -15,7 +15,9 @@ import {
   planetRows,
   safePdfUrl,
   svgDataUrl,
+  formatTime12,
 } from '../../lib/kundli';
+import TimeOfBirth12 from '../kundli/TimeOfBirth12';
 import Spinner from '../ui/Spinner';
 import PlaceAutocomplete from '../kundli/PlaceAutocomplete';
 
@@ -250,7 +252,7 @@ function KundliFailed({ kundli, onEdit, onRetried }) {
       </p>
       {kundli.birth && (
         <p className="acct-muted">
-          Birth details: <strong className="kd-gold">{kundli.birth.name}</strong> · {kundli.birth.dob} · {kundli.birth.tobUnknown ? 'time unknown' : kundli.birth.tob} ·{' '}
+          Birth details: <strong className="kd-gold">{kundli.birth.name}</strong> · {kundli.birth.dob} · {kundli.birth.tobUnknown ? 'time unknown' : formatTime12(kundli.birth.tob)} ·{' '}
           {kundli.birth.place}
         </p>
       )}
@@ -298,7 +300,7 @@ function KundliReady({ data, onEdit }) {
             <span className="kd-eyebrow">Natal planetary harmony</span>
             <h3 className="acct-panel-t kd-title">{b.name ? `${b.name}’s Vedic Kundli` : 'Your Vedic Kundli'}</h3>
             <p className="acct-muted kd-born">
-              {b.dob} · {b.tobUnknown ? 'birth time unknown (12:00 used)' : b.tob} · {b.place}
+              {b.dob} · {b.tobUnknown ? 'birth time unknown (12:00 PM used)' : formatTime12(b.tob)} · {b.place}
             </p>
           </div>
           <div className="kd-head-acts">
@@ -546,7 +548,7 @@ function KundliForm({ birth, onSaved, onCancel, submitLabel }) {
         </div>
         <div>
           <label className="acct-label" htmlFor="kd-tob">Time of birth</label>
-          <input id="kd-tob" type="time" className="acct-input kd-date" value={form.tob} onChange={set('tob')} disabled={form.tobUnknown} />
+          <TimeOfBirth12 id="kd-tob" value={form.tob} onChange={(tob) => setForm((f) => ({ ...f, tob }))} disabled={form.tobUnknown} className="tob12-acct" selectClassName="acct-input" />
           <label className="acct-check kd-check">
             <input type="checkbox" checked={form.tobUnknown} onChange={set('tobUnknown')} />
             I don&apos;t know my birth time

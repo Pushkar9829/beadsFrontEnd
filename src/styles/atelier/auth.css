@@ -545,3 +545,11 @@ a.auth-switch {
   text-decoration: underline;
   cursor: pointer;
 }
+/* Standalone WhatsApp form (the only sign-in / sign-up form now). */
+.nx.auth-split-layout .auth-wa.is-standalone {
+  margin-top: 4px;
+  gap: 14px;
+}
+.nx.auth-split-layout .auth-wa.is-standalone .auth-foot {
+  margin-top: 6px;
+}

@@ -39,10 +39,10 @@ export default function Customers() {
       header: 'Customer',
       render: (c) => (
         <div className="flex min-w-0 items-center gap-3">
-          <Avatar name={c.name || c.email} size={30} />
+          <Avatar name={c.name || c.phone || c.email} size={30} />
           <div className="min-w-0">
             <p className="truncate font-medium">{c.name || 'Unnamed'}</p>
-            <p className="truncate text-xs text-lilac">{c.email}</p>
+            <p className="truncate text-xs text-lilac">{c.phone || c.email}</p>
           </div>
         </div>
       ),

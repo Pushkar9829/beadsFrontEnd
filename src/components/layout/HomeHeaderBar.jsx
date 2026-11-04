@@ -245,9 +245,7 @@ export default function HomeHeaderBar({
                       <Link to="/register" className="at-dd-link" onClick={close}>
                         {labels.accountRegister || 'Create account'}
                       </Link>
-                      <Link to="/login" className="at-dd-link is-muted" onClick={close}>
-                        {labels.accountForgot || 'Forgot password?'}
-                      </Link>
+                      {/* No passwords any more (WhatsApp code sign-in), so no "Forgot password?" link. */}
                     </>
                   )}
                 </div>

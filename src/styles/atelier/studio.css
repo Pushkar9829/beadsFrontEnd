@@ -1449,3 +1449,40 @@
     padding: 10px 8px;
   }
 }
+
+/* Requested: wider, shorter cream cards in the studio (purpose and layer cards). One column fewer at each
+   width makes them wider; no fixed 260px height and a smaller round image make them shorter. */
+.sb-cards {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.sb-page .sb-card {
+  min-height: 0;
+  padding: 14px 14px 16px;
+}
+.sb-card-art {
+  width: 78px;
+  height: 78px;
+  margin: 2px auto 10px;
+  font-size: 34px;
+}
+.sb-card-n {
+  margin-bottom: 2px;
+}
+.sb-card-p {
+  margin-top: 4px;
+}
+@media (max-width: 1200px) {
+  .sb-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 767px) {
+  .sb-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .sb-card-art {
+    width: 68px;
+    height: 68px;
+  }
+}

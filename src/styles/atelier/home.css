@@ -1845,3 +1845,26 @@
 .kundali-modal-error {
   color: #F0A3A3;
 }
+
+/* Requested: the home page uses the same electric purple background as the customization studio
+   (studio.css ".nx.sb-page"). The page carries the glow, pinned to the viewport; the dark sections become
+   see-through so it shows behind them. Cream sections (featured, oracle finder) and framed cards (Kundali
+   banner, flash image plates) keep their own backgrounds. */
+.homepage-root {
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -10%, rgba(191, 0, 255, 0.35), transparent 75%),
+    radial-gradient(circle 600px at 85% 30%, rgba(160, 0, 255, 0.22), transparent),
+    radial-gradient(circle 500px at 10% 65%, rgba(191, 0, 255, 0.16), transparent),
+    linear-gradient(180deg, #3A0062 0%, #2E0052 45%, #250045 100%);
+  background-attachment: fixed;
+}
+.homepage-root .hero-section,
+.homepage-root .section-houses,
+.homepage-root .section-flash,
+.homepage-root .section-kundali-offer,
+.homepage-root .section-rudraksha,
+.homepage-root .section-reviews,
+.homepage-root .section-promises,
+.homepage-root .section-newsletter {
+  background: transparent;
+}

@@ -46,8 +46,8 @@ export default function AbandonedCarts() {
       render: (c) =>
         c.user ? (
           <div className="min-w-0 max-w-[14rem]">
-            <p className="truncate">{c.user.name || c.user.email}</p>
-            <p className="truncate text-xs text-lilac">{c.user.email}</p>
+            <p className="truncate">{c.user.name || c.user.phone || c.user.email}</p>
+            <p className="truncate text-xs text-lilac">{c.user.phone || c.user.email}</p>
           </div>
         ) : (
           <span className="text-lilac">Unknown customer</span>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ExternalLink, KeyRound, Pencil, ShieldCheck, UserPlus, Users as UsersIcon } from 'lucide-react';
+import { ExternalLink, Pencil, ShieldCheck, UserPlus, Users as UsersIcon } from 'lucide-react';
 import { apiSend, useApiList, useApiMutation } from '../lib/query';
 import { useUrlState } from '../lib/urlState';
 import { date, dateTime, relative } from '../lib/format';
@@ -11,7 +11,6 @@ import {
   Button,
   Card,
   DataTable,
-  Divider,
   Drawer,
   EmptyState,
   Field,
@@ -29,7 +28,6 @@ import {
   useConfirm,
   useForm,
 } from '../ui';
-import { PasswordInput, passwordError } from './people/shared';
 
 const BASE = '/admin/users';
 const INVALIDATE = [BASE, '/admin/customers'];
@@ -67,13 +65,13 @@ export default function Users() {
       header: 'Person',
       render: (u) => (
         <div className="flex min-w-0 items-center gap-3">
-          <Avatar name={u.name || u.email} size={30} />
+          <Avatar name={u.name || u.phone} size={30} />
           <div className="min-w-0">
             <p className="truncate font-medium">
               {u.name || 'Unnamed'}
               {String(u._id) === me && <span className="ml-1.5 text-xs font-normal text-lilac">(you)</span>}
             </p>
-            <p className="truncate text-xs text-lilac">{u.email}</p>
+            <p className="truncate text-xs text-lilac">{u.phone || u.email || 'No number'}</p>
           </div>
         </div>
       ),
@@ -118,12 +116,12 @@ export default function Users() {
       {!isAdmin && (
         <Card className="mb-4 flex items-start gap-3 py-3">
           <ShieldCheck size={16} className="mt-0.5 shrink-0 text-gold" />
-          <p className="text-sm text-lilac">You can update names and phone numbers. Only admins can add people, change roles, disable accounts or reset passwords.</p>
+          <p className="text-sm text-lilac">You can update names. Only admins can add people, change sign-in numbers or roles, and disable accounts.</p>
         </Card>
       )}
       <Segmented className="mb-3 w-fit" items={FILTERS} value={state.role} onChange={(role) => set({ role })} />
       <Toolbar>
-        <SearchInput value={state.q} onChange={(q) => set({ q })} placeholder="Name or email…" />
+        <SearchInput value={state.q} onChange={(q) => set({ q })} placeholder="Name or number…" />
       </Toolbar>
       <DataTable
         columns={columns}
@@ -157,16 +155,16 @@ export default function Users() {
 }
 
 function CreateDrawer({ open, onClose }) {
-  const form = useForm({ name: '', email: '', role: 'staff', password: '' });
+  const form = useForm({ name: '', phone: '', role: 'staff' });
   const create = useApiMutation((body) => apiSend('post', BASE, body), {
     invalidate: [BASE],
-    success: 'Team member added. Share the password with them securely.',
+    success: 'Team member added. They sign in with a WhatsApp code sent to this number.',
     onSuccess: () => {
       form.reset();
       onClose();
     },
     onError: (info) => {
-      if (info.status === 409) form.setErrors({ email: info.message });
+      if (info.status === 409 || info.status === 400) form.setErrors({ phone: info.message });
       else form.setServerErrors(info.fields);
     },
   });
@@ -175,11 +173,9 @@ function CreateDrawer({ open, onClose }) {
     const v = form.values;
     const errors = {};
     if (!v.name.trim()) errors.name = 'Name is required.';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.email.trim())) errors.email = 'Enter a valid email.';
-    const pw = passwordError(v.password);
-    if (pw) errors.password = pw;
+    if (v.phone.replace(/\D/g, '').length < 10) errors.phone = 'Enter their WhatsApp number, e.g. +91 98xxxxxxxx.';
     if (Object.keys(errors).length) return form.setErrors(errors);
-    create.mutate({ name: v.name.trim(), email: v.email.trim().toLowerCase(), role: v.role, password: v.password });
+    create.mutate({ name: v.name.trim(), phone: v.phone.trim(), role: v.role });
   };
   return (
     <Drawer
@@ -188,7 +184,7 @@ function CreateDrawer({ open, onClose }) {
       dirty={form.dirty}
       width="sm"
       title="Add team member"
-      description="They sign in at the normal login page with this email and password."
+      description="They sign in on the normal Sign in page with a WhatsApp code sent to this number. No password."
       footer={
         <>
           <Button variant="ghost" data-dismiss onClick={onClose}>
@@ -200,18 +196,15 @@ function CreateDrawer({ open, onClose }) {
         </>
       }
     >
-      <form id="create-user-form" onSubmit={submit} className="space-y-5" autoComplete="off">
+      <form id="create-user-form" onSubmit={submit} className="space-y-5" autoComplete="off" noValidate>
         <Field label="Name" required error={form.errors.name}>
           {({ id }) => <Input id={id} {...form.bind('name')} autoFocus />}
         </Field>
-        <Field label="Email" required error={form.errors.email}>
-          {({ id }) => <Input id={id} type="email" autoComplete="off" {...form.bind('email')} />}
+        <Field label="WhatsApp number" required error={form.errors.phone} hint="Country code first for numbers outside India.">
+          {({ id }) => <Input id={id} type="tel" inputMode="tel" placeholder="+91 98xxxxxxxx" autoComplete="off" {...form.bind('phone')} />}
         </Field>
         <Field label="Role" hint={ROLE_HELP[form.values.role]}>
           {({ id }) => <Select id={id} options={STAFF_ROLES.map((r) => ({ value: r, label: ROLE_LABELS[r] }))} {...form.bind('role')} />}
-        </Field>
-        <Field label="Password" required error={form.errors.password} hint="At least 12 characters. Use the dice to generate one, then copy it.">
-          {({ id }) => <PasswordInput id={id} value={form.values.password} onChange={(v) => form.set('password', v)} invalid={Boolean(form.errors.password)} />}
         </Field>
       </form>
     </Drawer>
@@ -232,7 +225,7 @@ function EditDrawer({ target, me, isAdmin, onClose }) {
       form.reset();
       onClose();
     },
-    onError: (info) => form.setServerErrors(info.fields),
+    onError: (info) => (info.message && /number/i.test(info.message) ? form.setErrors({ phone: info.message }) : form.setServerErrors(info.fields)),
   });
 
   const submit = async (e) => {
@@ -256,7 +249,7 @@ function EditDrawer({ target, me, isAdmin, onClose }) {
       if (body.isActive === true) lines.push('They will be able to sign in again.');
       lines.push('They are signed out everywhere and must sign in again.');
       const ok = await confirm({
-        title: `Change access for ${target.name || target.email}?`,
+        title: `Change access for ${target.name || target.phone}?`,
         message: lines.join(' '),
         confirmLabel: 'Change access',
         tone: body.isActive === false || (body.role && STAFF_ROLES.includes(initial.role) && body.role === 'customer') ? 'danger' : undefined,
@@ -271,8 +264,8 @@ function EditDrawer({ target, me, isAdmin, onClose }) {
       open={Boolean(target)}
       onClose={onClose}
       dirty={form.dirty}
-      title={target ? target.name || target.email : 'User'}
-      description={target?.email}
+      title={target ? target.name || target.phone : 'User'}
+      description={target?.phone ? `Signs in with WhatsApp ${target.phone}` : 'No WhatsApp number yet: cannot sign in'}
       footer={
         <>
           <Button variant="ghost" data-dismiss onClick={onClose}>
@@ -300,8 +293,8 @@ function EditDrawer({ target, me, isAdmin, onClose }) {
                 <Field label="Name" required error={form.errors.name}>
                   {({ id }) => <Input id={id} {...form.bind('name')} disabled={!canEditBasics} />}
                 </Field>
-                <Field label="Phone" error={form.errors.phone}>
-                  {({ id }) => <Input id={id} type="tel" {...form.bind('phone')} disabled={!canEditBasics} />}
+                <Field label="WhatsApp number (sign-in)" error={form.errors.phone} hint={isAdmin ? 'Changing it moves who can sign in to this account.' : 'Only admins can change it.'}>
+                  {({ id }) => <Input id={id} type="tel" {...form.bind('phone')} disabled={!isAdmin} />}
                 </Field>
               </FormGrid>
             </FormSection>
@@ -324,65 +317,9 @@ function EditDrawer({ target, me, isAdmin, onClose }) {
             )}
           </form>
 
-          {isAdmin && (
-            <>
-              <Divider />
-              <ResetPassword target={target} isSelf={isSelf} />
-            </>
-          )}
-          {!isAdmin && <p className="text-xs text-lilac">Only admins can change roles, account status or passwords.</p>}
+          {!isAdmin && <p className="text-xs text-lilac">Only admins can change sign-in numbers, roles or account status.</p>}
         </div>
       )}
     </Drawer>
-  );
-}
-
-function ResetPassword({ target, isSelf }) {
-  const confirm = useConfirm();
-  const [open, setOpen] = useState(false);
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
-  const reset = useApiMutation((pw) => apiSend('post', `${BASE}/${target._id}/password`, { password: pw }), {
-    invalidate: [BASE],
-    success: 'Password reset. Share the new password securely.',
-    onSuccess: () => {
-      setPassword('');
-      setOpen(false);
-    },
-  });
-  const submit = async () => {
-    const err = passwordError(password);
-    setError(err);
-    if (err) return;
-    const ok = await confirm({
-      title: `Reset password for ${target.name || target.email}?`,
-      message: isSelf ? 'You will be signed out everywhere, including here.' : 'They are signed out everywhere and must use the new password.',
-      confirmLabel: 'Reset password',
-      tone: 'danger',
-    });
-    if (ok) reset.mutate(password);
-  };
-  return (
-    <FormSection title="Password" description="Set a new password if someone is locked out. There is no email reset from here.">
-      {!open ? (
-        <Button icon={KeyRound} onClick={() => setOpen(true)}>
-          Set a new password
-        </Button>
-      ) : (
-        <div className="space-y-3">
-          <Field label="New password" error={error} hint="At least 12 characters.">
-            {({ id }) => <PasswordInput id={id} value={password} onChange={(v) => { setPassword(v); setError(null); }} invalid={Boolean(error)} />}
-          </Field>
-          <div className="flex gap-2">
-            <Button variant="danger" loading={reset.isPending} onClick={submit}>
-              Reset password
-            </Button>
-            <Button variant="ghost" onClick={() => { setOpen(false); setPassword(''); setError(null); }}>
-              Cancel
-            </Button>
-          </div>
-        </div>
-      )}
-    </FormSection>
   );
 }

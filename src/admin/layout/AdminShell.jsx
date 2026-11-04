@@ -270,9 +270,9 @@ function UserMenu() {
   return (
     <div className="relative">
       <button type="button" onClick={() => setOpen((o) => !o)} className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-white/[0.05]" aria-label="Account menu">
-        <Avatar name={user?.name || user?.email} size={28} />
+        <Avatar name={user?.name || user?.phone} size={28} />
         <span className="hidden text-left leading-tight md:block">
-          <span className="block max-w-[10rem] truncate text-xs text-ivory">{user?.name || user?.email}</span>
+          <span className="block max-w-[10rem] truncate text-xs text-ivory">{user?.name || user?.phone}</span>
           <span className="block text-[10px] text-lilac">{ROLE_LABELS[user?.role] || user?.role}</span>
         </span>
       </button>
@@ -282,7 +282,7 @@ function UserMenu() {
           <div className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-xl border border-white/10 bg-raised py-1 admin-pop">
             <div className="border-b border-white/[0.08] px-3 py-2.5">
               <p className="truncate text-sm text-ivory">{user?.name}</p>
-              <p className="truncate text-xs text-lilac">{user?.email}</p>
+              <p className="truncate text-xs text-lilac">{user?.phone || user?.email}</p>
               <Badge tone="gold" className="mt-1.5">
                 {ROLE_LABELS[user?.role] || user?.role}
               </Badge>
