@@ -7,7 +7,7 @@ import { apiSend, errorInfo, useApiList, useApiMutation } from '../lib/query';
 import { useUrlState } from '../lib/urlState';
 import { Button, Card, EmptyState, ErrorState, FilterSelect, IconButton, PageHeader, Pagination, SearchInput, Select, Skeleton, Toolbar, cx } from '../ui';
 import { MediaDetailDrawer } from './content/MediaDetailDrawer';
-import { ACCEPT, FOLDERS, folderLabel, formatBytes, mediaKind, validateFile } from './content/mediaFiles';
+import { ACCEPT, FOLDERS, folderLabel, formatBytes, MAX_IMAGE_MB, MAX_VIDEO_MB, mediaKind, validateFile } from './content/mediaFiles';
 
 const BASE = '/admin/media';
 const LIMIT = 40;
@@ -105,7 +105,7 @@ export default function Media() {
     >
       <PageHeader
         title="Media"
-        description="Every uploaded image and video. Images up to 15 MB (JPEG, PNG, WebP, GIF, AVIF), videos up to 40 MB (MP4, WebM, MOV)."
+        description={`Every uploaded image and video. Images up to ${MAX_IMAGE_MB} MB (JPEG, PNG, WebP, GIF, AVIF), videos up to ${MAX_VIDEO_MB} MB (MP4, WebM, MOV).`}
         actions={
           <>
             <Select aria-label="Upload to folder" className="w-auto" value={uploadFolder} onChange={(e) => setUploadFolder(e.target.value)} options={folders.map((f) => ({ value: f.value, label: `Upload to: ${f.label}` }))} />

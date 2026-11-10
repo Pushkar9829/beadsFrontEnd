@@ -2,8 +2,10 @@
 export const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
 export const VIDEO_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
 export const ACCEPT = [...IMAGE_TYPES, ...VIDEO_TYPES].join(',');
-export const MAX_IMAGE = 15 * 1024 * 1024;
-export const MAX_VIDEO = 40 * 1024 * 1024;
+export const MAX_IMAGE_MB = 50;
+export const MAX_VIDEO_MB = 200;
+export const MAX_IMAGE = MAX_IMAGE_MB * 1024 * 1024;
+export const MAX_VIDEO = MAX_VIDEO_MB * 1024 * 1024;
 
 const BY_EXT = {
   jpg: 'image/jpeg',
@@ -56,8 +58,8 @@ export function isVideoType(type = '') {
 export function validateFile(file) {
   const type = fileType(file);
   if (type === 'image/svg+xml') return 'SVG files are not allowed. Use PNG or WebP.';
-  if (IMAGE_TYPES.includes(type)) return file.size > MAX_IMAGE ? `Too large (${formatBytes(file.size)}). Images can be up to 15 MB.` : null;
-  if (VIDEO_TYPES.includes(type)) return file.size > MAX_VIDEO ? `Too large (${formatBytes(file.size)}). Videos can be up to 40 MB.` : null;
+  if (IMAGE_TYPES.includes(type)) return file.size > MAX_IMAGE ? `Too large (${formatBytes(file.size)}). Images can be up to ${MAX_IMAGE_MB} MB.` : null;
+  if (VIDEO_TYPES.includes(type)) return file.size > MAX_VIDEO ? `Too large (${formatBytes(file.size)}). Videos can be up to ${MAX_VIDEO_MB} MB.` : null;
   return 'Unsupported file type. Use JPEG, PNG, WebP, GIF, AVIF, MP4, WebM or MOV.';
 }
 

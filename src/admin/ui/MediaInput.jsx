@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Image as ImageIcon, Library, Trash2, Upload } from 'lucide-react';
 import { mediaUrl } from '../../api/client';
 import { uploadAdminMedia } from '../../api/uploadMedia';
+import { validateFile } from '../pages/content/mediaFiles';
 import { toast } from '../../lib/adminToast';
 import { errorInfo, useApiList, useQueryClient } from '../lib/query';
 import { Button, EmptyState, IconButton, Skeleton, cx } from './primitives';
@@ -30,6 +31,8 @@ export function MediaInput({ id, value = '', onChange, folder = 'other', allowVi
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
+    const problem = validateFile(file);
+    if (problem) return toast(problem, 'error');
     setBusy(true);
     try {
       const media = await uploadAdminMedia(file, folder);

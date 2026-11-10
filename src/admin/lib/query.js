@@ -42,6 +42,9 @@ export function errorInfo(err) {
   const data = err?.response?.data || {};
   let message = data.message || err?.message || 'Something went wrong.';
   if (status === 0 && /network/i.test(message)) message = 'Cannot reach the server. Check your connection.';
+  if (status === 413 && !data.message) {
+    message = 'The server in front of the API rejected this upload. On the EC2 nginx config, set client_max_body_size 220m and reload nginx.';
+  }
   if (status === 403 && !data.message) message = 'You do not have permission to do this.';
   const fields = data.errors && typeof data.errors === 'object' && !Array.isArray(data.errors) ? data.errors : null;
   return { status, message, fields, data };

@@ -40,7 +40,7 @@ api.interceptors.request.use((config) => {
       delete config.headers['Content-Type'];
       delete config.headers['content-type'];
     }
-    config.timeout = config.timeout || 120000;
+    config.timeout = config.timeout ?? 15 * 60 * 1000;
   }
   return config;
 });
