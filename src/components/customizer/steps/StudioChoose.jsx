@@ -23,7 +23,7 @@ function SignCard({ item, index, on, onClick }) {
         </span>
       )}
       <span className="sb-card-n">{String(index + 1).padStart(2, '0')}</span>
-      <span className="sb-sign" aria-hidden>
+      <span className="sb-card-art" aria-hidden>
         {item.image ? <img src={mediaUrl(item.image)} alt="" /> : initial}
       </span>
       <span className="sb-card-t">{item.name}</span>
